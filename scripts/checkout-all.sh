@@ -25,17 +25,23 @@ if [ "$1" == "" ]; then
 fi
 
 branchName=$1
-source ${BASH_SOURCE%/*}/utils/file-tools.sh
+source ${BASH_SOURCE%/*}/utils/git-tools.sh
 
-directories=$(listGitFolders)
-directories=(${directories//,/ })
+gitModules=$(gitMapSubmodules)
+directories=(${gitModules//,/ })
 
 for folderName in "${directories[@]}"; do
-    cd ${folderName}
-    folderName=`echo ${folderName} | sed -E 's/\///'`
+    pushd ${folderName}
+        folderName=`echo ${folderName} | sed -E 's/\///'`
+        if [ ! -e ".git" ]; then
+            popd
+            echo "Seems like this is not a git folder"
+            continue
+        fi
 
-    echo "---- Checking out: ${folderName} to branch ${branchName}"
-    git checkout ${branchName}
-    cd ..
+
+        echo "---- Checking out: ${folderName} to branch ${branchName}"
+        git checkout ${branchName}
+    popd
 done
 

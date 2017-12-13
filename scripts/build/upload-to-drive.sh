@@ -18,9 +18,9 @@
 #  limitations under the License.
 
 #!/bin/bash
-source "./dev-tools/scripts/utils/error-handling.sh"
-source "./dev-tools/scripts/utils/drive-tools.sh"
-source "./dev-tools/scripts/utils/log-tools.sh"
+source ${BASH_SOURCE%/*}/../utils/error-handling.sh
+source ${BASH_SOURCE%/*}/../utils/drive-tools.sh
+source ${BASH_SOURCE%/*}/../utils/log-tools.sh
 
 folderName=$1
 fileName=$2

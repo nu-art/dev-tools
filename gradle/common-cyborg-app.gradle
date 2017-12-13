@@ -18,46 +18,48 @@
  * limitations under the License.
  */
 
-android {
-    apply from: '../dev-tools/gradle/utils.gradle'
+void applyConfigAndroidApp(pathToVersionFile) {
+    android {
+        apply from: '../dev-tools/gradle/utils.gradle'
 
-    compileSdkVersion 23
-    buildToolsVersion "${TOOLS_VERSION}"
+        compileSdkVersion 23
+        buildToolsVersion "${TOOLS_VERSION}"
 
-    defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion TARGET_SDK
-        versionName getVersionNameFromFile("../version")
-        project.version = versionName
-    }
-
-    lintOptions {
-        checkReleaseBuilds false
-        abortOnError false
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
-    }
-
-    signingConfigs {
-        debug {
-            storeFile file("../dev-tools/certificates/debug.keystore")
+        defaultConfig {
+            minSdkVersion 14
+            targetSdkVersion TARGET_SDK
+            versionName getVersionNameFromFile(pathToVersionFile)
+            project.version = versionName
         }
-    }
 
-    dexOptions {
-        javaMaxHeapSize "4g"
-    }
-
-    buildTypes {
-        debug {
-            signingConfig signingConfigs.debug
+        lintOptions {
+            checkReleaseBuilds false
+            abortOnError false
         }
-    }
 
-    defineDefaultVariants()
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_7
+            targetCompatibility JavaVersion.VERSION_1_7
+        }
+
+        signingConfigs {
+            debug {
+                storeFile file("../dev-tools/certificates/debug.keystore")
+            }
+        }
+
+        dexOptions {
+            javaMaxHeapSize "4g"
+        }
+
+        buildTypes {
+            debug {
+                signingConfig signingConfigs.debug
+            }
+        }
+
+        defineDefaultVariants()
+    }
 }
 
 void defineDefaultVariants(String appName) {
@@ -75,6 +77,7 @@ void defineVariants(Closure nameBuild) {
 }
 
 ext {
+    applyConfigAndroidApp = this.&applyConfigAndroidApp
     defineDefaultVariants = this.&defineDefaultVariants
     defineVariants = this.&defineVariants
 }

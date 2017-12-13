@@ -1,0 +1,65 @@
+/*
+ * This file is a part of nu-art projects development tools,
+ * it has a set of bash and gradle scripts, and the default
+ * settings for Android Studio and IntelliJ.
+ *
+ * Copyright (C) 2017  Adam van der Kruk aka TacB0sS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+apply from: "../dev-tools/gradle/utils.gradle"
+
+def setAAR_OutputBuildVrient() {
+    android.libraryVariants.all { variant ->
+        variant.outputs.each { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.aar')) {
+                def fileName = "${archivesBaseName}-v${version}.aar"
+                output.outputFile = new File(outputFile.parent, fileName)
+            }
+        }
+    }
+    return "versionCode\\s*(\\d+)"
+}
+
+def addJavadocTask() {
+    android.libraryVariants.all { variant ->
+        task("generate${variant.name}Javadoc", type: Javadoc) {
+            title = "Documentation for Android $android.defaultConfig.versionName b$android.defaultConfig.versionCode"
+            description "Generates Javadoc for $variant.name."
+
+            destinationDir = new File("${project.getProjectDir()}/build/doc/compiled/", variant.baseName)
+            source = variant.javaCompile.source
+            classpath = files(variant.javaCompile.classpath.files, project.android.getBootClasspath())
+
+            options {
+                links "http://docs.oracle.com/javase/7/docs/api/"
+                linksOffline "http://d.android.com/reference", "${android.sdkDirectory}/docs/reference"
+            }
+        }
+
+        task("package${variant.name.capitalize()}Javadoc", type: Jar, dependsOn: "generate${variant.name}Javadoc") {
+            description "Bundles Javadoc into zip for $variant.name."
+            classifier = "javadoc"
+            destinationDir = new File("${project.getProjectDir()}/build/doc/")
+            from tasks["generate${variant.name}Javadoc"]
+        }
+    }
+
+}
+
+ext {
+    setAAR_OutputBuildVrient = this.&setAAR_OutputBuildVrient
+    addJavadocTask = this.&addJavadocTask
+}

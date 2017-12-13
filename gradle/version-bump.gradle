@@ -1,0 +1,106 @@
+/*
+ * This file is a part of nu-art projects development tools,
+ * it has a set of bash and gradle scripts, and the default
+ * settings for Android Studio and IntelliJ.
+ *
+ * Copyright (C) 2017  Adam van der Kruk aka TacB0sS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+import java.util.regex.Pattern
+
+def getVersionCodePattern() {
+    return "versionCode\\s*(\\d+)"
+}
+
+def getVersionNamePattern() {
+    return "versionName\\s*\"(.*?)\""
+}
+
+def getVersionNameFromFile() {
+    getVersionNameFromFile(null);
+}
+
+def getVersionNameFromFile(String pathToFile) {
+    if (pathToFile == null)
+        pathToFile = pathToVersionFile;
+
+    String versionNameFound = getPattern(pathToFile, getVersionNamePattern())
+    return versionNameFound
+}
+
+def getVersionCodeFromFile() {
+    getVersionCodeFromFile(null);
+}
+
+def getVersionCodeFromFile(String pathToFile) {
+    if (pathToFile == null)
+        pathToFile = pathToVersionFile;
+
+    def versionCode = Integer.parseInt(getPattern(pathToFile, getVersionCodePattern()))
+    return versionCode
+}
+
+def getPattern(fileName, regexp) {
+    def file = file(fileName)
+    def versionCodePattern = Pattern.compile(regexp)
+    def fileContent = file.getText()
+    def matcher = versionCodePattern.matcher(fileContent)
+    matcher.find()
+
+    return matcher.group(1)
+}
+
+def incrementVersionName(int length, int index) {
+    String originalVersion = getVersionNameFromFile()
+    def originalVersionArray = originalVersion.split("\\.")
+    def versionKeys = [0, 0, 0, 0]
+    for (int i = 0; i < originalVersionArray.length; i++) {
+        versionKeys[i] = Integer.parseInt(originalVersionArray[i])
+    }
+    def finalVersion = ""
+    versionKeys[index]++;
+    for (int i = 0; i < length; i++) {
+        finalVersion += (i > index ? "0" : "" + versionKeys[i])
+        if (i < length - 1)
+            finalVersion += "."
+    }
+
+    println("Incrementing Version Name: " + originalVersion + " ==> " + finalVersion)
+
+    updateVersionFile(pathToVersionFile, getVersionNamePattern(), "versionName \"" + finalVersion + "\"");
+}
+
+def incrementVersionCode() {
+    def originalVersionCode = getVersionCodeFromFile()
+    def finalVersionCode = originalVersionCode + 1;
+    println("Incrementing Version Code: " + originalVersionCode + " ==> " + finalVersionCode)
+
+    updateVersionFile(pathToVersionFile, getVersionCodePattern(), "versionCode " + finalVersionCode)
+}
+
+def updateVersionFile(fileName, pattern, replacement) {
+    def file = file(fileName)
+    def fileContent = file.getText()
+
+    def newFileContent = fileContent.replaceAll(pattern, replacement)
+    file.write(newFileContent)
+}
+
+ext {
+    getVersionNameFromFile = this.&getVersionNameFromFile
+    getVersionCodeFromFile = this.&getVersionCodeFromFile
+    incrementVersionName = this.&incrementVersionName
+}

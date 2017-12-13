@@ -1,0 +1,142 @@
+/*
+ * This file is a part of nu-art projects development tools,
+ * it has a set of bash and gradle scripts, and the default
+ * settings for Android Studio and IntelliJ.
+ *
+ * Copyright (C) 2017  Adam van der Kruk aka TacB0sS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+def configureUploadJavaArtifact(groupId, repoUrl) {
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc
+    }
+
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
+    }
+
+    configureUploadArtifacts(groupId, repoUrl, 'jar')
+}
+
+def configureUploadAndroidLibArtifact(groupId, repoUrl) {
+    task javadoc(type: Javadoc) {
+        failOnError false
+        source = android.sourceSets.main.java.sourceFiles
+        classpath = files(project.files(android.getBootClasspath().join(File.pathSeparator)), project.android.getBootClasspath(), configurations.compile)
+
+        options {
+            links "http://docs.oracle.com/javase/7/docs/api/"
+            linksOffline "http://d.android.com/reference", "${android.sdkDirectory}/docs/reference"
+        }
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    task sourcesJar(type: Jar) {
+        from android.sourceSets.main.java.srcDirs
+        classifier "source"
+    }
+
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
+    }
+
+    configureUploadArtifacts(groupId, repoUrl, 'aar')
+}
+
+def configureUploadArtifacts(groupId, repoUrl, _packaging) {
+    def gpgKeyId = System.getenv('GPG_KEY_ID')
+    def gpgPassword = System.getenv('GPG_KEY_PASSWORD')
+    def gpgFile = System.getenv('PATH_TO_GPG_FILE')
+
+    project.group = groupId;
+    project.archivesBaseName = name
+    project.version = getVersionNameFromFile()
+
+    ext."signing.keyId" = gpgKeyId
+    ext."signing.password" = gpgPassword
+    ext."signing.secretKeyRingFile" = gpgFile
+
+    uploadArchives {
+        apply plugin: 'maven'
+        apply plugin: 'signing'
+
+        signing {
+            sign configurations.archives
+        }
+
+        def userName = System.getenv('OSSRH_USER_NAME');
+        def password = System.getenv('OSSRH_PASSWORD');
+
+        repositories {
+            mavenDeployer {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: userName, password: password)
+                }
+
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                    authentication(userName: userName, password: password)
+                }
+
+                pom.project {
+                    name "${project.name}"
+                    packaging "${_packaging}"
+
+                    // optionally artifactId can be defined here
+                    description 'A collection of core tools I use'
+                    url "http://github.com/${repoUrl}"
+
+                    scm {
+                        connection "scm:git:git://github.com/${repoUrl}.git"
+                        developerConnection "scm:git:ssh://github.com/${repoUrl}.git"
+                        url "http://github.com/${repoUrl}/tree/master"
+                    }
+
+                    licenses {
+                        license {
+                            name 'The Apache License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'TacB0sS'
+                            name 'Adam van der Kruk'
+                            email 'adam.vdk@nu-art-software.com'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+ext.configureUploadArtifacts = this.&configureUploadArtifacts;
+ext.configureUploadJavaArtifact = this.&configureUploadJavaArtifact;
+ext.configureUploadAndroidLibArtifact = this.&configureUploadAndroidLibArtifact;

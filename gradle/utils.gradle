@@ -22,6 +22,12 @@ Object resolveDependency(String artifactId, String groupId, String version) {
     return new File("${artifactId}", "build.gradle").exists() ? project(":${artifactId}") : "${groupId}:${artifactId}:${version}"
 }
 
+void includeIfExists(String artifactId) {
+    if (new File("${artifactId}", "build.gradle").exists())
+        include ":${artifactId}"
+}
+
 ext {
     resolveDependency = this.&resolveDependency
+    includeIfExists = this.&includeIfExists
 }

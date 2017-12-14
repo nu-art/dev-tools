@@ -18,66 +18,44 @@
  * limitations under the License.
  */
 
-void applyConfigAndroidApp(pathToVersionFile) {
-    android {
-        apply from: '../dev-tools/gradle/utils.gradle'
+android {
+    apply from: '../dev-tools/gradle/utils.gradle'
 
-        compileSdkVersion 23
-        buildToolsVersion "${TOOLS_VERSION}"
+    compileSdkVersion 23
+    buildToolsVersion "${TOOLS_VERSION}"
 
-        defaultConfig {
-            minSdkVersion 14
-            targetSdkVersion TARGET_SDK
-            versionName getVersionNameFromFile(pathToVersionFile)
-            project.version = versionName
-        }
-
-        lintOptions {
-            checkReleaseBuilds false
-            abortOnError false
-        }
-
-        compileOptions {
-            sourceCompatibility JavaVersion.VERSION_1_7
-            targetCompatibility JavaVersion.VERSION_1_7
-        }
-
-        signingConfigs {
-            debug {
-                storeFile file("../dev-tools/certificates/debug.keystore")
-            }
-        }
-
-        dexOptions {
-            javaMaxHeapSize "4g"
-        }
-
-        buildTypes {
-            debug {
-                signingConfig signingConfigs.debug
-            }
-        }
-
-        defineDefaultVariants()
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion TARGET_SDK
+        versionName getVersionNameFromFile(pathToVersionFile)
+        project.version = versionName
     }
-}
 
-void defineDefaultVariants(String appName) {
-    defineVariants({ variant -> "v${variant.versionName}-(${variant.versionCode})-${variant.buildType.name == "release" ? "R" : "D"}--${appName}.apk" })
-}
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
 
-void defineVariants(Closure nameBuild) {
-    android {
-        applicationVariants.all { variant ->
-            variant.outputs.each { output ->
-                output.outputFile = new File((String) output.outputFile.parent, nameBuild(variant))
-            }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file("../dev-tools/certificates/debug.keystore")
         }
     }
-}
 
-ext {
-    applyConfigAndroidApp = this.&applyConfigAndroidApp
-    defineDefaultVariants = this.&defineDefaultVariants
-    defineVariants = this.&defineVariants
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    defineDefaultVariantsAPK()
 }

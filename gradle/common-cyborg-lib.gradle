@@ -17,47 +17,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-void applyConfigAndroidLib(pathToVersionFile) {
-    android {
-        apply from: '../dev-tools/gradle/utils.gradle'
 
-        compileSdkVersion 23
-        buildToolsVersion "${TOOLS_VERSION}"
+android {
+    apply from: '../dev-tools/gradle/utils.gradle'
 
-        lintOptions {
-            abortOnError false
-        }
+    compileSdkVersion 23
+    buildToolsVersion "${TOOLS_VERSION}"
 
-        compileOptions {
-            sourceCompatibility JavaVersion.VERSION_1_7
-            targetCompatibility JavaVersion.VERSION_1_7
-        }
-
-        defaultConfig {
-            minSdkVersion 14
-            targetSdkVersion TARGET_SDK
-            versionName getVersionNameFromFile(pathToVersionFile)
-            project.version = versionName
-        }
-
-        defineDefaultVariants()
+    lintOptions {
+        abortOnError false
     }
-}
 
-void defineDefaultVariants() {
-    defineVariant({ variant -> "${archivesBaseName}-v${version}.aar" })
-}
-
-void defineVariant(Closure nameBuild) {
-    android.libraryVariants.all { variant ->
-        variant.outputs.each { output ->
-            output.outputFile = new File((String) output.outputFile.parent, nameBuild(variant))
-        }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
-}
 
-ext {
-    applyConfigAndroidLib = this.&applyConfigAndroidLib
-    defineDefaultVariants = this.&defineDefaultVariants
-    defineVariants = this.&defineVariants
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion TARGET_SDK
+        versionName getVersionNameFromFile()
+        project.version = versionName
+    }
+
+    defineVariantsAAR()
 }

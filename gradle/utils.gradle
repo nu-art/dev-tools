@@ -27,7 +27,45 @@ void includeIfExists(String artifactId) {
         include ":${artifactId}"
 }
 
+void defineVariantsAAR() {
+    defineVariantsAAR({ variant -> "${archivesBaseName}-v${version}.aar" })
+}
+
+@SuppressWarnings("GrMethodMayBeStatic")
+void defineVariantsAAR(Closure nameBuild) {
+    android.libraryVariants.all { variant ->
+        variant.outputs.each { output ->
+            output.outputFile = new File((String) output.outputFile.parent, nameBuild(variant))
+        }
+    }
+}
+
+void defineDefaultVariantsAPK(String appName) {
+    defineVariantsAPK({ variant, output ->
+        def versionName = variant.versionName
+        def versionCode = "-(${variant.versionCode})"
+        def buildLetter = variant.buildType.name == "release" ? "-R" : "-D"
+        def flavor = variant.productFlavors.size() > 0 ? "-${variant.productFlavors[0].name}" : ""
+        def architecture = "-arch"// + output.getFilter(OutputFile.ABI)
+
+        "v${versionName}${versionCode}${buildLetter}${flavor}${architecture}--${appName}.apk"
+    })
+}
+
+void defineVariantsAPK(Closure nameBuild) {
+    android {
+        applicationVariants.all { variant ->
+            variant.outputs.each { output ->
+                output.outputFile = new File((String) output.outputFile.parent, nameBuild(variant, output))
+            }
+        }
+    }
+}
+
 ext {
+    defineDefaultVariantsAPK = this.&defineDefaultVariantsAPK
+    defineVariantsAPK = this.&defineVariantsAPK
+    defineVariantsAAR = this.&defineVariantsAAR
     resolveDependency = this.&resolveDependency
     includeIfExists = this.&includeIfExists
 }

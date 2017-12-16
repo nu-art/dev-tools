@@ -57,6 +57,7 @@ void defineVariantsAPK(Closure nameBuild) {
         applicationVariants.all { variant ->
             variant.outputs.each { output ->
                 output.outputFile = new File((String) output.outputFile.parent, nameBuild(variant, output))
+                output.packageApplication.outputFile = output.outputFile
             }
         }
     }

@@ -140,7 +140,7 @@ updateRepository() {
 
     for module in "${modules[@]}"; do
         pushd ${module} > /dev/null
-            gitCommitAndTagAndPush "${tag}" "${message}"
+            gitCommitAndTagAndPush "v${newVersionName}" "Jenkins Build - v${newVersionName}"
         popd > /dev/null
     done
 

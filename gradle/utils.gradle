@@ -66,13 +66,14 @@ void defineVariantsAAR(Closure nameBuild) {
     }
 }
 
-void defineDefaultVariantsAPK(String appName) {
+void defineDefaultVariantsAPK(Object filter, String appName) {
     defineVariantsAPK({ variant, output ->
         def versionName = variant.versionName
-        def versionCode = "-(${variant.versionCode})"
+        def versionCode = "-${variant.versionCode}"
         def buildLetter = variant.buildType.name == "release" ? "-R" : "-D"
         def flavor = variant.productFlavors.size() > 0 ? "-${variant.productFlavors[0].name}" : ""
-        def architecture = "-arch"// + output.getFilter(OutputFile.ABI)
+        def architecture = output.getFilter(filter)
+        architecture = (architecture != null ? "-" + architecture : "")
 
         "v${versionName}${versionCode}${buildLetter}${flavor}${architecture}--${appName}.apk"
     })

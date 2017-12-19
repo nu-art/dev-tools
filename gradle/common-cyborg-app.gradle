@@ -17,8 +17,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+apply plugin: 'com.android.application'
 
 android {
+
     apply from: '../dev-tools/gradle/utils.gradle'
 
     compileSdkVersion 23
@@ -28,9 +30,9 @@ android {
         minSdkVersion 14
         targetSdkVersion TARGET_SDK
         versionName getVersionNameFromFile(pathToVersionFile)
+        versionCode getVersionCodeFromFile(pathToVersionFile)
         project.version = versionName
     }
-
     lintOptions {
         checkReleaseBuilds false
         abortOnError false
@@ -56,6 +58,4 @@ android {
             signingConfig signingConfigs.debug
         }
     }
-
-    defineDefaultVariantsAPK()
 }

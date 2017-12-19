@@ -35,19 +35,30 @@ def getVersionNameFromFile() {
 
 def getVersionNameFromFile(String pathToFile) {
     if (pathToFile == null)
-        pathToFile = pathToVersionFile;
+        pathToFile = pathToVersionFile
+
+    if (pathToFile == null) {
+        println("NO PATH TO VERSION FILE... versionName == 1.0.0")
+        return "1.0.0"
+    }
 
     String versionNameFound = getPattern(pathToFile, getVersionNamePattern())
     return versionNameFound
 }
 
 def getVersionCodeFromFile() {
-    getVersionCodeFromFile(null);
+    getVersionCodeFromFile(null)
 }
 
 def getVersionCodeFromFile(String pathToFile) {
     if (pathToFile == null)
-        pathToFile = pathToVersionFile;
+        pathToFile = pathToVersionFile
+
+    if (pathToFile == null) {
+        println("NO PATH TO VERSION FILE... versionCode == 1")
+        return 1
+    }
+
 
     def versionCode = Integer.parseInt(getPattern(pathToFile, getVersionCodePattern()))
     return versionCode

@@ -23,11 +23,11 @@ android {
 
     apply from: '../dev-tools/gradle/utils.gradle'
 
-    compileSdkVersion 23
-    buildToolsVersion "${TOOLS_VERSION}"
+    compileSdkVersion COMPILE_SDK
+    buildToolsVersion TOOLS_VERSION
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion MIN_SDK
         targetSdkVersion TARGET_SDK
         versionName getVersionNameFromFile(pathToVersionFile)
         versionCode getVersionCodeFromFile(pathToVersionFile)

@@ -38,11 +38,20 @@ def getVersionNameFromFile(String pathToFile) {
         pathToFile = pathToVersionFile
 
     if (pathToFile == null) {
-        println("NO PATH TO VERSION FILE... versionName == 1.0.0")
+        println("---------------------------------------------------------")
+        println("---- NO PATH TO VERSION FILE... versionName == 1.0.0 ----")
+        println("---------------------------------------------------------")
         return "1.0.0"
     }
 
-    String versionNameFound = getPattern(pathToFile, getVersionNamePattern())
+    def file = file(pathToFile)
+    if (!file.exists()) {
+        println("VERSION FILE DOES NOT EXISTS: ${file.getAbsolutePath()} versionName == 1.0.0")
+        return "1.0.0"
+    }
+
+
+    String versionNameFound = getPattern(file, getVersionNamePattern())
     return versionNameFound
 }
 
@@ -55,17 +64,23 @@ def getVersionCodeFromFile(String pathToFile) {
         pathToFile = pathToVersionFile
 
     if (pathToFile == null) {
-        println("NO PATH TO VERSION FILE... versionCode == 1")
+        println("-----------------------------------------------------")
+        println("---- NO PATH TO VERSION FILE... versionCode == 1 ----")
+        println("-----------------------------------------------------")
         return 1
     }
 
+    def file = file(pathToFile)
+    if (!file.exists()) {
+        println("VERSION FILE DOES NOT EXISTS: ${file.getAbsolutePath()} versionCode == 1")
+        return 1
+    }
 
-    def versionCode = Integer.parseInt(getPattern(pathToFile, getVersionCodePattern()))
+    def versionCode = Integer.parseInt(getPattern(file, getVersionCodePattern()))
     return versionCode
 }
 
-def getPattern(fileName, regexp) {
-    def file = file(fileName)
+def getPattern(file, regexp) {
     def versionCodePattern = Pattern.compile(regexp)
     def fileContent = file.getText()
     def matcher = versionCodePattern.matcher(fileContent)

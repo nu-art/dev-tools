@@ -62,6 +62,9 @@ addRepositories() {
 }
 
 installArtifacts() {
-    echo ${ANDROID_HOME}/tools/bin/sdkmanager ${artifactsIds}
-    echo "y " | ${ANDROID_HOME}/tools/bin/sdkmanager ${artifactsIds}
+    for artifactsId in "${artifactsIds[@]}"; do
+        echo ${ANDROID_HOME}/tools/bin/sdkmanager "${artifactsId}"
+        echo "y " | ${ANDROID_HOME}/tools/bin/sdkmanager "${artifactsId}"
+    done
+
 }

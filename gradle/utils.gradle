@@ -66,24 +66,26 @@ void defineVariantsAAR(Closure nameBuild) {
     }
 }
 
-void defineDefaultVariantsAPK(Object filter, String appName) {
-    defineVariantsAPK({ variant, output ->
-        def versionName = variant.versionName
-        def versionCode = "-${variant.versionCode}"
-        def buildLetter = variant.buildType.name == "release" ? "-R" : "-D"
-        def flavor = variant.productFlavors.size() > 0 ? "-${variant.productFlavors[0].name}" : ""
-        def architecture = output.getFilter(filter)
-        architecture = (architecture != null ? "-" + architecture : "")
-
-        "v${versionName}${versionCode}${buildLetter}${flavor}${architecture}--${appName}.apk"
+void defineDefaultVariantsAPK(Object architectureFilter, String appName) {
+    defineVariantsAPK(architectureFilter, { variant, output, versionName, versionCode, buildType, flavors, architecture ->
+        def flavor = flavors.size() > 0 ? "-${flavors[0].name}" : ""
+        def arch = architecture ? "-${architecture}" : ""
+        def buildLetter = buildType.toUpperCase().charAt(0)
+        "v${versionName}-${versionCode}-${buildLetter}${flavor}${arch}--${appName}.apk"
     })
 }
 
-void defineVariantsAPK(Closure nameBuild) {
+void defineVariantsAPK(Object architectureFilter, Closure nameBuild) {
     android {
         applicationVariants.all { variant ->
             variant.outputs.each { output ->
-                output.outputFile = new File((String) output.outputFile.parent, nameBuild(variant, output))
+                String versionName = variant.versionName
+                String versionCode = "${variant.versionCode}"
+                String architecture = output.getFilter(architectureFilter)
+                architecture = (architecture != null ? architecture : "")
+
+                String fileName = nameBuild(variant, output, versionName, versionCode, variant.buildType.name, variant.productFlavors, architecture)
+                output.outputFile = new File((String) output.outputFile.parent, fileName)
                 output.packageApplication.outputFile = output.outputFile
             }
         }

@@ -19,6 +19,7 @@
 
 #!/bin/bash
 
+source ${BASH_SOURCE%/*}/../utils/log-tools.sh
 source ${BASH_SOURCE%/*}/install-android-packages.sh
 
 installPackages() {
@@ -35,9 +36,13 @@ installPackages() {
         popd > /dev/null
     done
 
+    addConstantVersions
+
     addRepositories
     installArtifacts
 
    	logInfo "----------------------------     Packages Installation Completed      ---------------------------"
   	logInfo "------------------------------------------------------------------------------------------------"
 }
+
+#installPackages

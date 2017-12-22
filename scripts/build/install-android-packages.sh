@@ -24,24 +24,35 @@ if [[ -z "${ANDROID_HOME}" ]]; then
     ANDROID_HOME=~/Android/Sdk
 fi
 
+addId() {
+    local idToAdd=$1
+    if [[ ${artifactsIds[@]}  =~ ${idToAdd} ]]; then
+        echo already contains id: ${idToAdd}
+    else
+        artifactsIds+="${idToAdd} "
+    fi
+}
+
+addConstantVersions() {
+    sdkVersion=`cat gradle.properties | grep "COMPILE_SDK=.*" | sed  -E 's/COMPILE_SDK=//g'`
+    if [ "${sdkVersion}" != "" ]; then
+        addId "platforms;android-${sdkVersion}"
+    fi
+
+    buildTool=`cat gradle.properties | grep "TOOLS_VERSION=" | sed  -E 's/TOOLS_VERSION=//'`
+    if [ "${buildTool}" != "" ]; then
+        addId "build-tools;${buildTool}"
+    fi
+}
+
 addSDKVersion() {
     sdkVersion=`cat build.gradle | grep "compileSdkVersion .*" | sed  -E 's/compileSdkVersion| //g'`
-    id="platforms;android-${sdkVersion} "
-    if [[ ${artifactsIds[@]}  =~ ${id} ]]; then
-        echo already contains id: ${id}
-    else
-        artifactsIds+=${id}
-    fi
+    addId "platforms;android-${sdkVersion}"
 }
 
 addBuildToolVersion() {
     buildTool=`cat build.gradle | grep "buildToolsVersion \".*\"" | sed  -E 's/buildToolsVersion| |"//g'`
-    id="build-tools;${buildTool} "
-    if [[ ${artifactsIds[@]}  =~ ${id} ]]; then
-        echo already contains id: ${id}
-    else
-        artifactsIds+=${id}
-    fi
+    addId "build-tools;${buildTool}"
 }
 
 addRepositories() {

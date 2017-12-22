@@ -21,8 +21,8 @@
 android {
     apply from: '../dev-tools/gradle/utils.gradle'
 
-    compileSdkVersion 23
-    buildToolsVersion "${TOOLS_VERSION}"
+    compileSdkVersion COMPILE_SDK.toInteger()
+    buildToolsVersion TOOLS_VERSION
 
     lintOptions {
         abortOnError false
@@ -34,7 +34,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion MIN_SDK
         targetSdkVersion TARGET_SDK
         versionName getVersionNameFromFile()
         project.version = versionName

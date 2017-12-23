@@ -21,8 +21,6 @@ apply plugin: 'com.android.application'
 
 android {
 
-    apply from: '../dev-tools/gradle/utils.gradle'
-
     compileSdkVersion COMPILE_SDK.toInteger()
     buildToolsVersion TOOLS_VERSION
 

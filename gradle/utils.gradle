@@ -60,8 +60,8 @@ void defineVariantsAAR() {
 @SuppressWarnings("GrMethodMayBeStatic")
 void defineVariantsAAR(Closure nameBuild) {
     android.libraryVariants.all { variant ->
-        variant.outputs.each { output ->
-            output.outputFile = new File((String) output.outputFile.parent, nameBuild(variant))
+        variant.outputs.all { output ->
+            outputFileName = new File((String) output.outputFile.parent, nameBuild(variant))
         }
     }
 }
@@ -78,21 +78,50 @@ void defineDefaultVariantsAPK(Object architectureFilter, String appName) {
 void defineVariantsAPK(Object architectureFilter, Closure nameBuild) {
     android {
         applicationVariants.all { variant ->
-            variant.outputs.each { output ->
+            variant.outputs.all { output ->
                 String versionName = variant.versionName
                 String versionCode = "${variant.versionCode}"
                 String architecture = output.getFilter(architectureFilter)
                 architecture = (architecture != null ? architecture : "")
 
                 String fileName = nameBuild(variant, output, versionName, versionCode, variant.buildType.name, variant.productFlavors, architecture)
-                output.outputFile = new File((String) output.outputFile.parent, fileName)
-                output.packageApplication.outputFile = output.outputFile
+                outputFileName = new File((String) output.outputFile.parent, fileName)
             }
         }
     }
 }
 
+Object _implementation(Object artifact) {
+//    compile project
+    def gradleVersion = ("" + GradleVersion.current()).substring("Gradle ".length()).toFloat()
+    if (gradleVersion >= 4.1f)
+        dependencies {
+            implementation artifact
+        }
+    else
+        dependencies {
+            compile artifact
+        }
+
+}
+
+Object _api(Object artifact) {
+//    compile project
+    def gradleVersion = ("" + GradleVersion.current()).substring("Gradle ".length()).toFloat()
+    if (gradleVersion >= 4.1f)
+        dependencies {
+            api artifact
+        }
+    else
+        dependencies {
+            compile artifact
+        }
+
+}
+
 ext {
+    _api = this.&_api
+    _implementation = this.&_implementation
     defineDefaultVariantsAPK = this.&defineDefaultVariantsAPK
     addJavadocTask = this.&addJavadocTask
     defineVariantsAPK = this.&defineVariantsAPK

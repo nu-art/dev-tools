@@ -36,6 +36,10 @@ for folderName in "${directories[@]}"; do
         fi
         branch=`git status | grep -e 'On branch' | sed -E 's/On branch//'`
 
+        if [ "${branch}" == "" ]; then
+            branch=master
+        fi
+
         finalOutput="${finalOutput}[submodule \"${folderName}\"]${NEWLINE}"
         finalOutput="${finalOutput}${TAB}path = ${folderName} ${NEWLINE}"
         finalOutput="${finalOutput}${TAB}url = ${url} ${NEWLINE}"

@@ -60,9 +60,14 @@ void defineVariantsAAR() {
 @SuppressWarnings("GrMethodMayBeStatic")
 void defineVariantsAAR(Closure nameBuild) {
     android.libraryVariants.all { variant ->
-        variant.outputs.all { output ->
-            outputFileName = new File((String) output.outputFile.parent, nameBuild(variant))
-        }
+        if (getGradleVersion() >= 4.1)
+            variant.outputs.all { output ->
+                outputFileName = new File((String) output.outputFile.parent, nameBuild(variant))
+            }
+        else
+            variant.outputs.each { output ->
+                output.outputFile = new File((String) output.outputFile.parent, nameBuild(variant))
+            }
     }
 }
 
@@ -78,23 +83,34 @@ void defineDefaultVariantsAPK(Object architectureFilter, String appName) {
 void defineVariantsAPK(Object architectureFilter, Closure nameBuild) {
     android {
         applicationVariants.all { variant ->
-            variant.outputs.all { output ->
+            Closure apkName = { output ->
                 String versionName = variant.versionName
                 String versionCode = "${variant.versionCode}"
                 String architecture = output.getFilter(architectureFilter)
                 architecture = (architecture != null ? architecture : "")
 
                 String fileName = nameBuild(variant, output, versionName, versionCode, variant.buildType.name, variant.productFlavors, architecture)
-                outputFileName = new File((String) output.outputFile.parent, fileName)
+                return new File((String) output.outputFile.parent, fileName)
             }
+
+            if (getGradleVersion() >= 4.1)
+                variant.outputs.all { output ->
+                    outputFileName = apkName(output)
+                }
+            else
+                variant.outputs.each { output ->
+                    output.outputFile = apkName(output)
+                }
         }
     }
 }
 
+float getGradleVersion() {
+    return ("" + GradleVersion.current()).substring("Gradle ".length()).toFloat()
+}
+
 Object _implementation(Object artifact) {
-//    compile project
-    def gradleVersion = ("" + GradleVersion.current()).substring("Gradle ".length()).toFloat()
-    if (gradleVersion >= 4.1f)
+    if (getGradleVersion() >= 4.1f)
         dependencies {
             implementation artifact
         }
@@ -106,9 +122,7 @@ Object _implementation(Object artifact) {
 }
 
 Object _api(Object artifact) {
-//    compile project
-    def gradleVersion = ("" + GradleVersion.current()).substring("Gradle ".length()).toFloat()
-    if (gradleVersion >= 4.1f)
+    if (getGradleVersion() >= 4.1f)
         dependencies {
             api artifact
         }
@@ -120,6 +134,7 @@ Object _api(Object artifact) {
 }
 
 ext {
+    getGradleVersion = this.&getGradleVersion
     _api = this.&_api
     _implementation = this.&_implementation
     defineDefaultVariantsAPK = this.&defineDefaultVariantsAPK

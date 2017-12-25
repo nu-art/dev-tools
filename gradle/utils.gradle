@@ -18,6 +18,7 @@
  * limitations under the License.
  */
 
+
 def addJavadocTask() {
     android.libraryVariants.all { variant ->
         task("generate${variant.name}Javadoc", type: Javadoc) {
@@ -106,7 +107,7 @@ void defineVariantsAPK(Object architectureFilter, Closure nameBuild) {
 }
 
 float getGradleVersion() {
-    return ("" + GradleVersion.current()).substring("Gradle ".length()).toFloat()
+    return ("" + org.gradle.util.GradleVersion.current()).substring("Gradle ".length()).toFloat()
 }
 
 Object _implementation(Object artifact) {

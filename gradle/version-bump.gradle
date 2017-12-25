@@ -30,13 +30,22 @@ def getVersionNamePattern() {
 }
 
 def getVersionNameFromFile() {
-    getVersionNameFromFile(null);
+    String enforcedVersionName = System.getenv('ENFOURCE_VERSION_NAME')
+    if (enforcedVersionName)
+        return enforcedVersionName
+
+    String versionNameFromFile = getVersionNameFromFile(pathToVersionFile)
+
+    String developer = System.getenv('VERSION_NAME_DEVELOPER')
+    if (developer)
+        developer = "-" + developer
+    else
+        developer = ""
+
+    return versionNameFromFile + developer
 }
 
 def getVersionNameFromFile(String pathToFile) {
-    if (pathToFile == null)
-        pathToFile = pathToVersionFile
-
     if (pathToFile == null) {
         println("---------------------------------------------------------")
         println("---- NO PATH TO VERSION FILE... versionName == 1.0.0 ----")
@@ -49,7 +58,6 @@ def getVersionNameFromFile(String pathToFile) {
         println("VERSION FILE DOES NOT EXISTS: ${file.getAbsolutePath()} versionName == 1.0.0")
         return "1.0.0"
     }
-
 
     String versionNameFound = getPattern(file, getVersionNamePattern())
     return versionNameFound

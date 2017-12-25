@@ -27,10 +27,11 @@ android {
     defaultConfig {
         minSdkVersion MIN_SDK
         targetSdkVersion TARGET_SDK
-        versionName getVersionNameFromFile(pathToVersionFile)
-        versionCode getVersionCodeFromFile(pathToVersionFile)
+        versionName getVersionNameFromFile()
+        versionCode getVersionCodeFromFile()
         project.version = versionName
     }
+
     lintOptions {
         checkReleaseBuilds false
         abortOnError false

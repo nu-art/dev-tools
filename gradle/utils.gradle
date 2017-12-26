@@ -101,6 +101,7 @@ void defineVariantsAPK(Object architectureFilter, Closure nameBuild) {
             else
                 variant.outputs.each { output ->
                     output.outputFile = apkName(output)
+                    output.packageApplication.outputFile = output.outputFile
                 }
         }
     }

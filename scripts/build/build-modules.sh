@@ -36,7 +36,7 @@ echo "TEST_RUN: ${TEST_RUN}"
 source ${BASH_SOURCE%/*}/_generic-tools.sh
 source ${BASH_SOURCE%/*}/_android-tools.sh
 
-checkVersionAndModulesCorrelation "${modules}" "${promoteVersion}"
+#checkVersionAndModulesCorrelation "${modules}" "${promoteVersion}"
 
 setup ${branch}
 

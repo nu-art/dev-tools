@@ -30,6 +30,10 @@ def getVersionNamePattern() {
 }
 
 def getVersionNameFromFile() {
+    return getVersionNameFromFile(true)
+}
+
+def getVersionNameFromFile(boolean withDevName) {
     String enforcedVersionName = System.getenv('ENFOURCE_VERSION_NAME')
     if (enforcedVersionName)
         return enforcedVersionName
@@ -37,7 +41,7 @@ def getVersionNameFromFile() {
     String versionNameFromFile = getVersionNameFromFile(pathToVersionFile)
 
     String developer = System.getenv('VERSION_NAME_DEVELOPER')
-    if (developer)
+    if (developer && withDevName)
         developer = "-" + developer
     else
         developer = ""

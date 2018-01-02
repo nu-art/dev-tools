@@ -39,7 +39,7 @@ setup() {
     local branch=$1
 
 	git checkout "${branch}"
-	bash pull-sync.sh
+	bash dev-tools/scripts/pull-and-apply-all.sh
 }
 
 build() {

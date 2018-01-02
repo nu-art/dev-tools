@@ -73,19 +73,13 @@ build() {
 updateVersionCode() {
     logInfo "Incrementing version code..."
 
-	local modules=(`logInfo $1`)
-	local pathToVersionFile=$2
+	local pathToVersionFile=$1
     if [ "${pathToVersionFile}" == "" ]; then
         pathToVersionFile=./version
     fi
 
-    gradleParams=()
-    for moduleName in "${modules[@]}"; do
-        gradleParams+="${moduleName}:incrementVersionCode "
-    done
-
-    logInfo "bash gradlew ${gradleParams} -PpathToVersionFile=${pathToVersionFile}"
-    bash gradlew ${gradleParams} "-PpathToVersionFile=${pathToVersionFile}"
+    logInfo "bash gradlew :incrementVersionCode -PpathToVersionFile=${pathToVersionFile}"
+    bash gradlew ":incrementVersionCode" "-PpathToVersionFile=${pathToVersionFile}"
 
     checkExecutionError "Incremented Version Code"
 }
@@ -100,7 +94,7 @@ updateVersionName() {
 
 	logInfo "Incrementing ${promoteVersion} version name..."
 
-    logInfo "bash gradlew \"incrementVersionName${promoteVersion}\" -PpathToVersionFile=${pathToVersionFile}"
+    logInfo "bash gradlew :incrementVersionName -PpathToVersionFile=${pathToVersionFile} -PpromoteVersion=${promoteVersion}"
     bash gradlew ":incrementVersionName" "-PpathToVersionFile=${pathToVersionFile}" "-PpromoteVersion=${promoteVersion}"
 
 	checkExecutionError "Incremented Version Name"

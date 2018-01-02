@@ -24,13 +24,15 @@ tasks=$2
 branch=$3
 installAndroidPackages=$4
 promoteVersion=$5
-TEST_RUN=$6
+incrementVersionCode=$6
+TEST_RUN=$7
 
 echo "modules: ${modules}"
 echo "tasks: ${tasks}"
 echo "branch: ${branch}"
 echo "installAndroidPackages: ${installAndroidPackages}"
 echo "promoteVersion: ${promoteVersion}"
+echo "incrementVersionCode: ${incrementVersionCode}"
 echo "TEST_RUN: ${TEST_RUN}"
 
 source ${BASH_SOURCE%/*}/_generic-tools.sh
@@ -46,6 +48,10 @@ fi
 
 if [ "${installAndroidPackages}" == "true" ]; then
     installPackages
+fi
+
+if [ "${incrementVersionCode}" == "true" ]; then
+    updateVersionCode "./version"
 fi
 
 updateVersionName "${promoteVersion}" "./version"

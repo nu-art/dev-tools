@@ -141,4 +141,5 @@ ext {
     getVersionNameFromFile = this.&getVersionNameFromFile
     getVersionCodeFromFile = this.&getVersionCodeFromFile
     incrementVersionName = this.&incrementVersionName
+    incrementVersionCode = this.&incrementVersionCode
 }

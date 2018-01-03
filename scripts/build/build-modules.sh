@@ -54,6 +54,7 @@ if [ "${incrementVersionCode}" == "true" ]; then
     updateVersionCode "./version"
 fi
 
+
 updateVersionName "${promoteVersion}" "./version"
 build "${modules}" "${tasks}"
 updateRepository "${modules}" "./version"

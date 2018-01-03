@@ -30,6 +30,17 @@ function getFolderId {
 	echo "${folderId}"
 }
 
+function getFileId {
+    local fileName="$1"
+
+    local fileId=`gdrive list --name-width 0 --no-header --query "name='${fileName}'"`
+    fileId=`echo ${fileId} | awk '{print $1}'`
+
+	checkExecutionError "Error getting the file id"
+
+	echo "${fileId}"
+}
+
 function upload {
     local fileName="$1"
     local parentFolder="$2"

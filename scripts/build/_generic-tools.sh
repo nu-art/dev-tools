@@ -52,15 +52,11 @@ build() {
 
     gradleParams=()
 
-    if [ "${TEST_RUN}" == "true" ]; then
-        gradleParams=assembleDebug
-    else
-        for moduleName in "${modules[@]}"; do
-            for task in "${tasks[@]}"; do
-                gradleParams+="${moduleName}:${task} "
-            done
+    for moduleName in "${modules[@]}"; do
+        for task in "${tasks[@]}"; do
+            gradleParams+="${moduleName}:${task} "
         done
-    fi
+    done
 
     logInfo "bash gradlew clean ${gradleParams}"
     bash gradlew clean ${gradleParams}

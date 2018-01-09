@@ -27,6 +27,11 @@ fileName=$2
 
 logInfo "Requesting folder id for: ${folderName}"
 folderId=$(getFolderId ${folderName})
+if [ "${folderId}" == "" ]; then
+    echo "could not find folder: ${folderName}"
+    exit 1
+fi
+
 logInfo "Found folder id: ${folderId}, for folder: ${folderName}"
 
 logInfo "Uploading file: ${fileName} to folder id: ${folderId}"

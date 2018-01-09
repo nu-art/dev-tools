@@ -39,7 +39,7 @@ setup() {
     local branch=$1
 
 	git checkout "${branch}"
-	bash pull-sync.sh
+	bash dev-tools/scripts/pull-and-apply-all.sh
 }
 
 build() {
@@ -52,15 +52,11 @@ build() {
 
     gradleParams=()
 
-    if [ "${TEST_RUN}" == "true" ]; then
-        gradleParams=assembleDebug
-    else
-        for moduleName in "${modules[@]}"; do
-            for task in "${tasks[@]}"; do
-                gradleParams+="${moduleName}:${task} "
-            done
+    for moduleName in "${modules[@]}"; do
+        for task in "${tasks[@]}"; do
+            gradleParams+="${moduleName}:${task} "
         done
-    fi
+    done
 
     logInfo "bash gradlew clean ${gradleParams}"
     bash gradlew clean ${gradleParams}
@@ -73,19 +69,13 @@ build() {
 updateVersionCode() {
     logInfo "Incrementing version code..."
 
-	local modules=(`logInfo $1`)
-	local pathToVersionFile=$2
+	local pathToVersionFile=$1
     if [ "${pathToVersionFile}" == "" ]; then
         pathToVersionFile=./version
     fi
 
-    gradleParams=()
-    for moduleName in "${modules[@]}"; do
-        gradleParams+="${moduleName}:incrementVersionCode "
-    done
-
-    logInfo "bash gradlew ${gradleParams} -PpathToVersionFile=${pathToVersionFile}"
-    bash gradlew ${gradleParams} "-PpathToVersionFile=${pathToVersionFile}"
+    logInfo "bash gradlew :incrementVersionCode -PpathToVersionFile=${pathToVersionFile}"
+    bash gradlew ":incrementVersionCode" "-PpathToVersionFile=${pathToVersionFile}"
 
     checkExecutionError "Incremented Version Code"
 }
@@ -100,7 +90,7 @@ updateVersionName() {
 
 	logInfo "Incrementing ${promoteVersion} version name..."
 
-    logInfo "bash gradlew \"incrementVersionName${promoteVersion}\" -PpathToVersionFile=${pathToVersionFile}"
+    logInfo "bash gradlew :incrementVersionName -PpathToVersionFile=${pathToVersionFile} -PpromoteVersion=${promoteVersion}"
     bash gradlew ":incrementVersionName" "-PpathToVersionFile=${pathToVersionFile}" "-PpromoteVersion=${promoteVersion}"
 
 	checkExecutionError "Incremented Version Name"

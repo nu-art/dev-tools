@@ -94,7 +94,7 @@ void defineVariantsAPK(Object architectureFilter, Closure nameBuild) {
                 return new File((String) output.outputFile.parent, fileName)
             }
 
-            if (getGradleVersion() >= 4.1)
+            if (getGradleVersion() >= 4.1f)
                 variant.outputs.all { output ->
                     outputFileName = apkName(output)
                 }

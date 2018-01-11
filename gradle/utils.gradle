@@ -61,7 +61,7 @@ void defineVariantsAAR() {
 @SuppressWarnings("GrMethodMayBeStatic")
 void defineVariantsAAR(Closure nameBuild) {
     android.libraryVariants.all { variant ->
-        if (getGradleVersion() >= 4.1)
+        if (isGradleVersion4_1())
             variant.outputs.all { output ->
                 outputFileName = new File((String) output.outputFile.parent, nameBuild(variant))
             }
@@ -94,7 +94,7 @@ void defineVariantsAPK(Object architectureFilter, Closure nameBuild) {
                 return new File((String) output.outputFile.parent, fileName)
             }
 
-            if (getGradleVersion() >= 4.1f)
+            if (isGradleVersion4_1())
                 variant.outputs.all { output ->
                     outputFileName = apkName(output)
                 }
@@ -107,12 +107,8 @@ void defineVariantsAPK(Object architectureFilter, Closure nameBuild) {
     }
 }
 
-float getGradleVersion() {
-    return ("" + org.gradle.util.GradleVersion.current()).substring("Gradle ".length()).toFloat()
-}
-
 Object _implementation(Object artifact) {
-    if (getGradleVersion() >= 4.1f)
+    if (isGradleVersion4_1())
         dependencies {
             implementation artifact
         }
@@ -124,7 +120,7 @@ Object _implementation(Object artifact) {
 }
 
 Object _api(Object artifact) {
-    if (getGradleVersion() >= 4.1f)
+    if (isGradleVersion4_1())
         dependencies {
             api artifact
         }
@@ -134,6 +130,15 @@ Object _api(Object artifact) {
         }
 
 }
+
+boolean isGradleVersion4_1() {
+    return getGradleVersion() >= 4.1f
+}
+
+float getGradleVersion() {
+    return ("" + org.gradle.util.GradleVersion.current()).substring("Gradle ".length()).toFloat()
+}
+
 
 ext {
     getGradleVersion = this.&getGradleVersion

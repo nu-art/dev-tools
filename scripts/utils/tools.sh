@@ -69,3 +69,13 @@ function setProperty() {
     	echo "${key}=${value}" >> ${file}
     fi
 }
+
+execute() {
+    local message=$1
+    local command=$2
+
+    echo
+    logInfo "${message}"
+    logDebug "     ${command}"
+    ${command}
+}

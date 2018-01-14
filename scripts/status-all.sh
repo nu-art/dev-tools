@@ -26,6 +26,7 @@ directories=(${directories//,/ })
 for folderName in "${directories[@]}"; do
     pushd ${folderName}  > /dev/null
         folderName=`echo ${folderName} | sed -E 's/\///'`
+        echo ----------------------------------------
         echo "Module: ${folderName}"
         git status
 

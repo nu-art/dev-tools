@@ -40,5 +40,11 @@ android {
         project.version = versionName
     }
 
+    buildTypes {
+        release {
+            signingConfig null
+        }
+    }
+
     defineVariantsAAR()
 }

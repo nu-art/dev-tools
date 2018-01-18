@@ -34,6 +34,17 @@ function sedFunc() {
 
     echo "${result}"
 }
+function setDefaultAndroidHome() {
+    if [ "${ANDROID_HOME}" != "" ]; then
+        return
+    fi
+
+    if [[ "$(uname -v)" =~ "Darwin" ]]; then
+        ANDROID_HOME="/Users/${USER}/Library/Android/sdk"
+    else
+        ANDROID_HOME="~/Android/sdk"
+    fi
+}
 
 setValue() {
     local name=${1//-/_}

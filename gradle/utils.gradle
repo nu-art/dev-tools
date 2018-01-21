@@ -91,7 +91,7 @@ void defineVariantsAPK(Object architectureFilter, Closure nameBuild) {
                 architecture = (architecture != null ? architecture : "")
 
                 String fileName = nameBuild(variant, output, versionName, versionCode, variant.buildType.name, variant.productFlavors, architecture)
-                return new File((String) output.outputFile.parent, fileName)
+                return new File(isGradleVersion4_1() ? "." : (String) output.outputFile.parent, fileName)
             }
 
             if (isGradleVersion4_1())

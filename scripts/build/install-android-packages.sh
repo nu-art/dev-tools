@@ -23,6 +23,16 @@ artifactsIds=()
 if [[ -z "${ANDROID_HOME}" ]]; then
     ANDROID_HOME=~/Android/Sdk
 fi
+removeTrailingChar() {
+    local charValueToRemove=${1}
+    local string=${2}
+    local lastCharValue=`printf "%d\n" \'${string:$i-1:1}`
+    if [ "${lastCharValue}" == "${charValueToRemove}" ]; then
+        echo "${string:$i1:${#string}-1}"
+    else
+        echo "${string}"
+    fi
+}
 
 addId() {
     local idToAdd=$1
@@ -34,25 +44,29 @@ addId() {
 }
 
 addConstantVersions() {
-    sdkVersion=`cat gradle.properties | grep "COMPILE_SDK=.*" | sed  -E 's/COMPILE_SDK=//g'`
+    local sdkVersion=`cat gradle.properties | grep "COMPILE_SDK=.*" | sed  -E 's/COMPILE_SDK=//g'`
     if [ "${sdkVersion}" != "" ]; then
+        sdkVersion=`removeTrailingChar 13 ${sdkVersion}`
         addId "platforms;android-${sdkVersion}"
     fi
 
-    buildTool=`cat gradle.properties | grep "TOOLS_VERSION=" | sed  -E 's/TOOLS_VERSION=//'`
+    local buildTool=`cat gradle.properties | grep "TOOLS_VERSION=" | sed  -E 's/TOOLS_VERSION=//'`
     if [ "${buildTool}" != "" ]; then
+        buildTool=`removeTrailingChar 13 ${buildTool}`
         addId "build-tools;${buildTool}"
     fi
 }
 
 addSDKVersion() {
-    sdkVersion=`cat build.gradle | grep "compileSdkVersion .*" | sed  -E 's/compileSdkVersion| //g'`
-    addId "platforms;android-${sdkVersion}"
+    local sdkVersion=`cat build.gradle | grep "compileSdkVersion .*" | sed  -E 's/compileSdkVersion| //g'`
+    sdkVersion=`removeTrailingChar 13 ${sdkVersion}`
+    addId "platforms;android-${sdkVersion} "
 }
 
 addBuildToolVersion() {
-    buildTool=`cat build.gradle | grep "buildToolsVersion \".*\"" | sed  -E 's/buildToolsVersion| |"//g'`
-    addId "build-tools;${buildTool}"
+   local buildTool=`cat build.gradle | grep "buildToolsVersion \".*\"" | sed  -E 's/buildToolsVersion| |"//g'`
+    buildTool=`removeTrailingChar 13 ${buildTool}`
+    addId "build-tools;${buildTool} "
 }
 
 addRepositories() {
@@ -63,8 +77,7 @@ addRepositories() {
 
 installArtifacts() {
     for artifactsId in ${artifactsIds[@]}; do
-        echo ${ANDROID_HOME}/tools/bin/sdkmanager "${artifactsId}"
-        echo "y " | ${ANDROID_HOME}/tools/bin/sdkmanager "${artifactsId}"
+        echo "---${artifactsId}---"
+        echo "y " |  ${ANDROID_HOME}/tools/bin/sdkmanager "${artifactsId}"
     done
-
 }

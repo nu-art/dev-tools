@@ -45,13 +45,13 @@ if [ "${branchExists}" == "" ]; then
     checkExecutionError "Unable to create branch ${branch}"
 fi
 
+stashed=`git stash save`
 git checkout ${branch}
 checkExecutionError "Unable to checkout branch ${branch}"
 
 git push -u origin ${branch}
 
 git add .
-stashed=`git stash save`
 
 git pull
 

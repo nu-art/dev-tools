@@ -18,18 +18,14 @@
 #  limitations under the License.
 
 #!/bin/bash
-
 source ${BASH_SOURCE%/*}/utils/file-tools.sh
 
-directories=$(listGitFolders)
-directories=(${directories//,/ })
-for folderName in "${directories[@]}"; do
-    pushd ${folderName}  > /dev/null
-        folderName=`echo ${folderName} | sed -E 's/\///'`
-        echo ----------------------------------------
-        echo "Module: ${folderName}"
-        git status
 
-    popd > /dev/null
-done
+function processFolder() {
+    local folderName=${1}
+    folderName=`echo ${folderName} | sed -E 's/\///'`
+    git status
+}
+
+iterateOverFolders "listGitFolders" processFolder
 

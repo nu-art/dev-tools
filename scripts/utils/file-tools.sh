@@ -18,6 +18,7 @@
 #  limitations under the License.
 
 #!/bin/bash
+source ${BASH_SOURCE%/*}/log-tools.sh
 
 allFolders() {
     echo true;
@@ -128,4 +129,23 @@ listGradleGitModulesFolders() {
 
 listGradleAndroidAppsFolders() {
     listFoldersImpl allGradleFolders allGitFolders androidAppsFolder
+}
+
+iterateOverFolders() {
+    local folderFilter=${1}
+    local toExecute=${2}
+
+    local directories=$(${folderFilter})
+    directories=(${directories//,/ })
+
+    for folderName in "${directories[@]}"; do
+        logDebug "-----------------------------"
+        logDebug "   Processing: ${folderName}"
+        logDebug "-----------------------------"
+        pushd ${folderName} > /dev/null
+            ${toExecute} ${folderName}
+        popd > /dev/null
+        logDebug "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+    done
+
 }

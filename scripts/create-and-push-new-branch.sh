@@ -32,36 +32,30 @@ originBranch=$1
 targetBranch=$2
 
 source ${BASH_SOURCE%/*}/utils/file-tools.sh
+source ${BASH_SOURCE%/*}/utils/tools.sh
 
 directories=$(listGitFolders)
 directories=(${directories//,/ })
-for folderName in "${directories[@]}"
-do
-    cd ${folderName}
+for folderName in "${directories[@]}"; do
+    pushd ${folderName} > /dev/null
+        echo " --- ${folderName} --- "
+        git pull
 
-    git pull
+        isClean=`git status | grep "nothing to commit"`
+        if [ "${isClean}" == "" ]; then
+            echo "Found dirty Repo ${folderName}"
+            cd ..
+            continue
+        fi
 
-    hasTargetBranch=`git branch -a | grep "${targetBranch}"`
+        execute "Checking out branch ${originBranch}" "git checkout ${originBranch}"
 
-    if [ ! "${hasTargetBranch}" == "" ]; then
-        echo "Target branch \"${targetBranch}\" already exists in repo: ${folderName}"
-        cd ..
-        continue
-    fi
+        hasTargetBranch=`git branch -a | grep "${targetBranch}"`
+        if [ "${hasTargetBranch}" == "" ]; then
+            execute "Creating branch ${targetBranch}" "git branch ${targetBranch}"
+        fi
 
-    isClean=`git status | grep "nothing to commit, working directory clean"`
-#    echo ${isClean}
-    if [ "${isClean}" == "" ]; then
-        echo "Found dirty Repo ${folderName}"
-        cd ..
-        continue
-    fi
-
-    echo "---- Found valid repo folder ${folderName}"
-    git branch ${targetBranch}
-    git checkout ${targetBranch}
-    git push --set-upstream origin shahar
-    git checkout ${originBranch}
-    cd ..
+        execute "Checking out branch ${targetBranch}" "git checkout ${targetBranch}"
+        execute "Push new branch ${targetBranch}" "git push --set-upstream origin ${targetBranch}"
+    popd > /dev/null
 done
-

@@ -18,30 +18,13 @@
 #  limitations under the License.
 
 #!/bin/bash
-
 source ${BASH_SOURCE%/*}/utils/file-tools.sh
+source ${BASH_SOURCE%/*}/utils/tools.sh
+
 
 function processFolder() {
     local folderName=${1}
-    folderName=`echo ${folderName} | sed -E 's/\///'`
-
-    isClean=`git status | grep "nothing to commit, working directory clean"`
-    if [ "${isClean}" != "nothing to commit, working directory clean" ]; then
-        logInfo " Stashing"
-        git stash clear
-        git stash save
-    fi
-
-    logInfo " Pulling"
-    git pull
-
-    if [ "${isClean}" != "nothing to commit, working directory clean" ]; then
-        logInfo " Applying"
-        git stash apply
-    fi
+    echo " --- ${folderName} --- "
 }
 
 iterateOverFolders "listGitFolders" processFolder
-
-echo "---- Pulling Main Repo"
-git pull

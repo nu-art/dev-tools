@@ -29,7 +29,7 @@ function printUsage {
     fi
 
     buildParam="${paramColor}--build=${NoColor}${buildParam}${valueColor}build-type${NoColor}"
-    deviceIdParam="${paramColor}--deviceId=${NoColor}${valueColor}your-device-id-here${NoColor}"
+    deviceIdParam="${paramColor}--deviceId=${NoColor}${valueColor}your-device-id-here${NoColor} | ${valueColor}ALL${NoColor}"
     uninstallParam="${paramColor}optional flags:${NoColor} ${valueColor}--uninstall${NoColor} | ${valueColor}--offline${NoColor} | ${valueColor}--nobuild${NoColor} | ${valueColor}--clear-cache${NoColor}"
 
     echo
@@ -64,12 +64,22 @@ build="Debug"
 
 offline=""
 nobuild=""
+deviceAdbCommand=("")
 
 for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
     paramValue="${!lastParam}"
     if [[ "${paramValue}" =~ "--deviceId=" ]]; then
+        deviceAdbCommand=()
         deviceId=`echo "${paramValue}" | sed -E "s/--deviceId=(.*)/\1/"`
-        deviceAdbCommand=" -s ${deviceId}"
+        if [ "${deviceId}" == "ALL" ] || [ "${deviceId}" == "all" ]; then
+            devices=(`adb devices | grep -E "^[0-9a-fA-F]+\s+?device$" | sed -E "s/([0-9a-fA-F]+).*/\1/"`)
+        else
+            devices=("${deviceId}")
+        fi
+
+        for deviceId in "${devices[@]}"; do
+            deviceAdbCommand[${#deviceAdbCommand[*]}]=" -s ${deviceId}"
+        done
         continue;
     fi
 
@@ -95,11 +105,15 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
     paramValue="${!lastParam}"
     case ${paramValue} in
         "--clear-cache")
-            execute "Clearing app cache:" "${adbCommand}${deviceAdbCommand} shell pm clear ${packageName}"
+            for deviceCommand in "${deviceAdbCommand[@]}"; do
+                execute "Clearing app cache:" "${adbCommand}${deviceCommand} shell pm clear ${packageName}"
+            done
         ;;
 
         "--uninstall")
-            execute "Uninstalling apk:" "${adbCommand}${deviceAdbCommand} uninstall ${packageName}"
+            for deviceCommand in "${deviceAdbCommand[@]}"; do
+                execute "Uninstalling apk:" "${adbCommand}${deviceCommand} uninstall ${packageName}"
+            done
         ;;
 
         "--offline")
@@ -140,5 +154,8 @@ if [ "${noBuild}" == "" ]; then
 fi
 
 pathToApk=`find "${outputFolder}" -name '*.apk'`
-execute "Installing apk:" "${adbCommand}${deviceAdbCommand} install -r ${pathToApk}"
-execute "Launching app:" "${adbCommand}${deviceAdbCommand} shell am start -n ${packageName}/com.nu.art.cyborg.ui.ApplicationLauncher -a android.intent.action.MAIN -c android.intent.category.LAUNCHER"
+
+for deviceCommand in "${deviceAdbCommand[@]}"; do
+    execute "Installing apk:" "${adbCommand}${deviceCommand} install -r ${pathToApk}"
+    execute "Launching app:" "${adbCommand}${deviceCommand} shell am start -n ${packageName}/com.nu.art.cyborg.ui.ApplicationLauncher -a android.intent.action.MAIN -c android.intent.category.LAUNCHER"
+done

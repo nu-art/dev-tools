@@ -18,30 +18,32 @@
 #  limitations under the License.
 
 #!/bin/bash
+source ${BASH_SOURCE%/*}/utils/file-tools.sh
 
 dateTimeFormatted=`date +%Y-%m-%d--%H-%M-%S`
 outputFolder="$(pwd)/build/git-logs"
 if [ ! -d "${outputFolder}" ]; then
     mkdir -p "${outputFolder}"
 fi
+
 logFile="${outputFolder}/commit-and-push-log-${dateTimeFormatted}.txt"
 commitMessage=${1}
 
 if [ "${commitMessage}" == "" ]; then
-    echo "Must provide a commit message for all the submodules" | tee -a "${logFile}"
+    logError "Must provide a commit message for all the submodules"
     exit 1
 fi
 
 status=`git status | grep "Changes not staged for commit"`
 if [[ ! "${status}" =~ "Changes not staged for commit" ]]; then
-    echo "No changes on main repo... doing nothing" | tee -a "${logFile}"
+    logError "No changes on main repo... doing nothing"
     exit 1
 fi
 
 function commitAndPushImpl() {
     status=`git status | grep "nothing to commit"`
     if [[ ! "${status}" =~ "nothing to commit" ]]; then
-        echo "Committing with message: ${commitMessage}" | tee -a "${logFile}"
+        logDebug "Committing with message: ${commitMessage}" "${logFile}" true
         git commit -am "${commitMessage}" 2>> "${logFile}" >> "${logFile}"
     fi
 
@@ -73,12 +75,7 @@ function commitAndPushSubmodule() {
     popd 2>> "${logFile}" >> "${logFile}"
 }
 
-while IFS='' read -r line || [[ -n "$line" ]]; do
-    if [[ "${line}" =~ "submodule" ]]; then
-        submodule=`echo ${line} | sed -E 's/\[submodule "(.*)"\]/\1/'`
-        commitAndPushSubmodule
-    fi
-done < .gitmodules
+iterateOverFolders "gitMapSubmodules" commitAndPushSubmodule
 
 echo | tee -a "${logFile}"
 echo --------------------------------------------------------------------------------------------------- | tee -a "${logFile}"

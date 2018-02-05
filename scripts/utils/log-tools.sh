@@ -40,27 +40,34 @@ setLogLevel() {
     esac
 }
 
+setSummaryFile() {
+    summaryFile="${1}"
+    echo "#!/bin/bash" > "${summaryFile}"
+    echo "echo " >> "${summaryFile}"
+    echo "echo " >> "${summaryFile}"
+    echo "echo -e \"${BCyan} ----------------   ___ _   _ __  __ __  __   _   _____   __  ---------------- ${NoColor}\"" >>"${summaryFile}"
+    echo "echo -e \"${BCyan} ----------------  / __| | | |  \/  |  \/  | /_\ | _ \ \ / /  ---------------- ${NoColor}\"" >>"${summaryFile}"
+    echo "echo -e \"${BCyan} ----------------  \__ \ |_| | |\/| | |\/| |/ _ \|   /\ V /   ---------------- ${NoColor}\"" >>"${summaryFile}"
+    echo "echo -e \"${BCyan} ----------------  |___/\___/|_|  |_|_|  |_/_/ \_\_|_\ |_|    ---------------- ${NoColor}\"" >>"${summaryFile}"
+    echo "echo -e \"${BCyan} ----------------                                             ---------------- ${NoColor}\"" >>"${summaryFile}"
+    echo "echo " >>"${summaryFile}"
+
+}
+
 setLogFile() {
-    dateTimeFormatted=`date +%Y-%m-%d--%H-%M-%S`
-    local logsFolder="$(pwd)/${1}"
+    setLogLevel "${1}"
+    local relativePathToLogFolder=${2}
+    local logFilePrefix=${3}
+
+    local logsFolder="$(pwd)/${relativePathToLogFolder}"
+    local dateTimeFormatted=`date +%Y-%m-%d--%H-%M-%S`
+
     if [ ! -d "${logsFolder}" ]; then
         mkdir -p "${logsFolder}"
     fi
 
-    logFile="${logsFolder}/${2}-log-${dateTimeFormatted}.txt"
+    logFile="${logsFolder}/${logFilePrefix}-log-${dateTimeFormatted}.txt"
     echo > "${logFile}"
-}
-
-createResultBashFile(){
-    echo "#!/bin/bash" > "${1}"
-    echo "echo " >>"${1}"
-    echo "echo " >>"${1}"
-    echo "echo -e \"${BCyan} ----------------   ___ _   _ __  __ __  __   _   _____   __  ---------------- ${NoColor}\"" >>"${1}"
-    echo "echo -e \"${BCyan} ----------------  / __| | | |  \/  |  \/  | /_\ | _ \ \ / /  ---------------- ${NoColor}\"" >>"${1}"
-    echo "echo -e \"${BCyan} ----------------  \__ \ |_| | |\/| | |\/| |/ _ \|   /\ V /   ---------------- ${NoColor}\"" >>"${1}"
-    echo "echo -e \"${BCyan} ----------------  |___/\___/|_|  |_|_|  |_/_/ \_\_|_\ |_|    ---------------- ${NoColor}\"" >>"${1}"
-    echo "echo -e \"${BCyan} ----------------                                             ---------------- ${NoColor}\"" >>"${1}"
-    echo "echo " >>"${1}"
 }
 
 log() {
@@ -68,7 +75,7 @@ log() {
     local color=$2
     local levelPrefix=$3
     local logMessage=$4
-    local extraFile=$5
+    local printToSummary=$5
     local printToConsole=$6
 
     if (( ${level} < ${logLevel}  )); then
@@ -83,8 +90,8 @@ log() {
         echo "${levelPrefix} ${logMessage}" >> "${logFile}"
     fi
 
-    if [ "${extraFile}" != "" ]; then
-        echo "echo -e \"${color}${logMessage}${NoColor}\"" >> "${extraFile}"
+    if [ "${summaryFile}" != "" ] && [ "${printToSummary}" != "false" ]; then
+        echo "echo -e \"${color}${logMessage}${NoColor}\"" >> "${summaryFile}"
     fi
 }
 

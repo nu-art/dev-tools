@@ -26,9 +26,8 @@ source ${BASH_SOURCE%/*}/utils/git-tools-core.sh
 source ${BASH_SOURCE%/*}/utils/git-tools.sh
 
 
-setLogFile "build/logs/git" "pull-test"
-setLogLevel ${LOG_LEVEL__DEBUG}
-resultFile="$(pwd)/build/logs/git/result.sh"
+setLogFile ${LOG_LEVEL__DEBUG} "build/logs/git" "pull-test"
+setResultFile "$(pwd)/build/logs/git/result.sh"
 
 stashName="temp-pull-script"
 
@@ -42,8 +41,8 @@ gitCheckIfHasConflicts() {
         local result=$(git status)
         conflicts=`echo "${result}" | grep "both modified" | sed -E "s/both modified:   (.*)$/Conflict in file: \1/"`
         if [ "${conflicts}" != "" ]; then
-            logWarning "Submodule ${name} - Has conflicts" "${resultFile}"
-            logWarning "${conflicts}" "${resultFile}"
+            logWarning "Submodule ${name} - Has conflicts"
+            logWarning "${conflicts}"
         else
             logDebug " - Already up to date!"
         fi
@@ -59,7 +58,7 @@ gitClearPreviousStash(){
 
     stashedCount=${#indices[@]}
     if [ ${stashedCount} -gt 0 ]; then
-        logWarning "Submodule ${moduleName} - Found ${stashedCount} old stashes..." "${resultFile}"
+        logWarning "Submodule ${moduleName} - Found ${stashedCount} old stashes..."
         git stash list
     fi
 
@@ -74,13 +73,13 @@ gitCommandWithConflicts() {
     local resultFile=${3}
 
     result=$(${command})
-    logVerbose "${result}" 2>> "${logFile}" >> "${logFile}"
+    logVerbose "${result}" &>> "${logFile}"
 
-    logDebug "${message}" "${resultFile}"
+    logDebug "${message}"
     conflicts=`echo "${result}" | grep "CONFLICT" | sed -E "s/CONFLICT.*in (.*)$/Conflict in file: \1/"`
     if [ "${conflicts}" != "" ]; then
-        logWarning "Has conflicts" "${resultFile}"
-        logWarning "${conflicts}" "${resultFile}"
+        logWarning "Has conflicts"
+        logWarning "${conflicts}"
     fi
 }
 
@@ -126,13 +125,13 @@ gitSync() {
                 if [ "${currentBranch}" != "${branch}" ]; then
                     gitStashPop
                     logDebug " - Applied stash: ${stashName}"
-                    logError " - Cannot update, submodule '${name}' has changes and need to change branch ${currentBranch} ==> ${branch}" "${resultFile}"
+                    logError " - Cannot update, submodule '${name}' has changes and need to change branch ${currentBranch} ==> ${branch}"
                     return
                 fi
             fi
         popDir
 
-        git submodule update --init "${name}" 2>> "${logFile}" >> "${logFile}"
+        git submodule update --init "${name}" &>> "${logFile}"
 
         pushDir "${name}"
             currentBranch=$(gitGetCurrentBranch)
@@ -141,19 +140,19 @@ gitSync() {
             logVerbose "Expected branch: ${branch}      actual branch: ${currentBranch}"
 
             if [ "${branch}" != "${currentBranch}" ]; then
-                gitCheckoutBranch "${branch}" 2>> "${logFile}" >> "${logFile}"
+                gitCheckoutBranch "${branch}" &>> "${logFile}"
 
-                logInfo " - Checked out branch ${branch}" "${resultFile}"
+                logInfo " - Checked out branch ${branch}"
             fi
 
             if [ "${commit}" != "" ]; then
-                git reset --hard ${commit}  2>> "${logFile}" >> "${logFile}"
+                git reset --hard ${commit}  &>> "${logFile}"
 
-                logInfo " - Reset hard to commit: ${commit}" "${resultFile}"
+                logInfo " - Reset hard to commit: ${commit}" 
             fi
 
             if [ "${hasModuleChanges}" == "true" ]; then
-                gitCommandWithConflicts "gitStashPopAndRegisterConflicts \"${stashName}\"" "Submodule '${name}' - Applied stash: ${stashName}" "${resultFile}"
+                gitCommandWithConflicts "gitStashPopAndRegisterConflicts \"${stashName}\"" "Submodule '${name}' - Applied stash: ${stashName}"
             fi
 
         popDir
@@ -163,7 +162,7 @@ gitSync() {
 gitPullAndSync() {
     local logFile=${logFile}
     if [ "${logFile}" == "" ]; then
-        logError "MUST declare logFile before calling gitPullIfNeeded" "${resultFile}"
+        logError "MUST declare logFile before calling gitPullIfNeeded"
         exit 1
     fi
 
@@ -175,16 +174,14 @@ gitPullAndSync() {
     fi
 
     logInfo "Pulling main repo..."
-    gitCommandWithConflicts "gitPullAndRegisterConflicts" "Pulled main repo" "${resultFile}"
+    gitCommandWithConflicts "gitPullAndRegisterConflicts" "Pulled main repo"
 
     gitSync
 
     if [ "${hasChanges}" == "true" ]; then
-        gitCommandWithConflicts "gitStashPopAndRegisterConflicts \"${stashName}\"" "Main Repo - Applied stash: ${stashName}" "${resultFile}"
+        gitCommandWithConflicts "gitStashPopAndRegisterConflicts \"${stashName}\"" "Main Repo - Applied stash: ${stashName}"
     fi
 }
-
-createResultBashFile ${resultFile}
 
 pullDevTools() {
     pushDir dev-tools
@@ -197,7 +194,7 @@ pullDevTools() {
     popDir
 }
 
-pullDevTools  2>> "${logFile}" >> "${logFile}"
+pullDevTools  &>> "${logFile}"
 
 if [ "${1}" == "" ]; then
     gitPullAndSync

@@ -26,7 +26,7 @@ function processFolder() {
     folderName=`echo ${folderName} | sed -E 's/\///'`
 
     isClean=`git status | grep "nothing to commit, working directory clean"`
-    if [ "${isClean}" != "nothing to commit, working directory clean" ]; then
+    if [ "${isClean}" != "nothing to commit" ]; then
         logInfo " Stashing"
         git stash clear
         git stash save
@@ -35,7 +35,7 @@ function processFolder() {
     logInfo " Pulling"
     git pull
 
-    if [ "${isClean}" != "nothing to commit, working directory clean" ]; then
+    if [ "${isClean}" != "nothing to commit" ]; then
         logInfo " Applying"
         git stash apply
     fi

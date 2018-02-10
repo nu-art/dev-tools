@@ -30,7 +30,7 @@ function printUsage {
 
     buildParam="${paramColor}--build=${NoColor}${buildParam}${valueColor}build-type${NoColor}"
     deviceIdParam="${paramColor}--deviceId=${NoColor}${valueColor}your-device-id-here${NoColor} | ${valueColor}ALL${NoColor}"
-    uninstallParam="${paramColor}optional flags:${NoColor} ${valueColor}--uninstall${NoColor} | ${valueColor}--offline${NoColor} | ${valueColor}--nobuild${NoColor} | ${valueColor}--clear-cache${NoColor}"
+    uninstallParam="${paramColor}optional flags:${NoColor} ${valueColor}--uninstall${NoColor} | ${valueColor}--offline${NoColor} | ${valueColor}--no-build${NoColor} | ${valueColor}--clear-cache${NoColor}"
 
     echo
     if [ "${errorMessage}" != "" ]; then

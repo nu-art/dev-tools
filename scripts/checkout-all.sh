@@ -16,32 +16,23 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
 #!/bin/bash
 
-if [ "$1" == "" ]; then
-    echo "Missing branch name"
+source ${BASH_SOURCE%/*}/utils/file-tools.sh
+
+branchName=${1}
+
+if [ "${branchName}" == "" ]; then
+    logError "Missing branch name"
     exit
 fi
 
-branchName=$1
-source ${BASH_SOURCE%/*}/utils/git-tools.sh
+function processFolder() {
+    local folderName=${1}
+    folderName=`echo ${folderName} | sed -E 's/\///'`
+    execute " Checking out branch ${branchName}" "git checkout ${branchName}"
+}
+iterateOverFolders "gitMapSubmodules" processFolder
 
-gitModules=$(gitMapSubmodules)
-directories=(${gitModules//,/ })
-
-for folderName in "${directories[@]}"; do
-    pushd ${folderName}
-        folderName=`echo ${folderName} | sed -E 's/\///'`
-        if [ ! -e ".git" ]; then
-            popd
-            echo "Seems like this is not a git folder"
-            continue
-        fi
-
-
-        echo "---- Checking out: ${folderName} to branch ${branchName}"
-        git checkout ${branchName}
-    popd
-done
+execute " Checking out branch ${branchName}" "git checkout ${branchName}"
 

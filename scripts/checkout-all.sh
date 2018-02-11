@@ -18,6 +18,7 @@
 #  limitations under the License.
 #!/bin/bash
 
+source ${BASH_SOURCE%/*}/utils/git-tools.sh
 source ${BASH_SOURCE%/*}/utils/file-tools.sh
 
 branchName=${1}

@@ -29,7 +29,7 @@ function printUsage {
     fi
 
     buildParam="${paramColor}--build=${NoColor}${buildParam}${valueColor}build-type${NoColor}"
-    deviceIdParam="${paramColor}--deviceId=${NoColor}${valueColor}your-device-id-here${NoColor} | ${valueColor}ALL${NoColor}"
+    deviceIdParam="${paramColor}--device-id=${NoColor}${valueColor}your-device-id-here${NoColor} | ${valueColor}ALL${NoColor}"
     uninstallParam="${paramColor}optional flags:${NoColor} ${valueColor}--uninstall${NoColor} | ${valueColor}--offline${NoColor} | ${valueColor}--no-build${NoColor} | ${valueColor}--clear-cache${NoColor}"
 
     echo
@@ -68,9 +68,9 @@ deviceAdbCommand=("")
 
 for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
     paramValue="${!lastParam}"
-    if [[ "${paramValue}" =~ "--deviceId=" ]]; then
+    if [[ "${paramValue}" =~ "--device-id=" ]]; then
         deviceAdbCommand=()
-        deviceId=`echo "${paramValue}" | sed -E "s/--deviceId=(.*)/\1/"`
+        deviceId=`echo "${paramValue}" | sed -E "s/--device-id=(.*)/\1/"`
         if [ "${deviceId}" == "ALL" ] || [ "${deviceId}" == "all" ]; then
             devices=(`adb devices | grep -E "^[0-9a-fA-F]+\s+?device$" | sed -E "s/([0-9a-fA-F]+).*/\1/"`)
         else

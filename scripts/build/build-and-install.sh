@@ -72,12 +72,13 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
         deviceAdbCommand=()
         deviceId=`echo "${paramValue}" | sed -E "s/--device-id=(.*)/\1/"`
         if [ "${deviceId}" == "ALL" ] || [ "${deviceId}" == "all" ]; then
-            devices=(`adb devices | grep -E "^[0-9a-fA-F]+\s+?device$" | sed -E "s/([0-9a-fA-F]+).*/\1/"`)
+            devices=(`adb devices | grep -E "^[0-9a-zA-Z]+\s+?device$" | sed -E "s/([0-9a-zA-Z]+).*/\1/"`)
         else
             devices=("${deviceId}")
         fi
 
         for deviceId in "${devices[@]}"; do
+#            echo "deviceId=${deviceId}"
             deviceAdbCommand[${#deviceAdbCommand[*]}]=" -s ${deviceId}"
         done
         continue;
@@ -123,6 +124,19 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
         "--no-build")
             noBuild=" --no-build"
         ;;
+
+        "--no-install")
+            noInstall=" --no-install"
+        ;;
+
+        "--no-launch")
+            noLaunch=" --no-launch"
+        ;;
+
+        "--only-build")
+            noLaunch=" --no-launch"
+            noInstall=" --no-install"
+        ;;
     esac
 done
 echo
@@ -156,6 +170,10 @@ fi
 pathToApk=`find "${outputFolder}" -name '*.apk'`
 
 for deviceCommand in "${deviceAdbCommand[@]}"; do
-    execute "Installing apk:" "${adbCommand}${deviceCommand} install -r ${pathToApk}"
-    execute "Launching app:" "${adbCommand}${deviceCommand} shell am start -n ${packageName}/com.nu.art.cyborg.ui.ApplicationLauncher -a android.intent.action.MAIN -c android.intent.category.LAUNCHER"
+    if [ "${noInstall}" == "" ]; then
+        execute "Installing apk:" "${adbCommand}${deviceCommand} install -r ${pathToApk}"
+    fi
+    if [ "${noLaunch}" == "" ]; then
+        execute "Launching app:" "${adbCommand}${deviceCommand} shell am start -n ${packageName}/com.nu.art.cyborg.ui.ApplicationLauncher -a android.intent.action.MAIN -c android.intent.category.LAUNCHER"
+    fi
 done

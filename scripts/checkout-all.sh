@@ -28,11 +28,21 @@ if [ "${branchName}" == "" ]; then
     exit
 fi
 
+for (( lastParam=2; lastParam<=$#; lastParam+=1 )); do
+    case "${!lastParam}" in
+        "--force")
+            force="-b"
+        ;;
+    esac
+done
+
+
 function processFolder() {
     local folderName=${1}
     folderName=`echo ${folderName} | sed -E 's/\///'`
-    execute " Checking out branch ${branchName}" "git checkout ${branchName}"
+    execute " Checking out branch ${branchName}" "git checkout ${force} ${branchName}"
 }
+
 iterateOverFolders "gitMapSubmodules" processFolder
 
 execute " Checking out branch ${branchName}" "git checkout ${branchName}"

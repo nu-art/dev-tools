@@ -74,5 +74,6 @@ project=`git remote -v | head -1 | perl -pe "s/.*:(.*?)(:?.git| ).*/\1/"`
 checkExecutionError "Unable to extract remote project name"
 
 url="https://github.com/${project}/compare/${branch}?expand=1"
+echo "URL: ${url}"
 open ${url}
 checkExecutionError "Error launching browser with url: ${url}"

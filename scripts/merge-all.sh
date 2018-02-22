@@ -22,24 +22,15 @@
 source ${BASH_SOURCE%/*}/utils/file-tools.sh
 source ${BASH_SOURCE%/*}/utils/tools.sh
 
-message=${1}
-if [ "${message}" == "" ]; then
-    message="pull-all-script"
+branch=${1}
+
+if [ "${branch}" == "" ]; then
+    echo "Missing branch to merge"
+    exit
 fi
 
-execute "Pulling Main Repo" "git pull"
-
 function processFolder() {
-    isClean=`git status | grep "nothing to commit.*"`
-    if [ "${isClean}" == "" ]; then
-        execute "Stashing" "git stash save \"${message}\""
-    fi
-
-    execute "Pulling" "git pull"
-
-    if [ "${isClean}" == "" ]; then
-       execute "Applying" "git stash pop"
-    fi
+    execute "Merging with ${branch}" "git merge ${branch}"
 }
 
 iterateOverFolders "listGitFolders" processFolder

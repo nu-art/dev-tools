@@ -19,13 +19,13 @@
 
 #!/bin/bash
 source ${BASH_SOURCE%/*}/utils/file-tools.sh
+source ${BASH_SOURCE%/*}/utils/tools.sh
 
 
 function processFolder() {
-    local folderName=${1}
-    folderName=`echo ${folderName} | sed -E 's/\///'`
-    git status
+    execute "Checking status" "git status"
 }
 
 iterateOverFolders "listGitFolders" processFolder
 
+execute "Checking main repo status" "git status"

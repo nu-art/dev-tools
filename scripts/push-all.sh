@@ -20,16 +20,10 @@
 #!/bin/bash
 
 source ${BASH_SOURCE%/*}/utils/file-tools.sh
+source ${BASH_SOURCE%/*}/utils/tools.sh
 
-directories=$(listGitFolders)
-directories=(${directories//,/ })
-for folderName in "${directories[@]}"; do
-    pushd ${folderName}  > /dev/null
-        folderName=`echo ${folderName} | sed -E 's/\///'`
+function processFolder() {
+    execute "Pushing" "git push"
+}
 
-        echo "---- Pushing: ${folderName}"
-        git push
-
-    popd > /dev/null
-done
-
+iterateOverFolders "listGitFolders" processFolder

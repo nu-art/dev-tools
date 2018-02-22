@@ -39,11 +39,10 @@ done
 
 function processFolder() {
     local folderName=${1}
-    folderName=`echo ${folderName} | sed -E 's/\///'`
     execute " Checking out branch ${branchName}" "git checkout ${force} ${branchName}"
 }
 
 iterateOverFolders "gitMapSubmodules" processFolder
 
-execute " Checking out branch ${branchName}" "git checkout ${branchName}"
+execute " Checking out main repo to branch ${branchName}" "git checkout ${force} ${branchName}"
 

@@ -20,15 +20,11 @@
 #!/bin/bash
 
 source ${BASH_SOURCE%/*}/utils/file-tools.sh
+source ${BASH_SOURCE%/*}/utils/tools.sh
 
-directories=$(listGitFolders)
-directories=(${directories//,/ })
-for folderName in "${directories[@]}"; do
-    pushd ${folderName}  > /dev/null
-        folderName=`echo ${folderName} | sed -E 's/\///'`
+function processFolder() {
+    execute "Resetting repo" "git reset --hard"
+}
 
-        echo "---- Resetting: ${folderName}"
-        git reset --hard
+iterateOverFolders "listGitFolders" processFolder
 
-    popd > /dev/null
-done

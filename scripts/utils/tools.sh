@@ -82,12 +82,16 @@ function setProperty() {
     fi
 }
 
-execute() {
+function indent() {
+    sed "s/^/${1}/";
+}
+
+function execute() {
     local message=$1
     local command=$2
 
     echo
     logInfo "${message}"
-    logDebug "     ${command}"
-    ${command}
+    logDebug "  ${command}"
+    ${command} | indent "    "
 }

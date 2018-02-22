@@ -139,13 +139,13 @@ iterateOverFolders() {
     directories=(${directories//,/ })
 
     for folderName in "${directories[@]}"; do
-        logDebug "-----------------------------"
+        logDebug "---------------------------------------------"
         logDebug "   Processing: ${folderName}"
-        logDebug "-----------------------------"
+        logDebug "---------------------------------------------"
         pushd ${folderName} > /dev/null
             ${toExecute} ${folderName}
         popd > /dev/null
-        logDebug "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+        logVerbose "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
     done
 
 }

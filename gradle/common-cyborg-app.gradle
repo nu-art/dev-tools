@@ -30,6 +30,12 @@ android {
         versionName getVersionNameFromFile()
         versionCode getVersionCodeFromFile()
         project.version = versionName
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                includeCompileClasspath false
+            }
+        }
     }
 
     lintOptions {

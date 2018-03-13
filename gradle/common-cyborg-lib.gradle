@@ -38,6 +38,12 @@ android {
         targetSdkVersion TARGET_SDK
         versionName getVersionNameFromFile()
         project.version = versionName
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                includeCompileClasspath false
+            }
+        }
     }
 
     buildTypes {

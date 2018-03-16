@@ -89,9 +89,15 @@ function indent() {
 function execute() {
     local message=$1
     local command=$2
+    local indentOutput=$3
 
     echo
     logInfo "${message}"
     logDebug "  ${command}"
-    ${command} | indent "    "
+
+    if [ "${indentOutput}" == "false" ]; then
+        ${command}
+    else
+        ${command} | indent "    "
+    fi
 }

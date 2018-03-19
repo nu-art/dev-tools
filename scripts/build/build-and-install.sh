@@ -163,7 +163,7 @@ if [ "${noBuild}" == "" ]; then
         execute "deleting output folder:" "rm -rf ${outputFolder}"
     fi
 
-    execute "Building... " "bash gradlew ${command}${offline}"
+    execute "Building... " "bash gradlew ${command}${offline}" false
     checkExecutionError "Build error..."
 fi
 
@@ -171,7 +171,7 @@ pathToApk=`find "${outputFolder}" -name '*.apk'`
 
 for deviceCommand in "${deviceAdbCommand[@]}"; do
     if [ "${noInstall}" == "" ]; then
-        execute "Installing apk:" "${adbCommand}${deviceCommand} install -r ${pathToApk}"
+        execute "Installing apk:" "${adbCommand}${deviceCommand} install -r ${pathToApk}" false
     fi
     if [ "${noLaunch}" == "" ]; then
         execute "Launching app:" "${adbCommand}${deviceCommand} shell am start -n ${packageName}/com.nu.art.cyborg.ui.ApplicationLauncher -a android.intent.action.MAIN -c android.intent.category.LAUNCHER"

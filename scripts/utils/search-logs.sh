@@ -2,7 +2,8 @@
 folder=${1}
 echo "Searching for crashes in folder: ${folder}"
 
-pushd ${folder}
+pushd "${folder}"
+pwd
     mv logs00.txt logs-00.txt
 
     for file in logs*.zip; do
@@ -31,6 +32,10 @@ pushd ${folder}
     grep -rnw '.' --include=\*.txt -e 'Application started'
     echo
 
+    echo "On boot completed"
+    grep -rnw '.' --include=\*.txt -e 'Boot completed'
+    echo
+
     echo "Process Killed by system:"
     grep -rnw '.' --include=\*.txt -e 'Process com.ir.ai.kyou'
     echo
@@ -43,5 +48,12 @@ pushd ${folder}
     echo "Process died:"
     grep -rnw '.' --include=\*.txt -e 'SIG'
     echo
+    echo
+    echo
 
-pupd
+
+    echo "Searching for exceptions:"
+    grep -rnw '.' --include=\*.txt -e 'Exception'
+    echo
+
+popd

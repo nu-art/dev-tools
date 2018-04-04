@@ -68,44 +68,36 @@ deviceAdbCommand=("")
 
 for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
     paramValue="${!lastParam}"
-    if [[ "${paramValue}" =~ "--device-id=" ]]; then
-        deviceAdbCommand=()
-        deviceId=`echo "${paramValue}" | sed -E "s/--device-id=(.*)/\1/"`
-     if [ "${deviceId}" == "ALL" ] || [ "${deviceId}" == "all" ]; then
-            devices=(`adb devices | grep -E "^[0-9a-zA-Z]+\s+?device$" | sed -E "s/([0-9a-zA-Z]+).*/\1/"`)
-        else
-            devices=("${deviceId}")
-        fi
-
-        for deviceId in "${devices[@]}"; do
-            deviceAdbCommand[${#deviceAdbCommand[*]}]=" -s ${deviceId}"
-        done
-        continue;
-    fi
-
-    if [[ "${paramValue}" =~ "--packageName=" ]]; then
-        packageName=`echo "${paramValue}" | sed -E "s/--packageName=(.*)/\1/"`
-        continue;
-    fi
-
-    if [[ "${paramValue}" =~ "--project=" ]]; then
-        projectName=`echo "${paramValue}" | sed -E "s/--project=(.*)/\1/"`
-        outputFolder="${projectName}/build/outputs/apk"
-        continue;
-    fi
-
-    if [[ "${paramValue}" =~ "--build=" ]]; then
-        _command=`echo "${paramValue}" | sed -E "s/--build=(.*)/\1/"`
-        command="${command} assemble${_command}"
-        continue;
-    fi
-
-    echo "UNKNOWN PARAM: ${paramValue}";
-done
-
-for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
-    paramValue="${!lastParam}"
     case ${paramValue} in
+        "--packageName="*)
+            packageName=`echo "${paramValue}" | sed -E "s/--packageName=(.*)/\1/"`
+        ;;
+
+        "--device-id="*)
+            deviceAdbCommand=()
+            deviceId=`echo "${paramValue}" | sed -E "s/--device-id=(.*)/\1/"`
+            if [ "${deviceId}" == "ALL" ] || [ "${deviceId}" == "all" ]; then
+                devices=(`adb devices | grep -E "^[0-9a-zA-Z]+\s+?device$" | sed -E "s/([0-9a-zA-Z]+).*/\1/"`)
+            else
+                devices=("${deviceId}")
+            fi
+
+            for deviceId in "${devices[@]}"; do
+                deviceAdbCommand[${#deviceAdbCommand[*]}]=" -s ${deviceId}"
+            done
+        ;;
+
+        "--project="*)
+            projectName=`echo "${paramValue}" | sed -E "s/--project=(.*)/\1/"`
+            outputFolder="${projectName}/build/outputs/apk"
+        ;;
+
+        "--build="*)
+            _command=`echo "${paramValue}" | sed -E "s/--build=(.*)/\1/"`
+            command="${command} assemble${_command}"
+            echo "_command ${_command}"
+        ;;
+
         "--clear-cache")
             for deviceCommand in "${deviceAdbCommand[@]}"; do
                 execute "Clearing app cache:" "${adbCommand}${deviceCommand} shell pm clear ${packageName}"
@@ -137,6 +129,10 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
         "--only-build")
             noLaunch=" --no-launch"
             noInstall=" --no-install"
+        ;;
+
+        "*")
+            echo "UNKNOWN PARAM: ${paramValue}";
         ;;
     esac
 done

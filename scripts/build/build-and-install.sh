@@ -71,14 +71,13 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
     if [[ "${paramValue}" =~ "--device-id=" ]]; then
         deviceAdbCommand=()
         deviceId=`echo "${paramValue}" | sed -E "s/--device-id=(.*)/\1/"`
-        if [ "${deviceId}" == "ALL" ] || [ "${deviceId}" == "all" ]; then
+     if [ "${deviceId}" == "ALL" ] || [ "${deviceId}" == "all" ]; then
             devices=(`adb devices | grep -E "^[0-9a-zA-Z]+\s+?device$" | sed -E "s/([0-9a-zA-Z]+).*/\1/"`)
         else
             devices=("${deviceId}")
         fi
 
         for deviceId in "${devices[@]}"; do
-#            echo "deviceId=${deviceId}"
             deviceAdbCommand[${#deviceAdbCommand[*]}]=" -s ${deviceId}"
         done
         continue;
@@ -100,6 +99,8 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
         command="${command} assemble${_command}"
         continue;
     fi
+
+    echo "UNKNOWN PARAM: ${paramValue}";
 done
 
 for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do

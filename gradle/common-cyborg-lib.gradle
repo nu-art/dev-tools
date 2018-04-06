@@ -38,6 +38,7 @@ android {
         targetSdkVersion TARGET_SDK
         versionName getVersionNameFromFile()
         project.version = versionName
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         javaCompileOptions {
             annotationProcessorOptions {

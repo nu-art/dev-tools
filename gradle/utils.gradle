@@ -63,7 +63,8 @@ void defineVariantsAAR(Closure nameBuild) {
     android.libraryVariants.all { variant ->
         if (isGradleVersion4_1())
             variant.outputs.all { output ->
-                outputFileName = new File((String) output.outputFile.parent, nameBuild(variant))
+                outputFileName = nameBuild(variant)
+                println("outputFileName: " + output.outputFile.getAbsolutePath())
             }
         else
             variant.outputs.each { output ->
@@ -71,6 +72,7 @@ void defineVariantsAAR(Closure nameBuild) {
             }
     }
 }
+//outputFileName: /Users/tacb0ss/dev/personal/projects/cyborg-dev-project/automation/build/outputs/aar/automation-v0.9.45-adam.aar
 
 void defineDefaultVariantsAPK(Object architectureFilter, String appName) {
     defineVariantsAPK(architectureFilter, { variant, output, versionName, versionCode, buildType, flavors, architecture ->

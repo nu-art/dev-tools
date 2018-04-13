@@ -64,7 +64,7 @@ void defineVariantsAAR(Closure nameBuild) {
         if (isGradleVersion4_1())
             variant.outputs.all { output ->
                 outputFileName = nameBuild(variant)
-                println("outputFileName: " + output.outputFile.getAbsolutePath())
+//                println("outputFileName: " + output.outputFile.getAbsolutePath())
             }
         else
             variant.outputs.each { output ->

@@ -11,6 +11,7 @@ source ${BASH_SOURCE%/*}/../utils/error-handling.sh
 
 paramColor=${BBlue}
 valueColor=${BGreen}
+
 function printUsage {
     local errorMessage=${1}
 
@@ -59,12 +60,37 @@ fi
 
 adbCommand=${ANDROID_HOME}/platform-tools/adb
 
-build="Release"
-build="Debug"
-
 offline=""
 nobuild=""
-deviceAdbCommand=("")
+deviceIds=("")
+
+function waitForDevice() {
+    local deviceId=${1}
+    local connected=${2}
+    local message=${3}
+
+    device=`adb devices | grep ${deviceId}`
+
+    if [ "${device}" != "" ] && [ "${connected}" == "false" ]; then
+        if [ "${message}" == "" ]; then
+            message="Disconnect device"
+        fi
+        logWarning "${message}..."
+        sleep 5s
+        waitForDevice ${1} "${2}" ${3}
+        return
+    fi
+
+    if [ "${connected}" == "true" ] && [ "${device}" == "" ]; then
+        if [ "${message}" == "" ]; then
+            message="Waiting for device"
+        fi
+        logWarning "${message}..."
+        sleep 5s
+        waitForDevice ${1} "${2}" ${3}
+        return
+    fi
+}
 
 for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
     paramValue="${!lastParam}"
@@ -73,18 +99,12 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
             packageName=`echo "${paramValue}" | sed -E "s/--packageName=(.*)/\1/"`
         ;;
 
-        "--device-id="*)
-            deviceAdbCommand=()
-            deviceId=`echo "${paramValue}" | sed -E "s/--device-id=(.*)/\1/"`
-            if [ "${deviceId}" == "ALL" ] || [ "${deviceId}" == "all" ]; then
-                devices=(`adb devices | grep -E "^[0-9a-zA-Z]+\s+?device$" | sed -E "s/([0-9a-zA-Z]+).*/\1/"`)
-            else
-                devices=("${deviceId}")
-            fi
+        "--app-name="*)
+            appName=`echo "${paramValue}" | sed -E "s/--app-name=(.*)/\1/"`
+        ;;
 
-            for deviceId in "${devices[@]}"; do
-                deviceAdbCommand[${#deviceAdbCommand[*]}]=" -s ${deviceId}"
-            done
+        "--device-id="*)
+            deviceIdParam=`echo "${paramValue}" | sed -E "s/--device-id=(.*)/\1/"`
         ;;
 
         "--project="*)
@@ -95,19 +115,14 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
         "--build="*)
             _command=`echo "${paramValue}" | sed -E "s/--build=(.*)/\1/"`
             command="${command} assemble${_command}"
-            echo "_command ${_command}"
         ;;
 
-        "--clear-cache")
-            for deviceCommand in "${deviceAdbCommand[@]}"; do
-                execute "Clearing app cache:" "${adbCommand}${deviceCommand} shell pm clear ${packageName}"
-            done
+        "--clear-data")
+            clearData="--clear-data"
         ;;
 
         "--uninstall")
-            for deviceCommand in "${deviceAdbCommand[@]}"; do
-                execute "Uninstalling apk:" "${adbCommand}${deviceCommand} uninstall ${packageName}"
-            done
+            uninstall="--uninstall"
         ;;
 
         "--offline")
@@ -138,6 +153,12 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
 done
 echo
 
+if [ "${deviceIdParam}" == "" ] || [ "${deviceIdParam}" == "ALL" ] || [ "${deviceIdParam}" == "all" ]; then
+    deviceIds=(`adb devices | grep -E "^[0-9a-zA-Z]+\s+?device$" | sed -E "s/([0-9a-zA-Z]+).*/\1/"`)
+else
+    deviceIds=("${deviceIdParam}")
+fi
+
 if [ "${packageName}" == "" ]; then
     printUsage
 fi
@@ -146,31 +167,54 @@ if [ ! -d "${projectName}" ]; then
     printUsage "No project module named: '${projectName}'"
 fi
 
-if [ "${command}" == "" ] && [ "${noBuild}" == "" ]; then
+if [ "${command}" == "" ] && [ "${noBuild}" == "" ] && [ "${uninstall}" == "" ] && [ "${clearData}" == "" ]; then
     printUsage "MUST specify build type or set flag --no-build"
 fi
 
 if [ "${outputFolder}" == "" ]; then
-    printUsage
+    printUsage "missing output folder"
+fi
+
+if [ "${appName}" == "" ]; then
+    appName="${packageName}"
+fi
+
+if [ "${uninstall}" != "" ]; then
+    for deviceId in "${deviceIds[@]}"; do
+       waitForDevice ${deviceId} true
+       execute "Uninstalling '${appName}':" "${adbCommand} -s ${deviceId} uninstall ${packageName}"
+    done
+fi
+
+if [ "${clearData}" != "" ]; then
+    for deviceId in "${deviceIds[@]}"; do
+        waitForDevice ${deviceId} true
+        execute "Clearing data for '${appName}':" "${adbCommand} -s ${deviceId} shell pm clear ${packageName}"
+    done
+fi
+
+if [  "${command}" == "" ]; then
+    exit 0
 fi
 
 if [ "${noBuild}" == "" ]; then
-
     if [ -e "${outputFolder}" ]; then
         execute "deleting output folder:" "rm -rf ${outputFolder}"
     fi
 
-    execute "Building... " "bash gradlew ${command}${offline}" false
+    execute "Building '${appName}'..." "bash gradlew ${command}${offline}" false
     checkExecutionError "Build error..."
 fi
 
 pathToApk=`find "${outputFolder}" -name '*.apk'`
-
-for deviceCommand in "${deviceAdbCommand[@]}"; do
+    for deviceId in "${deviceIds[@]}"; do
     if [ "${noInstall}" == "" ]; then
-        execute "Installing apk:" "${adbCommand}${deviceCommand} install -r ${pathToApk}" false
+        waitForDevice ${deviceId} true
+        execute "Installing '${appName}':" "${adbCommand} -s ${deviceId} install -r ${pathToApk}" false
     fi
+
     if [ "${noLaunch}" == "" ]; then
-        execute "Launching app:" "${adbCommand}${deviceCommand} shell am start -n ${packageName}/com.nu.art.cyborg.ui.ApplicationLauncher -a android.intent.action.MAIN -c android.intent.category.LAUNCHER"
+        waitForDevice ${deviceId} true
+        execute "Launching '${appName}':" "${adbCommand} -s ${deviceId} shell am start -n ${packageName}/com.nu.art.cyborg.ui.ApplicationLauncher -a android.intent.action.MAIN -c android.intent.category.LAUNCHER"
     fi
 done

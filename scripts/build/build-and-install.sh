@@ -95,8 +95,8 @@ function waitForDevice() {
 for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
     paramValue="${!lastParam}"
     case ${paramValue} in
-        "--packageName="*)
-            packageName=`echo "${paramValue}" | sed -E "s/--packageName=(.*)/\1/"`
+        "--package-name="*)
+            packageName=`echo "${paramValue}" | sed -E "s/--package-name=(.*)/\1/"`
         ;;
 
         "--app-name="*)
@@ -121,8 +121,16 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
             clearData="--clear-data"
         ;;
 
+        "--delete-apks")
+            deleteApks="--delete-apks"
+        ;;
+
         "--uninstall")
             uninstall="--uninstall"
+        ;;
+
+        "--force-stop")
+            forceStop="--force-stop"
         ;;
 
         "--offline")
@@ -160,14 +168,14 @@ else
 fi
 
 if [ "${packageName}" == "" ]; then
-    printUsage
+    printUsage "No package name defined"
 fi
 
 if [ ! -d "${projectName}" ]; then
     printUsage "No project module named: '${projectName}'"
 fi
 
-if [ "${command}" == "" ] && [ "${noBuild}" == "" ] && [ "${uninstall}" == "" ] && [ "${clearData}" == "" ]; then
+if [ "${command}" == "" ] && [ "${noBuild}" == "" ] && [ "${uninstall}" == "" ] && [ "${clearData}" == "" ] && [ "${deleteApks}" == "" ]; then
     printUsage "MUST specify build type or set flag --no-build"
 fi
 
@@ -193,15 +201,23 @@ if [ "${clearData}" != "" ]; then
     done
 fi
 
+if [ "${forceStop}" != "" ]; then
+    for deviceId in "${deviceIds[@]}"; do
+        waitForDevice ${deviceId} true
+        execute "Force stopping Remote-Screen app..." "${adbCommand} -s ${deviceId} shell am force-stop ${packageName}"
+    done
+fi
+
+if [ "${deleteApks}" != "" ]; then
+    execute "deleting output folder:" "rm -rf ${outputFolder}"
+fi
+
 if [  "${command}" == "" ]; then
     exit 0
 fi
 
 if [ "${noBuild}" == "" ]; then
-    if [ -e "${outputFolder}" ]; then
-        execute "deleting output folder:" "rm -rf ${outputFolder}"
-    fi
-
+    execute "deleting output folder:" "rm -rf ${outputFolder}"
     execute "Building '${appName}'..." "bash gradlew ${command}${offline}" false
     checkExecutionError "Build error..."
 fi

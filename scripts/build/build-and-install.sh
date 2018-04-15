@@ -1,6 +1,8 @@
 #!/bin/bash
 
 bashVersion=`bash --version | grep version | sed -E "s/.* version (.).*/\1/"`
+apkPattern="*.apk"
+deviceIdParam="ALL"
 
 source ${BASH_SOURCE%/*}/_generic-tools.sh
 
@@ -99,6 +101,14 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
             packageName=`echo "${paramValue}" | sed -E "s/--package-name=(.*)/\1/"`
         ;;
 
+        "--path-to-apk="*)
+            pathToApk=`echo "${paramValue}" | sed -E "s/--path-to-apk=(.*)/\1/"`
+        ;;
+
+        "--apk-pattern="*)
+            apkPattern=`echo "${paramValue}" | sed -E "s/--apk-pattern=(.*)/\1/"`
+        ;;
+
         "--app-name="*)
             appName=`echo "${paramValue}" | sed -E "s/--app-name=(.*)/\1/"`
         ;;
@@ -127,6 +137,17 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
 
         "--uninstall")
             uninstall="--uninstall"
+            clearData=
+            forceStop=
+        ;;
+
+        "--uninstall-only")
+            clearData=
+            forceStop=
+            noInstall="--no-install"
+            noBuild="--no-build"
+            noLaunch="--no-launch"
+            uninstall="--uninstall"
         ;;
 
         "--force-stop")
@@ -149,6 +170,10 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
             noLaunch=" --no-launch"
         ;;
 
+        "--wait-for-device")
+            waitForDevice="--wait-for-device"
+        ;;
+
         "--only-build")
             noLaunch=" --no-launch"
             noInstall=" --no-install"
@@ -159,13 +184,22 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
         ;;
     esac
 done
-echo
 
-if [ "${deviceIdParam}" == "" ] || [ "${deviceIdParam}" == "ALL" ] || [ "${deviceIdParam}" == "all" ]; then
-    deviceIds=(`adb devices | grep -E "^[0-9a-zA-Z]+\s+?device$" | sed -E "s/([0-9a-zA-Z]+).*/\1/"`)
-else
-    deviceIds=("${deviceIdParam}")
-fi
+echo ----------
+echo "clearData: ${clearData}"
+echo "uninstall: ${uninstall}"
+echo "forceStop: ${forceStop}"
+echo "noBuild: ${noBuild}"
+echo "noInstall: ${noInstall}"
+echo "noLaunch: ${noLaunch}"
+echo "pathToApk: ${pathToApk}"
+echo "apkPattern: ${apkPattern}"
+echo "appName: ${appName}"
+echo "outputFolder: ${outputFolder}"
+echo "projectName: ${projectName}"
+echo "deviceIdParam: ${deviceIdParam}"
+echo "waitForDevice: ${waitForDevice}"
+
 
 if [ "${packageName}" == "" ]; then
     printUsage "No package name defined"
@@ -187,50 +221,121 @@ if [ "${appName}" == "" ]; then
     appName="${packageName}"
 fi
 
-if [ "${uninstall}" != "" ]; then
+if [ "${deviceIdParam}" == "" ] || [ "${deviceIdParam}" == "ALL" ] || [ "${deviceIdParam}" == "all" ]; then
+    deviceIds=(`adb devices | grep -E "^[0-9a-zA-Z]+\s+?device$" | sed -E "s/([0-9a-zA-Z]+).*/\1/"`)
+else
+    deviceIds=(`echo "${deviceIdParam}"`)
+fi
+
+function waitForDeviceImpl() {
+    if [ "${waitForDevice}" == "" ]; then
+          return
+    fi
+
+    for deviceId in "${deviceIds[@]}"; do
+       waitForDevice ${deviceId} true
+    done
+}
+
+function uninstallImpl() {
+    if [ "${uninstall}" == "" ]; then
+          return
+    fi
+
     for deviceId in "${deviceIds[@]}"; do
        waitForDevice ${deviceId} true
        execute "Uninstalling '${appName}':" "${adbCommand} -s ${deviceId} uninstall ${packageName}"
     done
-fi
+}
 
-if [ "${clearData}" != "" ]; then
+function buildImpl() {
+    if [ "${noBuild}" != "" ]; then
+          return
+    fi
+
+    execute "deleting output folder:" "rm -rf ${outputFolder}"
+    execute "Building '${appName}'..." "bash gradlew ${command}${offline}" false
+    checkExecutionError "Build error..."
+}
+
+function deleteApksImpl() {
+    if [ "${deleteApks}" != "" ]; then
+        execute "deleting output folder:" "rm -rf ${outputFolder}"
+    fi
+}
+
+function clearDataImpl() {
+    if [ "${clearData}" == "" ]; then
+          return
+    fi
+
     for deviceId in "${deviceIds[@]}"; do
         waitForDevice ${deviceId} true
         execute "Clearing data for '${appName}':" "${adbCommand} -s ${deviceId} shell pm clear ${packageName}"
     done
-fi
+}
 
-if [ "${forceStop}" != "" ]; then
+function forceStopImpl() {
+    if [ "${forceStop}" = "" ]; then
+        return
+    fi
+
     for deviceId in "${deviceIds[@]}"; do
         waitForDevice ${deviceId} true
         execute "Force stopping Remote-Screen app..." "${adbCommand} -s ${deviceId} shell am force-stop ${packageName}"
     done
-fi
+}
 
-if [ "${deleteApks}" != "" ]; then
-    execute "deleting output folder:" "rm -rf ${outputFolder}"
-fi
 
-if [  "${command}" == "" ]; then
-    exit 0
-fi
+function installImpl() {
+    if [ "${noInstall}" != "" ]; then
+        return
+    fi
 
-if [ "${noBuild}" == "" ]; then
-    execute "deleting output folder:" "rm -rf ${outputFolder}"
-    execute "Building '${appName}'..." "bash gradlew ${command}${offline}" false
-    checkExecutionError "Build error..."
-fi
+    if [ ! -e "${outputFolder}" ]; then
+        logError "Output folder does not exists... Build needed"
+        exit 2
+    fi
 
-pathToApk=`find "${outputFolder}" -name '*.apk'`
+    if [ "${pathToApk}" == "" ]; then
+        pathToApk=`find "${outputFolder}" -name "${apkPattern}"`
+    fi
+
+    if [ "${pathToApk}" == "" ]; then
+        logError "Could not find apk in path '${outputFolder}', matching the pattern '${apkPattern}'"
+        exit 2
+    fi
+
     for deviceId in "${deviceIds[@]}"; do
-    if [ "${noInstall}" == "" ]; then
         waitForDevice ${deviceId} true
         execute "Installing '${appName}':" "${adbCommand} -s ${deviceId} install -r ${pathToApk}" false
+    done
+}
+
+function launchImpl() {
+    if [ "${noLaunch}" != "" ]; then
+        return
     fi
 
-    if [ "${noLaunch}" == "" ]; then
+    for deviceId in "${deviceIds[@]}"; do
         waitForDevice ${deviceId} true
         execute "Launching '${appName}':" "${adbCommand} -s ${deviceId} shell am start -n ${packageName}/com.nu.art.cyborg.ui.ApplicationLauncher -a android.intent.action.MAIN -c android.intent.category.LAUNCHER"
-    fi
-done
+    done
+}
+
+deleteApksImpl
+forceStopImpl
+clearDataImpl
+buildImpl
+installImpl
+launchImpl
+
+
+# For reference
+
+#forceStopImpl
+#clearDataImpl
+#uninstallImpl
+#buildImpl
+#installImpl
+#launchImpl

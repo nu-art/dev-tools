@@ -276,7 +276,7 @@ function clearDataImpl() {
 }
 
 function forceStopImpl() {
-    if [ "${forceStop}" = "" ]; then
+    if [ "${forceStop}" == "" ]; then
         return
     fi
 

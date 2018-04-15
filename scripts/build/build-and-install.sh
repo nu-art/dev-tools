@@ -326,6 +326,7 @@ function launchImpl() {
 deleteApksImpl
 forceStopImpl
 clearDataImpl
+uninstallImpl
 buildImpl
 installImpl
 launchImpl

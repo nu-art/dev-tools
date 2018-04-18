@@ -27,5 +27,5 @@ function processFolder() {
 }
 
 iterateOverFolders "listGitFolders" processFolder
-
-execute "Checking main repo status" "git status"
+logDebug "Processing: Main Repo"
+execute "" "git status"

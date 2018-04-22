@@ -22,7 +22,8 @@ android {
     apply from: '../dev-tools/gradle/utils.gradle'
 
     compileSdkVersion COMPILE_SDK.toInteger()
-    buildToolsVersion TOOLS_VERSION
+    if (getGradleVersion() < 4.4f)
+        buildToolsVersion TOOLS_VERSION
 
     lintOptions {
         abortOnError false

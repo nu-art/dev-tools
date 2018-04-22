@@ -22,7 +22,8 @@ apply plugin: 'com.android.application'
 android {
 
     compileSdkVersion COMPILE_SDK.toInteger()
-    buildToolsVersion TOOLS_VERSION
+    if (getGradleVersion() < 4.4f)
+        buildToolsVersion TOOLS_VERSION
 
     defaultConfig {
         minSdkVersion MIN_SDK

@@ -127,6 +127,10 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
             command="${command} assemble${_command}"
         ;;
 
+        "--clean"*)
+            clean=" clean"
+        ;;
+
         "--clear-data")
             clearData="--clear-data"
         ;;
@@ -186,6 +190,7 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
 done
 
 echo ----------
+echo "clean: ${clean}"
 echo "clearData: ${clearData}"
 echo "uninstall: ${uninstall}"
 echo "forceStop: ${forceStop}"
@@ -254,7 +259,7 @@ function buildImpl() {
     fi
 
     execute "deleting output folder:" "rm -rf ${outputFolder}"
-    execute "Building '${appName}'..." "bash gradlew ${command}${offline}" false
+    execute "Building '${appName}'..." "bash gradlew${clean}${command}${offline}" false
     checkExecutionError "Build error..."
 }
 

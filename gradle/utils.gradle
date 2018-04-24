@@ -50,7 +50,7 @@ Object resolveDependency(String artifactId, String groupId, String version) {
 }
 
 void includeIfExists(String artifactId) {
-    if (new File("${artifactId}", "build.gradle").exists())
+    if (new File(rootProject.projectDir.getAbsolutePath() + "/${artifactId}", "build.gradle").exists())
         include ":${artifactId}"
 }
 

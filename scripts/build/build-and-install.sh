@@ -200,21 +200,23 @@ function printParam() {
 }
 
 echo ----------
+printParam "appName" "${appName}"
 printParam "packageName" "${packageName}"
-printParam "build" "${buildCommand}"
-printParam "clean" "${clean}"
-printParam "clearData" "${clearData}"
+printParam "projectName" "${projectName}"
+printParam "pathToApk" "${pathToApk}"
+printParam "apkPattern" "${apkPattern}"
+printParam "outputFolder" "${outputFolder}"
+
+printParam "deviceIdParam" "${deviceIdParam}"
+
 printParam "uninstall" "${uninstall}"
+printParam "clearData" "${clearData}"
 printParam "forceStop" "${forceStop}"
+printParam "clean" "${clean}"
+printParam "build" "${buildCommand}"
 printParam "noBuild" "${noBuild}"
 printParam "noInstall" "${noInstall}"
 printParam "noLaunch" "${noLaunch}"
-printParam "pathToApk" "${pathToApk}"
-printParam "apkPattern" "${apkPattern}"
-printParam "appName" "${appName}"
-printParam "outputFolder" "${outputFolder}"
-printParam "projectName" "${projectName}"
-printParam "deviceIdParam" "${deviceIdParam}"
 printParam "waitForDevice" "${waitForDevice}"
 
 

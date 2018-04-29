@@ -26,7 +26,7 @@ source ${BASH_SOURCE%/*}/../utils/coloring.sh
 paramColor=${BBlue}
 valueColor=${BGreen}
 
-if [ "${1}" == "" ] || [ "${2}" == "" ] || [ "${3}" == "" ]; then
+if [ "${1}" == "" ] || [ "${2}" == "" ]; then
     FromBranchParam="<${paramColor}From Branch${NoColor}-(${valueColor}Branch to merge from${NoColor})>"
     ToBranchParam="<${paramColor}To Branch${NoColor}-(${valueColor}Branch to merge into${NoColor})>"
     CommitParam="<${paramColor}Commit${NoColor}-(${valueColor}Your commit message${NoColor})>"
@@ -40,6 +40,11 @@ fi
 fromBranch=$1
 toBranch=$2
 commitMessage=$3
+
+if [ "${commitMessage}" == "" ]; then
+    commitMessage="merging ${toBranch} => ${fromBranch}"
+fi
+
 branchExists=`git branch -a |grep " ${fromBranch}"`
 
 if [ "${branchExists}" == "" ]; then

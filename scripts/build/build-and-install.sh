@@ -2,7 +2,7 @@
 
 bashVersion=`bash --version | grep version | sed -E "s/.* version (.).*/\1/"`
 apkPattern="*.apk"
-deviceIdParam="ALL"
+deviceIdParam=""
 
 source ${BASH_SOURCE%/*}/_generic-tools.sh
 
@@ -123,8 +123,8 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
         ;;
 
         "--build="*)
-            _command=`echo "${paramValue}" | sed -E "s/--build=(.*)/\1/"`
-            command="${command} assemble${_command}"
+            buildCommand=`echo "${paramValue}" | sed -E "s/--build=(.*)/\1/"`
+            command="${command} assemble${buildCommand}"
         ;;
 
         "--clean"*)
@@ -189,21 +189,33 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
     esac
 done
 
+function printParam() {
+    local paramName="${1}"
+    local paramValue="${2}"
+    if [ "${paramValue}" == "" ]; then
+        return
+    fi
+
+    echo "${paramName}: ${paramValue}"
+}
+
 echo ----------
-echo "clean: ${clean}"
-echo "clearData: ${clearData}"
-echo "uninstall: ${uninstall}"
-echo "forceStop: ${forceStop}"
-echo "noBuild: ${noBuild}"
-echo "noInstall: ${noInstall}"
-echo "noLaunch: ${noLaunch}"
-echo "pathToApk: ${pathToApk}"
-echo "apkPattern: ${apkPattern}"
-echo "appName: ${appName}"
-echo "outputFolder: ${outputFolder}"
-echo "projectName: ${projectName}"
-echo "deviceIdParam: ${deviceIdParam}"
-echo "waitForDevice: ${waitForDevice}"
+printParam "packageName" "${packageName}"
+printParam "build" "${buildCommand}"
+printParam "clean" "${clean}"
+printParam "clearData" "${clearData}"
+printParam "uninstall" "${uninstall}"
+printParam "forceStop" "${forceStop}"
+printParam "noBuild" "${noBuild}"
+printParam "noInstall" "${noInstall}"
+printParam "noLaunch" "${noLaunch}"
+printParam "pathToApk" "${pathToApk}"
+printParam "apkPattern" "${apkPattern}"
+printParam "appName" "${appName}"
+printParam "outputFolder" "${outputFolder}"
+printParam "projectName" "${projectName}"
+printParam "deviceIdParam" "${deviceIdParam}"
+printParam "waitForDevice" "${waitForDevice}"
 
 
 if [ "${packageName}" == "" ]; then
@@ -228,6 +240,10 @@ fi
 
 if [ "${deviceIdParam}" == "" ] || [ "${deviceIdParam}" == "ALL" ] || [ "${deviceIdParam}" == "all" ]; then
     deviceIds=(`adb devices | grep -E "^[0-9a-zA-Z]+\s+?device$" | sed -E "s/([0-9a-zA-Z]+).*/\1/"`)
+    if [ "${deviceIdParam}" == "" ] && (("${#deviceIds[@]}" > "1")); then
+        logError "More than one device connected, please specify which device: ${deviceIds[*]}"
+        exit 2
+    fi
 else
     deviceIds=(`echo "${deviceIdParam}"`)
 fi

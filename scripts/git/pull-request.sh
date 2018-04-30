@@ -42,7 +42,7 @@ toBranch=$2
 commitMessage=$3
 
 if [ "${commitMessage}" == "" ]; then
-    commitMessage="merging ${toBranch} => ${fromBranch}"
+    commitMessage="merging ${fromBranch} => ${toBranch}"
 fi
 
 branchExists=`git branch -a |grep " ${fromBranch}"`

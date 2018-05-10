@@ -68,14 +68,14 @@ def getVersionNameFromFile(String pathToFile) {
 }
 
 def getVersionCodeFromFile() {
-    String enforcedVersionCode = System.getenv('ENFOURCE_VERSION_CODE')
-    if (enforcedVersionCode)
-        return enforcedVersionCode
-    
-    return getVersionCodeFromFile(null)
+    getVersionCodeFromFile(null)
 }
 
 def getVersionCodeFromFile(String pathToFile) {
+    String enforcedVersionCode = System.getenv('ENFOURCE_VERSION_CODE')
+    if (enforcedVersionCode)
+        return enforcedVersionCode
+
     if (pathToFile == null)
         pathToFile = pathToVersionFile
 

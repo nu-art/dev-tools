@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-def configureUploadJavaArtifact(groupId, repoUrl) {
+def addTasks_JavaSourceAndDocs() {
     task sourcesJar(type: Jar, dependsOn: classes) {
         classifier = 'sources'
         from sourceSets.main.allSource
@@ -33,11 +33,9 @@ def configureUploadJavaArtifact(groupId, repoUrl) {
         archives sourcesJar
         archives javadocJar
     }
-
-    configureUploadArtifacts(groupId, repoUrl, 'jar')
 }
 
-def createAndroidArtifacts() {
+def addTasks_AndroidSourceAndDocs() {
     task javadoc(type: Javadoc) {
         failOnError false
         source = android.sourceSets.main.java.sourceFiles
@@ -65,38 +63,60 @@ def createAndroidArtifacts() {
     }
 }
 
-def uploadToNexus(groupId, repoUrl) {
+def addTask_DeployJavaArtifactToNexus(groupId) {
+    addTasks_JavaSourceAndDocs()
+    addTask_DeployToNexus(groupId, "jar")
+}
+
+def addTask_DeployAndroidArtifactToNexus(groupId) {
+    addTasks_AndroidSourceAndDocs()
+    addTask_DeployToNexus(groupId, "aar")
+}
+
+def addTask_DeployToNexus(groupId, _packaging) {
+    if (!nexusRepoUrl) {
+        println("Will not be able to deply to nexus.. project does not define 'nexusRepoUrl' in gradle.properties")
+        return
+    }
+
     createAndroidArtifacts()
     uploadArchives {
         apply plugin: 'maven'
 
         repositories {
-            MavenDeployer {
-                repository(url: repoUrl) {
+            mavenDeployer {
+                repository(url: nexusRepoUrl) {
                     authentication(userName: System.properties['NEXUS_USER'], password: System.properties['NEXUS_PASSWORD'])
                 }
 
                 pom.version = project.version
                 pom.groupId = groupId
                 pom.artifactId = project.name
-                pom.packaging = "aar"
+                pom.packaging = _packaging
 
             }
         }
     }
 }
 
-def configureUploadAndroidLibArtifact(groupId, repoUrl) {
-    createAndroidArtifacts()
-    configureUploadArtifacts(groupId, repoUrl, 'aar')
+
+def addTask_DeployJavaArtifactToCentral(groupId, githubRepoOwner) {
+    addTasks_JavaSourceAndDocs()
+    addTask_DeployToCentral(groupId, githubRepoOwner, 'jar')
 }
 
-def configureUploadArtifacts(groupId, repoUrl, _packaging) {
+def addTask_DeployAndroidArtifactToCentral(groupId, githubRepoOwner) {
+    addTasks_AndroidSourceAndDocs()
+    addTask_DeployToCentral(groupId, githubRepoOwner, 'aar')
+}
+
+def addTask_DeployToCentral(groupId, githubRepoOwner, _packaging) {
+    def repoPathOnGithub = githubRepoOwner + "/${name}"
     def gpgKeyId = System.getenv('GPG_KEY_ID')
     def gpgPassword = System.getenv('GPG_KEY_PASSWORD')
     def gpgFile = System.getenv('PATH_TO_GPG_FILE')
 
-    project.group = groupId;
+    project.group = groupId
     project.archivesBaseName = name
     project.version = getVersionNameFromFile()
 
@@ -112,8 +132,8 @@ def configureUploadArtifacts(groupId, repoUrl, _packaging) {
             sign configurations.archives
         }
 
-        def userName = System.getenv('OSSRH_USER_NAME');
-        def password = System.getenv('OSSRH_PASSWORD');
+        def userName = System.getenv('OSSRH_USER_NAME')
+        def password = System.getenv('OSSRH_PASSWORD')
 
         repositories {
             mavenDeployer {
@@ -133,12 +153,12 @@ def configureUploadArtifacts(groupId, repoUrl, _packaging) {
 
                     // optionally artifactId can be defined here
                     description 'A collection of core tools I use'
-                    url "http://github.com/${repoUrl}"
+                    url "http://github.com/${repoPathOnGithub}"
 
                     scm {
-                        connection "scm:git:git://github.com/${repoUrl}.git"
-                        developerConnection "scm:git:ssh://github.com/${repoUrl}.git"
-                        url "http://github.com/${repoUrl}/tree/master"
+                        connection "scm:git:git://github.com/${repoPathOnGithub}.git"
+                        developerConnection "scm:git:ssh://github.com/${repoPathOnGithub}.git"
+                        url "http://github.com/${repoPathOnGithub}/tree/master"
                     }
 
                     licenses {
@@ -161,5 +181,8 @@ def configureUploadArtifacts(groupId, repoUrl, _packaging) {
     }
 }
 
-ext.configureUploadJavaArtifact = this.&configureUploadJavaArtifact;
-ext.configureUploadAndroidLibArtifact = this.&configureUploadAndroidLibArtifact;
+ext.addTask_DeployJavaArtifactToNexus = this.&addTask_DeployJavaArtifactToNexus
+ext.addTask_DeployAndroidArtifactToNexus = this.&addTask_DeployAndroidArtifactToNexus
+
+ext.addTask_DeployJavaArtifactToCentral = this.&addTask_DeployJavaArtifactToCentral
+ext.addTask_DeployAndroidArtifactToCentral = this.&addTask_DeployAndroidArtifactToCentral

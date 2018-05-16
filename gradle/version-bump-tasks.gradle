@@ -26,22 +26,22 @@ task incrementVersionName {
             case "Build":
                 println("incrementVersionNameBuild")
                 incrementVersionName(4, 3)
-                break;
+                break
 
             case "Minor":
                 println("incrementVersionNameMinor")
                 incrementVersionName(3, 2)
-                break;
+                break
 
             case "Major":
                 println("incrementVersionNameMajor")
                 incrementVersionName(3, 1)
-                break;
+                break
 
             case "Version":
                 println("incrementVersionNameVersion")
                 incrementVersionName(3, 0)
-                break;
+                break
 
         }
     }

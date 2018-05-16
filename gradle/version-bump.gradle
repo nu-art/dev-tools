@@ -113,7 +113,7 @@ def incrementVersionName(int length, int index) {
         versionKeys[i] = Integer.parseInt(originalVersionArray[i])
     }
     def finalVersion = ""
-    versionKeys[index]++;
+    versionKeys[index]++
     for (int i = 0; i < length; i++) {
         finalVersion += (i > index ? "0" : "" + versionKeys[i])
         if (i < length - 1)
@@ -122,12 +122,12 @@ def incrementVersionName(int length, int index) {
 
     println("Incrementing Version Name: " + originalVersion + " ==> " + finalVersion)
 
-    updateVersionFile(pathToVersionFile, getVersionNamePattern(), "versionName \"" + finalVersion + "\"");
+    updateVersionFile(pathToVersionFile, getVersionNamePattern(), "versionName \"" + finalVersion + "\"")
 }
 
 def incrementVersionCode() {
     def originalVersionCode = getVersionCodeFromFile()
-    def finalVersionCode = originalVersionCode + 1;
+    def finalVersionCode = originalVersionCode + 1
     println("Incrementing Version Code: " + originalVersionCode + " ==> " + finalVersionCode)
 
     updateVersionFile(pathToVersionFile, getVersionCodePattern(), "versionCode " + finalVersionCode)

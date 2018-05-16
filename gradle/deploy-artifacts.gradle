@@ -79,7 +79,6 @@ def addTask_DeployToNexus(groupId, _packaging) {
         return
     }
 
-    createAndroidArtifacts()
     uploadArchives {
         apply plugin: 'maven'
 

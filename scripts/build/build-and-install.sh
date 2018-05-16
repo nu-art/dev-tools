@@ -243,7 +243,12 @@ fi
 if [ "${deviceIdParam}" == "" ] || [ "${deviceIdParam}" == "ALL" ] || [ "${deviceIdParam}" == "all" ]; then
     deviceIds=(`adb devices | grep -E "^[0-9a-zA-Z]+\s+?device$" | sed -E "s/([0-9a-zA-Z]+).*/\1/"`)
     if [ "${deviceIdParam}" == "" ] && (("${#deviceIds[@]}" > "1")); then
-        logError "More than one device connected, please specify which device: ${deviceIds[*]}"
+        logError "More than one device connected, please specify which device: "
+        logError "    --device-id=ALL"
+        for deviceId in "${deviceIds[@]}"; do
+            logError "    --device-id=${deviceId}"
+        done
+
         exit 2
     fi
 else

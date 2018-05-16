@@ -72,6 +72,10 @@ def getVersionCodeFromFile() {
 }
 
 def getVersionCodeFromFile(String pathToFile) {
+    String enforcedVersionCode = System.getenv('ENFOURCE_VERSION_CODE')
+    if (enforcedVersionCode)
+        return Integer.parseInt(enforcedVersionCode)
+
     if (pathToFile == null)
         pathToFile = pathToVersionFile
 

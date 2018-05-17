@@ -72,7 +72,10 @@ void defineVariantsAAR(Closure nameBuild) {
             }
     }
 }
-//outputFileName: /Users/tacb0ss/dev/personal/projects/cyborg-dev-project/automation/build/outputs/aar/automation-v0.9.45-adam.aar
+
+void defineDefaultVariantsAPK(String appName) {
+    defineDefaultVariantsAPK(null, appName)
+}
 
 void defineDefaultVariantsAPK(Object architectureFilter, String appName) {
     defineVariantsAPK(architectureFilter, { variant, output, versionName, versionCode, buildType, flavors, architecture ->
@@ -89,7 +92,7 @@ void defineVariantsAPK(Object architectureFilter, Closure nameBuild) {
             Closure apkName = { output ->
                 String versionName = variant.versionName
                 String versionCode = "${variant.versionCode}"
-                String architecture = output.getFilter(architectureFilter)
+                String architecture = architectureFilter == null ? null : output.getFilter(architectureFilter)
                 architecture = (architecture != null ? architecture : "")
 
                 String fileName = nameBuild(variant, output, versionName, versionCode, variant.buildType.name, variant.productFlavors, architecture)

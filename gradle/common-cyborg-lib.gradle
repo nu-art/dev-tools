@@ -19,7 +19,8 @@
  */
 
 android {
-    apply from: '../dev-tools/gradle/utils.gradle'
+    def rootProjectPath = rootProject.projectDir.getAbsolutePath()
+    apply from: rootProjectPath + '/dev-tools/gradle/utils.gradle'
 
     compileSdkVersion COMPILE_SDK.toInteger()
     if (getGradleVersion() < 4.4f)

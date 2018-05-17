@@ -20,6 +20,7 @@
 apply plugin: 'com.android.application'
 
 android {
+    def rootProjectPath = rootProject.projectDir.getAbsolutePath()
 
     compileSdkVersion COMPILE_SDK.toInteger()
     if (getGradleVersion() < 4.4f)
@@ -51,7 +52,7 @@ android {
 
     signingConfigs {
         debug {
-            storeFile file("../debug.keystore")
+            storeFile file(rootProjectPath + "/debug.keystore")
         }
     }
 

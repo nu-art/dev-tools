@@ -1,0 +1,68 @@
+/*
+ * This file is a part of nu-art projects development tools,
+ * it has a set of bash and gradle scripts, and the default
+ * settings for Android Studio and IntelliJ.
+ *
+ * Copyright (C) 2017  Adam van der Kruk aka TacB0sS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+def addTask_DeployJavaArtifactToNexus(groupId) {
+    addTasks_JavaSourceAndDocs()
+    addTask_DeployToNexus(groupId, "jar")
+}
+
+def addTask_DeployAndroidArtifactToNexus(groupId) {
+    addTasks_AndroidSourceAndDocs()
+    addTask_DeployToNexus(groupId, "aar")
+}
+
+def addTask_DeployToNexus(groupId, _packaging) {
+    if (!nexusRepoUrl) {
+        println("Will not be able to deply to nexus.. project does not define 'nexusRepoUrl' in gradle.properties")
+        return
+    }
+
+    uploadArchives {
+        apply plugin: 'maven'
+
+        repositories {
+            mavenDeployer {
+                repository(url: nexusRepoUrl) {
+                    def userName = System.properties['NEXUS_USER']
+                    if (!userName)
+                        userName = System.getenv('NEXUS_USER')
+
+                    def password = System.properties['NEXUS_PASSWORD']
+                    if (!password)
+                        password = System.getenv('NEXUS_PASSWORD')
+
+                    println("userName: " + userName + "  password: " + password)
+                    authentication(userName: userName, password: password)
+                }
+
+                println("groupId: " + groupId + "  _packaging: " + _packaging + "  nexusRepoUrl: " + nexusRepoUrl)
+                pom.version = project.version
+                pom.groupId = groupId
+                pom.artifactId = project.name
+                pom.packaging = _packaging
+
+            }
+        }
+    }
+}
+
+ext.addTask_DeployJavaArtifactToNexus = this.&addTask_DeployJavaArtifactToNexus
+ext.addTask_DeployAndroidArtifactToNexus = this.&addTask_DeployAndroidArtifactToNexus
+

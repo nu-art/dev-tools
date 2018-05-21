@@ -144,6 +144,51 @@ float getGradleVersion() {
     return ("" + org.gradle.util.GradleVersion.current()).substring("Gradle ".length()).toFloat()
 }
 
+def addTasks_JavaSourceAndDocs() {
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc
+    }
+
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
+    }
+}
+
+def addTasks_AndroidSourceAndDocs() {
+    task javadoc(type: Javadoc) {
+        failOnError false
+        source = android.sourceSets.main.java.sourceFiles
+        classpath = files(project.files(android.getBootClasspath().join(File.pathSeparator)), project.android.getBootClasspath(), configurations.compile)
+
+        options {
+            links "http://docs.oracle.com/javase/7/docs/api/"
+            linksOffline "http://d.android.com/reference", "${android.sdkDirectory}/docs/reference"
+        }
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    task sourcesJar(type: Jar) {
+        from android.sourceSets.main.java.srcDirs
+        classifier "source"
+    }
+
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
+    }
+}
+
 
 ext {
     getGradleVersion = this.&getGradleVersion
@@ -155,4 +200,6 @@ ext {
     defineVariantsAAR = this.&defineVariantsAAR
     resolveDependency = this.&resolveDependency
     includeIfExists = this.&includeIfExists
+    addTasks_AndroidSourceAndDocs = this.&addTasks_AndroidSourceAndDocs
+    addTasks_JavaSourceAndDocs = this.&addTasks_JavaSourceAndDocs
 }

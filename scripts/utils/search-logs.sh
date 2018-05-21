@@ -4,15 +4,13 @@ echo "Searching for crashes in folder: ${folder}"
 
 pushd "${folder}"
 pwd
-    mv logs00.txt logs-00.txt
-
     for file in logs*.zip; do
         [ -e "$file" ] || continue
         # ... rest of the loop body
 
-        index=`echo ${file} | sed -E "s/logs(..).zip/\1/"`
+        index=`echo ${file} | sed -E "s/logs-(..).zip/\1/"`
         unzip ${file} -d temp-${index} > NUL
-        mv temp-${index}/logs00.txt logs-${index}.txt
+        mv temp-${index}/logs-00.txt logs-${index}.txt
         rm ${file}
         rm -rf temp-${index}
     done
@@ -29,7 +27,7 @@ pwd
     done
 
     echo "Application started:"
-    grep -rnw '.' --include=\*.txt -e 'Application started'
+    grep -rnw '.' --include=\*.txt -e 'Application Starting'
     echo
 
     echo "On boot completed"

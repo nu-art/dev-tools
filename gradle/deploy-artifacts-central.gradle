@@ -63,42 +63,6 @@ def addTasks_AndroidSourceAndDocs() {
     }
 }
 
-def addTask_DeployJavaArtifactToNexus(groupId) {
-    addTasks_JavaSourceAndDocs()
-    addTask_DeployToNexus(groupId, "jar")
-}
-
-def addTask_DeployAndroidArtifactToNexus(groupId) {
-    addTasks_AndroidSourceAndDocs()
-    addTask_DeployToNexus(groupId, "aar")
-}
-
-def addTask_DeployToNexus(groupId, _packaging) {
-    if (!nexusRepoUrl) {
-        println("Will not be able to deply to nexus.. project does not define 'nexusRepoUrl' in gradle.properties")
-        return
-    }
-
-    uploadArchives {
-        apply plugin: 'maven'
-
-        repositories {
-            mavenDeployer {
-                repository(url: nexusRepoUrl) {
-                    authentication(userName: System.properties['NEXUS_USER'], password: System.properties['NEXUS_PASSWORD'])
-                }
-
-                pom.version = project.version
-                pom.groupId = groupId
-                pom.artifactId = project.name
-                pom.packaging = _packaging
-
-            }
-        }
-    }
-}
-
-
 def addTask_DeployJavaArtifactToCentral(groupId, githubRepoOwner) {
     addTasks_JavaSourceAndDocs()
     addTask_DeployToCentral(groupId, githubRepoOwner, 'jar')
@@ -179,9 +143,6 @@ def addTask_DeployToCentral(groupId, githubRepoOwner, _packaging) {
         }
     }
 }
-
-ext.addTask_DeployJavaArtifactToNexus = this.&addTask_DeployJavaArtifactToNexus
-ext.addTask_DeployAndroidArtifactToNexus = this.&addTask_DeployAndroidArtifactToNexus
 
 ext.addTask_DeployJavaArtifactToCentral = this.&addTask_DeployJavaArtifactToCentral
 ext.addTask_DeployAndroidArtifactToCentral = this.&addTask_DeployAndroidArtifactToCentral

@@ -81,10 +81,6 @@ def applyAndroidApplication(id, apkName) {
 }
 
 def applyAndroidLibrary() {
-    applyAndroidLibrary(null, null)
-}
-
-def applyAndroidLibrary(deployGroupId, githubRepoOwner) {
     apply plugin: 'com.android.library'
 
     android {
@@ -126,26 +122,14 @@ def applyAndroidLibrary(deployGroupId, githubRepoOwner) {
 
         defineVariantsAAR()
     }
-
-    if (deployGroupId && githubRepoOwner && project.hasProperty("addTask_DeployAndroidArtifactToCentral")) {
-        addTask_DeployAndroidArtifactToCentral(deployGroupId, githubRepoOwner)
-    }
 }
 
 def applyJavaLibrary() {
-    applyJavaLibrary(null, null)
-}
-
-def applyJavaLibrary(deployGroupId, githubRepoOwner) {
     apply plugin: 'java-library'
 
     tasks.withType(JavaCompile) {
         sourceCompatibility = JavaVersion.VERSION_1_7
         targetCompatibility = JavaVersion.VERSION_1_7
-    }
-
-    if (deployGroupId && githubRepoOwner && project.hasProperty("addTask_DeployAndroidArtifactToCentral")) {
-        addTask_DeployJavaArtifactToCentral(deployGroupId, githubRepoOwner)
     }
 }
 

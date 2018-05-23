@@ -26,32 +26,38 @@ pwd
         mv ${file} ${outputName}
     done
 
-    echo "Application started:"
-    grep -rnw '.' --include=\*.txt -e 'Application Starting'
+    echo "Bluetooth:"
+#    grep -rnw '.' --include=\*.txt -e 'Application Starting'
+    grep -E 'Turning bluetooth adapter' -rnw '.' --include=\*.txt
+    grep -E 'Turning bluetooth adapter ON' -rnw '.' --include=\*.txt
     echo
 
-    echo "On boot completed"
-    grep -rnw '.' --include=\*.txt -e 'Boot completed'
-    echo
+#    echo "Application started:"
+#    grep -rnw '.' --include=\*.txt -e 'Application Starting'
+#    echo
 
-    echo "Process Killed by system:"
-    grep -rnw '.' --include=\*.txt -e 'Process com.ir.ai.kyou'
-    echo
-
-    echo "Process crashed:"
-    grep -rnw '.' --include=\*.txt -e 'Crash on thread'
-    grep -rnw '.' --include=\*.txt -e 'FATAL'
-    echo
-
-    echo "Process died:"
-    grep -rnw '.' --include=\*.txt -e 'SIG'
-    echo
-    echo
-    echo
-
-
-    echo "Searching for exceptions:"
-    grep -rnw '.' --include=\*.txt -e 'Exception'
-    echo
+#    echo "On boot completed"
+#    grep -rnw '.' --include=\*.txt -e 'Boot completed'
+#    echo
+#
+#    echo "Process Killed by system:"
+#    grep -rnw '.' --include=\*.txt -e 'Process com.ir.ai.kyou'
+#    echo
+#
+#    echo "Process crashed:"
+#    grep -rnw '.' --include=\*.txt -e 'Crash on thread'
+#    grep -rnw '.' --include=\*.txt -e 'FATAL'
+#    echo
+#
+#    echo "Process died:"
+#    grep -rnw '.' --include=\*.txt -e 'SIG'
+#    echo
+#    echo
+#    echo
+#
+#
+#    echo "Searching for exceptions:"
+#    grep -rnw '.' --include=\*.txt -e 'Exception'
+#    echo
 
 popd

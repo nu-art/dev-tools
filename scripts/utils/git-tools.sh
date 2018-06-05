@@ -26,7 +26,7 @@ source ${BASH_SOURCE%/*}/tools.sh
 fixRemoteTrackingIfNeed() {
     local logFile=${logFile}
     if [ "${logFile}" == "" ]; then
-        logError "MUST declare logFile before calling gitCloneIfNeeded" "${resultFile}"
+        logError "MUST declare logFile before calling gitCloneIfNeeded"
         exit 1
     fi
 
@@ -35,7 +35,7 @@ fixRemoteTrackingIfNeed() {
     upstreamBranch=`sedFunc "${branchInfo}" "s~.\s${onBranch}\s*[a-z0-9]*\s*\[(.*?)\].*~\1~"`
 
     if [ "${branchInfo}" == "${upstreamBranch}" ]; then
-        logWarning "Missing upstream branch... setting to: origin/${onBranch}" "${resultFile}"
+        logWarning "Missing upstream branch... setting to: origin/${onBranch}"
         git branch "--set-upstream-to=origin/${onBranch}" "${onBranch}"  2>> "${logFile}" >> "${logFile}"
     else
         logVerbose " - Remote upstream is set to: ${upstreamBranch}"
@@ -52,7 +52,7 @@ gitMapSubmodules() {
             submodule=`echo ${line} | sed -E 's/\[submodule "(.*)"\]/\1/'`
 
             if [ "${submodule}" == "" ]; then
-                logError "Error extracting submodule name from line: ${line}" "${resultFile}"
+                logError "Error extracting submodule name from line: ${line}"
                 exit 1
             fi
 
@@ -66,7 +66,7 @@ gitMapSubmodules() {
 getSubmoduleDetail() {
     local submodule=$1
     if [ "${submodule}" == "" ]; then
-        logError "MUST provide a submodule name when calling getSubmoduleDetail" "${resultFile}"
+        logError "MUST provide a submodule name when calling getSubmoduleDetail"
         exit 1
     fi
 
@@ -76,7 +76,7 @@ getSubmoduleDetail() {
             gitSubmoduleName=`echo ${line} | sed -E 's/\[submodule "(.*)"\]/\1/'`
 
             if [ "${gitSubmoduleName}" == "" ]; then
-                logError "Error extracting submodule name from line: ${line}" "${resultFile}"
+                logError "Error extracting submodule name from line: ${line}"
                 exit 1
             fi
 
@@ -96,7 +96,7 @@ getSubmoduleDetail() {
             gitSubmoduleUrl=`echo ${line} | sed -E "s/.*= (.*)$/\1/"`
 
             if [ "${gitSubmoduleUrl}" == "" ]; then
-                logError "Error extracting url from line: ${line}" "${resultFile}"
+                logError "Error extracting url from line: ${line}"
                 exit 1
             fi
         fi
@@ -105,7 +105,7 @@ getSubmoduleDetail() {
             gitSubmoduleBranch=`echo ${line} | sed -E 's/.*= (.*)$/\1/'`
 
             if [ "${gitSubmoduleBranch}" == "" ]; then
-                logError "Error extracting branch from line: ${line}" "${resultFile}"
+                logError "Error extracting branch from line: ${line}"
                 exit 1
             fi
 
@@ -117,13 +117,13 @@ getSubmoduleDetail() {
 gitCloneIfNeeded() {
     local logFile=${logFile}
     if [ "${logFile}" == "" ]; then
-        logError "MUST declare logFile before calling gitCloneIfNeeded" "${resultFile}"
+        logError "MUST declare logFile before calling gitCloneIfNeeded"
         exit 1
     fi
 
     local submodule=$1
     if [ "${submodule}" == "" ]; then
-        logError "MUST provide a submodule name when calling gitCloneIfNeeded" "${resultFile}"
+        logError "MUST provide a submodule name when calling gitCloneIfNeeded"
         exit 1
     fi
 

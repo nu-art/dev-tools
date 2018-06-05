@@ -75,23 +75,23 @@ log() {
     local color=$2
     local levelPrefix=$3
     local logMessage=$4
-    local printToSummary=$5
-    local printToConsole=$6
+    local override=$5
+    local _override
+
+    if [ "${override}" == "true" ]; then
+        _override="n"
+    fi
 
     if (( ${level} < ${logLevel}  )); then
         return;
     fi
 
-    if [ "${printToConsole}" != "false" ]; then
-        echo -e "${color}${logMessage}${NoColor}"
-    fi
+#    For Debug
+#    echo "echo -e${_override} \"${color}${logMessage}${NoColor}\"\\r"
+    echo -e${_override} "${color}${logMessage}${NoColor}"\\r
 
     if [ "${logFile}" != "" ]; then
         echo "${levelPrefix} ${logMessage}" >> "${logFile}"
-    fi
-
-    if [ "${summaryFile}" != "" ] && [ "${printToSummary}" != "false" ]; then
-        echo "echo -e \"${color}${logMessage}${NoColor}\"" >> "${summaryFile}"
     fi
 }
 

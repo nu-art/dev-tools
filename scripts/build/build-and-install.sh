@@ -255,6 +255,32 @@ else
     deviceIds=(`echo "${deviceIdParam}"`)
 fi
 
+function yesOrNoQuestion() {
+    local message=${1}
+    local toExecuteYes=${2}
+    local toExecuteNo=${3}
+
+    echo
+    logWarning "${message}"
+    read  -n 1 -p "" response
+
+    case "$response" in
+        [yY])
+                echo
+                eval ${toExecuteYes}
+            ;;
+        [nN])
+                echo
+                eval ${toExecuteNo}
+            ;;
+        *)
+                echo
+                logError "Canceling..."
+                exit 2
+            ;;
+    esac
+}
+
 function waitForDeviceImpl() {
     if [ "${waitForDevice}" == "" ]; then
           return
@@ -265,14 +291,19 @@ function waitForDeviceImpl() {
     done
 }
 
+function uninstallFromDevice() {
+    local deviceId=${1}
+    waitForDevice ${deviceId} true
+    execute "Uninstalling '${appName}':" "${adbCommand} -s ${deviceId} uninstall ${packageName}"
+}
+
 function uninstallImpl() {
     if [ "${uninstall}" == "" ]; then
           return
     fi
 
     for deviceId in "${deviceIds[@]}"; do
-       waitForDevice ${deviceId} true
-       execute "Uninstalling '${appName}':" "${adbCommand} -s ${deviceId} uninstall ${packageName}"
+        uninstallFromDevice "${deviceId}"
     done
 }
 
@@ -315,6 +346,37 @@ function forceStopImpl() {
 }
 
 
+function installAppOnDevice() {
+    local deviceId=${1}
+    waitForDevice ${deviceId} true
+    execute "Installing '${appName}':" "${adbCommand} -s ${deviceId} install -r -d ${pathToApk}" false |& tee error
+
+    output=`cat error`
+    echo "output: ${output}"
+#    exit
+    rm error
+
+    if [[ "${output}" =~ "INSTALL_FAILED_UPDATE_INCOMPATIBLE" ]]; then
+        yesOrNoQuestion "Apk Certificate changed, do you want to uninstall previous version? [y(yes)/n(no)/c(cancel)]" "uninstallFromDevice \"${deviceId}\"; installAppOnDevice \"${deviceId}\"" "logError \"COULD NOT INSTALL SOM\""
+        return
+    fi
+
+    if [[ "${output}" =~ "INSTALL_PARSE_FAILED_NO_CERTIFICATES" ]]; then
+        installAppOnDevice "${deviceId}"
+        return
+    fi
+
+    if [[ "${output}" =~ "INSTALL_FAILED_VERSION_DOWNGRADE" ]]; then
+        yesOrNoQuestion "Failed to install! trying to install an older version, Uninstall newer version? [y/n]" "uninstallFromDevice \"${deviceId}\"; installAppOnDevice \"${deviceId}\"" "logError \"COULD NOT INSTALL TABLET\"; exit 1"
+        return
+    fi
+
+    if [[ "${output}" =~ "failed to install" ]]; then
+        yesOrNoQuestion "Failed to install, Try again? [y/n]" "installAppOnDevice \"${deviceId}\"" "logError \"COULD NOT INSTALL SOM\"; exit 1"
+        return
+    fi
+}
+
 function installImpl() {
     if [ "${noInstall}" != "" ]; then
         return
@@ -335,8 +397,7 @@ function installImpl() {
     fi
 
     for deviceId in "${deviceIds[@]}"; do
-        waitForDevice ${deviceId} true
-        execute "Installing '${appName}':" "${adbCommand} -s ${deviceId} install -r ${pathToApk}" false
+        installAppOnDevice "${deviceId}"
     done
 }
 

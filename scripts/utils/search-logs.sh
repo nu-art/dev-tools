@@ -29,16 +29,16 @@ pwd
     echo "Bluetooth:"
 #    grep -rnw '.' --include=\*.txt -e 'Application Starting'
     grep -E 'Turning bluetooth adapter' -rnw '.' --include=\*.txt
-    grep -E 'Turning bluetooth adapter ON' -rnw '.' --include=\*.txt
+    grep -E '=> ERROR_BLUETOOTH__REBOOT' -rnw '.' --include=\*.txt
     echo
 
 #    echo "Application started:"
 #    grep -rnw '.' --include=\*.txt -e 'Application Starting'
 #    echo
 
-#    echo "On boot completed"
-#    grep -rnw '.' --include=\*.txt -e 'Boot completed'
-#    echo
+    echo "On boot completed"
+    grep -rnw '.' --include=\*.txt -e 'Boot completed'
+    echo
 #
 #    echo "Process Killed by system:"
 #    grep -rnw '.' --include=\*.txt -e 'Process com.ir.ai.kyou'

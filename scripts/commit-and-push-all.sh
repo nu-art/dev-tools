@@ -43,7 +43,7 @@ fi
 function commitAndPushImpl() {
     status=`git status | grep "nothing to commit"`
     if [[ ! "${status}" =~ "nothing to commit" ]]; then
-        logDebug "Committing with message: ${commitMessage}" "${logFile}" true
+        logDebug "Committing with message: ${commitMessage}"
         git commit -am "${commitMessage}" 2>> "${logFile}" >> "${logFile}"
     fi
 

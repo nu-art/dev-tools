@@ -33,6 +33,6 @@ checkExecutionError() {
         return
     fi
 
-    logError "Error code: ${ERROR_CODE}\n${message}" "${resultFile}"
+    logError "Error code: ${ERROR_CODE}\n${message}"
     exit ${ERROR_CODE}
 }

@@ -189,6 +189,16 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
     esac
 done
 
+function verifyHasDevices() {
+    local message=${1}
+
+    if [ "${#deviceIds[@]}" == "0" ]; then
+        logError "${message}"
+        logError "No device found"
+        exit 1
+    fi
+}
+
 function printParam() {
     local paramName="${1}"
     local paramValue="${2}"
@@ -396,6 +406,7 @@ function installImpl() {
         exit 2
     fi
 
+    verifyHasDevices "Cannot install apk..."
     for deviceId in "${deviceIds[@]}"; do
         installAppOnDevice "${deviceId}"
     done
@@ -406,7 +417,8 @@ function launchImpl() {
         return
     fi
 
-    for deviceId in "${deviceIds[@]}"; do
+        verifyHasDevices "Cannot launch app..."
+        for deviceId in "${deviceIds[@]}"; do
         waitForDevice ${deviceId} true
         execute "Launching '${appName}':" "${adbCommand} -s ${deviceId} shell am start -n ${packageName}/com.nu.art.cyborg.ui.ApplicationLauncher -a android.intent.action.MAIN -c android.intent.category.LAUNCHER"
     done

@@ -251,7 +251,7 @@ if [ "${appName}" == "" ]; then
 fi
 
 if [ "${deviceIdParam}" == "" ] || [ "${deviceIdParam}" == "ALL" ] || [ "${deviceIdParam}" == "all" ]; then
-    deviceIds=(`adb devices | grep -E "^[0-9a-zA-Z]+\s+?device$" | sed -E "s/([0-9a-zA-Z]+).*/\1/"`)
+    deviceIds=(`adb devices | grep -E "^[0-9a-zA-Z\-]+\s+?device$" | sed -E "s/([0-9a-zA-Z-]+).*/\1/"`)
     if [ "${deviceIdParam}" == "" ] && (("${#deviceIds[@]}" > "1")); then
         logError "More than one device connected, please specify which device: "
         logError "    --device-id=ALL"

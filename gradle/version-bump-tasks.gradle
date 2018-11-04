@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-apply from: './dev-tools/gradle/version-bump.gradle'
+apply from: rootProject.projectDir.getAbsolutePath() + '/dev-tools/gradle/version-bump.gradle'
 
 task incrementVersionName {
     doLast {

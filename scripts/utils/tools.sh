@@ -20,6 +20,18 @@
 #!/bin/bash
 source ${BASH_SOURCE%/*}/log-tools.sh
 
+function contains() {
+    local found=false
+    for i in "${2}"; do
+        if [ "${i}" == "${1}" ] ; then
+            echo "true"
+            return
+        fi
+    done
+    echo "false"
+    return
+}
+
 function sedFunc() {
     local data=$1
     local pattern=$2
@@ -86,18 +98,37 @@ function indent() {
     sed "s/^/${1}/";
 }
 
-function execute() {
-    local message=$1
-    local command=$2
+function setDryRun() {
+    dryRun=$1
+}
+
+function newExecute() {
+    local command=$1
+    local message=$2
     local indentOutput=$3
 
-    echo
-    logInfo "${message}"
-    logDebug "  ${command}"
+
+    if [ "${message}" != "" ]; then
+        logInfo "${message}"
+    else
+        logInfo "${command}"
+    fi
+
+    if [ "${dryRun}" == "true" ]; then
+        return
+    fi
+
+    if [ "${message}" != "" ]; then
+        logDebug "  ${command}"
+    fi
 
     if [ "${indentOutput}" == "false" ]; then
         ${command}
     else
         ${command} | indent "    "
     fi
+}
+
+function execute() {
+    newExecute "${2}" "${1}" "${3}"
 }

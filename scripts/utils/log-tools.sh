@@ -114,3 +114,10 @@ logWarning() {
 logError() {
     log 4 "${BRed}" "-E-" "${1}" "${2}" "${3}"
 }
+
+banner() {
+    local add=$(echo "$1" | sed 's/./-/g')
+    echo "+---$add---+"
+    echo "|   ${1}   |"
+    echo "+---$add---+"
+}

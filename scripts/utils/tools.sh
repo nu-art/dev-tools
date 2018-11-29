@@ -132,3 +132,10 @@ function newExecute() {
 function execute() {
     newExecute "${2}" "${1}" "${3}"
 }
+
+function deleteFolder() {
+    local folderName=${1}
+    logInfo "Deleting folder: ${folderName}"
+    rm -rf "${folderName}"
+    checkExecutionError
+}

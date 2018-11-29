@@ -20,12 +20,15 @@
 #!/bin/bash
 
 gitCheckoutBranch() {
-    git checkout "${1}"
+    local branchName=${1}
+    git checkout "${branchName}"
     checkExecutionError
 }
 
 gitSaveStash() {
-    local result=`git stash save "${1}"`
+    local stashName=${1}
+
+    local result=`git stash save "${stashName}"`
     echo "${result}" 2>> "${logFile}" >> "${logFile}"
     checkExecutionError
     if [[ "${result}" =~ "No local changes to save" ]]; then

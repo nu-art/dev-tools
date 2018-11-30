@@ -18,8 +18,10 @@
 #  limitations under the License.
 
 #!/bin/bash
+
 GIT_TAG="GIT:"
-gitCheckoutBranch() {
+
+function gitCheckoutBranch() {
     local branchName=${1}
     logInfo "${GIT_TAG} Checking out branch: ${branchName}"
     local output=`git checkout ${branchName}`
@@ -31,37 +33,43 @@ gitCheckoutBranch() {
     checkExecutionError
 }
 
-gitAddAll() {
+function gitAddAll() {
     logInfo "${GIT_TAG} git add all"
     git add .
 }
 
-gitSaveStash() {
+function gitAdd() {
+    local toAdd="${1}"
+    logInfo "${GIT_TAG} git add ${toAdd}"
+    git add "${toAdd}"
+}
+
+function gitSaveStash() {
     local stashName=${1}
     logInfo "${GIT_TAG} Stashing changes with message: ${stashName}"
     local result=`git stash save "${stashName}"`
     checkExecutionError
 }
 
-gitStashPop() {
+function gitStashPop() {
     logInfo "${GIT_TAG} Popping last stash"
     git stash pop
 }
 
-gitPullRepo() {
+function gitPullRepo() {
     logInfo "${GIT_TAG} Pulling repo from Origin"
     git pull
 }
 
 
-gitRemoveSubmoduleFromCache() {
+function gitRemoveSubmoduleFromCache() {
     local pathToFile=${1}
     logInfo "${GIT_TAG} Removing file from git: ${pathToFile}"
     git rm -rf --cache "${pathToFile}"
     checkExecutionError
 }
 
-gitCloneRepoByUrl() {
+function gitCloneRepoByUrl() {
     local repoUrl=${1}
     local recursive=${recursive}
     logInfo "${GIT_TAG} Cloning repo from url: ${repoUrl}"
@@ -70,35 +78,48 @@ gitCloneRepoByUrl() {
 }
 
 
-gitClearStash(){
+function gitClearStash(){
     logInfo "${GIT_TAG} Clearing stash"
     git stash clear
 }
 
-gitCommit() {
+function gitCommit() {
     local message=$1
     logInfo "${GIT_TAG} Commit with message: ${message}"
     git commit -am "${message}"
 }
 
-gitTag() {
+function gitMerge() {
+    local branch=origin/${1}
+    logInfo "${GIT_TAG} Merging from ${branch}"
+    git merge ${branch}
+}
+
+function gitTag() {
     local tag=$1
     local message=$2
     logInfo "${GIT_TAG} creating tag \"${tag}\" with message: ${message}"
     git tag -a ${tag} -am "${message}"
 }
 
-gitPush() {
+function gitPush() {
     logInfo "${GIT_TAG} Pushing to origin..."
     git push
 }
 
-gitPushTags() {
+function gitPushTags() {
     logInfo "${GIT_TAG} Pushing tags to origin..."
     git push --tags
 }
 
-gitCommitAndTagAndPush() {
+function gitUpdateSubmodules() {
+    local submodules=(${@})
+    echo ${submodules[@]}
+    logInfo "${GIT_TAG} Updating Submodules: ${submodules[@]}"
+    git submodule update --init ${submodules[@]}
+}
+
+function gitCommitAndTagAndPush() {
     local tag=$1
     local message=$2
 
@@ -110,7 +131,7 @@ gitCommitAndTagAndPush() {
 
 
 
-gitHasRepoChanged() {
+function gitHasRepoChanged() {
     local status=`git status | grep "Changes not staged for commit"`
     if [[ "${status}" =~ "Changes not staged for commit" ]]; then
         echo "true"
@@ -119,7 +140,38 @@ gitHasRepoChanged() {
     fi
 }
 
-gitGetCurrentBranch() {
+function gitGetCurrentBranch() {
     local onBranch=`git status | grep "On branch" | sed -E "s/On branch //"`
     echo "${onBranch}"
 }
+
+function getAllChangedSubmodules() {
+    local ALL_REPOS=(`git status | grep -e "modified: .*(" | sed -E "s/.*modified: (.*)\(.*/\1/"`)
+    local repos=()
+    local toIgnore=(${1})
+    for projectName in "${ALL_REPOS[@]}"; do
+        if [ `contains ${projectName} "${toIgnore[@]}"` == "true" ]; then
+            continue
+        fi
+
+        repos+=(${projectName})
+    done
+
+    echo "${repos[@]}"
+}
+
+function getAllConflictingSubmodules() {
+    local ALL_REPOS=(`git status | grep -E "both modified: .*" | sed -E "s/.*both modified: (.*)/\1/"`)
+    local repos=()
+    local toIgnore=(${1})
+    for projectName in "${ALL_REPOS[@]}"; do
+        if [ `contains ${projectName} "${toIgnore[@]}"` == "true" ]; then
+            continue
+        fi
+
+        repos+=(${projectName})
+    done
+
+    echo "${repos[@]}"
+}
+

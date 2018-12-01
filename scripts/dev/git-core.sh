@@ -23,14 +23,16 @@ GIT_TAG="GIT:"
 
 function gitCheckoutBranch() {
     local branchName=${1}
+    local isForced=${2}
+
     logInfo "${GIT_TAG} Checking out branch: ${branchName}"
-    local output=`git checkout ${branchName}`
-    if [[ "${output}" =~ "did not match any file" ]]; then
+    git checkout ${branchName}
+
+    if [ `gitGetCurrentBranch` != "${branchName}" ] && [ "${isForced}" == "true" ]; then
         logWarning "${GIT_TAG} Could not find branch...  Creating a new branch named: ${branchName}"
         local output=`git checkout -b ${branchName}`
         git push -u origin ${branchName}
     fi
-    checkExecutionError
 }
 
 function gitAddAll() {
@@ -54,11 +56,13 @@ function gitSaveStash() {
 function gitStashPop() {
     logInfo "${GIT_TAG} Popping last stash"
     git stash pop
+    checkExecutionError
 }
 
 function gitPullRepo() {
     logInfo "${GIT_TAG} Pulling repo from Origin"
     git pull
+    checkExecutionError
 }
 
 
@@ -93,6 +97,7 @@ function gitMerge() {
     local branch=origin/${1}
     logInfo "${GIT_TAG} Merging from ${branch}"
     git merge ${branch}
+    checkExecutionError
 }
 
 function gitTag() {
@@ -100,16 +105,19 @@ function gitTag() {
     local message=$2
     logInfo "${GIT_TAG} creating tag \"${tag}\" with message: ${message}"
     git tag -a ${tag} -am "${message}"
+    checkExecutionError
 }
 
 function gitPush() {
     logInfo "${GIT_TAG} Pushing to origin..."
     git push
+    checkExecutionError
 }
 
 function gitPushTags() {
     logInfo "${GIT_TAG} Pushing tags to origin..."
     git push --tags
+    checkExecutionError
 }
 
 function gitUpdateSubmodules() {
@@ -117,6 +125,7 @@ function gitUpdateSubmodules() {
     echo ${submodules[@]}
     logInfo "${GIT_TAG} Updating Submodules: ${submodules[@]}"
     git submodule update --init ${submodules[@]}
+    checkExecutionError
 }
 
 function gitCommitAndTagAndPush() {
@@ -138,6 +147,28 @@ function gitHasRepoChanged() {
     else
         echo "false"
     fi
+}
+
+
+
+function gitListSubmodules() {
+    local submodule
+    local submodules=()
+
+    while IFS='' read -r line || [[ -n "$line" ]]; do
+        if [[ "${line}" =~ "submodule" ]]; then
+            submodule=`echo ${line} | sed -E 's/\[submodule "(.*)"\]/\1/'`
+
+            if [ "${submodule}" == "" ]; then
+                logError "Error extracting submodule name from line: ${line}"
+                exit 1
+            fi
+
+            submodules[${#submodules[*]}]="${submodule}"
+        fi
+    done < .gitmodules
+
+    echo "${submodules[@]}"
 }
 
 function gitGetCurrentBranch() {

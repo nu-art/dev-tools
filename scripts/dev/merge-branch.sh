@@ -12,10 +12,8 @@ projectsToIgnore=("dev-tools")
 function extractParams() {
     echo
     logInfo "Process params: "
-    for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
-        paramValue="${!lastParam}"
+    for paramValue in "${@}"; do
         logDebug "  param: ${paramValue}"
-
         case "${paramValue}" in
             "--dry-run")
                 setDryRun true

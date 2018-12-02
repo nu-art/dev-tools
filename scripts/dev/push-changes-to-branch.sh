@@ -71,14 +71,14 @@ if [ "${changedSubmodules#}" == "0" ]; then
 fi
 
 banner "Main Repo"
-gitCheckoutBranch ${branchName}
+gitCheckoutBranch ${branchName} true
 
 for submoduleName in "${changedSubmodules[@]}"; do
     echo
     banner "${submoduleName}"
     cd ${submoduleName}
         pwd
-        gitCheckoutBranch ${branchName}
+        gitCheckoutBranch ${branchName} true
         gitAddAll
         gitCommit "${commitMessage}"
         gitPush

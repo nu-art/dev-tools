@@ -88,10 +88,10 @@ log() {
 
 #    For Debug
 #    echo "echo -e${_override} \"${color}${logMessage}${NoColor}\"\\r"
-    echo -e${_override} "${color}${logMessage}${NoColor}"\\r
-
+    logDate=`date +"%Y-%m-%d_%H:%M:%S"`
+    echo -e${_override} "${color}${logDate} ${logMessage}${NoColor}"\\r
     if [ "${logFile}" != "" ]; then
-        echo "${levelPrefix} ${logMessage}" >> "${logFile}"
+        echo "${logDate} ${levelPrefix} ${logMessage}" >> "${logFile}"
     fi
 }
 

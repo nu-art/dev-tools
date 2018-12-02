@@ -103,7 +103,7 @@ function gitMerge() {
 function gitTag() {
     local tag=$1
     local message=$2
-    logInfo "${GIT_TAG} creating tag \"${tag}\" with message: ${message}"
+    logInfo "${GIT_TAG} Creating tag \"${tag}\" with message: ${message}"
     git tag -a ${tag} -am "${message}"
     checkExecutionError
 }

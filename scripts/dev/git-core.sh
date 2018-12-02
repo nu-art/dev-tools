@@ -97,7 +97,6 @@ function gitMerge() {
     local branch=origin/${1}
     logInfo "${GIT_TAG} Merging from ${branch}"
     git merge ${branch}
-    checkExecutionError
 }
 
 function gitTag() {
@@ -110,7 +109,11 @@ function gitTag() {
 
 function gitPush() {
     logInfo "${GIT_TAG} Pushing to origin..."
-    git push
+    local branchName=${1}
+    local output=`git push`
+    if [ "${branchName}" != "" ] && [[ "${output}" =~ "has no upstream branch" ]]; then
+        git push --set-upstream origin ${branchName}
+    fi
     checkExecutionError
 }
 
@@ -197,6 +200,10 @@ function getAllConflictingSubmodules() {
     local toIgnore=(${1})
     for projectName in "${ALL_REPOS[@]}"; do
         if [ `contains ${projectName} "${toIgnore[@]}"` == "true" ]; then
+            continue
+        fi
+
+        if [ ! -e "${projectName}/.git" ]; then
             continue
         fi
 

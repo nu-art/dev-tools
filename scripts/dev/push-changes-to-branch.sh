@@ -81,7 +81,7 @@ for submoduleName in "${changedSubmodules[@]}"; do
         gitCheckoutBranch ${branchName} true
         gitAddAll
         gitCommit "${commitMessage}"
-        gitPush
+        gitPush ${branchName}
     cd ..
 done
 

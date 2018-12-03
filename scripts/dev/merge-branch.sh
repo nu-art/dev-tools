@@ -93,7 +93,6 @@ for submoduleName in "${conflictingSubmodules[@]}"; do
     cd ${submoduleName}
         gitMerge ${fromBranch}
     cd ..
-    gitAdd ${submoduleName}
 done
 
 changedSubmodules=(`getAllChangedSubmodules "${projectsToIgnore[@]}"`)

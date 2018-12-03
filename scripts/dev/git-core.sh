@@ -73,7 +73,6 @@ function gitPullRepo() {
     checkExecutionError
 }
 
-
 function gitRemoveSubmoduleFromCache() {
     local pathToFile=${1}
     logInfo "${GIT_TAG} Removing file from git: ${pathToFile}"

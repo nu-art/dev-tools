@@ -67,7 +67,8 @@ verifyRequirement
 
 
 banner "Main Repo"
-if [ `gitGetCurrentBranch` != "${toBranch}" ]; then
+currentBranch=`gitGetCurrentBranch`
+if [  "${currentBranch}" != "${toBranch}" ]; then
     logError "Main Repo MUST be on branch: ${toBranch}"
     exit 1
 fi
@@ -80,7 +81,8 @@ echo "conflictingSubmodules: ${conflictingSubmodules[@]}"
 
 for submoduleName in "${conflictingSubmodules[@]}"; do
     cd ${submoduleName}
-        if [ `gitGetCurrentBranch` != "${toBranch}" ]; then
+        currentBranch=`gitGetCurrentBranch`
+        if [ "${currentBranch}" != "${toBranch}" ]; then
             logError "Submodule ${submoduleName} MUST be on branch: ${toBranch}"
             cd ..
             exit 1

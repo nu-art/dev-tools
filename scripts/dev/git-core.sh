@@ -28,7 +28,8 @@ function gitCheckoutBranch() {
     logInfo "${GIT_TAG} Checking out branch: ${branchName}"
     git checkout ${branchName}
 
-    if [ `gitGetCurrentBranch` != "${branchName}" ] && [ "${isForced}" == "true" ]; then
+    currentBranch=`gitGetCurrentBranch`
+    if [ "${currentBranch}" != "${branchName}" ] && [ "${isForced}" == "true" ]; then
         logWarning "${GIT_TAG} Could not find branch...  Creating a new branch named: ${branchName}"
         local output=`git checkout -b ${branchName}`
         git push -u origin ${branchName}

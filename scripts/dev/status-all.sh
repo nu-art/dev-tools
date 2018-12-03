@@ -18,28 +18,19 @@
 #  limitations under the License.
 
 #!/bin/bash
+source ${BASH_SOURCE%/*}/../utils/file-tools.sh
+source ${BASH_SOURCE%/*}/tools.sh
 
-source ${BASH_SOURCE%/*}/utils/file-tools.sh
-source ${BASH_SOURCE%/*}/utils/tools.sh
 
-message=${1}
-if [ "${message}" == "" ]; then
-    message="pull-all-script"
-fi
-
-execute "Pulling Main Repo" "git pull"
+bannerDebug "Processing: Main Repo"
+git status
 
 function processFolder() {
-    isClean=`git status | grep "nothing to commit.*"`
-    if [ "${isClean}" == "" ]; then
-        execute "Stashing" "git stash save \"${message}\""
-    fi
-
-    execute "Pulling" "git pull"
-
-    if [ "${isClean}" == "" ]; then
-       execute "Applying" "git stash pop"
-    fi
+    local folder=${1}
+    cd ${folder}
+        git status
+    cd ..
 }
 
-iterateOverFolders "listGitFolders" processFolder
+
+executeProcessor processFolder listGitFolders

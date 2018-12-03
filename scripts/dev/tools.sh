@@ -18,7 +18,7 @@
 #  limitations under the License.
 
 #!/bin/bash
-source ${BASH_SOURCE%/*}/log-tools.sh
+source ${BASH_SOURCE%/*}/../utils/log-tools.sh
 
 function contains() {
     local found=false
@@ -52,7 +52,7 @@ function indent() {
     sed "s/^/${1}/";
 }
 
-function newExecute() {
+function execute() {
     local command=$1
     local message=$2
     local indentOutput=$3
@@ -88,10 +88,13 @@ function deleteFolder() {
 
 function executeProcessor() {
     local processor=${1}
-    local data=(${2})
+    local dataFetcher=(${2})
+    local data=(`${dataFetcher}`)
 
+#    echo "processor: ${processor}"
+#    echo "data: ${data[@]}"
     for dataItem in "${data[@]}"; do
-        banner "${dataItem}"
+        bannerDebug "Processing: ${dataItem}"
         ${processor} ${dataItem}
         logVerbose "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
         echo

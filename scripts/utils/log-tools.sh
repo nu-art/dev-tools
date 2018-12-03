@@ -115,9 +115,36 @@ logError() {
     log 4 "${BRed}" "-E-" "${1}" "${2}" "${3}"
 }
 
+
+
+bannerVerbose() {
+    banner 0 "${NoColor}" "-V-" "${1}"
+}
+
+bannerDebug() {
+    banner 1 "${BBlue}" "-D-" "${1}"
+}
+
+bannerInfo() {
+    banner 2 "${BGreen}" "-I-" "${1}"
+}
+
+bannerWarning() {
+    banner 3 "${BYellow}" "-W-" "${1}"
+}
+
+bannerError() {
+    banner 4 "${BRed}" "-E-" "${1}"
+}
+
 banner() {
-    local add=$(echo "$1" | sed 's/./-/g')
-    echo "+---$add---+"
-    echo "|   ${1}   |"
-    echo "+---$add---+"
+    local level=$1
+    local color=$2
+    local levelPrefix=$3
+    local logMessage=$4
+
+    local add=$(echo "$logMessage" | sed 's/./-/g')
+    log ${level} "${color}" "${levelPrefix}" "+---$add---+"
+    log ${level} "${color}" "${levelPrefix}" "|   ${logMessage}   |"
+    log ${level} "${color}" "${levelPrefix}" "+---$add---+"
 }

@@ -1,4 +1,4 @@
-
+#
 #  This file is a part of nu-art projects development tools,
 #  it has a set of bash and gradle scripts, and the default
 #  settings for Android Studio and IntelliJ.
@@ -19,11 +19,36 @@
 
 #!/bin/bash
 
-source ${BASH_SOURCE%/*}/utils/file-tools.sh
-source ${BASH_SOURCE%/*}/utils/tools.sh
+source ${BASH_SOURCE%/*}/../utils/file-tools.sh
+source ${BASH_SOURCE%/*}/tools.sh
+source ${BASH_SOURCE%/*}/git-core.sh
 
-function processFolder() {
-    execute "Pushing" "git push"
+message=${1}
+if [ "${message}" == "" ]; then
+    message="pull-all-script"
+fi
+
+function process() {
+    isClean=`git status | grep "nothing to commit.*"`
+    if [ "${isClean}" == "" ]; then
+        gitSaveStash ${message}
+    fi
+
+    gitPullRepo
+
+    if [ "${isClean}" == "" ]; then
+        gitStashPop
+    fi
 }
 
-iterateOverFolders "listGitFolders" processFolder
+function processFolder() {
+    local folder=${1}
+    cd ${folder}
+        process
+    cd ..
+}
+
+bannerDebug "Processing: Main Repo"
+gitPullRepo
+
+executeProcessor processFolder listGitFolders

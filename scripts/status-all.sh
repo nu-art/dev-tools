@@ -21,6 +21,7 @@
 source ${BASH_SOURCE%/*}/utils/file-tools.sh
 source ${BASH_SOURCE%/*}/utils/tools.sh
 
+banner "DEPRECATED use ./scripts/dev/status-all.sh"
 
 function processFolder() {
     execute "Checking status" "git status"

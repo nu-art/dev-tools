@@ -66,7 +66,7 @@ extractParams "$@"
 verifyRequirement
 
 
-banner "Main Repo"
+bannerDebug "Main Repo"
 currentBranch=`gitGetCurrentBranch`
 if [  "${currentBranch}" != "${toBranch}" ]; then
     logError "Main Repo MUST be on branch: ${toBranch}"
@@ -91,7 +91,7 @@ for submoduleName in "${conflictingSubmodules[@]}"; do
 done
 
 for submoduleName in "${conflictingSubmodules[@]}"; do
-    banner "${submoduleName}"
+    bannerDebug "${submoduleName}"
     cd ${submoduleName}
         gitMerge ${fromBranch}
     cd ..
@@ -101,9 +101,3 @@ changedSubmodules=(`getAllChangedSubmodules "${projectsToIgnore[@]}"`)
 echo
 echo "changedSubmodules: ${changedSubmodules[@]}"
 gitUpdateSubmodules "${changedSubmodules[@]}"
-
-#
-#echo
-#banner "Main Repo"
-#gitCommit "${toBranch}"
-#gitPush

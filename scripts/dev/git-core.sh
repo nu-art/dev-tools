@@ -18,6 +18,7 @@
 #  limitations under the License.
 
 #!/bin/bash
+source ${BASH_SOURCE%/*}/../utils/error-handling.sh
 
 GIT_TAG="GIT:"
 
@@ -61,6 +62,12 @@ function gitStashPop() {
 }
 
 function gitPullRepo() {
+    local currentBranch=`gitGetCurrentBranch`
+    if [ "${currentBranch}" == "" ]; then
+        logWarning "HEAD is detached... skipping repo"
+        return
+    fi
+
     logInfo "${GIT_TAG} Pulling repo from Origin"
     git pull
     checkExecutionError

@@ -64,7 +64,7 @@ function gitStashPop() {
 function gitPullRepo() {
     local currentBranch=`gitGetCurrentBranch`
     if [ "${currentBranch}" == "" ]; then
-        logWarning "HEAD is detached... skipping repo"
+        logInfo "HEAD is detached... skipping repo"
         return
     fi
 

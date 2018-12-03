@@ -118,7 +118,7 @@ function processFolder() {
     open ${url}
 #    checkExecutionError "Error launching browser with url: ${url}"
 
-    summary="${summary}\nhttps://github.com/intuition-robotics/${project}/pulls/${githubUsername}"
+    summary="${summary}\nhttps://github.com/${project}/pulls/${githubUsername}"
 }
 
 processFolder

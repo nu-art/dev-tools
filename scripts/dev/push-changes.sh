@@ -70,7 +70,14 @@ if [ "${changedSubmodules#}" == "0" ]; then
     exit 0
 fi
 
+currentBranch=`gitGetCurrentBranch`
+if [ "${currentBranch}" != "${branchName}" ]; then
+    logError "Main Repo MUST be on branch: ${branchName}"
+    exit 1
+fi
+
 bannerDebug "Main Repo"
+
 gitCheckoutBranch ${branchName} true
 
 for submoduleName in "${changedSubmodules[@]}"; do

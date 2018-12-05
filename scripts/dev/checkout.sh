@@ -53,7 +53,7 @@ function extractParams() {
 function printUsage() {
     echo
     echo -e "   USAGE:"
-    echo -e "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} --branch=${fromBranch} --to=${toBranch}"
+    echo -e "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} --branch=${branchName}"
     echo -e "  "
     echo
     exit 0
@@ -62,7 +62,7 @@ function printUsage() {
 function verifyRequirement() {
     missingData=false
     if [ "${branchName}" == "" ]; then
-        fromBranch="${paramColor}branch-name${NoColor}"
+        branchName="${paramColor}branch-name${NoColor}"
         missingData=true
     fi
 

@@ -28,6 +28,7 @@ if [ "${message}" == "" ]; then
     message="pull-all-script"
 fi
 
+pids=()
 function process() {
     isClean=`git status | grep "nothing to commit.*"`
     if [ "${isClean}" == "" ]; then
@@ -44,7 +45,9 @@ function process() {
 function processFolder() {
     local folder=${1}
     cd ${folder}
-        process
+        process &
+        pid=$!
+        pids+=(${pid})
     cd ..
 }
 
@@ -52,3 +55,20 @@ bannerDebug "Processing: Main Repo"
 gitPullRepo
 
 executeProcessor processFolder listGitFolders
+echo "pids: ${pids[@]}"
+
+#cmd1 &
+#cmd1_pid=$!
+#sleep 10
+#cmd2
+#sleep 10
+#cmd2
+#wait $cmd1_pid
+
+#explanation: cmd1 & launches a process in the background of the shell. the $! variable contains
+#the pid of that background process. the shell keeps processing the other cmds. sleep 10 means
+#'wait a little while'. OP just wants to fire cmd2 in linear order so that part is trivial.
+# at the end of the script snippet we just wait for cmd1 to finish (it might be even finished earlier)
+# with wait $cmd1_pid.
+
+

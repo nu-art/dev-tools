@@ -57,6 +57,10 @@ gitPullRepo
 executeProcessor processFolder listGitFolders
 echo "pids: ${pids[@]}"
 
+for pid in "${pids[@]}"; do
+    wait ${pid}
+done
+
 #cmd1 &
 #cmd1_pid=$!
 #sleep 10

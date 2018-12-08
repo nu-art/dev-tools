@@ -97,4 +97,4 @@ echo
 bannerDebug "Main Repo"
 gitAddAll
 gitCommit "${commitMessage}"
-gitPush
+gitPush ${branchName}

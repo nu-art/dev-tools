@@ -22,6 +22,7 @@
 source ${BASH_SOURCE%/*}/../utils/file-tools.sh
 source ${BASH_SOURCE%/*}/tools.sh
 source ${BASH_SOURCE%/*}/git-core.sh
+source ${BASH_SOURCE%/*}/../_fun/signature.sh
 
 message=${1}
 if [ "${message}" == "" ]; then
@@ -51,6 +52,7 @@ function processFolder() {
     cd ..
 }
 
+signature
 bannerDebug "Processing: Main Repo"
 gitPullRepo
 
@@ -60,19 +62,3 @@ echo "pids: ${pids[@]}"
 for pid in "${pids[@]}"; do
     wait ${pid}
 done
-
-#cmd1 &
-#cmd1_pid=$!
-#sleep 10
-#cmd2
-#sleep 10
-#cmd2
-#wait $cmd1_pid
-
-#explanation: cmd1 & launches a process in the background of the shell. the $! variable contains
-#the pid of that background process. the shell keeps processing the other cmds. sleep 10 means
-#'wait a little while'. OP just wants to fire cmd2 in linear order so that part is trivial.
-# at the end of the script snippet we just wait for cmd1 to finish (it might be even finished earlier)
-# with wait $cmd1_pid.
-
-

@@ -20,15 +20,16 @@
 #!/bin/bash
 source ${BASH_SOURCE%/*}/../utils/file-tools.sh
 source ${BASH_SOURCE%/*}/tools.sh
+source ${BASH_SOURCE%/*}/../_fun/signature.sh
 
-
+signature
 bannerDebug "Processing: Main Repo"
-git status
+git status | grep -E "HEAD detached|Processing|Your branch|modified|On branch|\^"
 
 function processFolder() {
     local folder=${1}
     cd ${folder}
-        git status
+        git status | grep -E "HEAD detached|Processing|Your branch|modified|On branch|\^"
     cd ..
 }
 

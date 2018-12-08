@@ -5,6 +5,7 @@ source ${BASH_SOURCE%/*}/../utils/coloring.sh
 source ${BASH_SOURCE%/*}/../utils/log-tools.sh
 source ${BASH_SOURCE%/*}/../utils/error-handling.sh
 source ${BASH_SOURCE%/*}/git-core.sh
+source ${BASH_SOURCE%/*}/../_fun/signature.sh
 
 paramColor=${BRed}
 projectsToIgnore=("dev-tools")
@@ -65,7 +66,7 @@ function verifyRequirement() {
 extractParams "$@"
 verifyRequirement
 
-
+signature
 bannerDebug "Main Repo"
 currentBranch=`gitGetCurrentBranch`
 if [  "${currentBranch}" != "${toBranch}" ]; then

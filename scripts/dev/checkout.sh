@@ -24,6 +24,7 @@ source ${BASH_SOURCE%/*}/../utils/log-tools.sh
 source ${BASH_SOURCE%/*}/../utils/error-handling.sh
 source ${BASH_SOURCE%/*}/../utils/file-tools.sh
 source ${BASH_SOURCE%/*}/git-core.sh
+source ${BASH_SOURCE%/*}/../_fun/signature.sh
 
 paramColor=${BRed}
 projectsToIgnore=("dev-tools")
@@ -78,6 +79,7 @@ function processFolder() {
     gitCheckoutBranch ${branchName} ${force}
 }
 
+signature
 gitCheckoutBranch ${branchName} ${force}
 iterateOverFolders "gitListSubmodules" processFolder
 

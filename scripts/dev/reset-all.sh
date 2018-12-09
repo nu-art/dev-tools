@@ -16,30 +16,17 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
 #!/bin/bash
 
-source ${BASH_SOURCE%/*}/utils/file-tools.sh
-source ${BASH_SOURCE%/*}/utils/tools.sh
-
-message=${1}
-if [ "${message}" == "" ]; then
-    message="pull-all-script"
-fi
-
-execute "Pulling Main Repo" "git pull"
+source ${BASH_SOURCE%/*}/../utils/file-tools.sh
+source ${BASH_SOURCE%/*}/git-core.sh
+source ${BASH_SOURCE%/*}/tools.sh
 
 function processFolder() {
-    isClean=`git status | grep "nothing to commit.*"`
-    if [ "${isClean}" == "" ]; then
-        execute "Stashing" "git stash save \"${message}\""
-    fi
-
-    execute "Pulling" "git pull"
-
-    if [ "${isClean}" == "" ]; then
-       execute "Applying" "git stash pop"
-    fi
+    gitResetHard
 }
 
-iterateOverFolders "listGitFolders" processFolder
+signature
+processFolder
+iterateOverFolders "gitListSubmodules" processFolder
+

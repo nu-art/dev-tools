@@ -24,21 +24,20 @@ source ${BASH_SOURCE%/*}/tools.sh
 source ${BASH_SOURCE%/*}/git-core.sh
 source ${BASH_SOURCE%/*}/../_fun/signature.sh
 
-message=${1}
-if [ "${message}" == "" ]; then
-    message="pull-all-script"
+stashName=${1}
+if [ "${stashName}" == "" ]; then
+    stashName="pull-all-script"
 fi
 
 pids=()
 function process() {
-    isClean=`git status | grep "nothing to commit.*"`
-    if [ "${isClean}" == "" ]; then
-        gitSaveStash ${message}
-    fi
+
+    logInfo "${GIT_TAG} Stashing changes with message: ${stashName}"
+    local result=`git stash save "${stashName}"`
 
     gitPullRepo
 
-    if [ "${isClean}" == "" ]; then
+    if [ "${result}" != "No local changes to save" ]; then
         gitStashPop
     fi
 }

@@ -7,7 +7,7 @@ source ${BASH_SOURCE%/*}/../utils/error-handling.sh
 source ${BASH_SOURCE%/*}/git-core.sh
 source ${BASH_SOURCE%/*}/../_fun/signature.sh
 
-paramColor=${BRed}
+
 projectsToIgnore=("dev-tools")
 
 function extractParams() {
@@ -39,28 +39,33 @@ function extractParams() {
 function printUsage() {
     echo
     echo -e "   USAGE:"
-    echo -e "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} --from=${fromBranch} --to=${toBranch}"
+    echo -e "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${fromBranch} ${toBranch}"
     echo -e "  "
     echo
     exit 0
 }
 
 function verifyRequirement() {
+    local missingParamColor=${BRed}
+    local existingParamColor=${BBlue}
+
     missingData=false
     if [ "${fromBranch}" == "" ]; then
-        fromBranch="${paramColor}Branch-to-be-merged-from${NoColor}"
+        fromBranch="${missingParamColor}Branch-to-be-merged-from"
         missingData=true
     fi
 
     if [ "${toBranch}" == "" ]; then
-        toBranch="${paramColor}Branch-to-merge-onto${NoColor}"
+        toBranch="${missingParamColor}Branch-to-merge-onto"
         missingData=true
     fi
 
     if [ "${missingData}" == "true" ]; then
+        fromBranchParam=" --from=${existingParamColor}${fromBranch}${NoColor}"
+        toBranchParam=" --to=${existingParamColor}${toBranch}${NoColor}"
+
         printUsage
     fi
-
 }
 
 extractParams "$@"

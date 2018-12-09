@@ -54,7 +54,7 @@ function processFolder() {
 
 signature
 bannerDebug "Processing: Main Repo"
-gitPullRepo
+process
 
 executeProcessor processFolder listGitFolders
 echo "pids: ${pids[@]}"

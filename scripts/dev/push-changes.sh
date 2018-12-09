@@ -37,27 +37,32 @@ function extractParams() {
 function printUsage() {
     echo
     echo -e "   USAGE:"
-    echo -e "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} --branch=${branchName} --message=\"${paramColor}${commitMessage}${NoColor}\""
+    echo -e "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${branchName} ${commitMessage}"
     echo -e "  "
     echo
     exit 0
 }
 
 function verifyRequirement() {
-    missingData=false
+    local missingParamColor=${BRed}
+    local existingParamColor=${BBlue}
+
+    local missingData=false
     if [ "${branchName}" == "" ]; then
-        branchName="${paramColor}new-branch-name${NoColor}"
+        branchName="${missingParamColor}new-branch-name"
         missingData=true
     fi
 
-    if [ "${commitMessage}" == "${paramColor}Commit message here${NoColor}" ]; then
+    if [ "${commitMessage}" == "" ]; then
+        commitMessage="${missingParamColor}Commit message here"
         missingData=true
     fi
 
     if [ "${missingData}" == "true" ]; then
+        branchName="--branch=${existingParamColor}${branchName}${NoColor}"
+        commitMessage="--message=\"${existingParamColor}${commitMessage}${NoColor}\""
         printUsage
     fi
-
 }
 
 extractParams "$@"

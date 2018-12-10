@@ -28,13 +28,10 @@ source ${BASH_SOURCE%/*}/../_fun/signature.sh
 
 paramColor=${BRed}
 projectsToIgnore=("dev-tools")
+resolution="changed"
 
 function extractParams() {
-    echo
-    logInfo "Process params: "
     for paramValue in "${@}"; do
-        logDebug "  param: ${paramValue}"
-
         case "${paramValue}" in
             "--force")
                 force="true"
@@ -43,12 +40,20 @@ function extractParams() {
             "--branch="*)
                 branchName=`echo "${paramValue}" | sed -E "s/--branch=(.*)/\1/"`
             ;;
+
+            "--all")
+                resolution="all"
+            ;;
+
+            "--project")
+                resolution="project"
+            ;;
+
+            "--debug")
+                debug="true"
+            ;;
         esac
     done
-
-    echo
-    logInfo "Running with params:"
-    logDebug "  branchName: ${branchName}"
 }
 
 function printUsage() {
@@ -72,15 +77,62 @@ function verifyRequirement() {
     fi
 }
 
+function printDebugParams() {
+    if [ ! "${debug}" ]; then
+        return
+    fi
+
+    function printParam() {
+        if [ ! "${2}" ]; then
+            return
+        fi
+
+        logDebug "--  ${1}: ${2}"
+    }
+
+    logInfo "------- DEBUG: PARAMS -------"
+    logDebug "--"
+    printParam "force" ${force}
+    printParam "branchName" ${branchName}
+    printParam "resolution" ${resolution}
+    printParam "debug" ${debug}
+    logDebug "--"
+    logInfo "----------- DEBUG -----------"
+    echo
+}
+
 extractParams "$@"
 verifyRequirement
+printDebugParams
 
-function processFolder() {
-    gitCheckoutBranch ${branchName} ${force}
-}
+case "${resolution}" in
+    "changed")
+        submodules=(`getAllChangedSubmodules "${projectsToIgnore[@]}"`)
+    ;;
+
+    "all")
+        submodules=(`listGitFolders`)
+    ;;
+
+    "project")
+        submodules=(`gitListSubmodules`)
+    ;;
+
+    *)
+        logError "Unsupported submodule resolution type"
+        exit 1
+    ;;
+esac
+
+if [ "${submodules#}" == "0" ]; then
+    exit 0
+fi
+
 
 signature
 gitCheckoutBranch ${branchName} ${force}
-iterateOverFolders "gitListSubmodules" processFolder
+echo "submodules: ${submodules[@]}"
 
-
+for submodule in "${submodules[@]}"; do
+    gitCheckoutBranch ${branchName} ${force}
+done

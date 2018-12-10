@@ -159,8 +159,6 @@ function gitHasRepoChanged() {
     fi
 }
 
-
-
 function gitListSubmodules() {
     local submodule
     local submodules=()
@@ -172,6 +170,10 @@ function gitListSubmodules() {
             if [ "${submodule}" == "" ]; then
                 logError "Error extracting submodule name from line: ${line}"
                 exit 1
+            fi
+
+            if [ "${submodule}" == "dev-tools" ]; then
+                continue
             fi
 
             submodules[${#submodules[*]}]="${submodule}"

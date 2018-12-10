@@ -25,20 +25,65 @@ source ${BASH_SOURCE%/*}/git-core.sh
 source ${BASH_SOURCE%/*}/../_fun/signature.sh
 
 projectsToIgnore=("dev-tools")
+stashName="pull-all-script"
+resolution="changed"
 
-stashName=${1}
-if [ "${stashName}" == "" ]; then
-    stashName="pull-all-script"
-fi
+function extractParams() {
+    for paramValue in "${@}"; do
+        case "${paramValue}" in
+            "--stash-name="*)
+                stashName=`echo "${paramValue}" | sed -E "s/--stash-name=(.*)/\1/"`
+            ;;
+
+            "--all")
+                resolution="all"
+            ;;
+
+            "--project")
+                resolution="project"
+            ;;
+
+            "--debug")
+                debug="true"
+            ;;
+        esac
+    done
+}
+
+function printDebugParams() {
+    if [ ! "${debug}" ]; then
+        return
+    fi
+
+    function printParam() {
+        if [ ! "${2}" ]; then
+            return
+        fi
+
+        logDebug "--  ${1}: ${2}"
+    }
+
+    logInfo "------- DEBUG: PARAMS -------"
+    logDebug "--"
+    printParam "stashName" ${stashName}
+    printParam "resolution" ${resolution}
+    printParam "debug" ${debug}
+    logDebug "--"
+    logInfo "----------- DEBUG -----------"
+    echo
+}
 
 pids=()
 function process() {
-    logInfo "${GIT_TAG} Stashing changes with message: ${stashName}"
-    local result=`git stash save "${stashName}"`
+    local isClean=`git status | grep "nothing to commit.*"`
+    if [ ! "${isClean}" ]; then
+        logInfo "${GIT_TAG} Stashing changes with message: ${stashName}"
+        result=`git stash save "${stashName}"`
+    fi
 
     gitPullRepo
 
-    if [ "${result}" != "No local changes to save" ]; then
+    if [ ! "${isClean}" ] && [ "${result}" != "No local changes to save" ]; then
         gitStashPop
     fi
 }
@@ -59,23 +104,43 @@ function processFolder() {
 }
 
 signature
+
+extractParams "$@"
+printDebugParams
+
 bannerDebug "Processing: Main Repo"
 mainRepoBranch=`gitGetCurrentBranch`
 process
 
-changedSubmodules=(`getAllChangedSubmodules "${projectsToIgnore[@]}"`)
-echo
-echo "changedSubmodules: ${changedSubmodules[@]}"
+case "${resolution}" in
+    "changed")
+        submodules=(`getAllChangedSubmodules "${projectsToIgnore[@]}"`)
+    ;;
 
-if [ "${changedSubmodules#}" == "0" ]; then
+    "all")
+        submodules=(`listGitFolders`)
+    ;;
+
+    "project")
+        submodules=(`gitListSubmodules`)
+    ;;
+
+    *)
+        logError "Unsupported submodule resolution type"
+        exit 1
+    ;;
+esac
+
+if [ "${submodules#}" == "0" ]; then
     exit 0
 fi
 
-for submoduleName in "${changedSubmodules[@]}"; do
-    processFolder ${submoduleName}
+echo "submodules: ${submodules[@]}"
+
+for submodule in "${submodules[@]}"; do
+    processFolder ${submodule}
 done
 
-echo "pids: ${pids[@]}"
 for pid in "${pids[@]}"; do
     wait ${pid}
 done

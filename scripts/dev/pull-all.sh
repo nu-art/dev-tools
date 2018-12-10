@@ -24,6 +24,8 @@ source ${BASH_SOURCE%/*}/tools.sh
 source ${BASH_SOURCE%/*}/git-core.sh
 source ${BASH_SOURCE%/*}/../_fun/signature.sh
 
+projectsToIgnore=("dev-tools")
+
 stashName=${1}
 if [ "${stashName}" == "" ]; then
     stashName="pull-all-script"
@@ -31,7 +33,6 @@ fi
 
 pids=()
 function process() {
-
     logInfo "${GIT_TAG} Stashing changes with message: ${stashName}"
     local result=`git stash save "${stashName}"`
 
@@ -45,6 +46,12 @@ function process() {
 function processFolder() {
     local folder=${1}
     cd ${folder}
+        local submoduleBranch=`gitGetCurrentBranch`
+        if [ "${mainRepoBranch}" != "${submoduleBranch}" ]; then
+            cd ..
+            git submodule udpate ${folder}
+            return
+        fi
         process &
         pid=$!
         pids+=(${pid})
@@ -53,11 +60,22 @@ function processFolder() {
 
 signature
 bannerDebug "Processing: Main Repo"
+mainRepoBranch=`gitGetCurrentBranch`
 process
 
-executeProcessor processFolder listGitFolders
-echo "pids: ${pids[@]}"
+changedSubmodules=(`getAllChangedSubmodules "${projectsToIgnore[@]}"`)
+echo
+echo "changedSubmodules: ${changedSubmodules[@]}"
 
+if [ "${changedSubmodules#}" == "0" ]; then
+    exit 0
+fi
+
+for submoduleName in "${changedSubmodules[@]}"; do
+    processFolder ${submoduleName}
+done
+
+echo "pids: ${pids[@]}"
 for pid in "${pids[@]}"; do
     wait ${pid}
 done

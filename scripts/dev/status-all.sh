@@ -19,19 +19,76 @@
 
 #!/bin/bash
 source ${BASH_SOURCE%/*}/../utils/file-tools.sh
-source ${BASH_SOURCE%/*}/tools.sh
 source ${BASH_SOURCE%/*}/../_fun/signature.sh
+source ${BASH_SOURCE%/*}/git-core.sh
+source ${BASH_SOURCE%/*}/tools.sh
 
-signature
-bannerDebug "Processing: Main Repo"
-git status | grep -E "HEAD detached|Processing|Your branch|modified|On branch|\^"
+projectsToIgnore=("dev-tools")
+resolution="changed"
 
-function processFolder() {
-    local folder=${1}
-    cd ${folder}
-        git status | grep -E "HEAD detached|Processing|Your branch|modified|On branch|\^"
-    cd ..
+function extractParams() {
+    for paramValue in "${@}"; do
+        case "${paramValue}" in
+            "--all")
+                resolution="all"
+            ;;
+
+            "--project")
+                resolution="project"
+            ;;
+
+            "--debug")
+                debug="true"
+            ;;
+        esac
+    done
+}
+
+function printDebugParams() {
+    if [ ! "${debug}" ]; then
+        return
+    fi
+
+    function printParam() {
+        if [ ! "${2}" ]; then
+            return
+        fi
+
+        logDebug "--  ${1}: ${2}"
+    }
+
+    logInfo "------- DEBUG: PARAMS -------"
+    logDebug "--"
+    printParam "resolution" ${resolution}
+    printParam "debug" ${debug}
+    logDebug "--"
+    logInfo "----------- DEBUG -----------"
+    echo
 }
 
 
-executeProcessor processFolder listGitFolders
+function checkStatus() {
+    git status | grep -E "HEAD detached|Processing|Your branch|modified|On branch|\^"
+}
+
+function processSubmodule() {
+    local submodule=${1}
+
+    bannerDebug "Processing: ${submodule}"
+    cd ${submodule}
+        checkStatus
+    cd ..
+}
+
+extractParams "$@"
+
+signature "Status repo"
+printDebugParams
+
+bannerDebug "Processing: Main Repo"
+checkStatus
+
+submodules=(`getFolderByResolution ${resolution} "${projectsToIgnore[@]}"`)
+for submodule in "${submodules[@]}"; do
+    processSubmodule ${submodule}
+done

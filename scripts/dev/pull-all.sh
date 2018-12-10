@@ -20,10 +20,11 @@
 #!/bin/bash
 
 source ${BASH_SOURCE%/*}/../utils/file-tools.sh
+source ${BASH_SOURCE%/*}/../_fun/signature.sh
 source ${BASH_SOURCE%/*}/tools.sh
 source ${BASH_SOURCE%/*}/git-core.sh
-source ${BASH_SOURCE%/*}/../_fun/signature.sh
 
+pids=()
 projectsToIgnore=("dev-tools")
 stashName="pull-all-script"
 resolution="changed"
@@ -73,8 +74,7 @@ function printDebugParams() {
     echo
 }
 
-pids=()
-function process() {
+function pullRepo() {
     local isClean=`git status | grep "nothing to commit.*"`
     if [ ! "${isClean}" ]; then
         logInfo "${GIT_TAG} Stashing changes with message: ${stashName}"
@@ -88,57 +88,40 @@ function process() {
     fi
 }
 
-function processFolder() {
-    local folder=${1}
-    cd ${folder}
+function processSubmodule() {
+    local submodule=${1}
+
+    bannerDebug "Processing: ${submodule}"
+    cd ${submodule}
         local submoduleBranch=`gitGetCurrentBranch`
         if [ "${mainRepoBranch}" != "${submoduleBranch}" ]; then
             cd ..
-            git submodule udpate ${folder}
+            git submodule udpate ${submodule}
             return
         fi
-        process &
+        pullRepo &
         pid=$!
         pids+=(${pid})
     cd ..
 }
 
+mainRepoBranch=`gitGetCurrentBranch`
+if [ ! "${mainRepoBranch}" ]; then
+    logError "Main repo head detached... "
+    exit 1
+fi
+
 extractParams "$@"
 
-signature
+signature "Pull repo"
 printDebugParams
 
 bannerDebug "Processing: Main Repo"
-mainRepoBranch=`gitGetCurrentBranch`
-process
+pullRepo
 
-case "${resolution}" in
-    "changed")
-        submodules=(`getAllChangedSubmodules "${projectsToIgnore[@]}"`)
-    ;;
-
-    "all")
-        submodules=(`listGitFolders`)
-    ;;
-
-    "project")
-        submodules=(`gitListSubmodules`)
-    ;;
-
-    *)
-        logError "Unsupported submodule resolution type"
-        exit 1
-    ;;
-esac
-
-if [ "${submodules#}" == "0" ]; then
-    exit 0
-fi
-
-echo "submodules: ${submodules[@]}"
-
+submodules=(`getFolderByResolution ${resolution} "${projectsToIgnore[@]}"`)
 for submodule in "${submodules[@]}"; do
-    processFolder ${submodule}
+    processSubmodule ${submodule}
 done
 
 for pid in "${pids[@]}"; do

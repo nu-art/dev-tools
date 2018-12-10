@@ -222,3 +222,26 @@ function getAllConflictingSubmodules() {
     echo "${repos[@]}"
 }
 
+function getFolderByResolution() {
+    local submodules=
+    local toIgnore=(${2})
+    case "${1}" in
+        "changed")
+            submodules=(`getAllChangedSubmodules "${toIgnore[@]}"`)
+        ;;
+
+        "all")
+            submodules=(`listGitFolders "${toIgnore[@]}"`)
+        ;;
+
+        "project")
+            submodules=(`gitListSubmodules`)
+        ;;
+
+        *)
+            logError "Unsupported submodule resolution type"
+            exit 1
+        ;;
+    esac
+    echo "${submodules[@]}"
+}

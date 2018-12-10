@@ -76,9 +76,11 @@ allGradleFolders(){
 
 listFoldersImpl() {
     ls -ld */ > list.txt
-    directories=()
-
+    local directories=()
     while IFS='' read -r line || [[ -n "$line" ]]; do
+        local folderName=
+        local add= false
+
         for word in ${line}; do
             folderName=${word}
         done
@@ -93,7 +95,7 @@ listFoldersImpl() {
         done
 
         if [ "${add}" == "true" ]; then
-            directories[${#directories[*]}]="${folderName}"
+            directories+=(${folderName})
         fi
 
     done < list.txt

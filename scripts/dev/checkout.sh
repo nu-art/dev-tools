@@ -18,13 +18,13 @@
 #  limitations under the License.
 #!/bin/bash
 
-source ${BASH_SOURCE%/*}/../utils/tools.sh
 source ${BASH_SOURCE%/*}/../utils/coloring.sh
 source ${BASH_SOURCE%/*}/../utils/log-tools.sh
 source ${BASH_SOURCE%/*}/../utils/error-handling.sh
 source ${BASH_SOURCE%/*}/../utils/file-tools.sh
-source ${BASH_SOURCE%/*}/git-core.sh
 source ${BASH_SOURCE%/*}/../_fun/signature.sh
+source ${BASH_SOURCE%/*}/tools.sh
+source ${BASH_SOURCE%/*}/git-core.sh
 
 paramColor=${BRed}
 projectsToIgnore=("dev-tools")
@@ -101,39 +101,30 @@ function printDebugParams() {
     echo
 }
 
+function checkoutBranch() {
+    gitCheckoutBranch ${1} ${2}
+}
+
+
+function processSubmodule() {
+    local folder=${1}
+
+    bannerDebug "Processing: ${submodule}"
+    cd ${folder}
+        checkoutBranch ${2} ${3}
+    cd ..
+}
+
 extractParams "$@"
 verifyRequirement
 
-case "${resolution}" in
-    "changed")
-        submodules=(`getAllChangedSubmodules "${projectsToIgnore[@]}"`)
-    ;;
-
-    "all")
-        submodules=(`listGitFolders`)
-    ;;
-
-    "project")
-        submodules=(`gitListSubmodules`)
-    ;;
-
-    *)
-        logError "Unsupported submodule resolution type"
-        exit 1
-    ;;
-esac
-
-if [ "${submodules#}" == "0" ]; then
-    exit 0
-fi
-
-
-signature
+signature "Checkout repo"
 printDebugParams
 
 bannerDebug "Processing: Main Repo"
+checkoutBranch
 
-gitCheckoutBranch ${branchName} ${force}
+submodules=(`getFolderByResolution ${resolution} "${projectsToIgnore[@]}"`)
 for submodule in "${submodules[@]}"; do
-    gitCheckoutBranch ${branchName} ${force}
+    processSubmodule ${submodule} ${branchName} ${force}
 done

@@ -2,12 +2,18 @@
 
 
 source ${BASH_SOURCE%/*}/../utils/coloring.sh
-
+printedSignature=
 function signature() {
     local scriptName=${1}
     if [ "${scriptName}" == "" ]; then
         scriptName=`echo "${0}" | sed -E "s/.*\/(.*)\.sh/\1/"`
     fi
+
+    if [ "${printedSignature}" ]; then
+        return
+    fi
+
+    printedSignature="true"
 
     clear
     echo

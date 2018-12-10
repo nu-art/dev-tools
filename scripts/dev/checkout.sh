@@ -103,7 +103,6 @@ function printDebugParams() {
 
 extractParams "$@"
 verifyRequirement
-printDebugParams
 
 case "${resolution}" in
     "changed")
@@ -130,9 +129,11 @@ fi
 
 
 signature
-gitCheckoutBranch ${branchName} ${force}
-echo "submodules: ${submodules[@]}"
+printDebugParams
 
+bannerDebug "Processing: Main Repo"
+
+gitCheckoutBranch ${branchName} ${force}
 for submodule in "${submodules[@]}"; do
     gitCheckoutBranch ${branchName} ${force}
 done

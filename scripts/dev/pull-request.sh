@@ -30,10 +30,7 @@ paramColor=${BRed}
 projectsToIgnore=("dev-tools")
 
 function extractParams() {
-    echo
-    logInfo "Process params: "
     for paramValue in "${@}"; do
-        logDebug "  param: ${paramValue}"
         case "${paramValue}" in
             "--github-username="*)
                 githubUsername=`echo "${paramValue}" | sed -E "s/--github-username=(.*)/\1/"`
@@ -46,13 +43,12 @@ function extractParams() {
             "--to="*)
                 toBranch=`echo "${paramValue}" | sed -E "s/--to=(.*)/\1/"`
             ;;
+
+            "--debug")
+                debug="true"
+            ;;
         esac
     done
-
-    echo
-    logInfo "Running with params:"
-    logDebug "  fromBranch: ${fromBranch}"
-    logDebug "  toBranch: ${toBranch}"
 }
 
 function printUsage() {
@@ -82,15 +78,34 @@ function verifyRequirement() {
 
 }
 
+function printDebugParams() {
+    if [ ! "${debug}" ]; then
+        return
+    fi
+
+    function printParam() {
+        if [ ! "${2}" ]; then
+            return
+        fi
+
+        logDebug "--  ${1}: ${2}"
+    }
+
+    logInfo "------- DEBUG: PARAMS -------"
+    logDebug "--"
+    printParam "fromBranch" ${fromBranch}
+    printParam "toBranch" ${toBranch}
+    printParam "githubUsername" ${githubUsername}
+    printParam "debug" ${debug}
+    logDebug "--"
+    logInfo "----------- DEBUG -----------"
+    echo
+}
+
 extractParams "$@"
 verifyRequirement
 
-signature
-banner "Main Repo"
 currentBranch=`gitGetCurrentBranch`
-echo "currentBranch: '${currentBranch}'"
-echo "fromBranch:    '${fromBranch}'"
-
 if [ "${currentBranch}" != "${fromBranch}" ]; then
     logError "Main Repo MUST be on branch: ${fromBranch}"
     exit 1
@@ -123,7 +138,11 @@ function processFolder() {
     summary="${summary}\nhttps://github.com/${project}/pulls/${githubUsername}"
 }
 
-processFolder
+signature
+printDebugParams
+
+bannerDebug "Processing: Main Repo"
+processFolder "Main Repo"
 iterateOverFolders "gitListSubmodules" processFolder
 
 echo -e "${summary}"

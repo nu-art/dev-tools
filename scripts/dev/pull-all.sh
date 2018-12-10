@@ -103,9 +103,9 @@ function processFolder() {
     cd ..
 }
 
-signature
-
 extractParams "$@"
+
+signature
 printDebugParams
 
 bannerDebug "Processing: Main Repo"

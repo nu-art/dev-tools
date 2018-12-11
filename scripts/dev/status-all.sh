@@ -25,6 +25,7 @@ source ${BASH_SOURCE%/*}/tools.sh
 
 projectsToIgnore=("dev-tools")
 resolution="changed"
+grepFilter="HEAD detached|Processing|Your branch|modified|On branch|\^"
 
 function extractParams() {
     for paramValue in "${@}"; do
@@ -39,6 +40,10 @@ function extractParams() {
 
             "--debug")
                 debug="true"
+            ;;
+
+            "--no-filter")
+                grepFilter=
             ;;
         esac
     done
@@ -68,7 +73,11 @@ function printDebugParams() {
 
 
 function checkStatus() {
-    git status | grep -E "HEAD detached|Processing|Your branch|modified|On branch|\^"
+    if [ ! "${grepFilter}" ]; then
+        git status
+    else
+        git status | grep -E "${grepFilter}"
+    fi
 }
 
 function processSubmodule() {

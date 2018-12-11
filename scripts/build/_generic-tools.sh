@@ -35,13 +35,6 @@ checkVersionAndModulesCorrelation() {
     fi
 }
 
-setup() {
-    local branch=$1
-
-	git checkout "${branch}"
-	bash dev-tools/scripts/pull-and-apply-all.sh
-}
-
 build() {
 	logInfo
   	logInfo "------------------------------------------------------------------------------------------------"

@@ -40,8 +40,6 @@ source ${BASH_SOURCE%/*}/_android-tools.sh
 
 #checkVersionAndModulesCorrelation "${modules}" "${promoteVersion}"
 
-setup ${branch}
-
 if [ "${modules}" == "ALL" ]; then
     modules=$(listGradleGitModulesFolders)
 fi

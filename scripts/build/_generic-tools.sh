@@ -121,13 +121,23 @@ updateRepository() {
         return
     fi
 
+    local tag=v${newVersionName}
+    local message="Jenkins Build - v${newVersionName}"
+
+    logInfo "Commit Message: ${message}"
+    logInfo "Tag: ${tag}"
+
     for module in "${modules[@]}"; do
         pushd ${module} > /dev/null
-            gitCommitAndTagAndPush "v${newVersionName}" "Jenkins Build - v${newVersionName}"
+            git tag -a ${tag} -am "${message}"
+            git push origin ${tag}
         popd > /dev/null
     done
 
-    gitCommitAndTagAndPush "${tag}" "${message}"
+    git commit -am "${message}"
+    git tag -a "${tag}" -am "${message}"
+    git push --tags
+    git push
 
     logInfo "--------------------------------     Repositories Updated!     ---------------------------------"
   	logInfo "------------------------------------------------------------------------------------------------"

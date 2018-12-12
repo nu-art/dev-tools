@@ -1,14 +1,15 @@
 #!/bin/bash
 
-source ${BASH_SOURCE%/*}/../utils/tools.sh
+source ${BASH_SOURCE%/*}/../_fun/signature.sh
 source ${BASH_SOURCE%/*}/../utils/coloring.sh
 source ${BASH_SOURCE%/*}/../utils/log-tools.sh
 source ${BASH_SOURCE%/*}/../utils/error-handling.sh
+source ${BASH_SOURCE%/*}/dev/tools.sh
 source ${BASH_SOURCE%/*}/git-core.sh
-source ${BASH_SOURCE%/*}/../_fun/signature.sh
 
-
+runningDir=${PWD##*/}
 projectsToIgnore=("dev-tools")
+params=(fromBranch toBranch)
 
 function extractParams() {
     echo
@@ -16,10 +17,6 @@ function extractParams() {
     for paramValue in "${@}"; do
         logDebug "  param: ${paramValue}"
         case "${paramValue}" in
-            "--dry-run")
-                setDryRun true
-            ;;
-
             "--from="*)
                 fromBranch=`echo "${paramValue}" | sed -E "s/--from=(.*)/\1/"`
             ;;
@@ -27,13 +24,12 @@ function extractParams() {
             "--to="*)
                 toBranch=`echo "${paramValue}" | sed -E "s/--to=(.*)/\1/"`
             ;;
+
+            "--debug")
+                debug="true"
+            ;;
         esac
     done
-
-    echo
-    logInfo "Running with params:"
-    logDebug "  fromBranch: ${fromBranch}"
-    logDebug "  toBranch: ${toBranch}"
 }
 
 function printUsage() {
@@ -61,8 +57,8 @@ function verifyRequirement() {
     fi
 
     if [ "${missingData}" == "true" ]; then
-        fromBranchParam=" --from=${existingParamColor}${fromBranch}${NoColor}"
-        toBranchParam=" --to=${existingParamColor}${toBranch}${NoColor}"
+        fromBranch=" --from=${existingParamColor}${fromBranch}${NoColor}"
+        toBranch=" --to=${existingParamColor}${toBranch}${NoColor}"
 
         printUsage
     fi
@@ -72,7 +68,9 @@ extractParams "$@"
 verifyRequirement
 
 signature
-bannerDebug "Main Repo"
+printDebugParams ${debug} "${params[@]}"
+
+
 currentBranch=`gitGetCurrentBranch`
 if [  "${currentBranch}" != "${toBranch}" ]; then
     logError "Main Repo MUST be on branch: ${toBranch}"
@@ -107,3 +105,29 @@ changedSubmodules=(`getAllChangedSubmodules "${projectsToIgnore[@]}"`)
 echo
 echo "changedSubmodules: ${changedSubmodules[@]}"
 gitUpdateSubmodules "${changedSubmodules[@]}"
+
+
+
+function processSubmodule() {
+    local mainModule=${1}
+    echo
+    bannerDebug "${mainModule}"
+    gitCheckoutBranch ${branchName} true
+
+    local changedSubmodules=(`getAllChangedSubmodules "${projectsToIgnore[@]}"`)
+    if [ "${#changedSubmodules[@]}" -gt "0" ]; then
+        for submoduleName in "${changedSubmodules[@]}"; do
+            cd ${submoduleName}
+                processSubmodule "${mainModule}/${submoduleName}"
+            cd ..
+        done
+        echo
+        bannerDebug "${mainModule} - continue"
+    fi
+
+    gitAddAll
+    gitCommit "${commitMessage}"
+    gitPush ${branchName}
+}
+
+processSubmodule "${runningDir}"

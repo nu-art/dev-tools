@@ -47,6 +47,7 @@ function sedFunc() {
 
     echo "${result}"
 }
+
 function setDefaultAndroidHome() {
     if [ "${ANDROID_HOME}" != "" ]; then
         return

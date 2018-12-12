@@ -9,7 +9,6 @@ source ${BASH_SOURCE%/*}/../utils/error-handling.sh
 source ${BASH_SOURCE%/*}/../_fun/signature.sh
 
 runningDir=${PWD##*/}
-paramColor=${BRed}
 projectsToIgnore=("dev-tools")
 params=(branchName commitMessage)
 
@@ -70,7 +69,7 @@ verifyRequirement
 signature
 printDebugParams ${debug} "${params[@]}"
 
-function pushChanges() {
+function processSubmodule() {
     local mainModule=${1}
     echo
     bannerDebug "${mainModule}"
@@ -80,7 +79,7 @@ function pushChanges() {
     if [ "${#changedSubmodules[@]}" -gt "0" ]; then
         for submoduleName in "${changedSubmodules[@]}"; do
             cd ${submoduleName}
-                pushChanges "${mainModule}/${submoduleName}"
+                processSubmodule "${mainModule}/${submoduleName}"
             cd ..
         done
         echo
@@ -92,4 +91,4 @@ function pushChanges() {
     gitPush ${branchName}
 }
 
-pushChanges "${runningDir}"
+processSubmodule "${runningDir}"

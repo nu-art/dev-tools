@@ -15,7 +15,7 @@ function signature() {
 
     printedSignature="true"
 
-    clear
+#    clear
     echo
     echo -e " '${Red}${scriptName}${NoColor}' Script Made by:${Gray} ";
     echo

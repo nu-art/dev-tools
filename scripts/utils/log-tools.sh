@@ -72,12 +72,28 @@ setLogFile() {
 
 log() {
     local level=$1
-    local color=$2
-    local levelPrefix=$3
-    local logMessage=$4
-    local override=$5
+    local logMessage=$2
+    local override=$3
     local _override
 
+    case ${level} in
+        0)
+            color="${NoColor}"
+        ;;
+        1)
+            color="${BBlue}"
+        ;;
+        2)
+            color="${BGreen}"
+        ;;
+        3)
+            color="${BYellow}"
+        ;;
+        4)
+            color="${BRed}"
+        ;;
+
+    esac
     if [ "${override}" == "true" ]; then
         _override="n"
     fi
@@ -90,61 +106,56 @@ log() {
 #    echo "echo -e${_override} \"${color}${logMessage}${NoColor}\"\\r"
     logDate=`date +"%Y-%m-%d_%H:%M:%S"`
     echo -e${_override} "${color}${logDate} ${logMessage}${NoColor}"\\r
-    if [ "${logFile}" != "" ]; then
-        echo "${logDate} ${levelPrefix} ${logMessage}" >> "${logFile}"
-    fi
 }
 
 logVerbose() {
-    log 0 "${NoColor}" "-V-" "${1}" "${2}" "${3}"
+    log 0 "${1}" "${2}"
 }
 
 logDebug() {
-    log 1 "${BBlue}" "-D-" "${1}" "${2}" "${3}"
+    log 1 "${1}" "${2}"
 }
 
 logInfo() {
-    log 2 "${BGreen}" "-I-" "${1}" "${2}" "${3}"
+    log 2 "${1}" "${2}" "${3}"
 }
 
 logWarning() {
-    log 3 "${BYellow}" "-W-" "${1}" "${2}" "${3}"
+    log 3 "${1}" "${2}" "${3}"
 }
 
 logError() {
-    log 4 "${BRed}" "-E-" "${1}" "${2}" "${3}"
+    log 4 "${1}" "${2}" "${3}"
 }
 
 
 
 bannerVerbose() {
-    banner 0 "${NoColor}" "-V-" "${1}"
+    banner 0  "${1}"
 }
 
 bannerDebug() {
-    banner 1 "${BBlue}" "-D-" "${1}"
+    banner 1 "${1}"
 }
 
 bannerInfo() {
-    banner 2 "${BGreen}" "-I-" "${1}"
+    banner 2 "${1}"
 }
 
 bannerWarning() {
-    banner 3 "${BYellow}" "-W-" "${1}"
+    banner 3 "${1}"
 }
 
 bannerError() {
-    banner 4 "${BRed}" "-E-" "${1}"
+    banner 4 "${1}"
 }
 
 banner() {
     local level=$1
-    local color=$2
-    local levelPrefix=$3
-    local logMessage=$4
+    local logMessage=$2
 
     local add=$(echo "$logMessage" | sed 's/./-/g')
-    log ${level} "${color}" "${levelPrefix}" "+---$add---+"
-    log ${level} "${color}" "${levelPrefix}" "|   ${logMessage}   |"
-    log ${level} "${color}" "${levelPrefix}" "+---$add---+"
+    log ${level} "+---$add---+"
+    log ${level} "|   ${logMessage}   |"
+    log ${level} "+---$add---+"
 }

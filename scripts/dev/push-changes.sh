@@ -76,6 +76,9 @@ function processSubmodule() {
     gitCheckoutBranch ${branchName} true
 
     local changedSubmodules=(`getAllChangedSubmodules "${projectsToIgnore[@]}"`)
+    bannerWarning "changedSubmodules: ${changedSubmodules}"
+
+
     if [ "${#changedSubmodules[@]}" -gt "0" ]; then
         for submoduleName in "${changedSubmodules[@]}"; do
             cd ${submoduleName}

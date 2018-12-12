@@ -27,6 +27,12 @@ function gitCheckoutBranch() {
     local branchName=${1}
     local isForced=${2}
 
+    currentBranch=`gitGetCurrentBranch`
+    if [ "${currentBranch}" == "${branchName}" ]; then
+        logInfo "${GIT_TAG} Already on branch: ${branchName}"
+        return
+    fi
+
     logInfo "${GIT_TAG} Checking out branch: ${branchName}"
     git checkout ${branchName}
 

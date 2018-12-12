@@ -71,7 +71,6 @@ function execute() {
     if [ "${mainRepoBranch}" != "${submoduleBranch}" ]; then
         cd ..
             local submodules=(`getSubmodulesByScope "project" "${projectsToIgnore[@]}"`)
-
             # Make sure that the submodule is a part of the project before updating its pointer
             for submodule in "${submodules[@]}"; do
                 if [ "${runningDir}" == "${submodule}" ]; then
@@ -100,11 +99,15 @@ function processSubmodule() {
     echo
     bannerDebug "Processing: ${mainModule}"
 
-    execute &
-    pid=$!
-    pids+=(${pid})
+    local submodules=(`getSubmodulesByScope "project" "${projectsToIgnore[@]}"`)
+    if [ "${#submodules[@]}" -gt "0" ]; then
+        execute
+    else
+        execute &
+        pid=$!
+        pids+=(${pid})
+    fi
 
-    local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
     for submodule in "${submodules[@]}"; do
         cd ${submodule}
             processSubmodule "${mainModule}/${submodule}"

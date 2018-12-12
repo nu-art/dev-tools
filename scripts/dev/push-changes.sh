@@ -76,22 +76,25 @@ function processSubmodule() {
     gitCheckoutBranch ${branchName} true
 
     local changedSubmodules=(`getAllChangedSubmodules "${projectsToIgnore[@]}"`)
+    local conflictingSubmodules=(`getAllConflictingSubmodules "${projectsToIgnore[@]}"`)
+    changedSubmodules+=(${conflictingSubmodules})
+
+    echo
     bannerWarning "changedSubmodules: ${changedSubmodules}"
 
-
-    if [ "${#changedSubmodules[@]}" -gt "0" ]; then
-        for submoduleName in "${changedSubmodules[@]}"; do
-            cd ${submoduleName}
-                processSubmodule "${mainModule}/${submoduleName}"
-            cd ..
-        done
-        echo
-        bannerDebug "${mainModule} - continue"
-    fi
-
-    gitAddAll
-    gitCommit "${commitMessage}"
-    gitPush ${branchName}
+#    if [ "${#changedSubmodules[@]}" -gt "0" ]; then
+#        for submoduleName in "${changedSubmodules[@]}"; do
+#            cd ${submoduleName}
+#                processSubmodule "${mainModule}/${submoduleName}"
+#            cd ..
+#        done
+#        echo
+#        bannerDebug "${mainModule} - continue"
+#    fi
+#
+#    gitAddAll
+#    gitCommit "${commitMessage}"
+#    gitPush ${branchName}
 }
 
 processSubmodule "${runningDir}"

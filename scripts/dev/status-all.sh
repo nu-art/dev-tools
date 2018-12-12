@@ -23,19 +23,22 @@ source ${BASH_SOURCE%/*}/../_fun/signature.sh
 source ${BASH_SOURCE%/*}/git-core.sh
 source ${BASH_SOURCE%/*}/tools.sh
 
+runningDir=${PWD##*/}
 projectsToIgnore=("dev-tools")
-resolution="changed"
+scope="changed"
 grepFilter="HEAD detached|Processing|Your branch|modified|On branch|\^"
+
+params=(scope grepFilter)
 
 function extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--all")
-                resolution="all"
+                scope="all"
             ;;
 
             "--project")
-                resolution="project"
+                scope="project"
             ;;
 
             "--debug")
@@ -49,30 +52,12 @@ function extractParams() {
     done
 }
 
-function printDebugParams() {
-    if [ ! "${debug}" ]; then
-        return
-    fi
+extractParams "$@"
 
-    function printParam() {
-        if [ ! "${2}" ]; then
-            return
-        fi
+signature "Status repo"
+printDebugParams ${debug} "${params[@]}"
 
-        logDebug "--  ${1}: ${2}"
-    }
-
-    logInfo "------- DEBUG: PARAMS -------"
-    logDebug "--"
-    printParam "resolution" ${resolution}
-    printParam "debug" ${debug}
-    logDebug "--"
-    logInfo "----------- DEBUG -----------"
-    echo
-}
-
-
-function checkStatus() {
+function execute() {
     if [ ! "${grepFilter}" ]; then
         git status
     else
@@ -80,24 +65,20 @@ function checkStatus() {
     fi
 }
 
-function processSubmodule() {
-    local submodule=${1}
 
-    bannerDebug "Processing: ${submodule}"
-    cd ${submodule}
-        checkStatus
-    cd ..
+function processSubmodule() {
+    local mainModule=${1}
+    echo
+    bannerDebug "Processing: ${mainModule}"
+#    execute
+
+    local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
+    for submodule in "${submodules[@]}"; do
+        cd ${submodule}
+            processSubmodule "${mainModule}/${submodule}"
+        cd ..
+    done
 }
 
-extractParams "$@"
+processSubmodule "${runningDir}"
 
-signature "Status repo"
-printDebugParams
-
-bannerDebug "Processing: Main Repo"
-checkStatus
-
-submodules=(`getFolderByResolution ${resolution} "${projectsToIgnore[@]}"`)
-for submodule in "${submodules[@]}"; do
-    processSubmodule ${submodule}
-done

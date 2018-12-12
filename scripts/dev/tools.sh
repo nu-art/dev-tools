@@ -101,3 +101,31 @@ function executeProcessor() {
     done
 
 }
+
+
+function printDebugParams() {
+    local debug=${1}
+    if [ ! "${debug}" ]; then
+        return
+    fi
+
+    local params=("${@}")
+    params=("${params[@]:1}")
+
+    function printParam() {
+        if [ ! "${2}" ]; then
+            return
+        fi
+
+        logDebug "--  ${1}: ${2}"
+    }
+
+    logInfo "------- DEBUG: PARAMS -------"
+    logDebug "--"
+    for param in "${params[@]}"; do
+        printParam ${param} "${!param}"
+    done
+    logDebug "--"
+    logInfo "----------- DEBUG -----------"
+    echo
+}

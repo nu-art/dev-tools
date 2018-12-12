@@ -26,9 +26,12 @@ source ${BASH_SOURCE%/*}/../_fun/signature.sh
 source ${BASH_SOURCE%/*}/tools.sh
 source ${BASH_SOURCE%/*}/git-core.sh
 
+runningDir=${PWD##*/}
 paramColor=${BRed}
 projectsToIgnore=("dev-tools")
-resolution="changed"
+scope="changed"
+
+params=(scope branchName force grepFilter)
 
 function extractParams() {
     for paramValue in "${@}"; do
@@ -42,11 +45,11 @@ function extractParams() {
             ;;
 
             "--all")
-                resolution="all"
+                scope="all"
             ;;
 
             "--project")
-                resolution="project"
+                scope="project"
             ;;
 
             "--debug")
@@ -77,54 +80,31 @@ function verifyRequirement() {
     fi
 }
 
-function printDebugParams() {
-    if [ ! "${debug}" ]; then
-        return
-    fi
-
-    function printParam() {
-        if [ ! "${2}" ]; then
-            return
-        fi
-
-        logDebug "--  ${1}: ${2}"
-    }
-
-    logInfo "------- DEBUG: PARAMS -------"
-    logDebug "--"
-    printParam "force" ${force}
-    printParam "branchName" ${branchName}
-    printParam "resolution" ${resolution}
-    printParam "debug" ${debug}
-    logDebug "--"
-    logInfo "----------- DEBUG -----------"
-    echo
-}
-
-function checkoutBranch() {
-    gitCheckoutBranch ${1} ${2}
-}
-
-
-function processSubmodule() {
-    local folder=${1}
-
-    bannerDebug "Processing: ${submodule}"
-    cd ${folder}
-        checkoutBranch ${2} ${3}
-    cd ..
-}
 
 extractParams "$@"
 verifyRequirement
 
 signature "Checkout repo"
-printDebugParams
+printDebugParams ${debug} "${params[@]}"
 
-bannerDebug "Processing: Main Repo"
-checkoutBranch
 
-submodules=(`getFolderByResolution ${resolution} "${projectsToIgnore[@]}"`)
-for submodule in "${submodules[@]}"; do
-    processSubmodule ${submodule} ${branchName} ${force}
-done
+function execute() {
+    gitCheckoutBranch ${branchName} ${force}
+}
+
+function processSubmodule() {
+    local mainModule=${1}
+    echo
+    bannerDebug "Processing: ${mainModule}"
+#    execute
+
+    local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
+    for submodule in "${submodules[@]}"; do
+        cd ${submodule}
+            processSubmodule "${mainModule}/${submodule}"
+        cd ..
+    done
+}
+
+processSubmodule "${runningDir}"
+

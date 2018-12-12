@@ -163,6 +163,10 @@ function gitListSubmodules() {
     local submodule
     local submodules=()
 
+    if [ ! -e ".gitmodules" ]; then
+        return
+    fi
+
     while IFS='' read -r line || [[ -n "$line" ]]; do
         if [[ "${line}" =~ "submodule" ]]; then
             submodule=`echo ${line} | sed -E 's/\[submodule "(.*)"\]/\1/'`
@@ -222,7 +226,7 @@ function getAllConflictingSubmodules() {
     echo "${repos[@]}"
 }
 
-function getFolderByResolution() {
+function getSubmodulesByScope() {
     local submodules=
     local toIgnore=(${2})
     case "${1}" in

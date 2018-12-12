@@ -27,7 +27,11 @@ source ${BASH_SOURCE%/*}/git-core.sh
 pids=()
 projectsToIgnore=("dev-tools")
 stashName="pull-all-script"
-resolution="changed"
+scope="changed"
+runningDir=${PWD##*/}
+mainRepoBranch=`gitGetCurrentBranch`
+
+params=(stashName scope mainRepoBranch)
 
 function extractParams() {
     for paramValue in "${@}"; do
@@ -37,11 +41,11 @@ function extractParams() {
             ;;
 
             "--all")
-                resolution="all"
+                scope="all"
             ;;
 
             "--project")
-                resolution="project"
+                scope="project"
             ;;
 
             "--debug")
@@ -51,30 +55,26 @@ function extractParams() {
     done
 }
 
-function printDebugParams() {
-    if [ ! "${debug}" ]; then
+if [ ! "${mainRepoBranch}" ]; then
+    logError "Main repo head detached... "
+    exit 1
+fi
+
+extractParams "$@"
+
+signature "Pull repo"
+printDebugParams ${debug} "${params[@]}"
+
+function execute() {
+    local submoduleBranch=`gitGetCurrentBranch`
+    local runningDir=${PWD##*/}
+    if [ "${mainRepoBranch}" != "${submoduleBranch}" ]; then
+        cd ..
+            git submodule update ${runningDir}
+        cd - > /dev/null
         return
     fi
 
-    function printParam() {
-        if [ ! "${2}" ]; then
-            return
-        fi
-
-        logDebug "--  ${1}: ${2}"
-    }
-
-    logInfo "------- DEBUG: PARAMS -------"
-    logDebug "--"
-    printParam "stashName" ${stashName}
-    printParam "resolution" ${resolution}
-    printParam "debug" ${debug}
-    logDebug "--"
-    logInfo "----------- DEBUG -----------"
-    echo
-}
-
-function pullRepo() {
     local isClean=`git status | grep "nothing to commit.*"`
     if [ ! "${isClean}" ]; then
         logInfo "${GIT_TAG} Stashing changes with message: ${stashName}"
@@ -89,41 +89,26 @@ function pullRepo() {
 }
 
 function processSubmodule() {
-    local submodule=${1}
+    local mainModule=${1}
+    echo
+    bannerDebug "Processing: ${mainModule}"
 
-    bannerDebug "Processing: ${submodule}"
-    cd ${submodule}
-        local submoduleBranch=`gitGetCurrentBranch`
-        if [ "${mainRepoBranch}" != "${submoduleBranch}" ]; then
-            cd ..
-            git submodule udpate ${submodule}
-            return
-        fi
-        pullRepo &
-        pid=$!
-        pids+=(${pid})
-    cd ..
+    execute &
+    pid=$!
+    pids+=(${pid})
+
+    local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
+    for submodule in "${submodules[@]}"; do
+        cd ${submodule}
+            processSubmodule "${mainModule}/${submodule}"
+        cd ..
+    done
 }
 
-mainRepoBranch=`gitGetCurrentBranch`
-if [ ! "${mainRepoBranch}" ]; then
-    logError "Main repo head detached... "
-    exit 1
-fi
-
-extractParams "$@"
-
-signature "Pull repo"
-printDebugParams
-
-bannerDebug "Processing: Main Repo"
-pullRepo
-
-submodules=(`getFolderByResolution ${resolution} "${projectsToIgnore[@]}"`)
-for submodule in "${submodules[@]}"; do
-    processSubmodule ${submodule}
-done
+processSubmodule "${runningDir}"
 
 for pid in "${pids[@]}"; do
     wait ${pid}
 done
+
+

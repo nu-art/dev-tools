@@ -96,7 +96,7 @@ function processSubmodule() {
     local mainModule=${1}
     echo
     bannerDebug "Processing: ${mainModule}"
-#    execute
+    execute
 
     local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
     for submodule in "${submodules[@]}"; do

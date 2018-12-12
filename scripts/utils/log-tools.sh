@@ -26,8 +26,10 @@ LOG_LEVEL__ERROR=4
 
 source ${BASH_SOURCE%/*}/coloring.sh
 logLevel=${LOG_LEVEL__VERBOSE}
+LOG_COLORS=("${NoColor}" "${BBlue}" "${BGreen}" "${BYellow}" "${BRed}")
 
-setLogLevel() {
+
+function setLogLevel() {
     case ${1} in
         0|1|2|3|4)
             logLevel=${1}
@@ -76,24 +78,7 @@ log() {
     local override=$3
     local _override
 
-    case ${level} in
-        0)
-            color="${NoColor}"
-        ;;
-        1)
-            color="${BBlue}"
-        ;;
-        2)
-            color="${BGreen}"
-        ;;
-        3)
-            color="${BYellow}"
-        ;;
-        4)
-            color="${BRed}"
-        ;;
-
-    esac
+    local color=${LOG_COLORS[${level}]}
     if [ "${override}" == "true" ]; then
         _override="n"
     fi
@@ -117,21 +102,21 @@ logDebug() {
 }
 
 logInfo() {
-    log 2 "${1}" "${2}" "${3}"
+    log 2 "${1}" "${2}"
 }
 
 logWarning() {
-    log 3 "${1}" "${2}" "${3}"
+    log 3 "${1}" "${2}"
 }
 
 logError() {
-    log 4 "${1}" "${2}" "${3}"
+    log 4 "${1}" "${2}"
 }
 
 
 
 bannerVerbose() {
-    banner 0  "${1}"
+    banner 0 "${1}"
 }
 
 bannerDebug() {

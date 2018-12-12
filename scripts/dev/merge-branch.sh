@@ -88,8 +88,8 @@ function processSubmodule() {
     execute
 
     local submodules=(`getSubmodulesByScope "conflict" "${projectsToIgnore[@]}"`)
-    echo
-    echo "conflictingSubmodules: ${submodules[@]}"
+#    echo
+#    echo "conflictingSubmodules: ${submodules[@]}"
 
     for submodule in "${submodules[@]}"; do
         cd ${submodule}
@@ -98,8 +98,8 @@ function processSubmodule() {
     done
 
     local submodules=(`getAllChangedSubmodules "${projectsToIgnore[@]}"`)
-    echo
-    echo "changedSubmodules: ${submodules[@]}"
+#    echo
+#    echo "changedSubmodules: ${submodules[@]}"
     gitUpdateSubmodules "${submodules[@]}"
 }
 

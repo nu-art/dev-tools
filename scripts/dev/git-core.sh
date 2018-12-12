@@ -239,6 +239,7 @@ function getSubmodulesByScope() {
     case "${1}" in
         "changed")
             submodules=(`getAllChangedSubmodules "${toIgnore[@]}"`)
+            submodules+=(`getAllConflictingSubmodules "${toIgnore[@]}"`)
         ;;
 
         "all")

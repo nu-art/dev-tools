@@ -71,63 +71,37 @@ signature
 printDebugParams ${debug} "${params[@]}"
 
 
-currentBranch=`gitGetCurrentBranch`
-if [  "${currentBranch}" != "${toBranch}" ]; then
-    logError "Main Repo MUST be on branch: ${toBranch}"
-    exit 1
-fi
+function execute() {
+    currentBranch=`gitGetCurrentBranch`
+    if [  "${currentBranch}" != "${toBranch}" ]; then
+        logError "MUST be on branch: ${toBranch} but found: ${currentBranch}"
+        return
+    fi
 
-gitMerge ${fromBranch}
-
-conflictingSubmodules=(`getAllConflictingSubmodules "${projectsToIgnore[@]}"`)
-echo
-echo "conflictingSubmodules: ${conflictingSubmodules[@]}"
-
-for submoduleName in "${conflictingSubmodules[@]}"; do
-    cd ${submoduleName}
-        currentBranch=`gitGetCurrentBranch`
-        if [ "${currentBranch}" != "${toBranch}" ]; then
-            logError "Submodule ${submoduleName} MUST be on branch: ${toBranch}"
-            cd ..
-            exit 1
-        fi
-    cd ..
-done
-
-for submoduleName in "${conflictingSubmodules[@]}"; do
-    bannerDebug "${submoduleName}"
-    cd ${submoduleName}
-        gitMerge ${fromBranch}
-    cd ..
-done
-
-changedSubmodules=(`getAllChangedSubmodules "${projectsToIgnore[@]}"`)
-echo
-echo "changedSubmodules: ${changedSubmodules[@]}"
-gitUpdateSubmodules "${changedSubmodules[@]}"
-
-
+    gitMerge ${fromBranch}
+}
 
 function processSubmodule() {
     local mainModule=${1}
-    echo
     bannerDebug "${mainModule}"
-    gitCheckoutBranch ${branchName} true
 
-    local changedSubmodules=(`getAllChangedSubmodules "${projectsToIgnore[@]}"`)
-    if [ "${#changedSubmodules[@]}" -gt "0" ]; then
-        for submoduleName in "${changedSubmodules[@]}"; do
-            cd ${submoduleName}
-                processSubmodule "${mainModule}/${submoduleName}"
-            cd ..
-        done
-        echo
-        bannerDebug "${mainModule} - continue"
-    fi
+    execute
 
-    gitAddAll
-    gitCommit "${commitMessage}"
-    gitPush ${branchName}
+    local submodules=(`getSubmodulesByScope "conflict" "${projectsToIgnore[@]}"`)
+    echo
+    echo "conflictingSubmodules: ${submodules[@]}"
+
+    for submodule in "${submodules[@]}"; do
+        cd ${submodule}
+            processSubmodule "${mainModule}/${submodule}"
+        cd ..
+    done
+
+    local submodules=(`getAllChangedSubmodules "${projectsToIgnore[@]}"`)
+    echo
+    echo "changedSubmodules: ${submodules[@]}"
+    gitUpdateSubmodules "${submodules[@]}"
 }
+
 
 processSubmodule "${runningDir}"

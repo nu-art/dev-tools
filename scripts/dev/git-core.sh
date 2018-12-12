@@ -18,6 +18,7 @@
 #  limitations under the License.
 
 #!/bin/bash
+source ${BASH_SOURCE%/*}/tools.sh
 source ${BASH_SOURCE%/*}/../utils/error-handling.sh
 
 GIT_TAG="GIT:"
@@ -240,6 +241,10 @@ function getSubmodulesByScope() {
 
         "project")
             submodules=(`gitListSubmodules`)
+        ;;
+
+        "conflict")
+            submodules=(`getAllConflictingSubmodules "${toIgnore[@]}"`)
         ;;
 
         *)

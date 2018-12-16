@@ -75,17 +75,12 @@ allGradleFolders(){
 }
 
 listFoldersImpl() {
-    ls -ld */ > list.txt
-    local directories=()
-    while IFS='' read -r line || [[ -n "$line" ]]; do
-        local folderName=
+    local folders=(`echo */`)
+
+    for folderName in "${folders[@]}"; do
         local add= false
 
-        for word in ${line}; do
-            folderName=${word}
-        done
-
-        folderName=`echo ${folderName} | sed -E 's/\///'`
+        folderName="${folderName:0: -1}"
         add=true
         for (( arg=1; arg<=$#; arg+=1 )); do
             if [ "`${!arg} \"${folderName}\"`" == "false" ]; then
@@ -98,9 +93,7 @@ listFoldersImpl() {
             directories+=(${folderName})
         fi
 
-    done < list.txt
-
-    rm list.txt
+    done
     echo "${directories[@]}"
 }
 

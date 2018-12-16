@@ -99,7 +99,7 @@ function processSubmodule() {
     echo
     bannerDebug "Processing: ${mainModule}"
 
-    local submodules=(`getSubmodulesByScope "project" "${projectsToIgnore[@]}"`)
+    local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
     if [ "${#submodules[@]}" -gt "0" ]; then
         execute
     else

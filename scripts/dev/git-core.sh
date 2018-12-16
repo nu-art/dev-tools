@@ -69,14 +69,21 @@ function gitStashPop() {
 }
 
 function gitPullRepo() {
+    local silent=${1}
     local currentBranch=`gitGetCurrentBranch`
     if [ "${currentBranch}" == "" ]; then
         logInfo "HEAD is detached... skipping repo"
         return
     fi
 
+    if [ "${silent}" == "true" ]; then
+        silent="--quiet"
+    else
+        silent=
+    fi
+
     logInfo "${GIT_TAG} Pulling repo from Origin"
-    git pull
+    git pull ${silent}
     checkExecutionError
 }
 

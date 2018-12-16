@@ -87,7 +87,7 @@ function execute() {
         result=`git stash save "${stashName}"`
     fi
 
-    gitPullRepo
+    gitPullRepo true
 
     if [ ! "${isClean}" ] && [ "${result}" != "No local changes to save" ]; then
         gitStashPop

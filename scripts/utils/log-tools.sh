@@ -27,6 +27,7 @@ LOG_LEVEL__ERROR=4
 source ${BASH_SOURCE%/*}/coloring.sh
 logLevel=${LOG_LEVEL__VERBOSE}
 LOG_COLORS=("${NoColor}" "${BBlue}" "${BGreen}" "${BYellow}" "${BRed}")
+LOG_PREFIX=("-V-" "-D-" "-I-" "-W-" "-E-")
 
 
 function setLogLevel() {

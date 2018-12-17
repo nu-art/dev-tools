@@ -18,12 +18,37 @@
 #  limitations under the License.
 
 #!/bin/bash
+
+source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
+
 artifactsIds=()
 
-if [[ -z "${ANDROID_HOME}" ]]; then
-    ANDROID_HOME=~/Android/Sdk
-fi
-removeTrailingChar() {
+function installAndroidPackages() {
+	echo
+  	logInfo "------------------------------------------------------------------------------------------------"
+  	logInfo "-----------------------------       Installing Packages...        ------------------------------"
+	local modules=(${1})
+
+
+    for module in "${modules[@]}"; do
+        pushd "${module}"
+            addSDKVersion
+            addBuildToolVersion
+        popd > /dev/null
+    done
+
+    addConstantVersions
+
+    addRepositories
+    installArtifacts
+
+   	logInfo "----------------------------     Packages Installation Completed      ---------------------------"
+  	logInfo "------------------------------------------------------------------------------------------------"
+}
+
+
+
+function removeTrailingChar() {
     local charValueToRemove=${1}
     local string=${2}
     local lastCharValue=`printf "%d\n" \'${string:$i-1:1}`
@@ -34,7 +59,7 @@ removeTrailingChar() {
     fi
 }
 
-addId() {
+function addId() {
     local idToAdd=$1
     if [[ ${artifactsIds[@]}  =~ ${idToAdd} ]]; then
         echo already contains id: ${idToAdd}
@@ -43,7 +68,7 @@ addId() {
     fi
 }
 
-addConstantVersions() {
+function addConstantVersions() {
     local sdkVersion=`cat gradle.properties | grep "COMPILE_SDK=.*" | sed  -E 's/COMPILE_SDK=//g'`
     if [ "${sdkVersion}" != "" ]; then
         sdkVersion=`removeTrailingChar 13 ${sdkVersion}`
@@ -57,25 +82,25 @@ addConstantVersions() {
     fi
 }
 
-addSDKVersion() {
+function addSDKVersion() {
     local sdkVersion=`cat build.gradle | grep "compileSdkVersion .*" | sed  -E 's/compileSdkVersion| //g'`
     sdkVersion=`removeTrailingChar 13 ${sdkVersion}`
     addId "platforms;android-${sdkVersion} "
 }
 
-addBuildToolVersion() {
+function addBuildToolVersion() {
    local buildTool=`cat build.gradle | grep "buildToolsVersion \".*\"" | sed  -E 's/buildToolsVersion| |"//g'`
     buildTool=`removeTrailingChar 13 ${buildTool}`
     addId "build-tools;${buildTool} "
 }
 
-addRepositories() {
+function addRepositories() {
     artifactsIds+="extras;google;google_play_services "
     artifactsIds+="extras;android;m2repository "
     artifactsIds+="extras;google;m2repository "
 }
 
-installArtifacts() {
+function installArtifacts() {
     for artifactsId in ${artifactsIds[@]}; do
         echo "---${artifactsId}---"
         echo "y " |  ${ANDROID_HOME}/tools/bin/sdkmanager "${artifactsId}"

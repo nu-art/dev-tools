@@ -1,12 +1,7 @@
 #!/bin/bash
 
 
-source ${BASH_SOURCE%/*}/tools.sh
-source ${BASH_SOURCE%/*}/git-core.sh
-source ${BASH_SOURCE%/*}/../utils/coloring.sh
-source ${BASH_SOURCE%/*}/../utils/log-tools.sh
-source ${BASH_SOURCE%/*}/../utils/error-handling.sh
-source ${BASH_SOURCE%/*}/../_fun/signature.sh
+source ${BASH_SOURCE%/*}/_core.sh
 
 runningDir=${PWD##*/}
 projectsToIgnore=("dev-tools")

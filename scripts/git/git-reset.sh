@@ -18,43 +18,13 @@
 #  limitations under the License.
 #!/bin/bash
 
-source ${BASH_SOURCE%/*}/../utils/file-tools.sh
-source ${BASH_SOURCE%/*}/../_fun/signature.sh
-source ${BASH_SOURCE%/*}/git-core.sh
-source ${BASH_SOURCE%/*}/tools.sh
-
-projectsToIgnore=("dev-tools")
-runningDir=${PWD##*/}
+source ${BASH_SOURCE%/*}/_core.sh
 
 function processFolder() {
-    git remote prune origin
+    gitResetHard
 }
 
-signature "prune repos"
+signature
+processFolder
+iterateOverFolders "gitListSubmodules" processFolder
 
-function execute() {
-    git remote prune origin
-}
-
-function processSubmodule() {
-    local mainModule=${1}
-    echo
-    bannerDebug "Processing: ${mainModule}"
-
-    execute &
-    pid=$!
-    pids+=(${pid})
-
-    local submodules=(`getSubmodulesByScope "project" "${projectsToIgnore[@]}"`)
-    for submodule in "${submodules[@]}"; do
-        cd ${submodule}
-            processSubmodule "${mainModule}/${submodule}"
-        cd ..
-    done
-}
-
-processSubmodule "${runningDir}"
-
-for pid in "${pids[@]}"; do
-    wait ${pid}
-done

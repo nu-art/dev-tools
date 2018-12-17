@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-
-source ${BASH_SOURCE%/*}/../utils/coloring.sh
 printedSignature=
 function signature() {
     local scriptName=${1}

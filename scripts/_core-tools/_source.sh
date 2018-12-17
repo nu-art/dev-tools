@@ -16,17 +16,14 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+
 #!/bin/bash
 
-source ${BASH_SOURCE%/*}/../utils/file-tools.sh
-source ${BASH_SOURCE%/*}/git-core.sh
+source ${BASH_SOURCE%/*}/signature.sh
+source ${BASH_SOURCE%/*}/time.sh
+source ${BASH_SOURCE%/*}/colors.sh
 source ${BASH_SOURCE%/*}/tools.sh
-
-function processFolder() {
-    gitResetHard
-}
-
-signature
-processFolder
-iterateOverFolders "gitListSubmodules" processFolder
-
+source ${BASH_SOURCE%/*}/error-handling.sh
+source ${BASH_SOURCE%/*}/logger.sh
+source ${BASH_SOURCE%/*}/error-handling.sh
+source ${BASH_SOURCE%/*}/files.sh

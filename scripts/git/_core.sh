@@ -18,8 +18,8 @@
 #  limitations under the License.
 
 #!/bin/bash
-source ${BASH_SOURCE%/*}/tools.sh
-source ${BASH_SOURCE%/*}/../utils/error-handling.sh
+
+source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
 
 GIT_TAG="GIT:"
 

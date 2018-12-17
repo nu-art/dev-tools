@@ -18,7 +18,6 @@
 #  limitations under the License.
 
 #!/bin/bash
-source ${BASH_SOURCE%/*}/../utils/log-tools.sh
 
 function contains() {
     local found=false
@@ -109,7 +108,7 @@ function executeProcessor() {
         bannerDebug "Processing: ${dataItem}"
         ${processor} ${dataItem}
         logVerbose "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
-        echo
+        logVerbose
     done
 
 }
@@ -139,5 +138,5 @@ function printDebugParams() {
     done
     logDebug "--"
     logInfo "----------- DEBUG -----------"
-    echo
+    logVerbose
 }

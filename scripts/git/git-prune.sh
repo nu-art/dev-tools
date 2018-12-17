@@ -16,63 +16,33 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
 #!/bin/bash
-source ${BASH_SOURCE%/*}/../utils/file-tools.sh
-source ${BASH_SOURCE%/*}/../_fun/signature.sh
-source ${BASH_SOURCE%/*}/git-core.sh
-source ${BASH_SOURCE%/*}/tools.sh
 
-runningDir=${PWD##*/}
+source ${BASH_SOURCE%/*}/_core.sh
+
 projectsToIgnore=("dev-tools")
-scope="changed"
-grepFilter="HEAD detached|Processing|Your branch|modified|On branch|\^"
+runningDir=${PWD##*/}
 
-params=(scope grepFilter)
-
-function extractParams() {
-    for paramValue in "${@}"; do
-        case "${paramValue}" in
-            "--all")
-                scope="all"
-            ;;
-
-            "--project")
-                scope="project"
-            ;;
-
-            "--debug")
-                debug="true"
-            ;;
-
-            "--no-filter")
-                grepFilter=
-            ;;
-        esac
-    done
+function processFolder() {
+    git remote prune origin
 }
 
-extractParams "$@"
-
-signature "Status repo"
-printDebugParams ${debug} "${params[@]}"
+signature "prune repos"
 
 function execute() {
-    if [ ! "${grepFilter}" ]; then
-        git status
-    else
-        git status | grep -E "${grepFilter}"
-    fi
+    git remote prune origin
 }
-
 
 function processSubmodule() {
     local mainModule=${1}
     echo
     bannerDebug "Processing: ${mainModule}"
-    execute
 
-    local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
+    execute &
+    pid=$!
+    pids+=(${pid})
+
+    local submodules=(`getSubmodulesByScope "project" "${projectsToIgnore[@]}"`)
     for submodule in "${submodules[@]}"; do
         cd ${submodule}
             processSubmodule "${mainModule}/${submodule}"
@@ -82,3 +52,6 @@ function processSubmodule() {
 
 processSubmodule "${runningDir}"
 
+for pid in "${pids[@]}"; do
+    wait ${pid}
+done

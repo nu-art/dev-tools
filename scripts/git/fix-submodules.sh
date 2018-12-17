@@ -19,7 +19,7 @@
 
 #!/bin/bash
 
-source ${BASH_SOURCE%/*}/utils/file-tools.sh
+source ${BASH_SOURCE%/*}/_core.sh
 
 NEWLINE=$'\n'
 TAB=$'\t'

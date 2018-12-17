@@ -18,6 +18,7 @@
 #  limitations under the License.
 
 #!/bin/bash
+
 checkVersionAndModulesCorrelation() {
     local modules=$1
     local promoteVersion=$2
@@ -142,8 +143,3 @@ updateRepository() {
     logInfo "--------------------------------     Repositories Updated!     ---------------------------------"
   	logInfo "------------------------------------------------------------------------------------------------"
 }
-
-source ${BASH_SOURCE%/*}/../utils/error-handling.sh
-source ${BASH_SOURCE%/*}/../utils/log-tools.sh
-source ${BASH_SOURCE%/*}/../utils/file-tools.sh
-source ${BASH_SOURCE%/*}/../utils/git-tools.sh

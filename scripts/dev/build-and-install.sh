@@ -4,13 +4,6 @@ bashVersion=`bash --version | grep version | sed -E "s/.* version (.).*/\1/"`
 apkPattern="*.apk"
 deviceIdParam=""
 
-source ${BASH_SOURCE%/*}/_generic-tools.sh
-
-source ${BASH_SOURCE%/*}/../utils/tools.sh
-source ${BASH_SOURCE%/*}/../utils/coloring.sh
-source ${BASH_SOURCE%/*}/../utils/log-tools.sh
-source ${BASH_SOURCE%/*}/../utils/error-handling.sh
-
 paramColor=${BBlue}
 valueColor=${BGreen}
 

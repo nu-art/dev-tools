@@ -24,7 +24,6 @@ LOG_LEVEL__INFO=2
 LOG_LEVEL__WARNING=3
 LOG_LEVEL__ERROR=4
 
-source ${BASH_SOURCE%/*}/coloring.sh
 logLevel=${LOG_LEVEL__VERBOSE}
 LOG_COLORS=("${NoColor}" "${BBlue}" "${BGreen}" "${BYellow}" "${BRed}")
 LOG_PREFIX=("-V-" "-D-" "-I-" "-W-" "-E-")
@@ -38,7 +37,7 @@ function printCommand() {
     command="${command}${NoColor}"
     logInfo "Command:"
     logVerbose "${command}"
-    echo
+    logVerbose
 }
 
 function setLogLevel() {
@@ -101,7 +100,9 @@ log() {
 
 #    For Debug
 #    echo "echo -e${_override} \"${color}${logMessage}${NoColor}\"\\r"
-    logDate=`date +"%Y-%m-%d_%H:%M:%S"`
+    startTimer "log-tools"
+    local duration=`calcDuration "rootTimer"`
+    logDate="(${duration}) "`date +"%Y-%m-%d_%H:%M:%S"`
     echo -e${_override} "${logDate} ${color}${logMessage}${NoColor}"\\r
 }
 

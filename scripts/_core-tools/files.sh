@@ -18,7 +18,6 @@
 #  limitations under the License.
 
 #!/bin/bash
-source ${BASH_SOURCE%/*}/log-tools.sh
 
 allFolders() {
     echo true;

@@ -29,6 +29,17 @@ logLevel=${LOG_LEVEL__VERBOSE}
 LOG_COLORS=("${NoColor}" "${BBlue}" "${BGreen}" "${BYellow}" "${BRed}")
 LOG_PREFIX=("-V-" "-D-" "-I-" "-W-" "-E-")
 
+function printCommand() {
+    local params=("${@}")
+    local command="  ${Cyan}${0}${Purple}"
+    for param in "${params[@]}"; do
+        command="${command} ${param}"
+    done
+    command="${command}${NoColor}"
+    logInfo "Command:"
+    logVerbose "${command}"
+    echo
+}
 
 function setLogLevel() {
     case ${1} in
@@ -91,7 +102,7 @@ log() {
 #    For Debug
 #    echo "echo -e${_override} \"${color}${logMessage}${NoColor}\"\\r"
     logDate=`date +"%Y-%m-%d_%H:%M:%S"`
-    echo -e${_override} "${color}${logDate} ${logMessage}${NoColor}"\\r
+    echo -e${_override} "${logDate} ${color}${logMessage}${NoColor}"\\r
 }
 
 logVerbose() {
@@ -145,3 +156,4 @@ banner() {
     log ${level} "|   ${logMessage}   |"
     log ${level} "+---$add---+"
 }
+

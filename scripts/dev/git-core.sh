@@ -82,7 +82,6 @@ function gitPullRepo() {
         silent=
     fi
 
-    logInfo "${GIT_TAG} Pulling repo from Origin"
     git pull ${silent}
     checkExecutionError
 }
@@ -238,6 +237,10 @@ function getAllConflictingSubmodules() {
     done
 
     echo "${repos[@]}"
+}
+
+function getGitRepoName() {
+    echo `git remote -v | head -1 | perl -pe "s/.*:(.*?)(:?.git| ).*/\1/"`
 }
 
 function getSubmodulesByScope() {

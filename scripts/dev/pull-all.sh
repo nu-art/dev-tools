@@ -68,6 +68,7 @@ printDebugParams ${debug} "${params[@]}"
 function execute() {
     local submoduleBranch=`gitGetCurrentBranch`
     local runningDir=${PWD##*/}
+
     if [ "${mainRepoBranch}" != "${submoduleBranch}" ]; then
         cd ..
             local submodules=(`getSubmodulesByScope "project" "${projectsToIgnore[@]}"`)
@@ -80,25 +81,25 @@ function execute() {
         cd - > /dev/null
         return
     fi
+    local dirName=${PWD##*/}
 
     local isClean=`git status | grep "nothing to commit.*"`
     if [ ! "${isClean}" ]; then
-        logInfo "${GIT_TAG} Stashing changes with message: ${stashName}"
+        logDebug "${dirName} - Stashing with message: ${stashName}"
         result=`git stash save "${stashName}"`
     fi
 
+   logDebug "${dirName} - Pulling..."
     gitPullRepo true
 
     if [ ! "${isClean}" ] && [ "${result}" != "No local changes to save" ]; then
         gitStashPop
     fi
+   logInfo "${dirName} - Pulled"
 }
 
 function processSubmodule() {
     local mainModule=${1}
-    echo
-    bannerDebug "Processing: ${mainModule}"
-
     local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
     if [ "${#submodules[@]}" -gt "0" ]; then
         execute

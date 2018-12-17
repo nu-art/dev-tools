@@ -127,7 +127,7 @@ function processFolder() {
         exit 1
     fi
 
-    project=`git remote -v | head -1 | perl -pe "s/.*:(.*?)(:?.git| ).*/\1/"`
+    local project=`getGitRepoName`
     checkExecutionError "Unable to extract remote project name"
 
     url="https://github.com/${project}/compare/${toBranch}...${fromBranch}?expand=1"

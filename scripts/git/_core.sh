@@ -239,6 +239,23 @@ function getAllConflictingSubmodules() {
     echo "${repos[@]}"
 }
 
+function getAllNoneProjectSubmodules() {
+    local ALL_REPOS=(`listGitFolders`)
+    local repos=()
+    local toIgnore=(${1})
+    toIgnore+=(`gitListSubmodules`)
+
+    for projectName in "${ALL_REPOS[@]}"; do
+        if [ `contains ${projectName} "${toIgnore[@]}"` == "true" ]; then
+            continue
+        fi
+
+        repos+=(${projectName})
+    done
+
+    echo "${repos[@]}"
+}
+
 function getGitRepoName() {
     echo `git remote -v | head -1 | perl -pe "s/.*:(.*?)(:?.git| ).*/\1/"`
 }
@@ -247,6 +264,10 @@ function getSubmodulesByScope() {
     local submodules=
     local toIgnore=(${2})
     case "${1}" in
+        "external")
+            submodules=(`getAllNoneProjectSubmodules "${toIgnore[@]}"`)
+        ;;
+
         "changed")
             submodules=(`getAllChangedSubmodules "${toIgnore[@]}"`)
             submodules+=(`getAllConflictingSubmodules "${toIgnore[@]}"`)

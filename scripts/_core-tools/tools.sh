@@ -21,7 +21,8 @@
 
 function contains() {
     local found=false
-    for i in "${2}"; do
+    local toIgnore=(${@:2})
+    for i in "${toIgnore[@]}"; do
         if [ "${i}" == "${1}" ] ; then
             echo "true"
             return

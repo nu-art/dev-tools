@@ -38,6 +38,10 @@ function extractParams() {
                 scope="project"
             ;;
 
+            "--external")
+                scope="external"
+            ;;
+
             "--debug")
                 debug="true"
             ;;

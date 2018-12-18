@@ -8,7 +8,6 @@ projectsToIgnore=("dev-tools")
 params=(branchName commitMessage)
 
 function extractParams() {
-    echo
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--branch="*)
@@ -27,11 +26,10 @@ function extractParams() {
 }
 
 function printUsage() {
-    echo
-    echo -e "   USAGE:"
-    echo -e "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${branchName} ${commitMessage}"
-    echo -e "  "
-    echo
+    logVerbose
+    logVerbose "   USAGE:"
+    logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${branchName} ${commitMessage}"
+    logVerbose
     exit 0
 }
 
@@ -66,7 +64,7 @@ printDebugParams ${debug} "${params[@]}"
 
 function processSubmodule() {
     local mainModule=${1}
-    echo
+    logVerbose
     bannerDebug "${mainModule}"
     gitCheckoutBranch ${branchName} true
 
@@ -81,7 +79,7 @@ function processSubmodule() {
                 processSubmodule "${mainModule}/${submoduleName}"
             cd ..
         done
-        echo
+        logVerbose
         bannerDebug "${mainModule} - continue"
     fi
 

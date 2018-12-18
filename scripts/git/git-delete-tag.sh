@@ -27,6 +27,7 @@ projectsToIgnore=("dev-tools")
 scope="project"
 
 params=(scope tag)
+pids=()
 
 function extractParams() {
     for paramValue in "${@}"; do
@@ -51,11 +52,10 @@ function extractParams() {
 }
 
 function printUsage() {
-    echo
-    echo -e "   USAGE:"
-    echo -e "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} --tag=${tag}"
-    echo -e "  "
-    echo
+    logVerbose
+    logVerbose "   USAGE:"
+    logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} --tag=${tag}"
+    logVerbose
     exit 0
 }
 
@@ -77,15 +77,18 @@ verifyRequirement
 
 signature "Delete tag"
 function execute() {
-    echo git push origin :${tag}
+    git push origin :${tag}
+    git tag --delete ${tag}
 }
 
 
 function processSubmodule() {
     local mainModule=${1}
-    echo
+    logVerbose
     bannerDebug "Processing: ${mainModule}"
-    execute
+    execute &
+    pid=$!
+    pids+=(${pid})
 
     local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
     for submodule in "${submodules[@]}"; do
@@ -96,3 +99,6 @@ function processSubmodule() {
 }
 
 processSubmodule "${runningDir}"
+for pid in "${pids[@]}"; do
+    wait ${pid}
+done

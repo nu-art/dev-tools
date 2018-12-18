@@ -49,4 +49,4 @@ for folderName in "${directories[@]}"; do
     git submodule add ${url} ${folderName}
 done
 
-echo -e $"${finalOutput}" > ./.gitmodules
+logVerbose $"${finalOutput}" > ./.gitmodules

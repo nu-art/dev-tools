@@ -145,7 +145,6 @@ function gitPushTags() {
 
 function gitUpdateSubmodules() {
     local submodules=(${@})
-    echo ${submodules[@]}
     logInfo "${GIT_TAG} Updating Submodules: ${submodules[@]}"
     git submodule update --init ${submodules[@]}
     checkExecutionError

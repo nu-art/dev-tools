@@ -7,7 +7,7 @@ projectsToIgnore=("dev-tools")
 params=(fromBranch toBranch)
 
 function extractParams() {
-    echo
+    logVerbose
     logInfo "Process params: "
     for paramValue in "${@}"; do
         logDebug "  param: ${paramValue}"
@@ -28,11 +28,10 @@ function extractParams() {
 }
 
 function printUsage() {
-    echo
-    echo -e "   USAGE:"
-    echo -e "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${fromBranch} ${toBranch}"
-    echo -e "  "
-    echo
+    logVerbose
+    logVerbose "   USAGE:"
+    logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${fromBranch} ${toBranch}"
+    logVerbose
     exit 0
 }
 

@@ -55,11 +55,10 @@ function extractParams() {
 }
 
 function printUsage() {
-    echo
-    echo -e "   USAGE:"
-    echo -e "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} --branch=${branchName}"
-    echo -e "  "
-    echo
+    logVerbose
+    logVerbose "   USAGE:"
+    logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} --branch=${branchName}"
+    logVerbose
     exit 0
 }
 
@@ -89,7 +88,7 @@ function execute() {
 
 function processSubmodule() {
     local mainModule=${1}
-    echo
+    logVerbose
     bannerDebug "Processing: ${mainModule}"
     execute
 

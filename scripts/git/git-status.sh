@@ -69,7 +69,7 @@ function execute() {
 
 function processSubmodule() {
     local mainModule=${1}
-    echo
+    logVerbose
     bannerDebug "Processing: ${mainModule}"
     execute
 

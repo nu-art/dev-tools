@@ -22,6 +22,7 @@ source ${BASH_SOURCE%/*}/_core.sh
 
 paramColor=${BRed}
 projectsToIgnore=("dev-tools")
+params=(githubUsername fromBranch toBranch)
 
 function extractParams() {
     for paramValue in "${@}"; do
@@ -46,11 +47,10 @@ function extractParams() {
 }
 
 function printUsage() {
-    echo
-    echo -e "   USAGE:"
-    echo -e "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} --from=${fromBranch} --to=${toBranch}"
-    echo -e "  "
-    echo
+    logVerbose
+    logVerbose "   USAGE:"
+    logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} --from=${fromBranch} --to=${toBranch}"
+    logVerbose
     exit 0
 }
 
@@ -71,31 +71,6 @@ function verifyRequirement() {
     fi
 
 }
-
-function printDebugParams() {
-    if [ ! "${debug}" ]; then
-        return
-    fi
-
-    function printParam() {
-        if [ ! "${2}" ]; then
-            return
-        fi
-
-        logDebug "--  ${1}: ${2}"
-    }
-
-    logInfo "------- DEBUG: PARAMS -------"
-    logDebug "--"
-    printParam "fromBranch" ${fromBranch}
-    printParam "toBranch" ${toBranch}
-    printParam "githubUsername" ${githubUsername}
-    printParam "debug" ${debug}
-    logDebug "--"
-    logInfo "----------- DEBUG -----------"
-    echo
-}
-
 extractParams "$@"
 verifyRequirement
 
@@ -127,16 +102,14 @@ function processFolder() {
     url="https://github.com/${project}/compare/${toBranch}...${fromBranch}?expand=1"
     echo "URL: ${url}"
     open ${url}
-#    checkExecutionError "Error launching browser with url: ${url}"
-
     summary="${summary}\nhttps://github.com/${project}/pulls/${githubUsername}"
 }
 
-signature
-printDebugParams
+signature "Pull-Request"
+printDebugParams ${debug} "${params[@]}"
 
 bannerDebug "Processing: Main Repo"
 processFolder "Main Repo"
 iterateOverFolders "gitListSubmodules" processFolder
 
-echo -e "${summary}"
+logVerbose "${summary}"

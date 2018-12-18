@@ -1,12 +1,8 @@
 #!/bin/bash
 
 function incrementVersionCode() {
+	local pathToVersionFile=`getVersionFileName ${1}`
     logInfo "Incrementing version code..."
-
-	local pathToVersionFile=$1
-    if [ "${pathToVersionFile}" == "" ]; then
-        pathToVersionFile=./version
-    fi
 
     logInfo "bash gradlew :incrementVersionCode -PpathToVersionFile=${pathToVersionFile}"
     bash gradlew ":incrementVersionCode" "-PpathToVersionFile=${pathToVersionFile}"
@@ -14,29 +10,33 @@ function incrementVersionCode() {
 }
 
 function incrementVersionName() {
-    local promoteVersion=$1
-	local pathToVersionFile=$2
-
-    if [ "${pathToVersionFile}" == "" ]; then
-        pathToVersionFile=./version
-    fi
-
+    local promoteVersion=${1}
+	local pathToVersionFile=`getVersionFileName ${2}`
 	logInfo "Incrementing ${promoteVersion} version name..."
 
     logInfo "bash gradlew :incrementVersionName -PpathToVersionFile=${pathToVersionFile} -PpromoteVersion=${promoteVersion}"
     bash gradlew ":incrementVersionName" "-PpathToVersionFile=${pathToVersionFile}" "-PpromoteVersion=${promoteVersion}"
-
     checkExecutionError  "Error incrementing '${promoteVersion}' version name"
 }
 
-function getVersionName() {
+function getVersionFileName() {
     local versionFile=${1}
+
+    if [ "${versionFile}" == "" ]; then
+        versionFile=./version
+    fi
+
+    echo "${versionFile}"
+}
+
+function getVersionName() {
+    local versionFile=`getVersionFileName ${1}`
     local versionName=`cat "${versionFile}" | grep "versionName \".*\"" | sed  -E 's/versionName| |"//g'`
     echo versionName
 }
 
 function getVersionCode() {
-    local versionFile=${1}
+    local versionFile=`getVersionFileName ${1}`
     local versionCode=`cat "${versionFile}" | grep "versionCode .*" | sed  -E 's/versionCode| //g'`
     echo versionCode
 }

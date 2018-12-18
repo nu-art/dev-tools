@@ -1,5 +1,6 @@
 #!/bin/bash
 source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
+source ${BASH_SOURCE%/*}/version.sh
 
 function prepare() {
     local branch=${1}
@@ -12,28 +13,18 @@ function prepare() {
     cd ..
 }
 
-function incrementVersionCode() {
-    updateVersionCode "./version"
-    checkExecutionError  "Error incrementing version code"
-}
-
-function incrementVersionName() {
-    local promoteVersion=${1}
-    updateVersionName ${promoteVersion} ./version
-    checkExecutionError  "Error incrementing '${promoteVersion}' version name"
-}
-
 function build() {
 	logInfo
   	logInfo "------------------------------------------------------------------------------------------------"
   	logInfo "-----------------------------------       Building...        -----------------------------------"
 
-	local modules=($1)
-	local tasks=($2)
+	local modules=(`echo $1`)
+	local tasks=(`echo $2`)
 
     local gradleParams=""
 
     for moduleName in "${modules[@]}"; do
+        echo ${moduleName}
         for task in "${tasks[@]}"; do
             gradleParams+="${moduleName}:${task} "
         done
@@ -52,8 +43,9 @@ function updateRepository() {
   	logInfo "------------------------------------------------------------------------------------------------"
   	logInfo "------------------------------       Update Repositories...        -----------------------------"
 
-    local modules=(${1})
-    local pathToVersionFile=$2
+	local modules=(`echo ${1}`)
+    local pathToVersionFile=`getVersionFileName ${2}`
+
     if [ "${pathToVersionFile}" == "" ]; then
         pathToVersionFile=./version
     fi
@@ -101,23 +93,13 @@ function updateRepository() {
 }
 
 function buildDeployPush() {
-    local modules=(`listGradleGitModulesFolders`)
-    build "${modules[@]}" uploadArchives
+    local modules=$(listGradleGitModulesFolders)
+    local tasks=uploadArchives
+
+    build "${modules}" "${tasks}"
+
     checkExecutionError  "Error while building artifacts"
 
-    updateRepository "${modules}" "./version"
+    updateRepository "${modules}"
     checkExecutionError  "Error while updating repos"
 }
-
-function getVersionName() {
-    local versionFile=${1}
-    local versionName=`cat ${versionFile} | grep "versionName \".*\"" | sed  -E 's/versionName| |"//g'`
-    echo versionName
-}
-
-function getVersionCode() {
-    local versionFile=${1}
-    local versionCode=`cat "${versionFile}" | grep "versionCode .*" | sed  -E 's/versionCode| //g'`
-    echo versionCode
-}
-

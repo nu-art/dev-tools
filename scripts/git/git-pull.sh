@@ -90,9 +90,10 @@ function execute() {
     gitPullRepo true
 
     if [ ! "${isClean}" ] && [ "${result}" != "No local changes to save" ]; then
+        logDebug "${dirName} - Unstashing with message"
         gitStashPop
     fi
-   logInfo "${dirName} - Pulled"
+    logInfo "${dirName} - Pulled"
 }
 
 function processSubmodule() {

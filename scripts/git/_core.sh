@@ -65,7 +65,6 @@ function gitSaveStash() {
 function gitStashPop() {
     logInfo "${GIT_TAG} Popping last stash"
     git stash pop
-    checkExecutionError
 }
 
 function gitPullRepo() {
@@ -83,7 +82,6 @@ function gitPullRepo() {
     fi
 
     git pull ${silent}
-    checkExecutionError
 }
 
 function gitRemoveSubmoduleFromCache() {
@@ -141,6 +139,10 @@ function gitPushTags() {
     logInfo "${GIT_TAG} Pushing tags to origin..."
     git push --tags
     checkExecutionError
+}
+
+function gitResetHard() {
+    git reset --hard
 }
 
 function gitUpdateSubmodules() {

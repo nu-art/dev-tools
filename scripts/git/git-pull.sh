@@ -84,15 +84,32 @@ function execute() {
     if [ ! "${isClean}" ]; then
         logDebug "${dirName} - Stashing with message: ${stashName}"
         result=`git stash save "${stashName}"`
+        needToPop=
+        if [ "${result}" != "No local changes to save" ]; then
+            needToPop=true
+        fi
     fi
 
-   logDebug "${dirName} - Pulling..."
-    gitPullRepo true
+    function popStash() {
+        if [ "${needToPop}" ]; then
+            trap 'popStash' SIGINT
+                if [ -e ".git/index.lock" ]; then
+                    rm  ".git/index.lock"
+                fi
 
-    if [ ! "${isClean}" ] && [ "${result}" != "No local changes to save" ]; then
-        logDebug "${dirName} - Unstashing with message"
-        gitStashPop
-    fi
+                logDebug "${dirName} - Unstashing with message"
+                gitStashPop
+                needToPop=
+            trap - SIGINT
+        fi
+    }
+
+    trap 'popStash' SIGINT
+        logDebug "${dirName} - Pulling..."
+        gitPullRepo true
+    trap - SIGINT
+    popStash
+
     logInfo "${dirName} - Pulled"
 }
 

@@ -125,16 +125,20 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
             clean=" clean"
         ;;
 
+        "--debug"*)
+            debug="true"
+        ;;
+
         "--clear-data")
-            clearData="--clear-data"
+            clearData="true"
         ;;
 
         "--delete-apks")
-            deleteApks="--delete-apks"
+            deleteApks="true"
         ;;
 
         "--uninstall")
-            uninstall="--uninstall"
+            uninstall="true"
             clearData=
             forceStop=
         ;;
@@ -142,14 +146,14 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
         "--uninstall-only")
             clearData=
             forceStop=
-            noInstall="--no-install"
-            noBuild="--no-build"
-            noLaunch="--no-launch"
-            uninstall="--uninstall"
+            noInstall="true"
+            noBuild="true"
+            noLaunch="true"
+            uninstall="true"
         ;;
 
         "--force-stop")
-            forceStop="--force-stop"
+            forceStop="true"
         ;;
 
         "--offline")
@@ -157,24 +161,24 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
         ;;
 
         "--no-build")
-            noBuild=" --no-build"
+            noBuild="true"
         ;;
 
         "--no-install")
-            noInstall=" --no-install"
+            noInstall="true"
         ;;
 
         "--no-launch")
-            noLaunch=" --no-launch"
+            noLaunch="true"
         ;;
 
         "--wait-for-device")
-            waitForDevice="--wait-for-device"
+            waitForDevice="true"
         ;;
 
         "--only-build")
-            noLaunch=" --no-launch"
-            noInstall=" --no-install"
+            noLaunch="true"
+            noInstall="true"
         ;;
 
         "*")
@@ -193,36 +197,8 @@ function verifyHasDevices() {
     fi
 }
 
-function printParam() {
-    local paramName="${1}"
-    local paramValue="${2}"
-    if [ "${paramValue}" == "" ]; then
-        return
-    fi
-
-    echo "${paramName}: ${paramValue}"
-}
-
-echo ----------
-printParam "appName" "${appName}"
-printParam "packageName" "${packageName}"
-printParam "projectName" "${projectName}"
-printParam "pathToApk" "${pathToApk}"
-printParam "apkPattern" "${apkPattern}"
-printParam "outputFolder" "${outputFolder}"
-
-printParam "deviceIdParam" "${deviceIdParam}"
-
-printParam "uninstall" "${uninstall}"
-printParam "clearData" "${clearData}"
-printParam "forceStop" "${forceStop}"
-printParam "clean" "${clean}"
-printParam "build" "${buildCommand}"
-printParam "noBuild" "${noBuild}"
-printParam "noInstall" "${noInstall}"
-printParam "noLaunch" "${noLaunch}"
-printParam "waitForDevice" "${waitForDevice}"
-
+params=(appName packageName projectName pathToApk apkPattern outputFolder deviceIdParam uninstall clearData forceStop clean build noBuild noInstall noLaunch waitForDevice)
+printDebugParams ${debug} "${params[@]}"
 
 if [ "${packageName}" == "" ]; then
     printUsage "No package name defined"
@@ -317,7 +293,7 @@ function buildImpl() {
     fi
 
     execute "rm -rf ${outputFolder}" "deleting output folder:"
-    execute "bash gradlew${clean}${command}${offline}" "Building '${appName}'..." false
+    execute "bash gradlew${clean}${command}${offline}" "Building '${appName}'..."
     checkExecutionError "Build error..."
 }
 

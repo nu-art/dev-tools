@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
+
 function incrementVersionCode() {
 	local pathToVersionFile=`getVersionFileName ${1}`
     logInfo "Incrementing version code..."

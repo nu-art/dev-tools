@@ -1,4 +1,5 @@
 #!/bin/bash
+source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
 
 function prepare() {
     local branch=${1}

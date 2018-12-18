@@ -34,12 +34,12 @@ function getVersionFileName() {
 function getVersionName() {
     local versionFile=`getVersionFileName ${1}`
     local versionName=`cat "${versionFile}" | grep "versionName \".*\"" | sed  -E 's/versionName| |"//g'`
-    echo versionName
+    echo ${versionName}
 }
 
 function getVersionCode() {
     local versionFile=`getVersionFileName ${1}`
     local versionCode=`cat "${versionFile}" | grep "versionCode .*" | sed  -E 's/versionCode| //g'`
-    echo versionCode
+    echo ${versionCode}
 }
 

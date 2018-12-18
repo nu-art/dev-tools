@@ -45,11 +45,6 @@ function updateRepository() {
 
 	local modules=(`echo ${1}`)
     local pathToVersionFile=`getVersionFileName ${2}`
-
-    if [ "${pathToVersionFile}" == "" ]; then
-        pathToVersionFile=./version
-    fi
-
     local newVersionName=`getVersionName ${pathToVersionFile}`
     local newVersionCode=`getVersionCode ${pathToVersionFile}`
     local tag=
@@ -76,17 +71,17 @@ function updateRepository() {
     logInfo "Commit Message: ${message}"
     logInfo "Tag: ${tag}"
 
-    for module in "${modules[@]}"; do
-        pushd ${module} > /dev/null
-            git tag -a ${tag} -am "${message}"
-            git push origin ${tag}
-        popd > /dev/null
-    done
-
-    git commit -am "${message}"
-    git tag -a "${tag}" -am "${message}"
-    git push --tags
-    git push
+#    for module in "${modules[@]}"; do
+#        pushd ${module} > /dev/null
+#            git tag -a ${tag} -am "${message}"
+#            git push origin ${tag}
+#        popd > /dev/null
+#    done
+#
+#    git commit -am "${message}"
+#    git tag -a "${tag}" -am "${message}"
+#    git push --tags
+#    git push
 
     logInfo "--------------------------------     Repositories Updated!     ---------------------------------"
   	logInfo "------------------------------------------------------------------------------------------------"

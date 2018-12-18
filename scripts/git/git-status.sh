@@ -18,6 +18,7 @@
 #  limitations under the License.
 
 #!/bin/bash
+
 source ${BASH_SOURCE%/*}/_core.sh
 
 runningDir=${PWD##*/}

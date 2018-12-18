@@ -16,6 +16,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+
 #!/bin/bash
 
 source ${BASH_SOURCE%/*}/_core.sh
@@ -26,14 +27,18 @@ paramColor=${BRed}
 projectsToIgnore=("dev-tools")
 scope="project"
 
-params=(scope tag)
+params=(scope branchName tag)
 pids=()
 
 function extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--tag="*)
-                tag=`echo "${paramValue}" | sed -E "s/--tag=(.*)/\1/"`
+                tagName=`echo "${paramValue}" | sed -E "s/--tag=(.*)/\1/"`
+            ;;
+
+            "--branch="*)
+                branchName=`echo "${paramValue}" | sed -E "s/--branch=(.*)/\1/"`
             ;;
 
             "--all")
@@ -44,6 +49,10 @@ function extractParams() {
                 scope="project"
             ;;
 
+            "--origin")
+                deleteOrigin="true"
+            ;;
+
             "--debug")
                 debug="true"
             ;;
@@ -51,34 +60,46 @@ function extractParams() {
     done
 }
 
-function printUsage() {
-    logVerbose
-    logVerbose "   USAGE:"
-    logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} --tag=${tag}"
-    logVerbose
-    exit 0
-}
-
 function verifyRequirement() {
     missingData=false
-    if [ "${tag}" == "" ]; then
-        tag="${paramColor}tag-name${NoColor}"
-        missingData=true
+    if [ "${tagName}" == "" ] || [ "${tagName}" == "master" ]; then
+        tagName=
+        tagNameParam="--tag=${paramColor}tag-name(NOT master)${NoColor}"
     fi
 
-    if [ "${missingData}" == "true" ]; then
-        printUsage
+    if [ "${branchName}" == "" ] || [ "${branchName}" == "master" ]; then
+        branchName=
+        branchNameParam="--branch=${paramColor}branch-name(NOT master)${NoColor}"
+    fi
+
+    if [ "${tagName}" == "" ] && [ "${branchName}" == "" ]; then
+        logVerbose
+        logVerbose "   USAGE:"
+        logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${tagNameParam} OR ${branchNameParam}"
+        logVerbose
+        exit 0
     fi
 }
-
 
 extractParams "$@"
 verifyRequirement
 
-signature "Delete tag"
+signature "Delete tag or branch"
+
 function execute() {
-    git push origin :${tag}
-    git tag --delete ${tag}
+    if [ "${tagName}" != "" ]; then
+        if [ "${deleteOrigin}" != "" ]; then
+            git push origin :${tagName}
+        fi
+        git tag --delete ${tagName}
+    fi
+
+    if [ "${branchName}" != "" ]; then
+        if [ "${deleteOrigin}" != "" ]; then
+            git push origin :${branchName}
+        fi
+        git branch --delete ${branchName}
+    fi
 }
 
 

@@ -28,18 +28,6 @@ logLevel=${LOG_LEVEL__VERBOSE}
 LOG_COLORS=("${NoColor}" "${BBlue}" "${BGreen}" "${BYellow}" "${BRed}")
 LOG_PREFIX=("-V-" "-D-" "-I-" "-W-" "-E-")
 
-function printCommand() {
-    local params=("${@}")
-    local command="  ${Cyan}${0}${Purple}"
-    for param in "${params[@]}"; do
-        command="${command} ${param}"
-    done
-    command="${command}${NoColor}"
-    logInfo "Command:"
-    logVerbose "${command}"
-    logVerbose
-}
-
 function setLogLevel() {
     case ${1} in
         0|1|2|3|4)

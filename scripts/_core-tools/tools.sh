@@ -114,7 +114,6 @@ function executeProcessor() {
 
 }
 
-
 function printDebugParams() {
     local debug=${1}
     if [ ! "${debug}" ]; then
@@ -144,3 +143,21 @@ function printDebugParams() {
     logInfo "----------- DEBUG -----------"
     logVerbose
 }
+
+function printCommand() {
+    local params=("${@}")
+    local command="  ${Cyan}${0}${Purple}"
+    for param in "${params[@]}"; do
+        command="${command} ${param}"
+    done
+    command="${command}${NoColor}"
+#    clear
+    logVerbose
+    logVerbose
+    logVerbose
+    logDebug "Command:"
+    logVerbose "${command}"
+    logVerbose
+}
+
+printCommand "$@"

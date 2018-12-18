@@ -50,7 +50,7 @@ function updateRepository() {
     local tag=
     local message=
 
-    if [ "${newVersionCode}" == "" ]; then
+    if [ "${newVersionCode}" == "" ] || [ "${newVersionCode}" == "1" ]; then
         tag="v${newVersionName}"
         message="Jenkins Build - v${newVersionName}"
     else

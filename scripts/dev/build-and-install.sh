@@ -1,6 +1,7 @@
 #!/bin/bash
 
-bashVersion=`bash --version | grep version | sed -E "s/.* version (.).*/\1/"`
+source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
+
 apkPattern="*.apk"
 deviceIdParam=""
 
@@ -10,42 +11,42 @@ valueColor=${BGreen}
 function printUsage {
     local errorMessage=${1}
 
-    packageNameParam="${paramColor}--packageName=${NoColor}"
+    local packageNameParam="${paramColor}--packageName=${NoColor}"
     if [ "${packageName}" == "" ]; then
         packageNameParam="${packageNameParam}${valueColor}your.package.name.here${NoColor}"
     else
         packageNameParam="${packageNameParam}${valueColor}${packageName}${NoColor}"
     fi
 
-    projectParam="${paramColor}--project=${NoColor}"
+    local projectParam="${paramColor}--project=${NoColor}"
     if [ "${projectName}" == "" ]; then
         projectParam="${projectParam}${valueColor}you-project-name${NoColor}"
     else
         projectParam="${projectParam}${valueColor}${projectName}${NoColor}"
     fi
 
-    buildParam="${paramColor}--build=${NoColor}${buildParam}${valueColor}build-type${NoColor}"
-    deviceIdParam="${paramColor}--device-id=${NoColor}${valueColor}your-device-id-here${NoColor} | ${valueColor}ALL${NoColor}"
-    uninstallParam="${paramColor}optional flags:${NoColor} ${valueColor}--uninstall${NoColor} | ${valueColor}--offline${NoColor} | ${valueColor}--no-build${NoColor} | ${valueColor}--clear-cache${NoColor}"
+    local buildParam="${paramColor}--build=${NoColor}${buildParam}${valueColor}build-type${NoColor}"
+    local deviceIdParam="${paramColor}--device-id=${NoColor}${valueColor}your-device-id-here${NoColor} | ${valueColor}ALL${NoColor}"
+    local uninstallParam="${paramColor}optional flags:${NoColor} ${valueColor}--uninstall${NoColor} | ${valueColor}--offline${NoColor} | ${valueColor}--no-build${NoColor} | ${valueColor}--clear-cache${NoColor}"
 
-    echo
+    logVerbose
     if [ "${errorMessage}" != "" ]; then
         logError "    ${errorMessage}"
-        echo
+        logVerbose
     fi
-    echo -e "   USAGE:"
-    echo -e "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor}"
-    echo
-    echo -e "               MUST:"
-    echo -e "                         ${packageNameParam}"
-    echo -e "                         ${projectParam}"
-    echo -e "                         ${buildParam}"
-    echo -e "                               |-- or use the --no-build flag"
-    echo
-    echo -e "           OPTIONAL:"
-    echo -e "                         ${deviceIdParam}"
-    echo -e "                         ${uninstallParam}"
-    echo
+    logVerbose "   USAGE:"
+    logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor}"
+    logVerbose
+    logVerbose "               MUST:"
+    logVerbose "                         ${packageNameParam}"
+    logVerbose "                         ${projectParam}"
+    logVerbose "                         ${buildParam}"
+    logVerbose "                               |-- or use the --no-build flag"
+    logVerbose
+    logVerbose "           OPTIONAL:"
+    logVerbose "                         ${deviceIdParam}"
+    logVerbose "                         ${uninstallParam}"
+    logVerbose
     exit
 }
 
@@ -297,7 +298,7 @@ function waitForDeviceImpl() {
 function uninstallFromDevice() {
     local deviceId=${1}
     waitForDevice ${deviceId} true
-    execute "Uninstalling '${appName}':" "${adbCommand} -s ${deviceId} uninstall ${packageName}"
+    execute "${adbCommand} -s ${deviceId} uninstall ${packageName}" "Uninstalling '${appName}':"
 }
 
 function uninstallImpl() {
@@ -315,14 +316,14 @@ function buildImpl() {
           return
     fi
 
-    execute "deleting output folder:" "rm -rf ${outputFolder}"
-    execute "Building '${appName}'..." "bash gradlew${clean}${command}${offline}" false
+    execute "rm -rf ${outputFolder}" "deleting output folder:"
+    execute "bash gradlew${clean}${command}${offline}" "Building '${appName}'..." false
     checkExecutionError "Build error..."
 }
 
 function deleteApksImpl() {
     if [ "${deleteApks}" != "" ]; then
-        execute "deleting output folder:" "rm -rf ${outputFolder}"
+        execute "rm -rf ${outputFolder}" "deleting output folder:"
     fi
 }
 
@@ -333,7 +334,7 @@ function clearDataImpl() {
 
     for deviceId in "${deviceIds[@]}"; do
         waitForDevice ${deviceId} true
-        execute "Clearing data for '${appName}':" "${adbCommand} -s ${deviceId} shell pm clear ${packageName}"
+        execute "${adbCommand} -s ${deviceId} shell pm clear ${packageName}" "Clearing data for '${appName}':"
     done
 }
 
@@ -344,7 +345,7 @@ function forceStopImpl() {
 
     for deviceId in "${deviceIds[@]}"; do
         waitForDevice ${deviceId} true
-        execute "Force stopping Remote-Screen app..." "${adbCommand} -s ${deviceId} shell am force-stop ${packageName}"
+        execute "${adbCommand} -s ${deviceId} shell am force-stop ${packageName}" "Force stopping Remote-Screen app..."
     done
 }
 
@@ -352,7 +353,7 @@ function forceStopImpl() {
 function installAppOnDevice() {
     local deviceId=${1}
     waitForDevice ${deviceId} true
-    execute "Installing '${appName}':" "${adbCommand} -s ${deviceId} install -r -d ${pathToApk}" false |& tee error
+    execute "${adbCommand} -s ${deviceId} install -r -d ${pathToApk}" "Installing '${appName}':" false |& tee error
 
     output=`cat error`
     echo "output: ${output}"
@@ -386,7 +387,7 @@ function installImpl() {
     fi
 
     if [ ! -e "${outputFolder}" ]; then
-        logError "Output folder does not exists... Build needed"
+        logError "Output folder does not exists... Build needed - ${outputFolder}"
         exit 2
     fi
 
@@ -413,7 +414,7 @@ function launchImpl() {
         verifyHasDevices "Cannot launch app..."
         for deviceId in "${deviceIds[@]}"; do
         waitForDevice ${deviceId} true
-        execute "Launching '${appName}':" "${adbCommand} -s ${deviceId} shell am start -n ${packageName}/com.nu.art.cyborg.ui.ApplicationLauncher -a android.intent.action.MAIN -c android.intent.category.LAUNCHER"
+        execute "${adbCommand} -s ${deviceId} shell am start -n ${packageName}/com.nu.art.cyborg.ui.ApplicationLauncher -a android.intent.action.MAIN -c android.intent.category.LAUNCHER" "Launching '${appName}':"
     done
 }
 

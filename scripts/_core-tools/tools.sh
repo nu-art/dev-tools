@@ -134,6 +134,9 @@ function printDebugParams() {
 
     logInfo "------- DEBUG: PARAMS -------"
     logDebug "--"
+    local bashVersion=`bash --version | grep version | sed -E "s/.* version (.).*/\1/"`
+    printParam "bashVersion" "${bashVersion}"
+
     for param in "${params[@]}"; do
         printParam ${param} "${!param}"
     done

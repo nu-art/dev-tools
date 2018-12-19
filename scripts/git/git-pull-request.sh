@@ -103,6 +103,7 @@ function processFolder() {
     url="https://github.com/${project}/compare/${toBranch}...${fromBranch}?expand=1"
     echo "URL: ${url}"
     open ${url}
+    sleep 2s
     summary="${summary}\nhttps://github.com/${project}/pulls/${githubUsername}"
 }
 

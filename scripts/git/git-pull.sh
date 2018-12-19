@@ -106,7 +106,7 @@ function execute() {
 
     trap 'popStash' SIGINT
         logDebug "${dirName} - Pulling..."
-        gitPullRepo true
+        gitPullRepo
     trap - SIGINT
     popStash
 

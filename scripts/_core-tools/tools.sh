@@ -89,6 +89,7 @@ function execute() {
     else
         ${command} | indent "    "
     fi
+    logVerbose
 }
 
 function deleteFolder() {

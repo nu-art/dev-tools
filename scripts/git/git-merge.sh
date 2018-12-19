@@ -24,6 +24,7 @@ source ${BASH_SOURCE%/*}/_core.sh
 runningDir=${PWD##*/}
 projectsToIgnore=("dev-tools")
 params=(fromBranch toBranch)
+scope="conflict"
 
 function extractParams() {
     logVerbose
@@ -37,6 +38,10 @@ function extractParams() {
 
             "--to="*)
                 toBranch=`echo "${paramValue}" | sed -E "s/--to=(.*)/\1/"`
+            ;;
+
+            "--project")
+                scope="project"
             ;;
 
             "--debug")
@@ -87,7 +92,7 @@ printDebugParams ${debug} "${params[@]}"
 function execute() {
     currentBranch=`gitGetCurrentBranch`
     if [  "${currentBranch}" != "${toBranch}" ]; then
-        logError "MUST be on branch: ${toBranch} but found: ${currentBranch}"
+        logWarning "Will not merge... expected branch: ${toBranch} but found: ${currentBranch}"
         return
     fi
 
@@ -100,7 +105,7 @@ function processSubmodule() {
 
     execute
 
-    local submodules=(`getSubmodulesByScope "conflict" "${projectsToIgnore[@]}"`)
+    local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
 #    echo
 #    echo "conflictingSubmodules: ${submodules[@]}"
 

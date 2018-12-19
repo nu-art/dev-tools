@@ -110,9 +110,17 @@ function processSubmodule() {
         bannerDebug "${mainModule} - continue"
     fi
 
-    gitAddAll
-    gitCommit "${commitMessage}"
-    gitPush ${branchName}
+    if [[ `hasUntrackedFiles` ]]; then
+        gitAddAll
+    fi
+
+    if [[ `hasChanged` ]]; then
+        gitCommit "${commitMessage}"
+    fi
+
+    if [[ `hasCommits` ]]; then
+        gitPush ${branchName}
+    fi
 }
 
 processSubmodule "${runningDir}"

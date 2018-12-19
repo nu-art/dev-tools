@@ -261,6 +261,18 @@ function getGitRepoName() {
     echo `git remote -v | head -1 | perl -pe "s/.*:(.*?)(:?.git| ).*/\1/"`
 }
 
+function hasUntrackedFiles() {
+    if [[ `git status | grep "Untracked files:"` ]]; then echo true; else echo; fi
+}
+
+function hasChanged() {
+    if [[ `git status | grep "Changes to be committed:"` ]]; then echo true; else echo; fi
+}
+
+function hasCommits() {
+    if [[ `git status | grep "Your branch is ahead"` ]]; then echo true; else echo; fi
+}
+
 function getSubmodulesByScope() {
     local submodules=
     local toIgnore=(${2})

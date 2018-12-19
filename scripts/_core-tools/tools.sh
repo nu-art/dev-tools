@@ -84,12 +84,17 @@ function execute() {
         logDebug "  ${command}"
     fi
 
+    local errorCode=
     if [ "${indentOutput}" == "false" ]; then
         ${command}
+        errorCode=$?
     else
         ${command} | indent "    "
+        errorCode=$?
     fi
     logVerbose
+
+    return ${errorCode}
 }
 
 function deleteFolder() {

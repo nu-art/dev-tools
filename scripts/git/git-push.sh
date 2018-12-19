@@ -23,7 +23,8 @@ source ${BASH_SOURCE%/*}/_core.sh
 
 runningDir=${PWD##*/}
 projectsToIgnore=("dev-tools")
-params=(branchName commitMessage)
+params=(branchName scope commitMessage)
+scope="changed"
 
 function extractParams() {
     for paramValue in "${@}"; do
@@ -34,6 +35,10 @@ function extractParams() {
 
             "--message="*)
                 commitMessage=`echo "${paramValue}" | sed -E "s/--message=(.*)/\1/"`
+            ;;
+
+            "--project")
+                scope="project"
             ;;
 
             "--debug")
@@ -86,7 +91,7 @@ function processSubmodule() {
     bannerDebug "${mainModule}"
     gitCheckoutBranch ${branchName} true
 
-    local submodules=(`getSubmodulesByScope "changed" "${projectsToIgnore[@]}"`)
+    local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
 
 #    echo
 #    bannerWarning "changedSubmodules: ${submodules}"

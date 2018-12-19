@@ -89,7 +89,11 @@ function processSubmodule() {
     local mainModule=${1}
     logVerbose
     bannerDebug "${mainModule}"
-    gitCheckoutBranch ${branchName} true
+    if [ "${scope}" == "changed" ]; then
+        gitCheckoutBranch ${branchName} true
+    else
+        gitCheckoutBranch ${branchName}
+    fi
 
     local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
 

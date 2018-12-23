@@ -33,6 +33,10 @@ function extractParams() {
                 branchName=`echo "${paramValue}" | sed -E "s/--branch=(.*)/\1/"`
             ;;
 
+            "--this")
+                branchName=`gitGetCurrentBranch`
+            ;;
+
             "--message="*)
                 commitMessage=`echo "${paramValue}" | sed -E "s/--message=(.*)/\1/"`
             ;;
@@ -62,7 +66,7 @@ function verifyRequirement() {
 
     local missingData=false
     if [ "${branchName}" == "" ]; then
-        branchName="${missingParamColor}new-branch-name"
+        branchName="${missingParamColor}branch-name${NoColor} OR ${missingParamColor}--this"
         missingData=true
     fi
 

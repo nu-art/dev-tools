@@ -85,6 +85,7 @@ printDebugParams ${debug} "${params[@]}"
 
 function execute() {
     gitCheckoutBranch ${branchName} ${force}
+    checkExecutionError  "Error checking out branch!!"
 }
 
 function processSubmodule() {

@@ -136,8 +136,7 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
         ;;
 
         "--build="*)
-            buildCommand=`echo "${paramValue}" | sed -E "s/--build=(.*)/\1/"`
-            command="${command} assemble${buildCommand}"
+            buildType=`echo "${paramValue}" | sed -E "s/--build=(.*)/\1/"`
         ;;
 
         "--clean"*)
@@ -227,7 +226,7 @@ if [ ! -d "${projectName}" ]; then
     printUsage "No project module named: '${projectName}'"
 fi
 
-if [ "${command}" == "" ] && [ "${noBuild}" == "" ] && [ "${uninstall}" == "" ] && [ "${clearData}" == "" ] && [ "${deleteApks}" == "" ]; then
+if [ "${buildType}" == "" ] && [ "${noBuild}" == "" ] && [ "${uninstall}" == "" ] && [ "${clearData}" == "" ] && [ "${deleteApks}" == "" ]; then
     printUsage "MUST specify build type or set flag --no-build"
 fi
 
@@ -312,6 +311,8 @@ function buildImpl() {
     fi
 
     execute "rm -rf ${outputFolder}" "deleting output folder:"
+    local command="${command} ${projectName}:assemble${buildType}"
+
     execute "bash gradlew${clean}${command}${offline}" "Building '${appName}'..."
     checkExecutionError "Build error..."
 }

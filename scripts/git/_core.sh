@@ -35,13 +35,18 @@ function gitCheckoutBranch() {
 
     logInfo "${GIT_TAG} Checking out branch: ${branchName}"
     git checkout ${branchName}
+    local ErrorCode=$?
 
     currentBranch=`gitGetCurrentBranch`
     if [ "${currentBranch}" != "${branchName}" ] && [ "${isForced}" == "true" ]; then
         logWarning "${GIT_TAG} Could not find branch...  Creating a new branch named: ${branchName}"
         local output=`git checkout -b ${branchName}`
+        ErrorCode=$?
+
         git push -u origin ${branchName}
+        ErrorCode=$?
     fi
+    return "${ErrorCode}"
 }
 
 function gitAddAll() {

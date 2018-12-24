@@ -40,6 +40,10 @@ function extractParams() {
                 toBranch=`echo "${paramValue}" | sed -E "s/--to=(.*)/\1/"`
             ;;
 
+            "--to-this")
+                toBranch=`gitGetCurrentBranch`
+            ;;
+
             "--project")
                 scope="project"
             ;;
@@ -70,7 +74,7 @@ function verifyRequirement() {
     fi
 
     if [ "${toBranch}" == "" ]; then
-        toBranch="${missingParamColor}Branch-to-merge-onto"
+        toBranch="${missingParamColor}branch-name${NoColor} OR ${missingParamColor}--to-this"
         missingData=true
     fi
 

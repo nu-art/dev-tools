@@ -85,21 +85,32 @@ printDebugParams ${debug} "${params[@]}"
 
 function execute() {
     gitCheckoutBranch ${branchName} ${force}
-    checkExecutionError  "Error checking out branch!!"
+    return $?
+}
+
+function forceError() {
+    return $1
 }
 
 function processSubmodule() {
     local mainModule=${1}
     logVerbose
     bannerDebug "Processing: ${mainModule}"
-    execute
-
     local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
-    for submodule in "${submodules[@]}"; do
-        cd ${submodule}
-            processSubmodule "${mainModule}/${submodule}"
-        cd ..
-    done
+    execute
+    local errorCode=$?
+
+    if [ "${#submodules[@]}" -gt "0" ]; then
+        for submoduleName in "${submodules[@]}"; do
+            cd ${submoduleName}
+                processSubmodule "${mainModule}/${submoduleName}"
+            cd ..
+        done
+        logVerbose
+    else
+        forceError ${errorCode}
+        checkExecutionError "Error checking out branch"
+    fi
 }
 
 processSubmodule "${runningDir}"

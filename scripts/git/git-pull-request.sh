@@ -36,6 +36,10 @@ function extractParams() {
                 fromBranch=`echo "${paramValue}" | sed -E "s/--from=(.*)/\1/"`
             ;;
 
+            "--from-this")
+                fromBranch=`gitGetCurrentBranch`
+            ;;
+
             "--to="*)
                 toBranch=`echo "${paramValue}" | sed -E "s/--to=(.*)/\1/"`
             ;;
@@ -50,20 +54,23 @@ function extractParams() {
 function printUsage() {
     logVerbose
     logVerbose "   USAGE:"
-    logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} --from=${fromBranch} --to=${toBranch}"
+    logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${fromBranch} ${toBranch}"
     logVerbose
     exit 0
 }
 
 function verifyRequirement() {
+    local missingParamColor=${BRed}
+    local existingParamColor=${BBlue}
+
     missingData=false
     if [ "${fromBranch}" == "" ]; then
-        fromBranch="${paramColor}Branch-to-be-merged-from${NoColor}"
+        fromBranch="--from=${missingParamColor}branch-name${NoColor} OR ${missingParamColor}--from-this${NoColor}"
         missingData=true
     fi
 
     if [ "${toBranch}" == "" ]; then
-        toBranch="${paramColor}Branch-to-merge-onto${NoColor}"
+        toBranch="--to=${paramColor}Branch-to-merge-onto${NoColor}"
         missingData=true
     fi
 

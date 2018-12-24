@@ -66,7 +66,7 @@ function verifyRequirement() {
 
     local missingData=false
     if [ "${branchName}" == "" ]; then
-        branchName="${missingParamColor}branch-name${NoColor} OR ${missingParamColor}--this"
+        branchName="${missingParamColor}branch-name${NoColor} OR ${missingParamColor}--this${NoColor}"
         missingData=true
     fi
 

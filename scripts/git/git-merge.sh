@@ -74,7 +74,7 @@ function verifyRequirement() {
     fi
 
     if [ "${toBranch}" == "" ]; then
-        toBranch="${missingParamColor}branch-name${NoColor} OR ${missingParamColor}--to-this"
+        toBranch="${missingParamColor}branch-name${NoColor} OR ${missingParamColor}--to-this${NoColor}"
         missingData=true
     fi
 

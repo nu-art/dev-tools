@@ -101,15 +101,15 @@ function processSubmodule() {
     local errorCode=$?
 
     if [ "${#submodules[@]}" -gt "0" ]; then
+        forceError ${errorCode}
+        checkExecutionError "Error checking out branch"
+
         for submoduleName in "${submodules[@]}"; do
             cd ${submoduleName}
                 processSubmodule "${mainModule}/${submoduleName}"
             cd ..
         done
         logVerbose
-    else
-        forceError ${errorCode}
-        checkExecutionError "Error checking out branch"
     fi
 }
 

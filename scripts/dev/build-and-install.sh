@@ -78,6 +78,7 @@ adbCommand=${ANDROID_HOME}/platform-tools/adb
 offline=""
 nobuild=""
 deviceIds=("")
+outputFolder=
 
 function waitForDevice() {
     local deviceId=${1}
@@ -132,7 +133,10 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
 
         "--project="*)
             projectName=`echo "${paramValue}" | sed -E "s/--project=(.*)/\1/"`
-            outputFolder="${projectName}/build/outputs/apk"
+        ;;
+
+        "--folder="*)
+            projectFolder=`echo "${paramValue}" | sed -E "s/--folder=(.*)/\1/"`
         ;;
 
         "--build="*)
@@ -215,27 +219,29 @@ function verifyHasDevices() {
     fi
 }
 
-params=(appName packageName projectName pathToApk apkPattern outputFolder deviceIdParam uninstall clearData forceStop clean build noBuild noInstall noLaunch waitForDevice)
+if [ "${projectFolder}" == "" ]; then
+    projectFolder="${projectName}"
+fi
+
+if [ "${appName}" == "" ]; then
+    appName="${packageName}"
+fi
+
+outputFolder="${projectFolder}/build/outputs/apk"
+
+params=(appName packageName projectName projectFolder outputFolder pathToApk apkPattern deviceIdParam uninstall clearData forceStop clean build noBuild noInstall noLaunch waitForDevice)
 printDebugParams ${debug} "${params[@]}"
 
 if [ "${packageName}" == "" ]; then
     printUsage "No package name defined"
 fi
 
-if [ ! -d "${projectName}" ]; then
-    printUsage "No project module named: '${projectName}'"
+if [ ! -d "${projectFolder}" ]; then
+    printUsage "No project folder for path: '${projectFolder}'"
 fi
 
 if [ "${buildType}" == "" ] && [ "${noBuild}" == "" ] && [ "${uninstall}" == "" ] && [ "${clearData}" == "" ] && [ "${deleteApks}" == "" ]; then
     printUsage "MUST specify build type or set flag --no-build"
-fi
-
-if [ "${outputFolder}" == "" ]; then
-    printUsage "missing output folder"
-fi
-
-if [ "${appName}" == "" ]; then
-    appName="${packageName}"
 fi
 
 if [ "${deviceIdParam}" == "" ] || [ "${deviceIdParam}" == "ALL" ] || [ "${deviceIdParam}" == "all" ]; then
@@ -252,6 +258,13 @@ if [ "${deviceIdParam}" == "" ] || [ "${deviceIdParam}" == "ALL" ] || [ "${devic
 else
     deviceIds=(`echo "${deviceIdParam}"`)
 fi
+
+###################################################################
+#                                                                 #
+#                          EXECUTION                              #
+#                                                                 #
+###################################################################
+
 
 function yesOrNoQuestion() {
     local message=${1}

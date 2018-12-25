@@ -29,24 +29,37 @@ scope="changed"
 function extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
+
             "--branch="*)
-                branchName=`echo "${paramValue}" | sed -E "s/--branch=(.*)/\1/"`
+                branchName=`regexParam "--branch" ${paramValue}`
+            ;;
+
+            "-b="*)
+                branchName=`regexParam "-b" ${paramValue}`
             ;;
 
             "--this")
                 branchName=`gitGetCurrentBranch`
             ;;
 
+            "-cb")
+                branchName=`gitGetCurrentBranch`
+            ;;
+
             "--message="*)
-                commitMessage=`echo "${paramValue}" | sed -E "s/--message=(.*)/\1/"`
+                commitMessage=`regexParam "--message" ${paramValue}`
+            ;;
+
+            "-m="*)
+                commitMessage=`regexParam "-m" ${paramValue}`
             ;;
 
             "--project")
-                scope="project"
+                scope=`removePrefix "project"`
             ;;
 
             "--debug")
-                debug="true"
+                debug=`makeItSo`
             ;;
         esac
     done

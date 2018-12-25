@@ -24,5 +24,6 @@ source ${BASH_SOURCE%/*}/logger.sh
 source ${BASH_SOURCE%/*}/time.sh
 source ${BASH_SOURCE%/*}/signature.sh
 source ${BASH_SOURCE%/*}/error-handling.sh
+source ${BASH_SOURCE%/*}/cli-params.sh
 source ${BASH_SOURCE%/*}/tools.sh
 source ${BASH_SOURCE%/*}/files.sh

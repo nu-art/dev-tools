@@ -156,17 +156,17 @@ function printDebugParams() {
 
 function printCommand() {
     local params=("${@}")
-    local command="  ${Cyan}${0}${Purple}"
-    for param in "${params[@]}"; do
-        command="${command} ${param}"
-    done
+    local command=" "
     command="${command}${NoColor}"
 #    clear
     logVerbose
     logVerbose
     logVerbose
     logDebug "Command:"
-    logVerbose "${command}"
+    logVerbose "  ${Cyan}${0}${NoColor}"
+    for param in "${params[@]}"; do
+        logVerbose "       ${Purple}${param}${NoColor}"
+    done
     logVerbose
 }
 

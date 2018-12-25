@@ -23,6 +23,7 @@ source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
 
 apkPattern="*.apk"
 deviceIdParam=""
+errorFileName=error
 
 paramColor=${BBlue}
 valueColor=${BGreen}
@@ -79,6 +80,7 @@ offline=""
 nobuild=""
 deviceIds=("")
 outputFolder=
+packageName=
 
 function waitForDevice() {
     local deviceId=${1}
@@ -119,6 +121,10 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
             pathToApk=`echo "${paramValue}" | sed -E "s/--path-to-apk=(.*)/\1/"`
         ;;
 
+        "--path-to-test-apk="*)
+            pathToTestApk=`echo "${paramValue}" | sed -E "s/--path-to-test-apk=(.*)/\1/"`
+        ;;
+
         "--apk-pattern="*)
             apkPattern=`echo "${paramValue}" | sed -E "s/--apk-pattern=(.*)/\1/"`
         ;;
@@ -141,6 +147,10 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
 
         "--build="*)
             buildType=`echo "${paramValue}" | sed -E "s/--build=(.*)/\1/"`
+        ;;
+
+        "--tests-to-run="*)
+            testsToRun=`echo "${paramValue}" | sed -E "s/--tests-to-run=(.*)/\1/"`
         ;;
 
         "--clean"*)
@@ -190,6 +200,11 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
             noInstall="true"
         ;;
 
+        "--test-mode")
+            testMode="true"
+            testFlag="-t "
+        ;;
+
         "--no-launch")
             noLaunch="true"
         ;;
@@ -227,9 +242,13 @@ if [ "${appName}" == "" ]; then
     appName="${packageName}"
 fi
 
-outputFolder="${projectFolder}/build/outputs/apk"
+outputFolder="${projectFolder}/build/outputs/apk/${buildType}"
+if [ "${testMode}" ]; then
+    outputTestFolder="${projectFolder}/build/outputs/apk/androidTest/${buildType}"
+fi
 
-params=(appName packageName projectName projectFolder outputFolder pathToApk apkPattern deviceIdParam uninstall clearData forceStop clean build noBuild noInstall noLaunch waitForDevice)
+
+params=(appName packageName buildType projectName projectFolder outputFolder pathToApk outputTestFolder pathToTestApk apkPattern deviceIdParam testMode uninstall clearData forceStop clean build noBuild noInstall noLaunch waitForDevice)
 printDebugParams ${debug} "${params[@]}"
 
 if [ "${packageName}" == "" ]; then
@@ -325,6 +344,9 @@ function buildImpl() {
 
     execute "rm -rf ${outputFolder}" "deleting output folder:"
     local command="${command} ${projectName}:assemble${buildType}"
+    if [ "${testMode}" != "" ]; then
+        command="${command} ${projectName}:assemble${buildType}AndroidTest"
+    fi
 
     execute "bash gradlew${clean}${command}${offline}" "Building '${appName}'..."
     checkExecutionError "Build error..."
@@ -358,39 +380,48 @@ function forceStopImpl() {
     done
 }
 
+function retry() {
+    local output=${1}
+    local installCommand=${2}
+    local uninstallCommand=${3}
+    local errorMessage=${4}
 
-function installAppOnDevice() {
-    local deviceId=${1}
-    waitForDevice ${deviceId} true
-    execute "${adbCommand} -s ${deviceId} install -r -d ${pathToApk}" "Installing '${appName}':" false |& tee error
-
-    output=`cat error`
-    echo "output: ${output}"
-#    exit
-    rm error
+    logVerbose ${output}
 
     if [[ "${output}" =~ "INSTALL_FAILED_UPDATE_INCOMPATIBLE" ]]; then
-        yesOrNoQuestion "Apk Certificate changed, do you want to uninstall previous version? [y(yes)/n(no)/c(cancel)]" "uninstallFromDevice \"${deviceId}\"; installAppOnDevice \"${deviceId}\"" "logError \"COULD NOT INSTALL SOM\""
+        yesOrNoQuestion "Apk Certificate changed, do you want to uninstall previous version? [y(yes)/n(bo)/c(cancel)]" "${uninstallCommand}; ${installCommand}" "logError \"${errorMessage}\""
         return
     fi
 
     if [[ "${output}" =~ "INSTALL_PARSE_FAILED_NO_CERTIFICATES" ]]; then
-        installAppOnDevice "${deviceId}"
+        installCommand
         return
     fi
 
     if [[ "${output}" =~ "INSTALL_FAILED_VERSION_DOWNGRADE" ]]; then
-        yesOrNoQuestion "Failed to install! trying to install an older version, Uninstall newer version? [y/n]" "uninstallFromDevice \"${deviceId}\"; installAppOnDevice \"${deviceId}\"" "logError \"COULD NOT INSTALL TABLET\"; exit 1"
+        yesOrNoQuestion "Failed to install! trying to install an older version, Uninstall newer version? [y/n]" "${uninstallCommand}; ${installCommand}" "logError \"${errorMessage}\"; exit 1"
         return
     fi
 
     if [[ "${output}" =~ "failed to install" ]]; then
-        yesOrNoQuestion "Failed to install, Try again? [y/n]" "installAppOnDevice \"${deviceId}\"" "logError \"COULD NOT INSTALL SOM\"; exit 1"
+        yesOrNoQuestion "Failed to install, Try again? [y/n]" "${installCommand}" "logError \"${errorMessage}\"; exit 1"
         return
     fi
 }
 
+
+
 function installImpl() {
+    function installAppOnDevice() {
+        local deviceId=${1}
+        waitForDevice ${deviceId} true
+        execute "${adbCommand} -s ${deviceId} install -r -d ${testFlag}${pathToApk}" "Installing '${appName}':" false 2> ${errorFileName}
+        output=`cat ${errorFileName}`
+        rm ${errorFileName}
+
+        retry "${output}" "installAppOnDevice \"${deviceId}\"" "uninstallFromDevice \"${deviceId}\"" "COULD NOT INSTALL APP"
+    }
+
     if [ "${noInstall}" != "" ]; then
         return
     fi
@@ -415,15 +446,71 @@ function installImpl() {
     done
 }
 
+function installTestImpl() {
+    function installTestAppOnDevice() {
+        local deviceId=${1}
+        waitForDevice ${deviceId} true
+        execute "${adbCommand} -s ${deviceId} install -r -d ${testFlag}${pathToTestApk}" "Installing '${appName}' tests:" false 2> ${errorFileName}
+        output=`cat ${errorFileName}`
+        rm ${errorFileName}
+
+        retry "${output}" "installAppOnDevice \"${deviceId}\"" "uninstallFromDevice \"${deviceId}\"" "COULD NOT INSTALL APP"
+    }
+
+
+    if [ "${testMode}" == "" ]; then
+        return
+    fi
+
+    if [ "${noInstall}" != "" ]; then
+        return
+    fi
+
+    if [ ! -e "${outputTestFolder}" ]; then
+        logError "Test Output folder does not exists... Build needed - ${outputTestFolder}"
+        exit 2
+    fi
+
+    if [ "${pathToTestApk}" == "" ]; then
+        pathToTestApk=`find "${outputTestFolder}" -name "${apkPattern}"`
+    fi
+
+    if [ "${pathToApk}" == "" ]; then
+        logError "Could not find apk in path '${outputTestFolder}', matching the pattern '${apkPattern}'"
+        exit 2
+    fi
+
+    verifyHasDevices "Cannot install apk..."
+    for deviceId in "${deviceIds[@]}"; do
+        installTestAppOnDevice "${deviceId}"
+    done
+}
+
 function launchImpl() {
     if [ "${noLaunch}" != "" ]; then
         return
     fi
 
-        verifyHasDevices "Cannot launch app..."
-        for deviceId in "${deviceIds[@]}"; do
+    verifyHasDevices "Cannot launch app..."
+    for deviceId in "${deviceIds[@]}"; do
         waitForDevice ${deviceId} true
         execute "${adbCommand} -s ${deviceId} shell am start -n ${packageName}/com.nu.art.cyborg.ui.ApplicationLauncher -a android.intent.action.MAIN -c android.intent.category.LAUNCHER" "Launching '${appName}':"
+    done
+}
+
+function runTestsImpl() {
+    if [ "${testMode}" == "" ]; then
+        return
+    fi
+
+    if [ "${testsToRun}" == "" ]; then
+        return
+    fi
+
+    verifyHasDevices "Cannot run tests app..."
+    for deviceId in "${deviceIds[@]}"; do
+        waitForDevice ${deviceId} true
+        execute "${adbCommand} -s ${deviceId} shell am instrument -w -r -e debug false -e ${testsToRun} ${packageName}.test/android.support.test.runner.AndroidJUnitRunner" "Running test '${appName}':"
     done
 }
 
@@ -433,7 +520,9 @@ clearDataImpl
 uninstallImpl
 buildImpl
 installImpl
+installTestImpl
 launchImpl
+runTestsImpl
 
 
 # For reference

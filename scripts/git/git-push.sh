@@ -111,7 +111,7 @@ function processSubmodule() {
             cd ..
         done
         logVerbose
-        bannerDebug "${mainModule} - continue"
+        bannerDebug "${mainModule} - pointers"
     fi
 
     if [[ `hasUntrackedFiles` ]]; then

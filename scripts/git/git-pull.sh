@@ -45,6 +45,10 @@ function extractParams() {
                 scope="project"
             ;;
 
+            "--external")
+                scope="external"
+            ;;
+
             "--debug")
                 debug="true"
             ;;
@@ -67,14 +71,16 @@ function execute() {
     local runningDir=${PWD##*/}
 
     if [ "${mainRepoBranch}" != "${submoduleBranch}" ]; then
-        cd ..
+        cd .. > /dev/null
             local submodules=(`getSubmodulesByScope "project" "${projectsToIgnore[@]}"`)
             # Make sure that the submodule is a part of the project before updating its pointer
-            for submodule in "${submodules[@]}"; do
-                if [ "${runningDir}" == "${submodule}" ]; then
-                    git submodule update ${runningDir}
-                fi
-            done
+            if [ `contains ${runningDir} "${submodules[@]}"` == "true" ]; then
+                git submodule update ${runningDir}
+            else
+                cd - > /dev/null
+                    gitPullRepo
+                cd .. > /dev/null
+            fi
         cd - > /dev/null
         return
     fi

@@ -77,5 +77,3 @@ function printCommand() {
     done
     logVerbose
 }
-
-printCommand "$@"

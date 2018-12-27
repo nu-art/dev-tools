@@ -109,120 +109,124 @@ function waitForDevice() {
         return
     fi
 }
+function extractParams() {
+    for paramValue in "${@}"; do
+        case "${paramValue}" in
+            "--package-name="*)
+                packageName=`echo "${paramValue}" | sed -E "s/--package-name=(.*)/\1/"`
+            ;;
 
-for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
-    paramValue="${!lastParam}"
-    case ${paramValue} in
-        "--package-name="*)
-            packageName=`echo "${paramValue}" | sed -E "s/--package-name=(.*)/\1/"`
-        ;;
+            "--path-to-apk="*)
+                pathToApk=`echo "${paramValue}" | sed -E "s/--path-to-apk=(.*)/\1/"`
+            ;;
 
-        "--path-to-apk="*)
-            pathToApk=`echo "${paramValue}" | sed -E "s/--path-to-apk=(.*)/\1/"`
-        ;;
+            "--path-to-test-apk="*)
+                pathToTestApk=`echo "${paramValue}" | sed -E "s/--path-to-test-apk=(.*)/\1/"`
+            ;;
 
-        "--path-to-test-apk="*)
-            pathToTestApk=`echo "${paramValue}" | sed -E "s/--path-to-test-apk=(.*)/\1/"`
-        ;;
+            "--apk-pattern="*)
+                apkPattern=`echo "${paramValue}" | sed -E "s/--apk-pattern=(.*)/\1/"`
+            ;;
 
-        "--apk-pattern="*)
-            apkPattern=`echo "${paramValue}" | sed -E "s/--apk-pattern=(.*)/\1/"`
-        ;;
+            "--app-name="*)
+                appName=`echo "${paramValue}" | sed -E "s/--app-name=(.*)/\1/"`
+            ;;
 
-        "--app-name="*)
-            appName=`echo "${paramValue}" | sed -E "s/--app-name=(.*)/\1/"`
-        ;;
+            "--device-id="*)
+                deviceIdParam=`echo "${paramValue}" | sed -E "s/--device-id=(.*)/\1/"`
+            ;;
 
-        "--device-id="*)
-            deviceIdParam=`echo "${paramValue}" | sed -E "s/--device-id=(.*)/\1/"`
-        ;;
+            "--project="*)
+                projectName=`echo "${paramValue}" | sed -E "s/--project=(.*)/\1/"`
+            ;;
 
-        "--project="*)
-            projectName=`echo "${paramValue}" | sed -E "s/--project=(.*)/\1/"`
-        ;;
+            "--folder="*)
+                projectFolder=`echo "${paramValue}" | sed -E "s/--folder=(.*)/\1/"`
+            ;;
 
-        "--folder="*)
-            projectFolder=`echo "${paramValue}" | sed -E "s/--folder=(.*)/\1/"`
-        ;;
+            "--build="*)
+                buildType=`echo "${paramValue}" | sed -E "s/--build=(.*)/\1/"`
+            ;;
 
-        "--build="*)
-            buildType=`echo "${paramValue}" | sed -E "s/--build=(.*)/\1/"`
-        ;;
+            "--tests-to-run="*)
+                testsToRun=`echo "${paramValue}" | sed -E "s/--tests-to-run=(.*)/\1/"`
+            ;;
 
-        "--tests-to-run="*)
-            testsToRun=`echo "${paramValue}" | sed -E "s/--tests-to-run=(.*)/\1/"`
-        ;;
+            "--clean"*)
+                clean=" clean"
+            ;;
 
-        "--clean"*)
-            clean=" clean"
-        ;;
+            "--debug"*)
+                debug="true"
+            ;;
 
-        "--debug"*)
-            debug="true"
-        ;;
+            "--clear-data")
+                clearData="true"
+            ;;
 
-        "--clear-data")
-            clearData="true"
-        ;;
+            "--delete-apks")
+                deleteApks="true"
+            ;;
 
-        "--delete-apks")
-            deleteApks="true"
-        ;;
+            "--uninstall")
+                uninstall="true"
+                clearData=
+                forceStop=
+            ;;
 
-        "--uninstall")
-            uninstall="true"
-            clearData=
-            forceStop=
-        ;;
+            "--uninstall-only")
+                clearData=
+                forceStop=
+                noInstall="true"
+                noBuild="true"
+                noLaunch="true"
+                uninstall="true"
+            ;;
 
-        "--uninstall-only")
-            clearData=
-            forceStop=
-            noInstall="true"
-            noBuild="true"
-            noLaunch="true"
-            uninstall="true"
-        ;;
+            "--force-stop")
+                forceStop="true"
+            ;;
 
-        "--force-stop")
-            forceStop="true"
-        ;;
+            "--offline")
+                offline=" --offline"
+            ;;
 
-        "--offline")
-            offline=" --offline"
-        ;;
+            "--no-build")
+                noBuild="true"
+            ;;
 
-        "--no-build")
-            noBuild="true"
-        ;;
+            "--no-install")
+                noInstall="true"
+            ;;
 
-        "--no-install")
-            noInstall="true"
-        ;;
+            "--test-mode")
+                testMode="true"
+                testFlag="-t "
+            ;;
 
-        "--test-mode")
-            testMode="true"
-            testFlag="-t "
-        ;;
+            "--no-launch")
+                noLaunch="true"
+            ;;
 
-        "--no-launch")
-            noLaunch="true"
-        ;;
+            "--wait-for-device")
+                waitForDevice="true"
+            ;;
 
-        "--wait-for-device")
-            waitForDevice="true"
-        ;;
+            "--only-build")
+                noLaunch="true"
+                noInstall="true"
+            ;;
 
-        "--only-build")
-            noLaunch="true"
-            noInstall="true"
-        ;;
+            "*")
+                echo "UNKNOWN PARAM: ${paramValue}";
+            ;;
+        esac
+    done
+}
 
-        "*")
-            echo "UNKNOWN PARAM: ${paramValue}";
-        ;;
-    esac
-done
+signature
+printCommand "$@"
+extractParams "$@"
 
 function verifyHasDevices() {
     local message=${1}

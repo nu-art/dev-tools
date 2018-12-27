@@ -47,7 +47,7 @@ function extractParams() {
             ;;
 
             "--message="*)
-                commitMessage=`regexParam "--message" ${paramValue}`
+                commitMessage=`regexParam "--message" "${paramValue}"`
             ;;
 
             "-m="*)

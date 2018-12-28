@@ -78,7 +78,7 @@ function execute() {
                 git submodule update ${runningDir}
             else
                 cd - > /dev/null
-                    gitPullRepo
+                    gitPullRepo true
                 cd .. > /dev/null
             fi
         cd - > /dev/null
@@ -112,7 +112,7 @@ function execute() {
 
     trap 'popStash' SIGINT
         logDebug "${dirName} - Pulling..."
-        gitPullRepo
+        gitPullRepo true
     trap - SIGINT
     popStash
 

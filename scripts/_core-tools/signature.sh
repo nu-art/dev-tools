@@ -39,7 +39,6 @@ function signature() {
     echo
     printSig2
     echo -e " ${NoColor}"
-    sleep 2s
 }
 
 function printSig1() {

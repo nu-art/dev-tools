@@ -60,6 +60,7 @@ function printDebugParams() {
     logDebug "--"
     logInfo "----------- DEBUG -----------"
     logVerbose
+    sleep 3s
 }
 
 function printCommand() {

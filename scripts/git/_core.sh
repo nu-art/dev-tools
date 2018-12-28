@@ -81,7 +81,7 @@ function gitPullRepo() {
     fi
 
     if [ "${silent}" == "true" ]; then
-        silent="--quiet"
+        silent="--no-edit"
     else
         silent=
     fi

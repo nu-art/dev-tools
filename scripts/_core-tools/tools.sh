@@ -124,3 +124,27 @@ function executeProcessor() {
 
 }
 
+function yesOrNoQuestion() {
+    local message=${1}
+    local toExecuteYes=${2}
+    local toExecuteNo=${3}
+
+    logVerbose
+    logWarning "${message}"
+    read  -n 1 -p "" response
+
+    logVerbose
+    case "$response" in
+        [yY])
+                eval ${toExecuteYes}
+            ;;
+        [nN])
+                eval ${toExecuteNo}
+            ;;
+        *)
+                logError "Canceling..."
+                exit 2
+            ;;
+    esac
+}
+

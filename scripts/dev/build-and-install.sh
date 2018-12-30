@@ -291,7 +291,7 @@ fi
 
 function yesOrNoQuestion() {
     local message=${1}
-    local toExecuteYes=${2}
+    local toExecuteYes="${2}"
     local toExecuteNo=${3}
 
     echo
@@ -300,12 +300,10 @@ function yesOrNoQuestion() {
 
     case "$response" in
         [yY])
-                echo
-                eval ${toExecuteYes}
-            ;;
+                execute "${toExecuteYes}"
+             ;;
         [nN])
-                echo
-                eval ${toExecuteNo}
+                execute "${toExecuteNo}"
             ;;
         *)
                 echo

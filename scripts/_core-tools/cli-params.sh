@@ -32,6 +32,45 @@ function makeItSo() {
     echo "true"
 }
 
+function getBashVersion() {
+    echo `bash --version | grep version | head -1 | sed -E "s/.* version (.*)\(.*\(.*/\1/"`
+}
+
+function installBash() {
+    logInfo "Installing bash... this can take some time"
+    brew install bash 2> error
+    local output=`cat error`
+    rm error
+
+    if [[ "${output}" =~ "brew upgrade bash" ]]; then
+        brew upgrade bash 2> error
+    fi
+}
+
+function enforceBashVersion() {
+    local _minVersion=${1}
+    local _bashVersion=`getBashVersion`
+
+    if [ ! "${_minVersion}" ]; then return; fi
+
+    minVersion=(${_minVersion//./ })
+    bashVersion=(${_bashVersion//./ })
+
+    for (( arg=0; arg<${#minVersion[@]}; arg+=1 )); do
+        local min="${minVersion[${arg}]}"
+        local current="${bashVersion[${arg}]}"
+
+        if (( ${current} > ${min})); then
+            return
+        elif (( ${current} == ${min})); then
+            continue
+        else
+            logError "Found unsupported bash version: ${_bashVersion}\Require min version: ${_minVersion}\n ... "
+            yesOrNoQuestion "Would you like to install latest version [y/n]:" "installBash" "logError \"Terminating process...\" && exit 2"
+        fi
+    done
+}
+
 function printDebugParams() {
     local debug=${1}
     if [ ! "${debug}" ]; then
@@ -51,7 +90,7 @@ function printDebugParams() {
 
     logInfo "------- DEBUG: PARAMS -------"
     logDebug "--"
-    local bashVersion=`bash --version | grep version | head -1 | sed -E "s/.* version (.*)\(.*\(.*/\1/"`
+    local bashVersion=`getBashVersion`
     printParam "bashVersion" "${bashVersion}"
 
     for param in "${params[@]}"; do

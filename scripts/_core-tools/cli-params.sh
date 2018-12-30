@@ -65,8 +65,9 @@ function enforceBashVersion() {
         elif (( ${current} == ${min})); then
             continue
         else
-            logError "Found unsupported bash version: ${_bashVersion}\Require min version: ${_minVersion}\n ... "
-            yesOrNoQuestion "Would you like to install latest version [y/n]:" "installBash" "logError \"Terminating process...\" && exit 2"
+            logError "Found unsupported 'bash' version: ${_bashVersion}"
+            logError "Required min version: ${_minVersion}\n ..."
+            yesOrNoQuestion "Would you like to install latest 'bash' version [y/n]:" "installBash && logInfo \"Please re-run command..\" && exit 0 " "logError \"Terminating process...\" && exit 2"
         fi
     done
 }

@@ -129,7 +129,6 @@ function yesOrNoQuestion() {
     local toExecuteYes=${2}
     local toExecuteNo=${3}
 
-    logVerbose
     logWarning "${message}"
     read  -n 1 -p "" response
 

@@ -45,6 +45,11 @@ function installBash() {
     if [[ "${output}" =~ "brew upgrade bash" ]]; then
         brew upgrade bash 2> error
     fi
+
+    if [[ "${output}" =~ "brew: command not found" ]]; then
+        logInfo "So... a new computer... ?? installing homebrew ;)"
+        /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    fi
 }
 
 function enforceBashVersion() {

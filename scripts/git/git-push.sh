@@ -103,9 +103,9 @@ signature
 printDebugParams ${debug} "${params[@]}"
 
 function processSubmodule() {
-    local mainModule=${1}
+    local submoduleName=${1}
     logVerbose
-    bannerDebug "${mainModule}"
+    bannerDebug "${submoduleName}"
     if [ "${scope}" == "changed" ]; then
         gitCheckoutBranch ${branchName} true
     else
@@ -120,11 +120,17 @@ function processSubmodule() {
     if [ "${#submodules[@]}" -gt "0" ]; then
         for submoduleName in "${submodules[@]}"; do
             cd ${submoduleName}
-                processSubmodule "${mainModule}/${submoduleName}"
+                processSubmodule "${submoduleName}/${submoduleName}"
             cd ..
         done
         logVerbose
-        bannerDebug "${mainModule} - pointers"
+        bannerDebug "${submoduleName} - pointers"
+    fi
+
+    if [[ `hasConflicts` ]]; then
+        logError "Submodule ${submoduleName} has conflicts... Terminating process!!"
+        git diff --check
+        exit 2
     fi
 
     if [[ `hasUntrackedFiles` ]]; then

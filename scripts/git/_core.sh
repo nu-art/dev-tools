@@ -270,6 +270,10 @@ function hasUntrackedFiles() {
     if [[ `git status | grep "Untracked files:"` ]]; then echo true; else echo; fi
 }
 
+function hasConflicts() {
+    if [[ `git diff --check` ]]; then echo true; else echo; fi
+}
+
 function hasChanged() {
     if [[ `git status | grep -E "Changes to be committed:|Changes not staged for commit:"` ]]; then echo true; else echo; fi
 }

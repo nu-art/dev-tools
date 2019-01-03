@@ -118,9 +118,9 @@ function processSubmodule() {
 #    bannerWarning "changedSubmodules: ${submodules}"
 
     if [ "${#submodules[@]}" -gt "0" ]; then
-        for submoduleName in "${submodules[@]}"; do
-            cd ${submoduleName}
-                processSubmodule "${submoduleName}/${submoduleName}"
+        for _submoduleName in "${submodules[@]}"; do
+            cd ${_submoduleName}
+                processSubmodule "${submoduleName}/${_submoduleName}"
             cd ..
         done
         logVerbose

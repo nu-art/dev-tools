@@ -29,7 +29,7 @@ def addTask_DeployAndroidArtifactToNexus(groupId) {
 }
 
 def addTask_DeployToNexus(groupId, _packaging) {
-    if (!nexusRepoUrl) {
+    if (!project.hasProperty("nexusRepoUrl") || !nexusRepoUrl) {
         println("Will not be able to deply to nexus.. project does not define 'nexusRepoUrl' in gradle.properties")
         return
     }

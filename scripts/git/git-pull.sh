@@ -75,7 +75,7 @@ function execute() {
             local submodules=(`getSubmodulesByScope "project" "${projectsToIgnore[@]}"`)
             # Make sure that the submodule is a part of the project before updating its pointer
             if [ `contains ${runningDir} "${submodules[@]}"` == "true" ]; then
-                git submodule update ${runningDir}
+                git submodule update --init ${runningDir}
             else
                 cd - > /dev/null
                     gitPullRepo true

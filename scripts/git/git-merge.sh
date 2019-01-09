@@ -67,7 +67,7 @@ function verifyRequirement() {
     local missingParamColor=${BRed}
     local existingParamColor=${BBlue}
 
-    missingData=false
+    missingData=
     if [[ ! "${fromBranch}" ]]; then
         fromBranch="${missingParamColor}Branch-to-be-merged-from"
         missingData=true
@@ -78,7 +78,7 @@ function verifyRequirement() {
         missingData=true
     fi
 
-    if [[ "${missingData}" == "true" ]]; then
+    if [[ "${missingData}" ]]; then
         fromBranch=" --from=${existingParamColor}${fromBranch}${NoColor}"
         toBranch=" --to=${existingParamColor}${toBranch}${NoColor}"
 

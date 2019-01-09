@@ -77,7 +77,7 @@ function verifyRequirement() {
     local missingParamColor=${BRed}
     local existingParamColor=${BBlue}
 
-    local missingData=false
+    local missingData=
     if [[ ! "${branchName}" ]]; then
         branchName="${missingParamColor}branch-name${NoColor} OR ${missingParamColor}--this${NoColor}"
         missingData=true
@@ -88,7 +88,7 @@ function verifyRequirement() {
         missingData=true
     fi
 
-    if [[ "${missingData}" == "true" ]]; then
+    if [[ "${missingData}" ]]; then
         branchName="--branch=${existingParamColor}${branchName}${NoColor}"
         commitMessage="--message=\"${existingParamColor}${commitMessage}${NoColor}\""
         printUsage

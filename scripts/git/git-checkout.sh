@@ -64,13 +64,13 @@ function printUsage() {
 }
 
 function verifyRequirement() {
-    missingData=false
+    missingData=
     if [[ ! "${branchName}" ]]; then
         branchName="${paramColor}branch-name${NoColor}"
         missingData=true
     fi
 
-    if [[ "${missingData}" == "true" ]]; then
+    if [[ "${missingData}" ]]; then
         printUsage
     fi
 }

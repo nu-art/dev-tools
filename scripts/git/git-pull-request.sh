@@ -63,7 +63,7 @@ function verifyRequirement() {
     local missingParamColor=${BRed}
     local existingParamColor=${BBlue}
 
-    missingData=false
+    missingData=
     if [[ ! "${fromBranch}" ]]; then
         fromBranch="--from=${missingParamColor}branch-name${NoColor} OR ${missingParamColor}--from-this${NoColor}"
         missingData=true
@@ -74,7 +74,7 @@ function verifyRequirement() {
         missingData=true
     fi
 
-    if [[ "${missingData}" == "true" ]]; then
+    if [[ "${missingData}" ]]; then
         printUsage
     fi
 

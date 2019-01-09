@@ -28,7 +28,6 @@ function contains() {
             return
         fi
     done
-    echo "false"
     return
 }
 
@@ -78,10 +77,6 @@ function execute() {
         logInfo "${message}"
     else
         logInfo "${command}"
-    fi
-
-    if [[ "${dryRun}" == "true" ]]; then
-        return
     fi
 
     if [[ "${message}" ]]; then

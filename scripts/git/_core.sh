@@ -216,7 +216,7 @@ function getAllChangedSubmodules() {
     local repos=()
     local toIgnore=(${1})
     for projectName in "${ALL_REPOS[@]}"; do
-        if [[ `contains ${projectName} "${toIgnore[@]}"` == "true" ]]; then
+        if [[ `contains ${projectName} "${toIgnore[@]}"` ]]; then
             continue
         fi
 
@@ -231,7 +231,7 @@ function getAllConflictingSubmodules() {
     local repos=()
     local toIgnore=(${1})
     for projectName in "${ALL_REPOS[@]}"; do
-        if [[ `contains ${projectName} "${toIgnore[@]}"` == "true" ]]; then
+        if [[ `contains ${projectName} "${toIgnore[@]}"` ]]; then
             continue
         fi
 
@@ -252,7 +252,7 @@ function getAllNoneProjectSubmodules() {
     toIgnore+=(`gitListSubmodules`)
 
     for projectName in "${ALL_REPOS[@]}"; do
-        if [[ `contains ${projectName} "${toIgnore[@]}"` == "true" ]]; then
+        if [[ `contains ${projectName} "${toIgnore[@]}"` ]]; then
             continue
         fi
 

@@ -83,12 +83,12 @@ listFoldersImpl() {
         add=true
         for (( arg=1; arg<=$#; arg+=1 )); do
             if [[ "`${!arg} \"${folderName}\"`" == "false" ]]; then
-                add=false
+                add=
                 break
             fi
         done
 
-        if [[ "${add}" == "true" ]]; then
+        if [[ "${add}" ]]; then
             directories+=(${folderName})
         fi
 

@@ -87,21 +87,26 @@ function waitForDevice() {
     local deviceId=${1}
     local message=${2}
 
-    device=`adb devices | grep ${deviceId}`
-
-    if [[ ! "${device}" ]]; then
+    if [[ ! "${deviceId}" ]]; then
         logError "Error waiting for device... no deviceId specified!!"
         exit 2
     fi
-    
+
+    local device=`adb devices | grep ${deviceId}`
+
+    if [[ "${device}" ]]; then
+        return
+    fi
+
     if [[ ! "${message}" ]]; then
         message="Waiting for device"
     fi
 
-    logWarning "${message}..."
+    logWarning "${message}... ${deviceId}"
     sleep 5s
     waitForDevice ${1} "${2}"
 }
+
 function extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
@@ -264,8 +269,8 @@ function resolveDeviceId() {
     if [[ ! "${deviceIdParam}" ]] || [[ "${deviceIdParam}" == "ALL" ]] || [[ "${deviceIdParam}" == "all" ]]; then
         deviceIds=(`adb devices | grep -E "^[0-9a-zA-Z\-]+\s+?device$" | sed -E "s/([0-9a-zA-Z-]+).*/\1/"`)
         if [[ ! "${deviceIdParam}" ]] && (("${#deviceIds[@]}" > "1")); then
-
-            deviceIdParam=`choicePrintOptions "More than one device connected, please specify which device: " "ALL" ${deviceIds[@]}`
+            choicePrintOptions "No device was specified, please select one: " "ALL" ${deviceIds[@]}
+            deviceIdParam=`choiceWaitForInput "ALL" ${deviceIds[@]}`
             resolveDeviceId
         fi
     else
@@ -273,36 +278,13 @@ function resolveDeviceId() {
     fi
 }
 
+resolveDeviceId
 ###################################################################
 #                                                                 #
 #                          EXECUTION                              #
 #                                                                 #
 ###################################################################
 
-
-function yesOrNoQuestion() {
-    local message=${1}
-    local toExecuteYes="${2}"
-    local toExecuteNo=${3}
-
-    echo
-    logWarning "${message}"
-    read  -n 1 -p "" response
-
-    case "$response" in
-        [yY])
-                execute "${toExecuteYes}"
-             ;;
-        [nN])
-                execute "${toExecuteNo}"
-            ;;
-        *)
-                echo
-                logError "Canceling..."
-                exit 2
-            ;;
-    esac
-}
 
 function waitForDeviceImpl() {
     if [[ ! "${waitForDevice}" ]]; then
@@ -382,7 +364,7 @@ function retry() {
     logVerbose ${output}
 
     if [[ "${output}" =~ "INSTALL_FAILED_UPDATE_INCOMPATIBLE" ]]; then
-        yesOrNoQuestion "Apk Certificate changed, do you want to uninstall previous version? [y(yes)/n(bo)/c(cancel)]" "${uninstallCommand}; ${installCommand}" "logError \"${errorMessage}\""
+        yesOrNoQuestion "Apk Certificate changed, do you want to uninstall previous version? [y(yes)/n(bo)/c(cancel)]" "${uninstallCommand} && ${installCommand}" "logError \"${errorMessage}\""
         return
     fi
 
@@ -392,7 +374,7 @@ function retry() {
     fi
 
     if [[ "${output}" =~ "INSTALL_FAILED_VERSION_DOWNGRADE" ]]; then
-        yesOrNoQuestion "Failed to install! trying to install an older version, Uninstall newer version? [y/n]" "${uninstallCommand}; ${installCommand}" "logError \"${errorMessage}\"; exit 1"
+        yesOrNoQuestion "Failed to install! trying to install an older version, Uninstall newer version? [y/n]" "${uninstallCommand} && ${installCommand}" "logError \"${errorMessage}\"; exit 1"
         return
     fi
 
@@ -412,7 +394,7 @@ function installImpl() {
         output=`cat ${errorFileName}`
         rm ${errorFileName}
 
-        retry "${output}" "installAppOnDevice \"${deviceId}\"" "uninstallFromDevice \"${deviceId}\"" "COULD NOT INSTALL APP"
+        retry "${output}" "installAppOnDevice ${deviceId}" "uninstallFromDevice ${deviceId}" "COULD NOT INSTALL APP"
     }
 
     if [[ "${noInstall}" ]]; then

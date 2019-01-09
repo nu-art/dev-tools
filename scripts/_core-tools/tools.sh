@@ -152,22 +152,37 @@ function choicePrintOptions() {
     local options=("${@}")
     options=("${options[@]:1}")
 
-    for (( arg=0; arg<=${#options[@]}; arg+=1 )); do
+    for (( arg=0; arg<${#options[@]}; arg+=1 )); do
         local option="${arg}. ${options[${arg}]}"
-        logDebug "  ${option}"
+        logDebug "   ${option}"
     done
-    logWarning "${message}"
+    logVerbose
+    logWarning "   ${message}"
 }
 
 function choiceWaitForInput() {
     local options=("${@}")
 
     response=-1
-    while (( ${response} < 0 || ${response} >= ${#options[@]} )); do
+    while (( "${response}" < 0 || ${response} >= ${#options[@]} )); do
         read  -n 1 -p "" response
+        response=`isNumeric "${response}" "-1"`
     done
 
-    logVerbose
     echo "${options[${response}]}"
 }
 
+function isNumeric() {
+    local re=''
+    if [[ ! "${1}" =~ ^[+-]?[0-9]+([.][0-9]+)?$ ]] ; then
+       echo "${2}"
+       return
+    fi
+
+    echo "${1}"
+}
+
+
+#isNumeric 2 -100
+#isNumeric 4 -100
+#isNumeric e -100

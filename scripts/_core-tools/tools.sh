@@ -158,6 +158,7 @@ function choicePrintOptions() {
     done
     logVerbose
     logWarning "   ${message}"
+    logVerbose
 }
 
 function choiceWaitForInput() {

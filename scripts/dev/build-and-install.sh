@@ -19,7 +19,7 @@
 
 #!/bin/bash
 
-source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
+source ${BASH_SOURCE%/*}/../android/_source.sh
 enforceBashVersion 4.4
 
 apkPattern="*.apk"
@@ -82,30 +82,6 @@ nobuild=""
 deviceIds=("")
 outputFolder=
 packageName=
-
-function waitForDevice() {
-    local deviceId=${1}
-    local message=${2}
-
-    if [[ ! "${deviceId}" ]]; then
-        logError "Error waiting for device... no deviceId specified!!"
-        exit 2
-    fi
-
-    local device=`adb devices | grep ${deviceId}`
-
-    if [[ "${device}" ]]; then
-        return
-    fi
-
-    if [[ ! "${message}" ]]; then
-        message="Waiting for device"
-    fi
-
-    logWarning "${message}... ${deviceId}"
-    sleep 5s
-    waitForDevice ${1} "${2}"
-}
 
 function extractParams() {
     for paramValue in "${@}"; do

@@ -68,17 +68,17 @@ function verifyRequirement() {
     local existingParamColor=${BBlue}
 
     missingData=false
-    if [ "${fromBranch}" == "" ]; then
+    if [[ ! "${fromBranch}" ]]; then
         fromBranch="${missingParamColor}Branch-to-be-merged-from"
         missingData=true
     fi
 
-    if [ "${toBranch}" == "" ]; then
+    if [[ ! "${toBranch}" ]]; then
         toBranch="${missingParamColor}branch-name${NoColor} OR ${missingParamColor}--to-this${NoColor}"
         missingData=true
     fi
 
-    if [ "${missingData}" == "true" ]; then
+    if [[ "${missingData}" == "true" ]]; then
         fromBranch=" --from=${existingParamColor}${fromBranch}${NoColor}"
         toBranch=" --to=${existingParamColor}${toBranch}${NoColor}"
 
@@ -95,7 +95,7 @@ printDebugParams ${debug} "${params[@]}"
 
 function execute() {
     currentBranch=`gitGetCurrentBranch`
-    if [  "${currentBranch}" != "${toBranch}" ]; then
+    if [[  "${currentBranch}" != "${toBranch}" ]]; then
         logWarning "Will not merge... expected branch: ${toBranch} but found: ${currentBranch}"
         return
     fi

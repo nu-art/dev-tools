@@ -24,7 +24,7 @@ allFolders() {
 }
 
 allGitFolders() {
-    if [ -e "${1}/.git" ]; then
+    if [[ -e "${1}/.git" ]]; then
         echo true
         return
     fi
@@ -33,12 +33,12 @@ allGitFolders() {
 }
 
 gitFolders() {
-    if [ "${1}" == "dev-tools" ]; then
+    if [[ "${1}" == "dev-tools" ]]; then
         echo false
         return
     fi
 
-    if [ -e "${1}/.git" ]; then
+    if [[ -e "${1}/.git" ]]; then
         echo true
         return
     fi
@@ -65,7 +65,7 @@ androidAppsFolder() {
 }
 
 allGradleFolders(){
-    if [ -e "${1}/build.gradle" ]; then
+    if [[ -e "${1}/build.gradle" ]]; then
         echo true
         return
     fi
@@ -82,13 +82,13 @@ listFoldersImpl() {
         folderName="${folderName:0: -1}"
         add=true
         for (( arg=1; arg<=$#; arg+=1 )); do
-            if [ "`${!arg} \"${folderName}\"`" == "false" ]; then
+            if [[ "`${!arg} \"${folderName}\"`" == "false" ]]; then
                 add=false
                 break
             fi
         done
 
-        if [ "${add}" == "true" ]; then
+        if [[ "${add}" == "true" ]]; then
             directories+=(${folderName})
         fi
 

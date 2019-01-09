@@ -19,7 +19,7 @@
 
 #!/bin/bash
 folder="${1}"
-if [ "${folder}" == "" ]; then
+if [[ ! "${folder}" ]]; then
     echo "MUST provide a target folder"
     exit 1
 fi
@@ -32,7 +32,7 @@ pushd "${folder}"
     adb reboot bootloader
 
     for image in "${images[@]}"; do
-        if [ ! -e "${image}.img" ]; then
+        if [[ ! -e "${image}.img" ]]; then
             continue;
         fi
 

@@ -23,7 +23,7 @@ function contains() {
     local found=false
     local toIgnore=(${@:2})
     for i in "${toIgnore[@]}"; do
-        if [ "${i}" == "${1}" ] ; then
+        if [[ "${i}" == "${1}" ]] ; then
             echo "true"
             return
         fi
@@ -49,7 +49,7 @@ function sedFunc() {
 }
 
 function setDefaultAndroidHome() {
-    if [ "${ANDROID_HOME}" != "" ]; then
+    if [[ "${ANDROID_HOME}" ]]; then
         return
     fi
 
@@ -74,22 +74,22 @@ function execute() {
     local indentOutput=$3
 
 
-    if [ "${message}" != "" ]; then
+    if [[ "${message}" ]]; then
         logInfo "${message}"
     else
         logInfo "${command}"
     fi
 
-    if [ "${dryRun}" == "true" ]; then
+    if [[ "${dryRun}" == "true" ]]; then
         return
     fi
 
-    if [ "${message}" != "" ]; then
+    if [[ "${message}" ]]; then
         logDebug "  ${command}"
     fi
 
     local errorCode=
-    if [ "${indentOutput}" == "false" ]; then
+    if [[ "${indentOutput}" == "false" ]]; then
         ${command}
         errorCode=$?
     else
@@ -145,5 +145,29 @@ function yesOrNoQuestion() {
                 exit 2
             ;;
     esac
+}
+
+function choicePrintOptions() {
+    local message=${1}
+    local options=("${@}")
+    options=("${options[@]:1}")
+
+    for (( arg=0; arg<=${#options[@]}; arg+=1 )); do
+        local option="${arg}. ${options[${arg}]}"
+        logDebug "  ${option}"
+    done
+    logWarning "${message}"
+}
+
+function choiceWaitForInput() {
+    local options=("${@}")
+
+    response=-1
+    while (( ${response} < 0 || ${response} >= ${#options[@]} )); do
+        read  -n 1 -p "" response
+    done
+
+    logVerbose
+    echo "${options[${response}]}"
 }
 

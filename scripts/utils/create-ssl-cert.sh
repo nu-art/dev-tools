@@ -20,11 +20,11 @@
 #!/bin/bash
 outputFolder=${1}
 
-if [ "${outputFolder}" == "" ]; then
+if [[ ! "${outputFolder}" ]]; then
  outputFolder="."
 fi
 
-if [ ! -d "${outputFolder}" ]; then
+if [[ ! -d "${outputFolder}" ]]; then
   mkdir "${outputFolder}"
 fi
 

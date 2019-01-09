@@ -25,11 +25,11 @@ checkExecutionError() {
     message=$1
     errorCode=$2
 
-    if [ "${ERROR_CODE}" == "0" ]; then
+    if [[ "${ERROR_CODE}" == "0" ]]; then
         return
     fi
 
-    if [ "${errorCode}" != "" ] && [ "${ERROR_CODE}" == "${errorCode}" ]; then
+    if [[ "${errorCode}" ]] && [[ "${ERROR_CODE}" == "${errorCode}" ]]; then
         return
     fi
 

@@ -45,7 +45,7 @@ function upload {
     local fileName="$1"
     local parentFolder="$2"
 
-    if [ "$parentFolder" != "" ]; then
+    if [[ "$parentFolder" != "" ]]; then
         gdrive upload --parent "${parentFolder}" "${fileName}"
     else
         gdrive upload "${fileName}"

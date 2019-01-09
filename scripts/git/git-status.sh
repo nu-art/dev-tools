@@ -60,7 +60,7 @@ signature "Status repo"
 printDebugParams ${debug} "${params[@]}"
 
 function execute() {
-    if [ ! "${grepFilter}" ]; then
+    if [[ ! "${grepFilter}" ]]; then
         git status
     else
         git status | grep -E "${grepFilter}"

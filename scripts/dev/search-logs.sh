@@ -24,7 +24,7 @@ echo "Searching for crashes in folder: ${folder}"
 pushd "${folder}"
 pwd
     for file in logs*.zip; do
-        [ -e "$file" ] || continue
+        [[ -e "$file" ]] || continue
         # ... rest of the loop body
 
         index=`echo ${file} | sed -E "s/logs-(..).zip/\1/"`
@@ -37,7 +37,7 @@ pwd
 
     mv logcat.txt logcat.txt.00
     for file in logcat.txt*; do
-        [ -e "$file" ] || continue
+        [[ -e "$file" ]] || continue
         # ... rest of the loop body
 
         outputName=`echo ${file} | sed -E "s/logcat\.txt\.(..)/logcat-\1.txt/"`

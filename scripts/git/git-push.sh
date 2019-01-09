@@ -78,17 +78,17 @@ function verifyRequirement() {
     local existingParamColor=${BBlue}
 
     local missingData=false
-    if [ "${branchName}" == "" ]; then
+    if [[ ! "${branchName}" ]]; then
         branchName="${missingParamColor}branch-name${NoColor} OR ${missingParamColor}--this${NoColor}"
         missingData=true
     fi
 
-    if [ "${commitMessage}" == "" ]; then
+    if [[ ! "${commitMessage}" ]]; then
         commitMessage="${missingParamColor}Commit message here"
         missingData=true
     fi
 
-    if [ "${missingData}" == "true" ]; then
+    if [[ "${missingData}" == "true" ]]; then
         branchName="--branch=${existingParamColor}${branchName}${NoColor}"
         commitMessage="--message=\"${existingParamColor}${commitMessage}${NoColor}\""
         printUsage
@@ -106,7 +106,7 @@ function processSubmodule() {
     local submoduleName=${1}
     logVerbose
     bannerDebug "${submoduleName}"
-    if [ "${scope}" == "changed" ]; then
+    if [[ "${scope}" == "changed" ]]; then
         gitCheckoutBranch ${branchName} true
     else
         gitCheckoutBranch ${branchName}
@@ -117,7 +117,7 @@ function processSubmodule() {
 #    echo
 #    bannerWarning "changedSubmodules: ${submodules}"
 
-    if [ "${#submodules[@]}" -gt "0" ]; then
+    if [[ "${#submodules[@]}" -gt "0" ]]; then
         for _submoduleName in "${submodules[@]}"; do
             cd ${_submoduleName}
                 processSubmodule "${submoduleName}/${_submoduleName}"

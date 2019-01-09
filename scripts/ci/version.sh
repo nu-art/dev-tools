@@ -43,7 +43,7 @@ function incrementVersionName() {
 function getVersionFileName() {
     local versionFile=${1}
 
-    if [ "${versionFile}" == "" ]; then
+    if [[ ! "${versionFile}" ]]; then
         versionFile=./version
     fi
 

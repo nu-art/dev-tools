@@ -56,7 +56,7 @@ function extractParams() {
     done
 }
 
-if [ ! "${mainRepoBranch}" ]; then
+if [[ ! "${mainRepoBranch}" ]]; then
     logError "Main repo head detached... "
     exit 1
 fi
@@ -70,11 +70,11 @@ function execute() {
     local submoduleBranch=`gitGetCurrentBranch`
     local runningDir=${PWD##*/}
 
-    if [ "${mainRepoBranch}" != "${submoduleBranch}" ]; then
+    if [[ "${mainRepoBranch}" != "${submoduleBranch}" ]]; then
         cd .. > /dev/null
             local submodules=(`getSubmodulesByScope "project" "${projectsToIgnore[@]}"`)
             # Make sure that the submodule is a part of the project before updating its pointer
-            if [ `contains ${runningDir} "${submodules[@]}"` == "true" ]; then
+            if [[ `contains ${runningDir} "${submodules[@]}"` == "true" ]]; then
                 git submodule update --init ${runningDir}
             else
                 cd - > /dev/null
@@ -87,19 +87,19 @@ function execute() {
     local dirName=${PWD##*/}
 
     local isClean=`git status | grep "nothing to commit.*"`
-    if [ ! "${isClean}" ]; then
+    if [[ ! "${isClean}" ]]; then
         logDebug "${dirName} - Stashing with message: ${stashName}"
         result=`git stash save "${stashName}"`
         needToPop=
-        if [ "${result}" != "No local changes to save" ]; then
+        if [[ "${result}" != "No local changes to save" ]]; then
             needToPop=true
         fi
     fi
 
     function popStash() {
-        if [ "${needToPop}" ]; then
+        if [[ "${needToPop}" ]]; then
             trap 'popStash' SIGINT
-                if [ -e ".git/index.lock" ]; then
+                if [[ -e ".git/index.lock" ]]; then
                     rm  ".git/index.lock"
                 fi
 
@@ -122,7 +122,7 @@ function execute() {
 function processSubmodule() {
     local mainModule=${1}
     local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
-    if [ "${#submodules[@]}" -gt "0" ]; then
+    if [[ "${#submodules[@]}" -gt "0" ]]; then
         execute
     else
         execute &

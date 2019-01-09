@@ -37,7 +37,7 @@ function listFilesImpl() {
 
         filesName=`echo ${filesName} | sed -E 's/\///'`
 
-        if [ ! -d "${filesName}" ] && ([[ "${filesName}" =~ ".png" ]] || [[ "${filesName}" =~ ".jpg" ]]); then
+        if [[ ! -d "${filesName}" ]] && ([[ "${filesName}" =~ ".png" ]] || [[ "${filesName}" =~ ".jpg" ]]); then
             files[${#files[*]}]="${filesName}"
             continue
         fi

@@ -65,12 +65,12 @@ function printUsage() {
 
 function verifyRequirement() {
     missingData=false
-    if [ "${branchName}" == "" ]; then
+    if [[ ! "${branchName}" ]]; then
         branchName="${paramColor}branch-name${NoColor}"
         missingData=true
     fi
 
-    if [ "${missingData}" == "true" ]; then
+    if [[ "${missingData}" == "true" ]]; then
         printUsage
     fi
 }
@@ -100,7 +100,7 @@ function processSubmodule() {
     execute
     local errorCode=$?
 
-    if [ "${#submodules[@]}" -gt "0" ]; then
+    if [[ "${#submodules[@]}" -gt "0" ]]; then
         forceError ${errorCode}
         checkExecutionError "Error checking out branch"
 

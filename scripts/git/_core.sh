@@ -28,7 +28,7 @@ function gitCheckoutBranch() {
     local isForced=${2}
 
     currentBranch=`gitGetCurrentBranch`
-    if [ "${currentBranch}" == "${branchName}" ]; then
+    if [[ "${currentBranch}" == "${branchName}" ]]; then
         logInfo "${GIT_TAG} Already on branch: ${branchName}"
         return
     fi
@@ -38,7 +38,7 @@ function gitCheckoutBranch() {
     local ErrorCode=$?
 
     currentBranch=`gitGetCurrentBranch`
-    if [ "${currentBranch}" != "${branchName}" ] && [ "${isForced}" == "true" ]; then
+    if [[ "${currentBranch}" != "${branchName}" ]] && [[ "${isForced}" == "true" ]]; then
         logWarning "${GIT_TAG} Could not find branch...  Creating a new branch named: ${branchName}"
         local output=`git checkout -b ${branchName}`
         ErrorCode=$?
@@ -75,12 +75,12 @@ function gitStashPop() {
 function gitPullRepo() {
     local silent=${1}
     local currentBranch=`gitGetCurrentBranch`
-    if [ "${currentBranch}" == "" ]; then
+    if [[ ! "${currentBranch}" ]]; then
         logInfo "HEAD is detached... skipping repo"
         return
     fi
 
-    if [ "${silent}" == "true" ]; then
+    if [[ "${silent}" == "true" ]]; then
         silent="--no-edit"
     else
         silent=
@@ -134,7 +134,7 @@ function gitPush() {
     logInfo "${GIT_TAG} Pushing to origin..."
     local branchName=${1}
     local output=`git push`
-    if [ "${branchName}" != "" ] && [[ "${output}" =~ "has no upstream branch" ]]; then
+    if [[ "${branchName}" ]] && [[ "${output}" =~ "has no upstream branch" ]]; then
         git push --set-upstream origin ${branchName}
     fi
     checkExecutionError
@@ -182,7 +182,7 @@ function gitListSubmodules() {
     local submodule
     local submodules=()
 
-    if [ ! -e ".gitmodules" ]; then
+    if [[ ! -e ".gitmodules" ]]; then
         return
     fi
 
@@ -190,12 +190,12 @@ function gitListSubmodules() {
         if [[ "${line}" =~ "submodule" ]]; then
             submodule=`echo ${line} | sed -E 's/\[submodule "(.*)"\]/\1/'`
 
-            if [ "${submodule}" == "" ]; then
+            if [[ ! "${submodule}" ]]; then
                 logError "Error extracting submodule name from line: ${line}"
                 exit 1
             fi
 
-            if [ "${submodule}" == "dev-tools" ]; then
+            if [[ "${submodule}" == "dev-tools" ]]; then
                 continue
             fi
 
@@ -216,7 +216,7 @@ function getAllChangedSubmodules() {
     local repos=()
     local toIgnore=(${1})
     for projectName in "${ALL_REPOS[@]}"; do
-        if [ `contains ${projectName} "${toIgnore[@]}"` == "true" ]; then
+        if [[ `contains ${projectName} "${toIgnore[@]}"` == "true" ]]; then
             continue
         fi
 
@@ -231,11 +231,11 @@ function getAllConflictingSubmodules() {
     local repos=()
     local toIgnore=(${1})
     for projectName in "${ALL_REPOS[@]}"; do
-        if [ `contains ${projectName} "${toIgnore[@]}"` == "true" ]; then
+        if [[ `contains ${projectName} "${toIgnore[@]}"` == "true" ]]; then
             continue
         fi
 
-        if [ ! -e "${projectName}/.git" ]; then
+        if [[ ! -e "${projectName}/.git" ]]; then
             continue
         fi
 
@@ -252,7 +252,7 @@ function getAllNoneProjectSubmodules() {
     toIgnore+=(`gitListSubmodules`)
 
     for projectName in "${ALL_REPOS[@]}"; do
-        if [ `contains ${projectName} "${toIgnore[@]}"` == "true" ]; then
+        if [[ `contains ${projectName} "${toIgnore[@]}"` == "true" ]]; then
             continue
         fi
 

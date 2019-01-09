@@ -62,17 +62,17 @@ function extractParams() {
 
 function verifyRequirement() {
     missingData=false
-    if [ "${tagName}" == "" ] || [ "${tagName}" == "master" ]; then
+    if [[ ! "${tagName}" ]] || [[ "${tagName}" == "master" ]]; then
         tagName=
         tagNameParam="--tag=${paramColor}tag-name(NOT master)${NoColor}"
     fi
 
-    if [ "${branchName}" == "" ] || [ "${branchName}" == "master" ]; then
+    if [[ ! "${branchName}" ]] || [[ "${branchName}" == "master" ]]; then
         branchName=
         branchNameParam="--branch=${paramColor}branch-name(NOT master)${NoColor}"
     fi
 
-    if [ "${tagName}" == "" ] && [ "${branchName}" == "" ]; then
+    if [[ ! "${tagName}" ]] && [[ ! "${branchName}" ]]; then
         logVerbose
         logVerbose "   USAGE:"
         logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${tagNameParam} OR ${branchNameParam}"
@@ -87,15 +87,15 @@ verifyRequirement
 signature "Delete tag or branch"
 
 function execute() {
-    if [ "${tagName}" != "" ]; then
-        if [ "${deleteOrigin}" != "" ]; then
+    if [[ "${tagName}" ]]; then
+        if [[ "${deleteOrigin}" ]]; then
             git push origin :${tagName}
         fi
         git tag --delete ${tagName}
     fi
 
-    if [ "${branchName}" != "" ]; then
-        if [ "${deleteOrigin}" != "" ]; then
+    if [[ "${branchName}" ]]; then
+        if [[ "${deleteOrigin}" ]]; then
             git push origin :${branchName}
         fi
         git branch --delete ${branchName}

@@ -22,11 +22,11 @@
 printedSignature=
 function signature() {
     local scriptName=${1}
-    if [ "${scriptName}" == "" ]; then
+    if [[ ! "${scriptName}" ]]; then
         scriptName=`echo "${0}" | sed -E "s/.*\/(.*)\.sh/\1/"`
     fi
 
-    if [ "${printedSignature}" ]; then
+    if [[ "${printedSignature}" ]]; then
         return
     fi
 

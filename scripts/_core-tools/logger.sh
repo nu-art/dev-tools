@@ -63,7 +63,7 @@ setLogFile() {
     local logsFolder="$(pwd)/${relativePathToLogFolder}"
     local dateTimeFormatted=`date +%Y-%m-%d--%H-%M-%S`
 
-    if [ ! -d "${logsFolder}" ]; then
+    if [[ ! -d "${logsFolder}" ]]; then
         mkdir -p "${logsFolder}"
     fi
 
@@ -78,7 +78,7 @@ log() {
     local _override
 
     local color=${LOG_COLORS[${level}]}
-    if [ "${override}" == "true" ]; then
+    if [[ "${override}" == "true" ]]; then
         _override="n"
     fi
 

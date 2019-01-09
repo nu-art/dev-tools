@@ -33,14 +33,14 @@ function printUsage {
     local errorMessage=${1}
 
     local packageNameParam="${paramColor}--packageName=${NoColor}"
-    if [ "${packageName}" == "" ]; then
+    if [[ ! "${packageName}" ]]; then
         packageNameParam="${packageNameParam}${valueColor}your.package.name.here${NoColor}"
     else
         packageNameParam="${packageNameParam}${valueColor}${packageName}${NoColor}"
     fi
 
     local projectParam="${paramColor}--project=${NoColor}"
-    if [ "${projectName}" == "" ]; then
+    if [[ ! "${projectName}" ]]; then
         projectParam="${projectParam}${valueColor}you-project-name${NoColor}"
     else
         projectParam="${projectParam}${valueColor}${projectName}${NoColor}"
@@ -51,7 +51,7 @@ function printUsage {
     local uninstallParam="${paramColor}optional flags:${NoColor} ${valueColor}--uninstall${NoColor} | ${valueColor}--offline${NoColor} | ${valueColor}--no-build${NoColor} | ${valueColor}--clear-cache${NoColor}"
 
     logVerbose
-    if [ "${errorMessage}" != "" ]; then
+    if [[ "${errorMessage}" ]]; then
         logError "    ${errorMessage}"
         logVerbose
     fi
@@ -71,7 +71,7 @@ function printUsage {
     exit
 }
 
-if [ "${ANDROID_HOME}" == "" ]; then
+if [[ ! "${ANDROID_HOME}" ]]; then
     ANDROID_HOME="/Users/$USER/Library/Android/sdk"
 fi
 
@@ -85,30 +85,22 @@ packageName=
 
 function waitForDevice() {
     local deviceId=${1}
-    local connected=${2}
-    local message=${3}
+    local message=${2}
 
     device=`adb devices | grep ${deviceId}`
 
-    if [ "${device}" != "" ] && [ "${connected}" == "false" ]; then
-        if [ "${message}" == "" ]; then
-            message="Disconnect device"
-        fi
-        logWarning "${message}..."
-        sleep 5s
-        waitForDevice ${1} "${2}" ${3}
-        return
+    if [[ ! "${device}" ]]; then
+        logError "Error waiting for device... no deviceId specified!!"
+        exit 2
+    fi
+    
+    if [[ ! "${message}" ]]; then
+        message="Waiting for device"
     fi
 
-    if [ "${connected}" == "true" ] && [ "${device}" == "" ]; then
-        if [ "${message}" == "" ]; then
-            message="Waiting for device"
-        fi
-        logWarning "${message}..."
-        sleep 5s
-        waitForDevice ${1} "${2}" ${3}
-        return
-    fi
+    logWarning "${message}..."
+    sleep 5s
+    waitForDevice ${1} "${2}"
 }
 function extractParams() {
     for paramValue in "${@}"; do
@@ -232,23 +224,23 @@ extractParams "$@"
 function verifyHasDevices() {
     local message=${1}
 
-    if [ "${#deviceIds[@]}" == "0" ]; then
+    if [[ "${#deviceIds[@]}" == "0" ]]; then
         logError "${message}"
         logError "No device found"
         exit 1
     fi
 }
 
-if [ "${projectFolder}" == "" ]; then
+if [[ ! "${projectFolder}" ]]; then
     projectFolder="${projectName}"
 fi
 
-if [ "${appName}" == "" ]; then
+if [[ ! "${appName}" ]]; then
     appName="${packageName}"
 fi
 
 outputFolder="${projectFolder}/build/outputs/apk/${buildType}"
-if [ "${testMode}" ]; then
+if [[ "${testMode}" ]]; then
     outputTestFolder="${projectFolder}/build/outputs/apk/androidTest/${buildType}"
 fi
 
@@ -256,32 +248,30 @@ fi
 params=(appName packageName buildType projectName projectFolder outputFolder pathToApk outputTestFolder pathToTestApk apkPattern deviceIdParam testMode uninstall clearData forceStop clean build noBuild noInstall noLaunch waitForDevice)
 printDebugParams ${debug} "${params[@]}"
 
-if [ "${packageName}" == "" ]; then
+if [[ ! "${packageName}" ]]; then
     printUsage "No package name defined"
 fi
 
-if [ ! -d "${projectFolder}" ]; then
+if [[ ! -d "${projectFolder}" ]]; then
     printUsage "No project folder for path: '${projectFolder}'"
 fi
 
-if [ "${buildType}" == "" ] && [ "${noBuild}" == "" ] && [ "${uninstall}" == "" ] && [ "${clearData}" == "" ] && [ "${deleteApks}" == "" ]; then
+if [[ ! "${buildType}" ]] && [[ ! "${noBuild}" ]] && [[ ! "${uninstall}" ]] && [[ ! "${clearData}" ]] && [[ ! "${deleteApks}" ]]; then
     printUsage "MUST specify build type or set flag --no-build"
 fi
 
-if [ "${deviceIdParam}" == "" ] || [ "${deviceIdParam}" == "ALL" ] || [ "${deviceIdParam}" == "all" ]; then
-    deviceIds=(`adb devices | grep -E "^[0-9a-zA-Z\-]+\s+?device$" | sed -E "s/([0-9a-zA-Z-]+).*/\1/"`)
-    if [ "${deviceIdParam}" == "" ] && (("${#deviceIds[@]}" > "1")); then
-        logError "More than one device connected, please specify which device: "
-        logError "    --device-id=ALL"
-        for deviceId in "${deviceIds[@]}"; do
-            logError "    --device-id=${deviceId}"
-        done
+function resolveDeviceId() {
+    if [[ ! "${deviceIdParam}" ]] || [[ "${deviceIdParam}" == "ALL" ]] || [[ "${deviceIdParam}" == "all" ]]; then
+        deviceIds=(`adb devices | grep -E "^[0-9a-zA-Z\-]+\s+?device$" | sed -E "s/([0-9a-zA-Z-]+).*/\1/"`)
+        if [[ ! "${deviceIdParam}" ]] && (("${#deviceIds[@]}" > "1")); then
 
-        exit 2
+            deviceIdParam=`choicePrintOptions "More than one device connected, please specify which device: " "ALL" ${deviceIds[@]}`
+            resolveDeviceId
+        fi
+    else
+        deviceIds=(`echo "${deviceIdParam}"`)
     fi
-else
-    deviceIds=(`echo "${deviceIdParam}"`)
-fi
+}
 
 ###################################################################
 #                                                                 #
@@ -315,23 +305,23 @@ function yesOrNoQuestion() {
 }
 
 function waitForDeviceImpl() {
-    if [ "${waitForDevice}" == "" ]; then
+    if [[ ! "${waitForDevice}" ]]; then
           return
     fi
 
     for deviceId in "${deviceIds[@]}"; do
-       waitForDevice ${deviceId} true
+       waitForDevice ${deviceId}
     done
 }
 
 function uninstallFromDevice() {
     local deviceId=${1}
-    waitForDevice ${deviceId} true
+    waitForDevice ${deviceId}
     execute "${adbCommand} -s ${deviceId} uninstall ${packageName}" "Uninstalling '${appName}':"
 }
 
 function uninstallImpl() {
-    if [ "${uninstall}" == "" ]; then
+    if [[ ! "${uninstall}" ]]; then
           return
     fi
 
@@ -341,13 +331,13 @@ function uninstallImpl() {
 }
 
 function buildImpl() {
-    if [ "${noBuild}" != "" ]; then
+    if [[ "${noBuild}" ]]; then
           return
     fi
 
     execute "rm -rf ${outputFolder}" "deleting output folder:"
     local command="${command} ${projectName}:assemble${buildType}"
-    if [ "${testMode}" != "" ]; then
+    if [[ "${testMode}" ]]; then
         command="${command} ${projectName}:assemble${buildType}AndroidTest"
     fi
 
@@ -356,29 +346,29 @@ function buildImpl() {
 }
 
 function deleteApksImpl() {
-    if [ "${deleteApks}" != "" ]; then
+    if [[ "${deleteApks}" ]]; then
         execute "rm -rf ${outputFolder}" "deleting output folder:"
     fi
 }
 
 function clearDataImpl() {
-    if [ "${clearData}" == "" ]; then
+    if [[ ! "${clearData}" ]]; then
           return
     fi
 
     for deviceId in "${deviceIds[@]}"; do
-        waitForDevice ${deviceId} true
+        waitForDevice ${deviceId}
         execute "${adbCommand} -s ${deviceId} shell pm clear ${packageName}" "Clearing data for '${appName}':"
     done
 }
 
 function forceStopImpl() {
-    if [ "${forceStop}" == "" ]; then
+    if [[ ! "${forceStop}" ]]; then
         return
     fi
 
     for deviceId in "${deviceIds[@]}"; do
-        waitForDevice ${deviceId} true
+        waitForDevice ${deviceId}
         execute "${adbCommand} -s ${deviceId} shell am force-stop ${packageName}" "Force stopping Remote-Screen app..."
     done
 }
@@ -417,7 +407,7 @@ function retry() {
 function installImpl() {
     function installAppOnDevice() {
         local deviceId=${1}
-        waitForDevice ${deviceId} true
+        waitForDevice ${deviceId}
         execute "${adbCommand} -s ${deviceId} install -r -d ${testFlag}${pathToApk}" "Installing '${appName}':" false 2> ${errorFileName}
         output=`cat ${errorFileName}`
         rm ${errorFileName}
@@ -425,20 +415,20 @@ function installImpl() {
         retry "${output}" "installAppOnDevice \"${deviceId}\"" "uninstallFromDevice \"${deviceId}\"" "COULD NOT INSTALL APP"
     }
 
-    if [ "${noInstall}" != "" ]; then
+    if [[ "${noInstall}" ]]; then
         return
     fi
 
-    if [ ! -e "${outputFolder}" ]; then
+    if [[ ! -e "${outputFolder}" ]]; then
         logError "Output folder does not exists... Build needed - ${outputFolder}"
         exit 2
     fi
 
-    if [ "${pathToApk}" == "" ]; then
+    if [[ ! "${pathToApk}" ]]; then
         pathToApk=`find "${outputFolder}" -name "${apkPattern}"`
     fi
 
-    if [ "${pathToApk}" == "" ]; then
+    if [[ ! "${pathToApk}" ]]; then
         logError "Could not find apk in path '${outputFolder}', matching the pattern '${apkPattern}'"
         exit 2
     fi
@@ -452,7 +442,7 @@ function installImpl() {
 function installTestImpl() {
     function installTestAppOnDevice() {
         local deviceId=${1}
-        waitForDevice ${deviceId} true
+        waitForDevice ${deviceId}
         execute "${adbCommand} -s ${deviceId} install -r -d ${testFlag}${pathToTestApk}" "Installing '${appName}' tests:" false 2> ${errorFileName}
         output=`cat ${errorFileName}`
         rm ${errorFileName}
@@ -461,24 +451,24 @@ function installTestImpl() {
     }
 
 
-    if [ "${testMode}" == "" ]; then
+    if [[ ! "${testMode}" ]]; then
         return
     fi
 
-    if [ "${noInstall}" != "" ]; then
+    if [[ "${noInstall}" ]]; then
         return
     fi
 
-    if [ ! -e "${outputTestFolder}" ]; then
+    if [[ ! -e "${outputTestFolder}" ]]; then
         logError "Test Output folder does not exists... Build needed - ${outputTestFolder}"
         exit 2
     fi
 
-    if [ "${pathToTestApk}" == "" ]; then
+    if [[ ! "${pathToTestApk}" ]]; then
         pathToTestApk=`find "${outputTestFolder}" -name "${apkPattern}"`
     fi
 
-    if [ "${pathToApk}" == "" ]; then
+    if [[ ! "${pathToApk}" ]]; then
         logError "Could not find apk in path '${outputTestFolder}', matching the pattern '${apkPattern}'"
         exit 2
     fi
@@ -490,29 +480,29 @@ function installTestImpl() {
 }
 
 function launchImpl() {
-    if [ "${noLaunch}" != "" ]; then
+    if [[ "${noLaunch}" ]]; then
         return
     fi
 
     verifyHasDevices "Cannot launch app..."
     for deviceId in "${deviceIds[@]}"; do
-        waitForDevice ${deviceId} true
+        waitForDevice ${deviceId}
         execute "${adbCommand} -s ${deviceId} shell am start -n ${packageName}/com.nu.art.cyborg.ui.ApplicationLauncher -a android.intent.action.MAIN -c android.intent.category.LAUNCHER" "Launching '${appName}':"
     done
 }
 
 function runTestsImpl() {
-    if [ "${testMode}" == "" ]; then
+    if [[ ! "${testMode}" ]]; then
         return
     fi
 
-    if [ "${testsToRun}" == "" ]; then
+    if [[ ! "${testsToRun}" ]]; then
         return
     fi
 
     verifyHasDevices "Cannot run tests app..."
     for deviceId in "${deviceIds[@]}"; do
-        waitForDevice ${deviceId} true
+        waitForDevice ${deviceId}
         execute "${adbCommand} -s ${deviceId} shell am instrument -w -r -e debug false -e ${testsToRun} ${packageName}.test/android.support.test.runner.AndroidJUnitRunner" "Running test '${appName}':"
     done
 }

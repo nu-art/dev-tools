@@ -56,7 +56,7 @@ function enforceBashVersion() {
     local _minVersion=${1}
     local _bashVersion=`getBashVersion`
 
-    if [ ! "${_minVersion}" ]; then return; fi
+    if [[ ! "${_minVersion}" ]]; then return; fi
 
     minVersion=(${_minVersion//./ })
     bashVersion=(${_bashVersion//./ })
@@ -79,7 +79,7 @@ function enforceBashVersion() {
 
 function printDebugParams() {
     local debug=${1}
-    if [ ! "${debug}" ]; then
+    if [[ ! "${debug}" ]]; then
         return
     fi
 
@@ -87,7 +87,7 @@ function printDebugParams() {
     params=("${params[@]:1}")
 
     function printParam() {
-        if [ ! "${2}" ]; then
+        if [[ ! "${2}" ]]; then
             return
         fi
 

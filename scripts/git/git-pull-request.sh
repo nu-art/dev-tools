@@ -64,17 +64,17 @@ function verifyRequirement() {
     local existingParamColor=${BBlue}
 
     missingData=false
-    if [ "${fromBranch}" == "" ]; then
+    if [[ ! "${fromBranch}" ]]; then
         fromBranch="--from=${missingParamColor}branch-name${NoColor} OR ${missingParamColor}--from-this${NoColor}"
         missingData=true
     fi
 
-    if [ "${toBranch}" == "" ]; then
+    if [[ ! "${toBranch}" ]]; then
         toBranch="--to=${paramColor}Branch-to-merge-onto${NoColor}"
         missingData=true
     fi
 
-    if [ "${missingData}" == "true" ]; then
+    if [[ "${missingData}" == "true" ]]; then
         printUsage
     fi
 
@@ -83,7 +83,7 @@ extractParams "$@"
 verifyRequirement
 
 currentBranch=`gitGetCurrentBranch`
-if [ "${currentBranch}" != "${fromBranch}" ]; then
+if [[ "${currentBranch}" != "${fromBranch}" ]]; then
     logError "Main Repo MUST be on branch: ${fromBranch}"
     exit 1
 fi
@@ -93,7 +93,7 @@ summary=""
 function processFolder() {
     local submoduleName=${1}
     local currentBranch=`gitGetCurrentBranch`
-    if [ "${currentBranch}" != "${fromBranch}" ]; then
+    if [[ "${currentBranch}" != "${fromBranch}" ]]; then
         logVerbose "repo '${submoduleName}'is not aligned with branch: ${fromBranch}!!"
         return
     fi

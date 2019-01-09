@@ -51,7 +51,7 @@ function removeTrailingChar() {
     local charValueToRemove=${1}
     local string=${2}
     local lastCharValue=`printf "%d\n" \'${string:$i-1:1}`
-    if [ "${lastCharValue}" == "${charValueToRemove}" ]; then
+    if [[ "${lastCharValue}" == "${charValueToRemove}" ]]; then
         echo "${string:$i1:${#string}-1}"
     else
         echo "${string}"
@@ -69,13 +69,13 @@ function addId() {
 
 function addConstantVersions() {
     local sdkVersion=`cat gradle.properties | grep "COMPILE_SDK=.*" | sed  -E 's/COMPILE_SDK=//g'`
-    if [ "${sdkVersion}" != "" ]; then
+    if [[ "${sdkVersion}" ]]; then
         sdkVersion=`removeTrailingChar 13 ${sdkVersion}`
         addId "platforms;android-${sdkVersion}"
     fi
 
     local buildTool=`cat gradle.properties | grep "TOOLS_VERSION=" | sed  -E 's/TOOLS_VERSION=//'`
-    if [ "${buildTool}" != "" ]; then
+    if [[ "${buildTool}" ]]; then
         buildTool=`removeTrailingChar 13 ${buildTool}`
         addId "build-tools;${buildTool}"
     fi

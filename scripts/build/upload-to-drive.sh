@@ -27,7 +27,7 @@ fileName=$2
 
 logInfo "Requesting folder id for: ${folderName}"
 folderId=$(getFolderId ${folderName})
-if [ "${folderId}" == "" ]; then
+if [[ ! "${folderId}" ]]; then
     echo "could not find folder: ${folderName}"
     exit 1
 fi

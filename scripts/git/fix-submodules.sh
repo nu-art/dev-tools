@@ -36,7 +36,7 @@ for folderName in "${directories[@]}"; do
         fi
         branch=`git status | grep -e 'On branch' | sed -E 's/On branch//'`
 
-        if [ "${branch}" == "" ]; then
+        if [[ ! "${branch}" ]]; then
             branch=master
         fi
 

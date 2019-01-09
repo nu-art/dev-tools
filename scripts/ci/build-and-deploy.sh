@@ -69,7 +69,7 @@ function updateRepository() {
     local tag=
     local message=
 
-    if [ "${newVersionCode}" == "" ] || [ "${newVersionCode}" == "1" ]; then
+    if [[ ! "${newVersionCode}" ]] || [[ "${newVersionCode}" == "1" ]]; then
         tag="v${newVersionName}"
         message="Jenkins Build - v${newVersionName}"
     else
@@ -78,7 +78,7 @@ function updateRepository() {
     fi
 
     logInfo "Commit push tag: ${tag}, message: ${message}"
-    if [ "${TEST_RUN}" == "true" ]; then
+    if [[ "${TEST_RUN}" == "true" ]]; then
         logInfo "This is a test run, will not push changes to repo!!!"
 
         logInfo "--------------------------------     Repositories Updated!     ---------------------------------"

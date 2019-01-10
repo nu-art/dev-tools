@@ -366,7 +366,15 @@ function installImpl() {
     function installAppOnDevice() {
         local deviceId=${1}
         waitForDevice ${deviceId}
-        execute "${adbCommand} -s ${deviceId} install -r -d ${testFlag}${pathToApk}" "Installing '${appName}':" false 2> ${errorFileName}
+#        execute "${adbCommand} -s ${deviceId} install -r -d ${testFlag}${pathToApk}" "Installing '${appName}':" false 2> ${errorFileName}
+        local targetApkName="${appName}-app.apk"
+        local pathToTargetApkName="/sdcard/${targetApkName}"
+
+        logVerbose
+        execute "${adbCommand} -s ${deviceId} push ${pathToApk} ${pathToTargetApkName}" "Copy ${appName} apk onto device: ${pathToTargetApkName}" false 2> ${errorFileName}
+        logVerbose
+        execute "${adbCommand} -s ${deviceId} shell pm install -r -d  ${pathToTargetApkName}" "Installing ${appName} apk onto device: ${pathToTargetApkName}" false 2> ${errorFileName}
+
         output=`cat ${errorFileName}`
         rm ${errorFileName}
 

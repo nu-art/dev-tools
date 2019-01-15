@@ -78,15 +78,6 @@ function updateRepository() {
     fi
 
     logInfo "Commit push tag: ${tag}, message: ${message}"
-    if [[ "${TEST_RUN}" ]]; then
-        logInfo "This is a test run, will not push changes to repo!!!"
-
-        logInfo "--------------------------------     Repositories Updated!     ---------------------------------"
-      	logInfo "------------------------------------------------------------------------------------------------"
-
-        return
-    fi
-
     logInfo "Commit Message: ${message}"
     logInfo "Tag: ${tag}"
 

@@ -77,6 +77,7 @@ function updateRepository() {
         message="Jenkins Build - v${newVersionName} (${newVersionCode})"
     fi
 
+    logInfo "TEST_RUN: ${TEST_RUN}"
     logInfo "Commit push tag: ${tag}, message: ${message}"
     logInfo "Commit Message: ${message}"
     logInfo "Tag: ${tag}"

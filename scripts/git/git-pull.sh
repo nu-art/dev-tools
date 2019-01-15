@@ -144,3 +144,6 @@ for pid in "${pids[@]}"; do
 done
 
 
+if [[ ! "${githubUserName}" == "TacB0sS" ]]; then
+    git submodule update dev-tools
+fi

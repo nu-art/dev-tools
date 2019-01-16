@@ -241,9 +241,16 @@ if [[ ! "${buildType}" ]] && [[ ! "${noBuild}" ]] && [[ ! "${uninstall}" ]] && [
     printUsage "MUST specify build type or set flag --no-build"
 fi
 
+DeviceRegexp_UsbDevice="[0-9a-zA-Z\-]+"
+DeviceRegexp_NetworkDevice="[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\:[0-9]{2,5}"
+
+
 function resolveDeviceId() {
     if [[ ! "${deviceIdParam}" ]] || [[ "${deviceIdParam}" == "ALL" ]] || [[ "${deviceIdParam}" == "all" ]]; then
-        deviceIds=(`adb devices | grep -E "^[0-9a-zA-Z\-]+\s+?device$" | sed -E "s/([0-9a-zA-Z-]+).*/\1/"`)
+        deviceIds=(`adb devices | grep -E "^${DeviceRegexp_UsbDevice}\s+?device$" | sed -E "s/(${DeviceRegexp_UsbDevice}).*/\1/"`)
+        local networkDevices=(`adb devices | grep -E "^${DeviceRegexp_NetworkDevice}.*$"  | sed -E "s/(${DeviceRegexp_NetworkDevice}).*/\1/"`)
+        deviceIds+=${networkDevices[@]}
+
         if [[ ! "${deviceIdParam}" ]] && (("${#deviceIds[@]}" > "1")); then
             choicePrintOptions "No device was specified, please select one: " "ALL" ${deviceIds[@]}
             deviceIdParam=`choiceWaitForInput "ALL" ${deviceIds[@]}`

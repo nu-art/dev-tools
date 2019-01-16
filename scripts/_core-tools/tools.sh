@@ -56,7 +56,9 @@ function setDefaultAndroidHome() {
         local pathToAdb=`which adb`
         if [[ ${pathToAdb} ]]; then
             ANDROID_HOME=${pathToAdb}
+            return
         fi
+
         ANDROID_HOME="/Users/${USER}/Library/Android/sdk"
     else
         ANDROID_HOME="~/Android/sdk"

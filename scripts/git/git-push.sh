@@ -151,6 +151,10 @@ function processSubmodule() {
 
     if [[ `hasCommits` ]]; then
         gitPush ${branchName}
+        if [[ `hasCommits` ]]; then
+            logError "Failed to push... probably need to pull"
+            exit 2
+        fi
     fi
 }
 

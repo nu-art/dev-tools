@@ -72,6 +72,8 @@ function printUsage {
     exit
 }
 
+adbCommand=${ANDROID_HOME}/platform-tools/adb
+
 offline=""
 nobuild=""
 deviceIds=("")

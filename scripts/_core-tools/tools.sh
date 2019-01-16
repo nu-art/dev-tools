@@ -55,7 +55,7 @@ function setDefaultAndroidHome() {
     if [[ "$(uname -v)" =~ "Darwin" ]]; then
         local pathToAdb=`which adb`
         if [[ ${pathToAdb} ]]; then
-            ANDROID_HOME=${pathToAdb}
+            ANDROID_HOME=`echo ${pathToAdb} | sed -E "s/^(.*)\/platform-tools\/adb$/\1/"`
             return
         fi
 

@@ -58,6 +58,10 @@ function extractParams() {
                 scope=`removePrefix "project"`
             ;;
 
+            "--external")
+                scope=`removePrefix "external"`
+            ;;
+
             "--debug")
                 debug=`makeItSo`
             ;;
@@ -125,6 +129,10 @@ function processSubmodule() {
         done
         logVerbose
         bannerDebug "${submoduleName} - pointers"
+    fi
+
+    if [[ "${scope}" == "external" ]]; then
+        return
     fi
 
     if [[ `hasConflicts` ]]; then

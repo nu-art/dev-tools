@@ -129,11 +129,11 @@ function processSubmodule() {
         done
         logVerbose
         bannerDebug "${submoduleName} - pointers"
+        if [[ "${scope}" == "external" ]]; then
+            return
+        fi
     fi
 
-    if [[ "${scope}" == "external" ]]; then
-        return
-    fi
 
     if [[ `hasConflicts` ]]; then
         logError "Submodule ${submoduleName} has conflicts... Terminating process!!"

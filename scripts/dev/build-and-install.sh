@@ -21,6 +21,7 @@
 
 source ${BASH_SOURCE%/*}/../android/_source.sh
 enforceBashVersion 4.4
+setDefaultAndroidHome
 
 apkPattern="*.apk"
 deviceIdParam=""
@@ -70,12 +71,6 @@ function printUsage {
     logVerbose
     exit
 }
-
-if [[ ! "${ANDROID_HOME}" ]]; then
-    ANDROID_HOME="/Users/$USER/Library/Android/sdk"
-fi
-
-adbCommand=${ANDROID_HOME}/platform-tools/adb
 
 offline=""
 nobuild=""

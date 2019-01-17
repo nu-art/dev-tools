@@ -271,7 +271,7 @@ function hasUntrackedFiles() {
 }
 
 function hasConflicts() {
-    if [[ `git diff --check --diff-filter=m` ]]; then echo true; else echo; fi
+    if [[ `git diff --check --diff-filter=m` ]] || [[ `git status | grep "Unmerged files:"` ]]; then echo true; else echo; fi
 }
 
 function hasChanged() {

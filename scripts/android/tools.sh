@@ -30,8 +30,7 @@ function waitForDevice() {
     local message=${3}
 
     if [[ ! "${deviceId}" ]]; then
-        logError "Error waiting for device... no deviceId specified!!"
-        exit 2
+        throwError "Error waiting for device... no deviceId specified!!" 2
     fi
 
     local device=`adb devices | grep ${deviceId}`

@@ -180,7 +180,22 @@ function isNumeric() {
     echo "${1}"
 }
 
+function throwError() {
+    function printStacktrace() {
+        for (( arg=2; arg<${#FUNCNAME[@]}; arg+=1 )); do
+            logError "  ${FUNCNAME[${arg}]}"
+        done
+    }
 
+    local errorMessage=${1}
+    local errorCode=${2}
+
+    logError "Exiting with Error code: ${errorCode}"
+    logError "${errorMessage}"
+    printStacktrace
+    exit ${errorCode}
+
+}
 #isNumeric 2 -100
 #isNumeric 4 -100
 #isNumeric e -100

@@ -258,28 +258,20 @@ function resolveDeviceId() {
     fi
 }
 
-resolveDeviceId
 ###################################################################
 #                                                                 #
 #                          EXECUTION                              #
 #                                                                 #
 ###################################################################
 
-
-function waitForDeviceImpl() {
-    if [[ ! "${waitForDevice}" ]]; then
-          return
-    fi
-
+function runOnAllDevices() {
+    local toExecute=${1}
+    resolveDeviceId
+    verifyHasDevices "Cannot call ${toExecute} without any device"
     for deviceId in "${deviceIds[@]}"; do
-       waitForDevice ${deviceId}
+        waitForDevice ${deviceId}
+        ${toExecute} "${deviceId}"
     done
-}
-
-function uninstallFromDevice() {
-    local deviceId=${1}
-    waitForDevice ${deviceId}
-    execute "${adbCommand} -s ${deviceId} uninstall ${packageName}" "Uninstalling '${appName}':"
 }
 
 function uninstallImpl() {
@@ -287,10 +279,14 @@ function uninstallImpl() {
           return
     fi
 
-    for deviceId in "${deviceIds[@]}"; do
-        uninstallFromDevice "${deviceId}"
-    done
+    function uninstallFromDevice() {
+        local deviceId=${1}
+        execute "${adbCommand} -s ${deviceId} uninstall ${packageName}" "Uninstalling '${appName}':"
+    }
+
+    runOnAllDevices "uninstallFromDevice"
 }
+
 
 function buildImpl() {
     if [[ "${noBuild}" ]]; then
@@ -318,10 +314,12 @@ function clearDataImpl() {
           return
     fi
 
-    for deviceId in "${deviceIds[@]}"; do
-        waitForDevice ${deviceId}
+    function clearDataFromDevice() {
+        local deviceId=${1}
         execute "${adbCommand} -s ${deviceId} shell pm clear ${packageName}" "Clearing data for '${appName}':"
-    done
+    }
+
+    runOnAllDevices "clearDataFromDevice"
 }
 
 function forceStopImpl() {
@@ -329,10 +327,12 @@ function forceStopImpl() {
         return
     fi
 
-    for deviceId in "${deviceIds[@]}"; do
-        waitForDevice ${deviceId}
+    function forceStopOnDevice() {
+        local deviceId=${1}
         execute "${adbCommand} -s ${deviceId} shell am force-stop ${packageName}" "Force stopping Remote-Screen app..."
-    done
+    }
+
+    runOnAllDevices "forceStopOnDevice"
 }
 
 function retry() {
@@ -403,10 +403,7 @@ function installImpl() {
         exit 2
     fi
 
-    verifyHasDevices "Cannot install apk..."
-    for deviceId in "${deviceIds[@]}"; do
-        installAppOnDevice "${deviceId}"
-    done
+    runOnAllDevices "installAppOnDevice"
 }
 
 function installTestImpl() {
@@ -443,10 +440,7 @@ function installTestImpl() {
         exit 2
     fi
 
-    verifyHasDevices "Cannot install apk..."
-    for deviceId in "${deviceIds[@]}"; do
-        installTestAppOnDevice "${deviceId}"
-    done
+    runOnAllDevices "installTestAppOnDevice"
 }
 
 function launchImpl() {
@@ -454,11 +448,12 @@ function launchImpl() {
         return
     fi
 
-    verifyHasDevices "Cannot launch app..."
-    for deviceId in "${deviceIds[@]}"; do
-        waitForDevice ${deviceId}
+    function launchOnDevice() {
+        local deviceId=${1}
         execute "${adbCommand} -s ${deviceId} shell am start -n ${packageName}/com.nu.art.cyborg.ui.ApplicationLauncher -a android.intent.action.MAIN -c android.intent.category.LAUNCHER" "Launching '${appName}':"
-    done
+    }
+
+    runOnAllDevices "launchOnDevice"
 }
 
 function runTestsImpl() {
@@ -470,11 +465,12 @@ function runTestsImpl() {
         return
     fi
 
-    verifyHasDevices "Cannot run tests app..."
-    for deviceId in "${deviceIds[@]}"; do
-        waitForDevice ${deviceId}
+    function runTestsOnDevice() {
+        local deviceId=${1}
         execute "${adbCommand} -s ${deviceId} shell am instrument -w -r -e debug false -e ${testsToRun} ${packageName}.test/android.support.test.runner.AndroidJUnitRunner" "Running test '${appName}':"
-    done
+    }
+
+    runOnAllDevices "runTestsOnDevice"
 }
 
 deleteApksImpl
@@ -486,13 +482,3 @@ installImpl
 installTestImpl
 launchImpl
 runTestsImpl
-
-
-# For reference
-
-#forceStopImpl
-#clearDataImpl
-#uninstallImpl
-#buildImpl
-#installImpl
-#launchImpl

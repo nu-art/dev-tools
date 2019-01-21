@@ -181,9 +181,26 @@ function isNumeric() {
 }
 
 function throwError() {
+    function fixSource() {
+        local file=`echo "${1}" | sed -E "s/(.*)\/[a-zA-z_-]+\/\.\.\/(.*)/\1\/\2/"`
+
+        if [[ "${file}" == "${1}" ]]; then
+            echo "${file}"
+            return;
+        fi
+
+        fixSource "${file}"
+    }
+
     function printStacktrace() {
-        for (( arg=2; arg<${#FUNCNAME[@]}; arg+=1 )); do
-            logError "  ${FUNCNAME[${arg}]}"
+        for (( arg=1; arg<${#FUNCNAME[@]}; arg+=1 )); do
+            local sourceFile=`fixSource "${BASH_SOURCE[${arg}]}"`
+            sourceFile=`printf "%45s" "${sourceFile}"`
+
+            local lineNumber="[${BASH_LINENO[${arg}]}]"
+            lineNumber=`printf "%6s" "${lineNumber}"`
+
+            logError "${sourceFile} ${lineNumber} ${FUNCNAME[${arg}+1]}"
         done
     }
 

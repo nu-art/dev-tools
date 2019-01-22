@@ -221,6 +221,29 @@ function createDir() {
         mkdir -p "${pathToDir}"
     fi
 }
+
+function renameFiles() {
+    local rootFolder=${1}
+    local matchPattern=${2}
+    local replaceWith=${3}
+
+    local files=(`find "${rootFolder}" -iname "*${matchPattern}*"`)
+    for file in ${files[@]} ; do
+        local newFile=`echo ${file} | sed -E "s/${matchPattern}/${replaceWith}/g"`
+        mv ${file} ${newFile}
+    done
+}
+
+function renameStringInFiles() {
+    local rootFolder=${1}
+    local matchPattern=${2}
+    local replaceWith="${3}"
+    local files=(`grep -rl ${matchPattern} "${rootFolder}"`)
+    for file in ${files[@]} ; do
+        sed -i '' -E "s/${matchPattern}/${replaceWith}/g" ${file}
+    done
+}
+
 #isNumeric 2 -100
 #isNumeric 4 -100
 #isNumeric e -100

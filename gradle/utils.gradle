@@ -52,8 +52,18 @@ Object resolveDependency(String artifactId, String groupId, String version) {
 
 void includeIfExists(String artifactId) {
     def file = new File(rootProject.projectDir.getAbsolutePath() + "/${artifactId}", "build.gradle")
-    if (file.exists())
-        include ":${artifactId}"
+    if (!file.exists())
+        return
+
+    include ":${artifactId}"
+}
+
+void applyIfExists(String pathToFile) {
+    def file = new File(rootProject.projectDir.getAbsolutePath() + "/" + pathToFile)
+    if (!file.exists())
+        return
+
+    apply from: "${file.getAbsolutePath()}"
 }
 
 void defineVariantsAAR() {
@@ -202,6 +212,7 @@ ext {
     defineVariantsAAR = this.&defineVariantsAAR
     resolveDependency = this.&resolveDependency
     includeIfExists = this.&includeIfExists
+    applyIfExists = this.&applyIfExists
     addTasks_AndroidSourceAndDocs = this.&addTasks_AndroidSourceAndDocs
     addTasks_JavaSourceAndDocs = this.&addTasks_JavaSourceAndDocs
 }

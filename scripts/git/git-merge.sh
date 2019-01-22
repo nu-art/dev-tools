@@ -27,10 +27,7 @@ params=(fromBranch toBranch)
 scope="conflict"
 
 function extractParams() {
-    logVerbose
-    logInfo "Process params: "
     for paramValue in "${@}"; do
-        logDebug "  param: ${paramValue}"
         case "${paramValue}" in
             "--from="*)
                 fromBranch=`echo "${paramValue}" | sed -E "s/--from=(.*)/\1/"`

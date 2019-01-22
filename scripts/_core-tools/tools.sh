@@ -214,6 +214,13 @@ function throwError() {
     exit ${errorCode}
 
 }
+
+function createDir() {
+    local pathToDir="${1}"
+    if [[ ! -e "${pathToDir}" ]]; then
+        mkdir -p "${pathToDir}"
+    fi
+}
 #isNumeric 2 -100
 #isNumeric 4 -100
 #isNumeric e -100

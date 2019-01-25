@@ -3,6 +3,8 @@ branchName=
 updateSubmodules=
 force=
 
+source ${BASH_SOURCE%/*}/../git/_core.sh
+
 function extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
@@ -12,6 +14,10 @@ function extractParams() {
 
             "--gsu")
                 updateSubmodules="true"
+            ;;
+
+            "--this")
+                branchName=`gitGetCurrentBranch`
             ;;
 
             "--force")
@@ -45,7 +51,9 @@ function verifyRequirement() {
     fi
 }
 
-echo "Aligning all of the repositories to ${branchName}"
+extractParams $@
+verifyRequirement
+
 git pull && git checkout ${branchName} && git pull
 
 bash ./dev-tools/scripts/git/git-checkout.sh --branch=${branchName} --project ${force}
@@ -55,5 +63,3 @@ if [[ "updateSubmodules" == "yes" ]]; then
 	echo "calling git submodule update --init"
 	git submodule update --init
 fi
-
-echo "Done aligning all of the repositories to ${branchName}"

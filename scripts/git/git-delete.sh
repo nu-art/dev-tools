@@ -85,6 +85,7 @@ extractParams "$@"
 verifyRequirement
 
 signature "Delete tag or branch"
+printCommand "$@"
 
 function execute() {
     if [[ "${tagName}" ]]; then

@@ -80,6 +80,7 @@ extractParams "$@"
 verifyRequirement
 
 signature "Checkout repo"
+printCommand "$@"
 printDebugParams ${debug} "${params[@]}"
 
 

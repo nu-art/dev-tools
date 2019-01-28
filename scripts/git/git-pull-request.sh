@@ -80,6 +80,7 @@ function verifyRequirement() {
 
 }
 extractParams "$@"
+printCommand "$@"
 verifyRequirement
 
 currentBranch=`gitGetCurrentBranch`

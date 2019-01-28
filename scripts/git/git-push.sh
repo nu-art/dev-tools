@@ -23,7 +23,7 @@ source ${BASH_SOURCE%/*}/_core.sh
 
 runningDir=${PWD##*/}
 projectsToIgnore=("dev-tools")
-params=(branchName scope commitMessage)
+params=(branchName scope commitMessage noPointers)
 scope="changed"
 
 function extractParams() {
@@ -44,6 +44,10 @@ function extractParams() {
 
             "-cb")
                 branchName=`gitGetCurrentBranch`
+            ;;
+
+            "--no-pointers" | "-np")
+                noPointers="true"
             ;;
 
             "--message="*)
@@ -104,6 +108,7 @@ extractParams "$@"
 verifyRequirement
 
 signature
+printCommand "$@"
 printDebugParams ${debug} "${params[@]}"
 
 function processSubmodule() {
@@ -130,6 +135,10 @@ function processSubmodule() {
         logVerbose
         bannerDebug "${submoduleName} - pointers"
         if [[ "${scope}" == "external" ]]; then
+            return
+        fi
+
+        if [[ "${noPointers}" ]]; then
             return
         fi
     fi

@@ -87,6 +87,7 @@ extractParams "$@"
 verifyRequirement
 
 signature
+printCommand "$@"
 printDebugParams ${debug} "${params[@]}"
 
 

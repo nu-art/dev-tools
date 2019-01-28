@@ -57,6 +57,7 @@ function extractParams() {
 extractParams "$@"
 
 signature "Status repo"
+printCommand "$@"
 printDebugParams ${debug} "${params[@]}"
 
 function execute() {

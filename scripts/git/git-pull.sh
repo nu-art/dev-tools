@@ -64,6 +64,7 @@ fi
 extractParams "$@"
 
 signature "Pull repo"
+printCommand "$@"
 printDebugParams ${debug} "${params[@]}"
 
 function execute() {

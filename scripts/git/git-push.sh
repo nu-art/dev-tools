@@ -132,8 +132,7 @@ function processSubmodule() {
                 processSubmodule "${submoduleName}/${_submoduleName}"
             cd ..
         done
-        logVerbose
-        bannerDebug "${submoduleName} - pointers"
+
         if [[ "${scope}" == "external" ]]; then
             return
         fi
@@ -141,6 +140,9 @@ function processSubmodule() {
         if [[ "${noPointers}" ]]; then
             return
         fi
+
+        logVerbose
+        bannerDebug "${submoduleName} - pointers"
     fi
 
 

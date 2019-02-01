@@ -182,6 +182,13 @@ function isNumeric() {
 }
 
 function throwError() {
+    local errorMessage=${1}
+    local errorCode=${2}
+
+    if [[ "${errorCode}" == "0" ]]; then
+        return;
+    fi
+
     function fixSource() {
         local file=`echo "${1}" | sed -E "s/(.*)\/[a-zA-z_-]+\/\.\.\/(.*)/\1\/\2/"`
 
@@ -198,15 +205,12 @@ function throwError() {
             local sourceFile=`fixSource "${BASH_SOURCE[${arg}]}"`
             sourceFile=`printf "%45s" "${sourceFile}"`
 
-            local lineNumber="[${BASH_LINENO[${arg}]}]"
+            local lineNumber="[${BASH_LINENO[${arg}-1]}]"
             lineNumber=`printf "%6s" "${lineNumber}"`
 
-            logError "${sourceFile} ${lineNumber} ${FUNCNAME[${arg}+1]}"
+            logError "${sourceFile} ${lineNumber} ${FUNCNAME[${arg}]}"
         done
     }
-
-    local errorMessage=${1}
-    local errorCode=${2}
 
     logError "Exiting with Error code: ${errorCode}"
     logError "${errorMessage}"

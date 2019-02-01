@@ -23,7 +23,7 @@ source ${BASH_SOURCE%/*}/_core.sh
 
 runningDir=${PWD##*/}
 projectsToIgnore=("dev-tools")
-params=(branchName scope commitMessage noPointers)
+params=(branchName scope commitMessage noPointers projectsToIgnore)
 scope="changed"
 
 function extractParams() {
@@ -56,6 +56,12 @@ function extractParams() {
 
             "-m="*)
                 commitMessage=`regexParam "-m" "${paramValue}"`
+            ;;
+
+            "--ignore="*)
+                toIgnore=`regexParam "--ignore" "${paramValue}"`
+                projectsToIgnore+=(${toIgnore})
+#                echo "${projectsToIgnore[@]}"
             ;;
 
             "--project")
@@ -121,10 +127,10 @@ function processSubmodule() {
         gitCheckoutBranch ${branchName}
     fi
 
-    local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
+    local toIgnore="`echo "${projectsToIgnore[@]}"`"
+    local submodules=(`getSubmodulesByScope ${scope} "${toIgnore}"`)
 
-#    echo
-#    bannerWarning "changedSubmodules: ${submodules}"
+#    echo "changedSubmodules: ${submodules[@]}"
 
     if [[ "${#submodules[@]}" -gt "0" ]]; then
         for _submoduleName in "${submodules[@]}"; do
@@ -145,28 +151,8 @@ function processSubmodule() {
         bannerDebug "${submoduleName} - pointers"
     fi
 
-
-    if [[ `hasConflicts` ]]; then
-        logError "Submodule ${submoduleName} has conflicts... Terminating process!!"
-        git diff --check
-        exit 2
-    fi
-
-    if [[ `hasUntrackedFiles` ]]; then
-        gitAddAll
-    fi
-
-    if [[ `hasChanged` ]]; then
-        gitCommit "${commitMessage}"
-    fi
-
-    if [[ `hasCommits` ]]; then
-        gitPush ${branchName}
-        if [[ `hasCommits` ]]; then
-            logError "Failed to push... probably need to pull"
-            exit 2
-        fi
-    fi
+    gitNoConflictsAddCommitPush "${submoduleName}" "${branchName}" "${commitMessage}"
 }
 
+#getSubmodulesByScope ${scope} "`echo "${projectsToIgnore[@]}"`"
 processSubmodule "${runningDir}"

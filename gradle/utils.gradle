@@ -58,11 +58,15 @@ void includeIfExists(String artifactId) {
     include ":${artifactId}"
 }
 
-void applyIfExists(String pathToFile) {
-    def file = new File(rootProject.projectDir.getAbsolutePath() + "/" + pathToFile)
-    if (!file.exists())
+void applyNestedSettingsIfExists(String pathToFile) {
+    def file = new File(pathToFile)
+    if (!file.exists()) {
+        println "no path: " + pathToFile
         return
+    }
 
+    ext.settingsDir = file.getParentFile()
+    println "apply from: " + pathToFile
     apply from: "${file.getAbsolutePath()}"
 }
 
@@ -212,7 +216,7 @@ ext {
     defineVariantsAAR = this.&defineVariantsAAR
     resolveDependency = this.&resolveDependency
     includeIfExists = this.&includeIfExists
-    applyIfExists = this.&applyIfExists
+    applyNestedSettingsIfExists = this.&applyNestedSettingsIfExists
     addTasks_AndroidSourceAndDocs = this.&addTasks_AndroidSourceAndDocs
     addTasks_JavaSourceAndDocs = this.&addTasks_JavaSourceAndDocs
 }

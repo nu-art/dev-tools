@@ -20,15 +20,13 @@
 #!/bin/bash
 
 function contains() {
-    local found=false
-    local toIgnore=(${@:2})
-    for i in "${toIgnore[@]}"; do
+    local array=(${@:2})
+    for i in "${array[@]}"; do
         if [[ "${i}" == "${1}" ]] ; then
             echo "true"
             return
         fi
     done
-    return
 }
 
 function sedFunc() {

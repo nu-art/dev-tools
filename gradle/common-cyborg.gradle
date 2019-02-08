@@ -30,7 +30,7 @@ def applyAndroidApplication(id, apkName) {
         def rootProjectPath = rootProject.projectDir.getAbsolutePath()
 
         compileSdkVersion COMPILE_SDK.toInteger()
-        if (getGradleVersion() < 4.4f)
+        if (!checkMinGradleVersion("4.4"))
             buildToolsVersion TOOLS_VERSION
 
         defaultConfig {
@@ -88,7 +88,7 @@ def applyAndroidLibrary() {
         apply from: rootProjectPath + '/dev-tools/gradle/utils.gradle'
 
         compileSdkVersion COMPILE_SDK.toInteger()
-        if (getGradleVersion() < 4.4f)
+        if (!checkMinGradleVersion("4.4"))
             buildToolsVersion TOOLS_VERSION
 
         lintOptions {

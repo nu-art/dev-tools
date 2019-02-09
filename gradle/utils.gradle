@@ -52,8 +52,22 @@ Object resolveDependency(String artifactId, String groupId, String version) {
 
 void includeIfExists(String artifactId) {
     def file = new File(rootProject.projectDir.getAbsolutePath() + "/${artifactId}", "build.gradle")
-    if (file.exists())
-        include ":${artifactId}"
+    if (!file.exists())
+        return
+
+    include ":${artifactId}"
+}
+
+void applyNestedSettingsIfExists(String pathToFile) {
+    def file = new File(pathToFile)
+    if (!file.exists()) {
+        println "no path: " + pathToFile
+        return
+    }
+
+    ext.settingsDir = file.getParentFile()
+    println "apply from: " + pathToFile
+    apply from: "${file.getAbsolutePath()}"
 }
 
 void defineVariantsAAR() {
@@ -148,7 +162,7 @@ boolean checkMinGradleVersion(minVersion) {
     def gradleVersion = ("" + org.gradle.util.GradleVersion.current()).substring("Gradle ".length())
     def gradleVersionParts = gradleVersion.split("\\.")
     def result = compareVersions(minVersionParts, gradleVersionParts)
-    println "comparing " + minVersionParts + " with " + gradleVersionParts + ": " + result
+//    println "comparing " + minVersionParts + " with " + gradleVersionParts + ": " + result
     return result
 }
 
@@ -233,6 +247,7 @@ ext {
     defineVariantsAAR = this.&defineVariantsAAR
     resolveDependency = this.&resolveDependency
     includeIfExists = this.&includeIfExists
+    applyNestedSettingsIfExists = this.&applyNestedSettingsIfExists
     addTasks_AndroidSourceAndDocs = this.&addTasks_AndroidSourceAndDocs
     addTasks_JavaSourceAndDocs = this.&addTasks_JavaSourceAndDocs
 }

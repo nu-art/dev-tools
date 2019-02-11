@@ -147,7 +147,7 @@ Object _api(Object artifact) {
         }
     else
         dependencies {
-            compile artifact
+            implementation artifact
         }
 
 }

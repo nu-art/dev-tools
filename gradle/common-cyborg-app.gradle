@@ -32,6 +32,7 @@ android {
         versionName getVersionNameFromFile()
         versionCode getVersionCodeFromFile()
         project.version = versionName
+        multiDexEnabled true
 
         javaCompileOptions {
             annotationProcessorOptions {

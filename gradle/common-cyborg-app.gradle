@@ -19,11 +19,12 @@
  */
 apply plugin: 'com.android.application'
 
+// To be removed, use the common-cyborg.gradle and call applyAndroidApplication
 android {
     def rootProjectPath = rootProject.projectDir.getAbsolutePath()
 
     compileSdkVersion COMPILE_SDK.toInteger()
-    if (getGradleVersion() < 4.4f)
+    if (!checkMinGradleVersion("4.4"))
         buildToolsVersion TOOLS_VERSION
 
     defaultConfig {

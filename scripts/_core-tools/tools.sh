@@ -20,16 +20,13 @@
 #!/bin/bash
 
 function contains() {
-    local found=false
-    local toIgnore=(${@:2})
-    for i in "${toIgnore[@]}"; do
+    local array=(${@:2})
+    for i in "${array[@]}"; do
         if [[ "${i}" == "${1}" ]] ; then
             echo "true"
             return
         fi
     done
-    echo "false"
-    return
 }
 
 function sedFunc() {
@@ -54,9 +51,12 @@ function setDefaultAndroidHome() {
     fi
 
     if [[ "$(uname -v)" =~ "Darwin" ]]; then
-        local pathToAdb=`which adb`
-        if [[ ${pathToAdb} ]]; then
-            ANDROID_HOME=${pathToAdb}
+        if [[ ! -e "/Users/${USER}/Library/Android/sdk" ]]; then
+            local pathToAdb=`which adb`
+            if [[ ${pathToAdb} ]]; then
+                ANDROID_HOME=`echo ${pathToAdb} | sed -E "s/^(.*)\/platform-tools\/adb$/\1/"`
+                return
+            fi
         fi
         ANDROID_HOME="/Users/${USER}/Library/Android/sdk"
     else
@@ -78,10 +78,6 @@ function execute() {
         logInfo "${message}"
     else
         logInfo "${command}"
-    fi
-
-    if [[ "${dryRun}" == "true" ]]; then
-        return
     fi
 
     if [[ "${message}" ]]; then
@@ -183,6 +179,72 @@ function isNumeric() {
     echo "${1}"
 }
 
+function throwError() {
+    local errorMessage=${1}
+    local errorCode=${2}
+
+    if [[ "${errorCode}" == "0" ]]; then
+        return;
+    fi
+
+    function fixSource() {
+        local file=`echo "${1}" | sed -E "s/(.*)\/[a-zA-z_-]+\/\.\.\/(.*)/\1\/\2/"`
+
+        if [[ "${file}" == "${1}" ]]; then
+            echo "${file}"
+            return;
+        fi
+
+        fixSource "${file}"
+    }
+
+    function printStacktrace() {
+        for (( arg=1; arg<${#FUNCNAME[@]}; arg+=1 )); do
+            local sourceFile=`fixSource "${BASH_SOURCE[${arg}]}"`
+            sourceFile=`printf "%45s" "${sourceFile}"`
+
+            local lineNumber="[${BASH_LINENO[${arg}-1]}]"
+            lineNumber=`printf "%6s" "${lineNumber}"`
+
+            logError "${sourceFile} ${lineNumber} ${FUNCNAME[${arg}]}"
+        done
+    }
+
+    logError "Exiting with Error code: ${errorCode}"
+    logError "${errorMessage}"
+    printStacktrace
+    exit ${errorCode}
+
+}
+
+function createDir() {
+    local pathToDir="${1}"
+    if [[ ! -e "${pathToDir}" ]]; then
+        mkdir -p "${pathToDir}"
+    fi
+}
+
+function renameFiles() {
+    local rootFolder=${1}
+    local matchPattern=${2}
+    local replaceWith=${3}
+
+    local files=(`find "${rootFolder}" -iname "*${matchPattern}*"`)
+    for file in ${files[@]} ; do
+        local newFile=`echo ${file} | sed -E "s/${matchPattern}/${replaceWith}/g"`
+        mv ${file} ${newFile}
+    done
+}
+
+function renameStringInFiles() {
+    local rootFolder=${1}
+    local matchPattern=${2}
+    local replaceWith="${3}"
+    local files=(`grep -rl ${matchPattern} "${rootFolder}"`)
+    for file in ${files[@]} ; do
+        sed -i '' -E "s/${matchPattern}/${replaceWith}/g" ${file}
+    done
+}
 
 #isNumeric 2 -100
 #isNumeric 4 -100

@@ -216,7 +216,7 @@ function getAllChangedSubmodules() {
     local repos=()
     local toIgnore=(${1})
     for projectName in "${ALL_REPOS[@]}"; do
-        if [[ `contains ${projectName} "${toIgnore[@]}"` == "true" ]]; then
+        if [[ `contains ${projectName} "${toIgnore[@]}"` ]]; then
             continue
         fi
 
@@ -231,7 +231,7 @@ function getAllConflictingSubmodules() {
     local repos=()
     local toIgnore=(${1})
     for projectName in "${ALL_REPOS[@]}"; do
-        if [[ `contains ${projectName} "${toIgnore[@]}"` == "true" ]]; then
+        if [[ `contains ${projectName} "${toIgnore[@]}"` ]]; then
             continue
         fi
 
@@ -252,7 +252,7 @@ function getAllNoneProjectSubmodules() {
     toIgnore+=(`gitListSubmodules`)
 
     for projectName in "${ALL_REPOS[@]}"; do
-        if [[ `contains ${projectName} "${toIgnore[@]}"` == "true" ]]; then
+        if [[ `contains ${projectName} "${toIgnore[@]}"` ]]; then
             continue
         fi
 
@@ -271,7 +271,7 @@ function hasUntrackedFiles() {
 }
 
 function hasConflicts() {
-    if [[ `git diff --check --diff-filter=m` ]]; then echo true; else echo; fi
+    if [[ `git diff --check --diff-filter=m` ]] || [[ `git status | grep "Unmerged files:"` ]]; then echo true; else echo; fi
 }
 
 function hasChanged() {
@@ -282,21 +282,50 @@ function hasCommits() {
     if [[ `git status | grep "Your branch is ahead"` ]]; then echo true; else echo; fi
 }
 
+function gitNoConflictsAddCommitPush() {
+    local submoduleName=${1}
+    local branchName=${2}
+    local commitMessage=${3}
+    if [[ `hasConflicts` ]]; then
+        git diff --check
+        throwError "Submodule ${submoduleName} has conflicts... Terminating process!!" 2
+    fi
+
+    if [[ `hasUntrackedFiles` ]]; then
+        gitAddAll
+        throwError "Error adding files" $?
+    fi
+
+    if [[ `hasChanged` ]]; then
+        gitCommit "${commitMessage}"
+        throwError "Error committing changes" $?
+    fi
+
+    if [[ `hasCommits` ]]; then
+        gitPush ${branchName}
+        throwError "Error pushing changes" $?
+        if [[ `hasCommits` ]]; then
+            throwError "Failed to push... probably need to pull" 2
+        fi
+    fi
+
+}
 function getSubmodulesByScope() {
     local submodules=
-    local toIgnore=(${2})
+    local toIgnore=${2}
+
     case "${1}" in
         "external")
-            submodules=(`getAllNoneProjectSubmodules "${toIgnore[@]}"`)
+            submodules=(`getAllNoneProjectSubmodules "${toIgnore}"`)
         ;;
 
         "changed")
-            submodules=(`getAllChangedSubmodules "${toIgnore[@]}"`)
-            submodules+=(`getAllConflictingSubmodules "${toIgnore[@]}"`)
+            submodules=(`getAllChangedSubmodules "${toIgnore}"`)
+            submodules+=(`getAllConflictingSubmodules "${toIgnore}"`)
         ;;
 
         "all")
-            submodules=(`listGitFolders "${toIgnore[@]}"`)
+            submodules=(`listGitFolders "${toIgnore}"`)
         ;;
 
         "project")
@@ -304,7 +333,7 @@ function getSubmodulesByScope() {
         ;;
 
         "conflict")
-            submodules=(`getAllConflictingSubmodules "${toIgnore[@]}"`)
+            submodules=(`getAllConflictingSubmodules "${toIgnore}"`)
         ;;
 
         *)

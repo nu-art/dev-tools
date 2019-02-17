@@ -26,6 +26,7 @@ function processFolder() {
 }
 
 signature
+printCommand "$@"
 processFolder
 iterateOverFolders "gitListSubmodules" processFolder
 

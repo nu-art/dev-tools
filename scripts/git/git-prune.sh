@@ -29,6 +29,7 @@ function processFolder() {
 }
 
 signature "prune repos"
+printCommand "$@"
 
 function execute() {
     git remote prune origin

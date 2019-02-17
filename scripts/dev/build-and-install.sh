@@ -21,6 +21,7 @@
 
 source ${BASH_SOURCE%/*}/../android/_source.sh
 enforceBashVersion 4.4
+setDefaultAndroidHome
 
 apkPattern="*.apk"
 deviceIdParam=""
@@ -70,10 +71,6 @@ function printUsage {
     logVerbose
     exit
 }
-
-if [[ ! "${ANDROID_HOME}" ]]; then
-    ANDROID_HOME="/Users/$USER/Library/Android/sdk"
-fi
 
 adbCommand=${ANDROID_HOME}/platform-tools/adb
 
@@ -241,9 +238,16 @@ if [[ ! "${buildType}" ]] && [[ ! "${noBuild}" ]] && [[ ! "${uninstall}" ]] && [
     printUsage "MUST specify build type or set flag --no-build"
 fi
 
+DeviceRegexp_UsbDevice="[0-9a-zA-Z\-]+"
+DeviceRegexp_NetworkDevice="[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\:[0-9]{2,5}"
+
+
 function resolveDeviceId() {
     if [[ ! "${deviceIdParam}" ]] || [[ "${deviceIdParam}" == "ALL" ]] || [[ "${deviceIdParam}" == "all" ]]; then
-        deviceIds=(`adb devices | grep -E "^[0-9a-zA-Z\-]+\s+?device$" | sed -E "s/([0-9a-zA-Z-]+).*/\1/"`)
+        deviceIds=(`adb devices | grep -E "^${DeviceRegexp_UsbDevice}\s+?device$" | sed -E "s/(${DeviceRegexp_UsbDevice}).*/\1/"`)
+        local networkDevices=(`adb devices | grep -E "^${DeviceRegexp_NetworkDevice}.*$"  | sed -E "s/(${DeviceRegexp_NetworkDevice}).*/\1/"`)
+        deviceIds+=${networkDevices[@]}
+
         if [[ ! "${deviceIdParam}" ]] && (("${#deviceIds[@]}" > "1")); then
             choicePrintOptions "No device was specified, please select one: " "ALL" ${deviceIds[@]}
             deviceIdParam=`choiceWaitForInput "ALL" ${deviceIds[@]}`
@@ -254,28 +258,20 @@ function resolveDeviceId() {
     fi
 }
 
-resolveDeviceId
 ###################################################################
 #                                                                 #
 #                          EXECUTION                              #
 #                                                                 #
 ###################################################################
 
-
-function waitForDeviceImpl() {
-    if [[ ! "${waitForDevice}" ]]; then
-          return
-    fi
-
+function runOnAllDevices() {
+    local toExecute=${1}
+    resolveDeviceId
+    verifyHasDevices "Cannot call ${toExecute} without any device"
     for deviceId in "${deviceIds[@]}"; do
-       waitForDevice ${deviceId}
+        waitForDevice ${deviceId}
+        ${toExecute} "${deviceId}"
     done
-}
-
-function uninstallFromDevice() {
-    local deviceId=${1}
-    waitForDevice ${deviceId}
-    execute "${adbCommand} -s ${deviceId} uninstall ${packageName}" "Uninstalling '${appName}':"
 }
 
 function uninstallImpl() {
@@ -283,10 +279,14 @@ function uninstallImpl() {
           return
     fi
 
-    for deviceId in "${deviceIds[@]}"; do
-        uninstallFromDevice "${deviceId}"
-    done
+    function uninstallFromDevice() {
+        local deviceId=${1}
+        execute "${adbCommand} -s ${deviceId} uninstall ${packageName}" "Uninstalling '${appName}':"
+    }
+
+    runOnAllDevices "uninstallFromDevice"
 }
+
 
 function buildImpl() {
     if [[ "${noBuild}" ]]; then
@@ -314,10 +314,12 @@ function clearDataImpl() {
           return
     fi
 
-    for deviceId in "${deviceIds[@]}"; do
-        waitForDevice ${deviceId}
+    function clearDataFromDevice() {
+        local deviceId=${1}
         execute "${adbCommand} -s ${deviceId} shell pm clear ${packageName}" "Clearing data for '${appName}':"
-    done
+    }
+
+    runOnAllDevices "clearDataFromDevice"
 }
 
 function forceStopImpl() {
@@ -325,10 +327,12 @@ function forceStopImpl() {
         return
     fi
 
-    for deviceId in "${deviceIds[@]}"; do
-        waitForDevice ${deviceId}
+    function forceStopOnDevice() {
+        local deviceId=${1}
         execute "${adbCommand} -s ${deviceId} shell am force-stop ${packageName}" "Force stopping Remote-Screen app..."
-    done
+    }
+
+    runOnAllDevices "forceStopOnDevice"
 }
 
 function retry() {
@@ -366,7 +370,15 @@ function installImpl() {
     function installAppOnDevice() {
         local deviceId=${1}
         waitForDevice ${deviceId}
-        execute "${adbCommand} -s ${deviceId} install -r -d ${testFlag}${pathToApk}" "Installing '${appName}':" false 2> ${errorFileName}
+#        execute "${adbCommand} -s ${deviceId} install -r -d ${testFlag}${pathToApk}" "Installing '${appName}':" false 2> ${errorFileName}
+        local targetApkName="${appName}-app.apk"
+        local pathToTargetApkName="/sdcard/${targetApkName}"
+
+        logVerbose
+        execute "${adbCommand} -s ${deviceId} push ${pathToApk} ${pathToTargetApkName}" "Copy ${appName} apk onto device: ${pathToTargetApkName}" false 2> ${errorFileName}
+        logVerbose
+        execute "${adbCommand} -s ${deviceId} shell pm install -r -d  ${pathToTargetApkName}" "Installing ${appName} apk onto device: ${pathToTargetApkName}" false 2> ${errorFileName}
+
         output=`cat ${errorFileName}`
         rm ${errorFileName}
 
@@ -391,10 +403,7 @@ function installImpl() {
         exit 2
     fi
 
-    verifyHasDevices "Cannot install apk..."
-    for deviceId in "${deviceIds[@]}"; do
-        installAppOnDevice "${deviceId}"
-    done
+    runOnAllDevices "installAppOnDevice"
 }
 
 function installTestImpl() {
@@ -431,10 +440,7 @@ function installTestImpl() {
         exit 2
     fi
 
-    verifyHasDevices "Cannot install apk..."
-    for deviceId in "${deviceIds[@]}"; do
-        installTestAppOnDevice "${deviceId}"
-    done
+    runOnAllDevices "installTestAppOnDevice"
 }
 
 function launchImpl() {
@@ -442,11 +448,12 @@ function launchImpl() {
         return
     fi
 
-    verifyHasDevices "Cannot launch app..."
-    for deviceId in "${deviceIds[@]}"; do
-        waitForDevice ${deviceId}
+    function launchOnDevice() {
+        local deviceId=${1}
         execute "${adbCommand} -s ${deviceId} shell am start -n ${packageName}/com.nu.art.cyborg.ui.ApplicationLauncher -a android.intent.action.MAIN -c android.intent.category.LAUNCHER" "Launching '${appName}':"
-    done
+    }
+
+    runOnAllDevices "launchOnDevice"
 }
 
 function runTestsImpl() {
@@ -458,11 +465,12 @@ function runTestsImpl() {
         return
     fi
 
-    verifyHasDevices "Cannot run tests app..."
-    for deviceId in "${deviceIds[@]}"; do
-        waitForDevice ${deviceId}
+    function runTestsOnDevice() {
+        local deviceId=${1}
         execute "${adbCommand} -s ${deviceId} shell am instrument -w -r -e debug false -e ${testsToRun} ${packageName}.test/android.support.test.runner.AndroidJUnitRunner" "Running test '${appName}':"
-    done
+    }
+
+    runOnAllDevices "runTestsOnDevice"
 }
 
 deleteApksImpl
@@ -474,13 +482,3 @@ installImpl
 installTestImpl
 launchImpl
 runTestsImpl
-
-
-# For reference
-
-#forceStopImpl
-#clearDataImpl
-#uninstallImpl
-#buildImpl
-#installImpl
-#launchImpl

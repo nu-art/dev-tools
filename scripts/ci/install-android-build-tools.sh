@@ -102,6 +102,6 @@ function addRepositories() {
 function installArtifacts() {
     for artifactsId in ${artifactsIds[@]}; do
         echo "---${artifactsId}---"
-        echo "y " |  ${ANDROID_HOME}/tools/bin/sdkmanager "${artifactsId}"
+        echo "y" |  ${ANDROID_HOME}/tools/bin/sdkmanager "${artifactsId}"
     done
 }

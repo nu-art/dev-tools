@@ -64,6 +64,7 @@ fi
 extractParams "$@"
 
 signature "Pull repo"
+printCommand "$@"
 printDebugParams ${debug} "${params[@]}"
 
 function execute() {
@@ -74,7 +75,7 @@ function execute() {
         cd .. > /dev/null
             local submodules=(`getSubmodulesByScope "project" "${projectsToIgnore[@]}"`)
             # Make sure that the submodule is a part of the project before updating its pointer
-            if [[ `contains ${runningDir} "${submodules[@]}"` == "true" ]]; then
+            if [[ `contains ${runningDir} "${submodules[@]}"` ]]; then
                 git submodule update --init ${runningDir}
             else
                 cd - > /dev/null
@@ -131,6 +132,9 @@ function processSubmodule() {
     fi
 
     for submodule in "${submodules[@]}"; do
+        if [[ ! -e ${submodule} ]]; then
+            throwError "could not find Folder: ${submodule}"
+        fi
         cd ${submodule}
             processSubmodule "${mainModule}/${submodule}"
         cd ..
@@ -144,3 +148,6 @@ for pid in "${pids[@]}"; do
 done
 
 
+if [[ ! "${githubUserName}" == "TacB0sS" ]]; then
+    git submodule update dev-tools
+fi

@@ -19,12 +19,13 @@
  */
 apply plugin: 'com.android.library'
 
+// To be removed, use the common-cyborg.gradle and call applyAndroidLibrary
 android {
     def rootProjectPath = rootProject.projectDir.getAbsolutePath()
     apply from: rootProjectPath + '/dev-tools/gradle/utils.gradle'
 
     compileSdkVersion COMPILE_SDK.toInteger()
-    if (getGradleVersion() < 4.4f)
+    if (!checkMinGradleVersion("4.4"))
         buildToolsVersion TOOLS_VERSION
 
     lintOptions {

@@ -100,7 +100,8 @@ function printDebugParams() {
     printParam "bashVersion" "${bashVersion}"
 
     for param in "${params[@]}"; do
-        printParam ${param} "${!param}"
+        local value=("${!param}")
+        printParam ${param} "${value}"
     done
     logDebug "--"
     logInfo "----------- DEBUG -----------"

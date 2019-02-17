@@ -27,10 +27,7 @@ params=(fromBranch toBranch)
 scope="conflict"
 
 function extractParams() {
-    logVerbose
-    logInfo "Process params: "
     for paramValue in "${@}"; do
-        logDebug "  param: ${paramValue}"
         case "${paramValue}" in
             "--from="*)
                 fromBranch=`echo "${paramValue}" | sed -E "s/--from=(.*)/\1/"`
@@ -67,7 +64,7 @@ function verifyRequirement() {
     local missingParamColor=${BRed}
     local existingParamColor=${BBlue}
 
-    missingData=false
+    missingData=
     if [[ ! "${fromBranch}" ]]; then
         fromBranch="${missingParamColor}Branch-to-be-merged-from"
         missingData=true
@@ -78,7 +75,7 @@ function verifyRequirement() {
         missingData=true
     fi
 
-    if [[ "${missingData}" == "true" ]]; then
+    if [[ "${missingData}" ]]; then
         fromBranch=" --from=${existingParamColor}${fromBranch}${NoColor}"
         toBranch=" --to=${existingParamColor}${toBranch}${NoColor}"
 
@@ -90,6 +87,7 @@ extractParams "$@"
 verifyRequirement
 
 signature
+printCommand "$@"
 printDebugParams ${debug} "${params[@]}"
 
 

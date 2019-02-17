@@ -23,7 +23,7 @@ source ${BASH_SOURCE%/*}/_core.sh
 
 runningDir=${PWD##*/}
 projectsToIgnore=("dev-tools")
-params=(branchName scope commitMessage)
+params=(branchName scope commitMessage noPointers projectsToIgnore)
 scope="changed"
 
 function extractParams() {
@@ -46,6 +46,10 @@ function extractParams() {
                 branchName=`gitGetCurrentBranch`
             ;;
 
+            "--no-pointers" | "-np")
+                noPointers="true"
+            ;;
+
             "--message="*)
                 commitMessage=`regexParam "--message" "${paramValue}"`
             ;;
@@ -54,8 +58,18 @@ function extractParams() {
                 commitMessage=`regexParam "-m" "${paramValue}"`
             ;;
 
+            "--ignore="*)
+                toIgnore=`regexParam "--ignore" "${paramValue}"`
+                projectsToIgnore+=(${toIgnore})
+#                echo "${projectsToIgnore[@]}"
+            ;;
+
             "--project")
                 scope=`removePrefix "project"`
+            ;;
+
+            "--external")
+                scope=`removePrefix "external"`
             ;;
 
             "--debug")
@@ -77,7 +91,7 @@ function verifyRequirement() {
     local missingParamColor=${BRed}
     local existingParamColor=${BBlue}
 
-    local missingData=false
+    local missingData=
     if [[ ! "${branchName}" ]]; then
         branchName="${missingParamColor}branch-name${NoColor} OR ${missingParamColor}--this${NoColor}"
         missingData=true
@@ -88,7 +102,7 @@ function verifyRequirement() {
         missingData=true
     fi
 
-    if [[ "${missingData}" == "true" ]]; then
+    if [[ "${missingData}" ]]; then
         branchName="--branch=${existingParamColor}${branchName}${NoColor}"
         commitMessage="--message=\"${existingParamColor}${commitMessage}${NoColor}\""
         printUsage
@@ -100,6 +114,7 @@ extractParams "$@"
 verifyRequirement
 
 signature
+printCommand "$@"
 printDebugParams ${debug} "${params[@]}"
 
 function processSubmodule() {
@@ -112,10 +127,10 @@ function processSubmodule() {
         gitCheckoutBranch ${branchName}
     fi
 
-    local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
+    local toIgnore="`echo "${projectsToIgnore[@]}"`"
+    local submodules=(`getSubmodulesByScope ${scope} "${toIgnore}"`)
 
-#    echo
-#    bannerWarning "changedSubmodules: ${submodules}"
+#    echo "changedSubmodules: ${submodules[@]}"
 
     if [[ "${#submodules[@]}" -gt "0" ]]; then
         for _submoduleName in "${submodules[@]}"; do
@@ -123,27 +138,21 @@ function processSubmodule() {
                 processSubmodule "${submoduleName}/${_submoduleName}"
             cd ..
         done
+
+        if [[ "${scope}" == "external" ]]; then
+            return
+        fi
+
+        if [[ "${noPointers}" ]]; then
+            return
+        fi
+
         logVerbose
         bannerDebug "${submoduleName} - pointers"
     fi
 
-    if [[ `hasConflicts` ]]; then
-        logError "Submodule ${submoduleName} has conflicts... Terminating process!!"
-        git diff --check
-        exit 2
-    fi
-
-    if [[ `hasUntrackedFiles` ]]; then
-        gitAddAll
-    fi
-
-    if [[ `hasChanged` ]]; then
-        gitCommit "${commitMessage}"
-    fi
-
-    if [[ `hasCommits` ]]; then
-        gitPush ${branchName}
-    fi
+    gitNoConflictsAddCommitPush "${submoduleName}" "${branchName}" "${commitMessage}"
 }
 
+#getSubmodulesByScope ${scope} "`echo "${projectsToIgnore[@]}"`"
 processSubmodule "${runningDir}"

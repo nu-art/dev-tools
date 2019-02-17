@@ -77,16 +77,8 @@ function updateRepository() {
         message="Jenkins Build - v${newVersionName} (${newVersionCode})"
     fi
 
+    logInfo "TEST_RUN: ${TEST_RUN}"
     logInfo "Commit push tag: ${tag}, message: ${message}"
-    if [[ "${TEST_RUN}" == "true" ]]; then
-        logInfo "This is a test run, will not push changes to repo!!!"
-
-        logInfo "--------------------------------     Repositories Updated!     ---------------------------------"
-      	logInfo "------------------------------------------------------------------------------------------------"
-
-        return
-    fi
-
     logInfo "Commit Message: ${message}"
     logInfo "Tag: ${tag}"
 

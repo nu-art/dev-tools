@@ -19,9 +19,14 @@
 
 #!/bin/bash
 folder="${1}"
+deviceId="${2}"
 if [[ ! "${folder}" ]]; then
     echo "MUST provide a target folder"
     exit 1
+fi
+
+if [[ "${deviceId}" ]]; then
+    deviceId="-s ${deviceId}"
 fi
 
 
@@ -29,7 +34,7 @@ images=("boot" "cache" "persist" "recovery" "system" "userdata")
 
 pushd "${folder}"
     echo "Entering boot loader"
-    adb reboot bootloader
+    adb ${deviceId} reboot bootloader
 
     for image in "${images[@]}"; do
         if [[ ! -e "${image}.img" ]]; then
@@ -37,9 +42,9 @@ pushd "${folder}"
         fi
 
         echo "Flashing ${image}..."
-        fastboot flash "${image}" "${image}.img"
+        fastboot ${deviceId} flash "${image}" "${image}.img"
     done
 
     echo "Rebooting"
-    fastboot reboot
+    fastboot ${deviceId} reboot
 popd

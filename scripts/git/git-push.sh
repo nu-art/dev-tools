@@ -23,7 +23,7 @@ source ${BASH_SOURCE%/*}/_core.sh
 
 runningDir=${PWD##*/}
 projectsToIgnore=("dev-tools")
-params=(branchName scope commitMessage noPointers projectsToIgnore)
+params=(branchName scope commitMessage noPointers projectsToIgnore noPush)
 scope="changed"
 
 function extractParams() {
@@ -74,6 +74,10 @@ function extractParams() {
 
             "--debug")
                 debug=`makeItSo`
+            ;;
+
+            "--no-push")
+                noPush=true
             ;;
         esac
     done
@@ -151,7 +155,7 @@ function processSubmodule() {
         bannerDebug "${submoduleName} - pointers"
     fi
 
-    gitNoConflictsAddCommitPush "${submoduleName}" "${branchName}" "${commitMessage}"
+    gitNoConflictsAddCommitPush "${submoduleName}" "${branchName}" "${commitMessage}" ${noPush}
 }
 
 #getSubmodulesByScope ${scope} "`echo "${projectsToIgnore[@]}"`"

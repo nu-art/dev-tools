@@ -286,6 +286,8 @@ function gitNoConflictsAddCommitPush() {
     local submoduleName=${1}
     local branchName=${2}
     local commitMessage=${3}
+    local noPush=${4}
+
     if [[ `hasConflicts` ]]; then
         git diff --check
         throwError "Submodule ${submoduleName} has conflicts... Terminating process!!" 2
@@ -301,7 +303,7 @@ function gitNoConflictsAddCommitPush() {
         throwError "Error committing changes" $?
     fi
 
-    if [[ `hasCommits` ]]; then
+    if [[ `hasCommits` ]] && [[ ! "${noPush}" ]]; then
         gitPush ${branchName}
         throwError "Error pushing changes" $?
         if [[ `hasCommits` ]]; then

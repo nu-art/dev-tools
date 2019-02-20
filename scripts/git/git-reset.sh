@@ -19,14 +19,65 @@
 
 #!/bin/bash
 
+projectsToIgnore=("dev-tools")
 source ${BASH_SOURCE%/*}/_core.sh
+scope="changed"
+runningDir=${PWD##*/}
 
-function processFolder() {
-    gitResetHard
+params=(origin scope branchName)
+
+function extractParams() {
+    for paramValue in "${@}"; do
+        case "${paramValue}" in
+            "--branch="*)
+                branchName=`regexParam "--branch" ${paramValue}`
+            ;;
+
+            "-b="*)
+                branchName=`regexParam "-b" ${paramValue}`
+            ;;
+
+            "--all")
+                scope="all"
+            ;;
+
+            "--project")
+                scope="project"
+            ;;
+
+            "--external")
+                scope="external"
+            ;;
+
+            "--debug")
+                debug="true"
+            ;;
+
+            "--origin")
+                origin=true
+            ;;
+        esac
+    done
 }
 
-signature
-printCommand "$@"
-processFolder
-iterateOverFolders "gitListSubmodules" processFolder
+extractParams "$@"
 
+signature "Reset hard repo"
+printCommand "$@"
+printDebugParams ${debug} "${params[@]}"
+
+function processSubmodule() {
+    local mainModule=${1}
+    logVerbose
+    bannerDebug "Processing: ${mainModule}"
+
+    gitResetHard ${origin} ${branchName}
+    local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
+    for submodule in "${submodules[@]}"; do
+        cd ${submodule}
+            processSubmodule "${mainModule}/${submodule}"
+        cd ..
+    done
+}
+
+processSubmodule "${runningDir}"

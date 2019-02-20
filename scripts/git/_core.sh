@@ -147,7 +147,11 @@ function gitPushTags() {
 }
 
 function gitResetHard() {
-    git reset --hard
+    local origin=$([[ "${1}" == "true" ]] && echo "origin/")
+    local branch=$([[ "${2}" ]] && echo "${2}" || echo `gitGetCurrentBranch`)
+    logWarning "origin: ${origin}"
+    logWarning "branch: ${branch}"
+    git reset --hard ${origin}${branch}
 }
 
 function gitUpdateSubmodules() {

@@ -119,6 +119,10 @@ function extractParams() {
                 buildType=`echo "${paramValue}" | sed -E "s/--build=(.*)/\1/"`
             ;;
 
+            "--flavor="*)
+                flavor=`echo "${paramValue}" | sed -E "s/--flavor=(.*)/\1/"`
+            ;;
+
             "--tests-to-run="*)
                 testsToRun=`echo "${paramValue}" | sed -E "s/--tests-to-run=(.*)/\1/"`
             ;;
@@ -217,13 +221,13 @@ if [[ ! "${appName}" ]]; then
     appName="${packageName}"
 fi
 
-outputFolder="${projectFolder}/build/outputs/apk/${buildType}"
+outputFolder="${projectFolder}/build/outputs/apk/${flavor}/${buildType}"
 if [[ "${testMode}" ]]; then
     outputTestFolder="${projectFolder}/build/outputs/apk/androidTest/${buildType}"
 fi
 
 
-params=(appName packageName buildType projectName projectFolder outputFolder pathToApk outputTestFolder pathToTestApk apkPattern deviceIdParam testMode uninstall clearData forceStop clean build noBuild noInstall noLaunch waitForDevice)
+params=(appName packageName buildType flavor projectName projectFolder outputFolder pathToApk outputTestFolder pathToTestApk apkPattern deviceIdParam testMode uninstall clearData forceStop clean build noBuild noInstall noLaunch waitForDevice)
 printDebugParams ${debug} "${params[@]}"
 
 if [[ ! "${packageName}" ]]; then
@@ -274,15 +278,15 @@ function runOnAllDevices() {
     done
 }
 
+function uninstallFromDevice() {
+    local deviceId=${1}
+    execute "${adbCommand} -s ${deviceId} uninstall ${packageName}" "Uninstalling '${appName}':"
+}
+
 function uninstallImpl() {
     if [[ ! "${uninstall}" ]]; then
           return
     fi
-
-    function uninstallFromDevice() {
-        local deviceId=${1}
-        execute "${adbCommand} -s ${deviceId} uninstall ${packageName}" "Uninstalling '${appName}':"
-    }
 
     runOnAllDevices "uninstallFromDevice"
 }
@@ -299,7 +303,7 @@ function buildImpl() {
         command="${command} ${projectName}:assemble${buildType}AndroidTest"
     fi
 
-    execute "bash gradlew${clean}${command}${offline}" "Building '${appName}'..."
+    execute "bash gradlew${clean}${command}${offline} " "Building '${appName}'..."
     checkExecutionError "Build error..."
 }
 
@@ -309,28 +313,28 @@ function deleteApksImpl() {
     fi
 }
 
+function clearDataFromDevice() {
+    local deviceId=${1}
+    execute "${adbCommand} -s ${deviceId} shell pm clear ${packageName}" "Clearing data for '${appName}':"
+}
+
 function clearDataImpl() {
     if [[ ! "${clearData}" ]]; then
           return
     fi
 
-    function clearDataFromDevice() {
-        local deviceId=${1}
-        execute "${adbCommand} -s ${deviceId} shell pm clear ${packageName}" "Clearing data for '${appName}':"
-    }
-
     runOnAllDevices "clearDataFromDevice"
+}
+
+function forceStopOnDevice() {
+    local deviceId=${1}
+    execute "${adbCommand} -s ${deviceId} shell am force-stop ${packageName}" "Force stopping Remote-Screen app..."
 }
 
 function forceStopImpl() {
     if [[ ! "${forceStop}" ]]; then
         return
     fi
-
-    function forceStopOnDevice() {
-        local deviceId=${1}
-        execute "${adbCommand} -s ${deviceId} shell am force-stop ${packageName}" "Force stopping Remote-Screen app..."
-    }
 
     runOnAllDevices "forceStopOnDevice"
 }

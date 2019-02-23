@@ -132,9 +132,11 @@ function yesOrNoQuestion() {
     case "$response" in
         [yY])
                 eval ${toExecuteYes}
+                throwError "Error executing: ${toExecuteYes}" $?
             ;;
         [nN])
                 eval ${toExecuteNo}
+                throwError "Error executing: ${toExecuteNo}" $?
             ;;
         *)
                 logError "Canceling..."

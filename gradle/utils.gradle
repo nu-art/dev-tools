@@ -47,11 +47,23 @@ def addJavadocTask() {
 
 Object resolveDependency(String artifactId, String groupId, String version) {
     def file = new File(rootProject.projectDir.getAbsolutePath() + "/${artifactId}", "build.gradle")
-    return file.exists() ? project(":${artifactId}") : "${groupId}:${artifactId}:${version}"
+    if (file.exists())
+        try {
+            return project(":${artifactId}")
+        } catch (e) {
+            System.err.println("Error while resolving project: ${artifactId}")
+            return "${groupId}:${artifactId}:${version}"
+        }
+
+    return "${groupId}:${artifactId}:${version}"
 }
 
 void includeIfExists(String artifactId) {
-    def file = new File(rootProject.projectDir.getAbsolutePath() + "/${artifactId}", "build.gradle")
+    if (artifactId.startsWith(":"))
+        artifactId = artifactId.substring(1)
+
+    def folder = artifactId.replace(":", "/")
+    def file = new File(rootProject.projectDir.getAbsolutePath() + "/${folder}", "build.gradle")
     if (!file.exists())
         return
 

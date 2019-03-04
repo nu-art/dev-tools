@@ -127,11 +127,11 @@ function extractParams() {
                 testsToRun=`echo "${paramValue}" | sed -E "s/--tests-to-run=(.*)/\1/"`
             ;;
 
-            "--clean"*)
+            "--clean")
                 clean=" clean"
             ;;
 
-            "--debug"*)
+            "--debug")
                 debug="true"
             ;;
 
@@ -193,7 +193,7 @@ function extractParams() {
             ;;
 
             "*")
-                echo "UNKNOWN PARAM: ${paramValue}";
+                logWarning "UNKNOWN PARAM: ${paramValue}";
             ;;
         esac
     done

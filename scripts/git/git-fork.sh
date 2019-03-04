@@ -31,6 +31,10 @@ function extractParams() {
                 fromRepo=`regexParam "--from" ${paramValue}`
             ;;
 
+            "--output="*)
+                output=`regexParam "--output" ${paramValue}`
+            ;;
+
             "--to="*)
                 toRepo=`regexParam "--to" ${paramValue}`
             ;;
@@ -85,7 +89,11 @@ logInfo "Cloning: ${fromRepo} => ${targetName}"
 git clone --bare ${fromRepo} ${targetName}
 cd ${targetName}
 
-logInfo "Cloning: ${targetName} => ${toRepo}"
+logInfo "Mirroring: ${targetName} => ${toRepo}"
 git push --mirror ${toRepo}
 cd -
 rm -rf ${targetName}
+
+cd ${output}
+    git clone --recursive ${toRepo}
+cd -

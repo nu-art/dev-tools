@@ -48,6 +48,13 @@ function gitCheckoutBranch() {
     fi
     return "${ErrorCode}"
 }
+function gitGetRepoUrl(){
+    if [[ "$(uname -v)" =~ "Darwin" ]]; then
+        echo `git remote -v | grep push | perl -pe 's/origin\s//' | perl -pe 's/\s\(push\)//'`
+    else
+        echo `git remote -v | grep push | sed -E 's/origin\s//' | sed -E 's/\s\(push\)//'`
+    fi
+}
 
 function gitAddAll() {
     logInfo "${GIT_TAG} git add all"

@@ -22,6 +22,7 @@
 source ${BASH_SOURCE%/*}/_core.sh
 runningDir=${PWD##*/}
 
+fromRepo=`gitGetRepoUrl`
 params=(debug toRepo fromRepo)
 
 function extractParams() {
@@ -49,7 +50,7 @@ function extractParams() {
 function printUsage() {
     logVerbose
     logVerbose "   USAGE:"
-    logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${fromRepo} ${toRepo}"
+    logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${fromRepo} ${toRepo} ${output}"
     logVerbose
     exit 0
 }
@@ -69,9 +70,15 @@ function verifyRequirement() {
         missingData=true
     fi
 
+    if [[ ! "${output}" ]]; then
+        output="${missingParamColor}where to clone mirror repo to${NoColor}"
+        missingData=true
+    fi
+
     if [[ "${missingData}" ]]; then
         fromRepo=" --from=${existingParamColor}${fromRepo}${NoColor}"
         toRepo=" --to=${existingParamColor}${toRepo}${NoColor}"
+        output=" --output=${existingParamColor}${output}${NoColor}"
 
         printUsage
     fi

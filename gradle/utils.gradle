@@ -109,7 +109,7 @@ String SplitCamelCaseWithAbbreviations(s){
     def spl = s.split(/(?<=[a-z])(?=[A-Z])/)
     def out = ""
     for (def word in spl) {
-        out += word[0].toLowerCase()
+        out += word[0].toUpperCase()
     }
     return out
 }

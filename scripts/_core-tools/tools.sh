@@ -186,7 +186,7 @@ function throwError() {
     local errorCode=${2}
 
     if [[ ! "${errorCode}" ]]; then
-        errorCode=1
+        errorCode=666
     fi
 
     if [[ "${errorCode}" == "0" ]]; then

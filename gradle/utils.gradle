@@ -105,12 +105,23 @@ void defineDefaultVariantsAPK(String appName) {
     defineDefaultVariantsAPK(null, appName)
 }
 
+String SplitCamelCaseWithAbbreviations(s){
+    def spl = s.split(/(?<=[a-z])(?=[A-Z])/)
+    def out = ""
+    for (def word in spl) {
+        out += word[0].toUpperCase()
+    }
+    return out
+}
+
 void defineDefaultVariantsAPK(Object architectureFilter, String appName) {
     defineVariantsAPK(architectureFilter, { variant, output, versionName, versionCode, buildType, flavors, architecture ->
         def flavor = flavors.size() > 0 ? "-${flavors[0].name}" : ""
         def arch = architecture ? "-${architecture}" : ""
-        def buildLetter = buildType.toUpperCase().charAt(0)
-        "v${versionName}-${versionCode}-${buildLetter}${flavor}${arch}--${appName}.apk"
+//        def buildLetter = buildType.toUpperCase().charAt(0)
+        def buildLetters = SplitCamelCaseWithAbbreviations(buildType)
+
+        "v${versionName}-${versionCode}-${buildLetters}${flavor}${arch}--${appName}.apk"
     })
 }
 

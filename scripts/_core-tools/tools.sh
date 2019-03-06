@@ -185,6 +185,10 @@ function throwError() {
     local errorMessage=${1}
     local errorCode=${2}
 
+    if [[ ! "${errorCode}" ]]; then
+        errorCode=1
+    fi
+
     if [[ "${errorCode}" == "0" ]]; then
         return;
     fi
@@ -201,20 +205,32 @@ function throwError() {
     }
 
     function printStacktrace() {
-        for (( arg=1; arg<${#FUNCNAME[@]}; arg+=1 )); do
+        local length=0
+        for (( arg=2; arg<${#FUNCNAME[@]}; arg+=1 )); do
             local sourceFile=`fixSource "${BASH_SOURCE[${arg}]}"`
-            sourceFile=`printf "%45s" "${sourceFile}"`
+            if (( ${#sourceFile} > length )); then
+                length=${#sourceFile}
+            fi
+        done
+
+        logError "  Stack:"
+        for (( arg=2; arg<${#FUNCNAME[@]}; arg+=1 )); do
+            local sourceFile=`fixSource "${BASH_SOURCE[${arg}]}"`
+            sourceFile=`printf "%${length}s" "${sourceFile}"`
 
             local lineNumber="[${BASH_LINENO[${arg}-1]}]"
             lineNumber=`printf "%6s" "${lineNumber}"`
 
-            logError "${sourceFile} ${lineNumber} ${FUNCNAME[${arg}]}"
+            logError "    ${sourceFile} ${lineNumber} ${FUNCNAME[${arg}]}"
         done
     }
 
-    logError "Exiting with Error code: ${errorCode}"
-    logError "${errorMessage}"
+    logError
+    logError "  ERROR: ${errorMessage}"
     printStacktrace
+    logError
+    logError "Exiting with Error code: ${errorCode}"
+    echo
     exit ${errorCode}
 
 }

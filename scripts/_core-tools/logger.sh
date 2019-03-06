@@ -141,9 +141,9 @@ banner() {
     local level=$1
     local logMessage=$2
 
-    local add=$(echo "$logMessage" | sed 's/./-/g')
+    local add=$(echo "pureText" | sed 's/./-/g')
     log ${level} "+---$add---+"
-    log ${level} "|   ${logMessage}   |"
+    log ${level} "|   ${pureText}   |"
     log ${level} "+---$add---+"
 }
 

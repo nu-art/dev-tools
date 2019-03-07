@@ -291,6 +291,12 @@ function hasCommits() {
     if [[ `git status | grep "Your branch is ahead"` ]]; then echo true; else echo; fi
 }
 
+function gitAssertRepoClean() {
+    if [[ `hasConflicts` ]] || [[ `hasUntrackedFiles` ]] || [[ `hasChanged` ]]; then
+        throwError "Repo has changes... Repo MUST be clean"
+    fi
+}
+
 function gitNoConflictsAddCommitPush() {
     local submoduleName=${1}
     local branchName=${2}

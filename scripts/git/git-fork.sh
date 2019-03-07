@@ -23,7 +23,7 @@ source ${BASH_SOURCE%/*}/_core.sh
 runningDir=${PWD##*/}
 
 fromRepo=`gitGetRepoUrl`
-params=(debug toRepo fromRepo)
+params=(debug toRepo fromRepo output)
 
 function extractParams() {
     for paramValue in "${@}"; do

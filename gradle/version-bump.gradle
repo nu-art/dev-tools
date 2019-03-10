@@ -38,6 +38,9 @@ def getVersionNameFromFile(boolean withDevName) {
     if (enforcedVersionName)
         return enforcedVersionName
 
+    if (!project.hasProperty("pathToVersionFile"))
+        return "0.0.1"
+
     String versionNameFromFile = getVersionNameFromFile(pathToVersionFile)
 
     String developer = System.getenv('VERSION_NAME_DEVELOPER')

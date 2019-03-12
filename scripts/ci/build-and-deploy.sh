@@ -51,7 +51,7 @@ function build() {
 
     logInfo "bash gradlew clean ${gradleParams}"
     bash gradlew clean ${gradleParams}
-	checkExecutionError "Building projects"
+	throwError "Building projects" $?
 
   	logInfo "-----------------------------------     Build Completed      -----------------------------------"
   	logInfo "------------------------------------------------------------------------------------------------"
@@ -102,10 +102,12 @@ function buildDeployPush() {
     local modules=$(listGradleGitModulesFolders)
     local tasks=uploadArchives
 
-    build "${modules}" "${tasks}"
+    bash gradlew assembleDebug
+    throwError "Error compiling project in Debug" $?
 
-    checkExecutionError  "Error while building artifacts"
+    build "${modules}" "${tasks}"
+    throwError "Error while building artifacts" $?
 
     updateRepository "${modules}"
-    checkExecutionError  "Error while updating repos"
+    throwError "Error while updating repos" $?
 }

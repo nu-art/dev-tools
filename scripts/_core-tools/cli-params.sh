@@ -84,7 +84,7 @@ function printDebugParams() {
     fi
 
     local params=("${@}")
-    params=("${params[@]:1}")
+    params=("${params[@]}")
 
     function printParam() {
         if [[ ! "${2}" ]]; then

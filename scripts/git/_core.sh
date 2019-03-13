@@ -48,6 +48,13 @@ function gitCheckoutBranch() {
     fi
     return "${ErrorCode}"
 }
+function gitGetRepoUrl(){
+    if [[ "$(uname -v)" =~ "Darwin" ]]; then
+        echo `git remote -v | grep push | perl -pe 's/origin\s//' | perl -pe 's/\s\(push\)//'`
+    else
+        echo `git remote -v | grep push | sed -E 's/origin\s//' | sed -E 's/\s\(push\)//'`
+    fi
+}
 
 function gitAddAll() {
     logInfo "${GIT_TAG} git add all"
@@ -282,6 +289,12 @@ function hasChanged() {
 
 function hasCommits() {
     if [[ `git status | grep "Your branch is ahead"` ]]; then echo true; else echo; fi
+}
+
+function gitAssertRepoClean() {
+    if [[ `hasConflicts` ]] || [[ `hasUntrackedFiles` ]] || [[ `hasChanged` ]]; then
+        throwError "Repo has changes... Repo MUST be clean"
+    fi
 }
 
 function gitNoConflictsAddCommitPush() {

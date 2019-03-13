@@ -47,11 +47,23 @@ def addJavadocTask() {
 
 Object resolveDependency(String artifactId, String groupId, String version) {
     def file = new File(rootProject.projectDir.getAbsolutePath() + "/${artifactId}", "build.gradle")
-    return file.exists() ? project(":${artifactId}") : "${groupId}:${artifactId}:${version}"
+    if (file.exists())
+        try {
+            return project(":${artifactId}")
+        } catch (e) {
+            System.err.println("Error while resolving project: ${artifactId}")
+            return "${groupId}:${artifactId}:${version}"
+        }
+
+    return "${groupId}:${artifactId}:${version}"
 }
 
 void includeIfExists(String artifactId) {
-    def file = new File(rootProject.projectDir.getAbsolutePath() + "/${artifactId}", "build.gradle")
+    if (artifactId.startsWith(":"))
+        artifactId = artifactId.substring(1)
+
+    def folder = artifactId.replace(":", "/")
+    def file = new File(rootProject.projectDir.getAbsolutePath() + "/${folder}", "build.gradle")
     if (!file.exists())
         return
 
@@ -93,12 +105,23 @@ void defineDefaultVariantsAPK(String appName) {
     defineDefaultVariantsAPK(null, appName)
 }
 
+String SplitCamelCaseWithAbbreviations(s){
+    def spl = s.split(/(?<=[a-z])(?=[A-Z])/)
+    def out = ""
+    for (def word in spl) {
+        out += word[0].toUpperCase()
+    }
+    return out
+}
+
 void defineDefaultVariantsAPK(Object architectureFilter, String appName) {
     defineVariantsAPK(architectureFilter, { variant, output, versionName, versionCode, buildType, flavors, architecture ->
         def flavor = flavors.size() > 0 ? "-${flavors[0].name}" : ""
         def arch = architecture ? "-${architecture}" : ""
-        def buildLetter = buildType.toUpperCase().charAt(0)
-        "v${versionName}-${versionCode}-${buildLetter}${flavor}${arch}--${appName}.apk"
+//        def buildLetter = buildType.toUpperCase().charAt(0)
+        def buildLetters = SplitCamelCaseWithAbbreviations(buildType)
+
+        "v${versionName}-${versionCode}-${buildLetters}${flavor}${arch}--${appName}.apk"
     })
 }
 

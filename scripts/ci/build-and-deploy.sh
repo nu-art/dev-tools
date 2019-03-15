@@ -54,6 +54,7 @@ function build() {
     done
 
     bash gradlew  :closeAndReleaseRepository -i
+    throwError "Error deploying to central" $?
 
   	logInfo "-----------------------------------     Build Completed      -----------------------------------"
   	logInfo "------------------------------------------------------------------------------------------------"

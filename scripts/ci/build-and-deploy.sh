@@ -40,18 +40,20 @@ function build() {
 	local modules=(`echo $1`)
 	local tasks=(`echo $2`)
 
-    local gradleParams=""
 
     for moduleName in "${modules[@]}"; do
         echo ${moduleName}
+
+        local gradleParams=""
         for task in "${tasks[@]}"; do
             gradleParams+="${moduleName}:${task} "
         done
+
+        bash gradlew ${gradleParams}
+	    throwError "Building projects" $?
     done
 
-    logInfo "bash gradlew clean ${gradleParams}"
-    bash gradlew clean ${gradleParams}
-	throwError "Building projects" $?
+    bash gradlew  :closeAndReleaseRepository -i
 
   	logInfo "-----------------------------------     Build Completed      -----------------------------------"
   	logInfo "------------------------------------------------------------------------------------------------"

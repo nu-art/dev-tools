@@ -50,7 +50,7 @@ function setDefaultAndroidHome() {
         return
     fi
 
-    if [[ "$(uname -v)" =~ "Darwin" ]]; then
+    if [[ `isMacOS` ]]; then
         if [[ ! -e "/Users/${USER}/Library/Android/sdk" ]]; then
             local pathToAdb=`which adb`
             if [[ ${pathToAdb} ]]; then
@@ -264,6 +264,9 @@ function renameStringInFiles() {
     done
 }
 
+function isMacOS() {
+    if [[ "$(uname -v)" =~ "Darwin" ]]; then echo "true"; else echo; fi
+}
 #isNumeric 2 -100
 #isNumeric 4 -100
 #isNumeric e -100

@@ -40,18 +40,21 @@ function build() {
 	local modules=(`echo $1`)
 	local tasks=(`echo $2`)
 
-    local gradleParams=""
 
     for moduleName in "${modules[@]}"; do
         echo ${moduleName}
+
+        local gradleParams=""
         for task in "${tasks[@]}"; do
             gradleParams+="${moduleName}:${task} "
         done
+
+        bash gradlew ${gradleParams}
+	    throwError "Building projects" $?
     done
 
-    logInfo "bash gradlew clean ${gradleParams}"
-    bash gradlew clean ${gradleParams}
-	checkExecutionError "Building projects"
+    bash gradlew  :closeAndReleaseRepository -i
+    throwError "Error deploying to central" $?
 
   	logInfo "-----------------------------------     Build Completed      -----------------------------------"
   	logInfo "------------------------------------------------------------------------------------------------"
@@ -102,10 +105,12 @@ function buildDeployPush() {
     local modules=$(listGradleGitModulesFolders)
     local tasks=uploadArchives
 
-    build "${modules}" "${tasks}"
+    bash gradlew assembleDebug
+    throwError "Error compiling project in Debug" $?
 
-    checkExecutionError  "Error while building artifacts"
+    build "${modules}" "${tasks}"
+    throwError "Error while building artifacts" $?
 
     updateRepository "${modules}"
-    checkExecutionError  "Error while updating repos"
+    throwError "Error while updating repos" $?
 }

@@ -65,7 +65,7 @@ androidAppsFolder() {
 }
 
 allGradleFolders(){
-    if [[ -e "${1}/build.gradle" ]]; then
+    if [[ -e "${1}/build.gradle" ]] && [[ ! -e "${1}/settings.gradle" ]]; then
         echo true
         return
     fi

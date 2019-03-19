@@ -20,7 +20,7 @@
 #!/bin/bash
 
 installAndroidSDK() {
-    mkdir /var/lib/jenkins/android-sdk
+    sudo mkdir /var/lib/jenkins/android-sdk
     cd /var/lib/jenkins/android-sdk
 
     logInfo "Resolving latest Android tools SDK..."

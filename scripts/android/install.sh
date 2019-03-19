@@ -32,13 +32,13 @@ installAndroidSDK() {
     fi
 
     logInfo "Downloading Android tools SDK..."
-    wget https://dl.google.com/android/repository/${latestLinuxSDK}
+    sudo wget https://dl.google.com/android/repository/${latestLinuxSDK}
     throwError "Could not find latest Android tools SDK" $?
 
-    mv ${latestLinuxSDK} sdk-tools-linux.zip
+    sudo mv ${latestLinuxSDK} sdk-tools-linux.zip
 
     logInfo "Unzip Android tools SDK..."
-    unzip sdk-tools-linux.zip
+    sudo unzip sdk-tools-linux.zip
 
     logInfo "Allow permissions to jenkins"
     sudo chown -R jenkins:jenkins /var/lib/jenkins/android-sdk

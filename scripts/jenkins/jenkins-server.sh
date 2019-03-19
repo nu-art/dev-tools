@@ -19,41 +19,36 @@
 
 #!/bin/bash
 source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
-logInfo "apt-get update"
-sudo apt-get update
+function executeCommand() {
+    local command=${1}
+    local message=${2}
+    if [[ ! "${message}" ]]; then message="Running: ${1}"; fi
+    logInfo "${message}"
+    eval "${command}"
+    throwError "${message}" $?
+}
 
-logInfo "install unzip"
-sudo apt-get install -y unzip
-
-logInfo "install zip"
-sudo apt-get install -y zip
-
-logInfo "Installing sdkman"
-curl -s "https://get.sdkman.io" | bash
-source "/home/ubuntu/.sdkman/bin/sdkman-init.sh"
-
-sdk install groovy
-sdk install gradle
-
-wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -
-echo deb http://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list
-sudo apt-get update
-sudo apt-get install -y jenkins
-sudo systemctl start jenkins
-sudo systemctl status jenkins
-
-sudo ufw allow 8080
-sudo ufw allow 22
-sudo ufw enable
-sudo ufw status
-
-sudo add-apt-repository -y ppa:webupd8team/java
-sudo apt-get update
-sudo apt-get install -y oracle-java8-installer
-echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
-
-sudo cat /var/lib/jenkins/secrets/initialAdminPassword
-
+executeCommand "sudo apt-get update"
+executeCommand "sudo apt-get install -y unzip" "Installing unzip"
+executeCommand "sudo apt-get install -y zip" "Installing zip"
+executeCommand "curl -s \"https://get.sdkman.io\" | bash" "Downloading sdkman"
+executeCommand "source /home/ubuntu/.sdkman/bin/sdkman-init.sh" "Source sdkman"
+executeCommand "sdk install groovy" "Installing Groovy"
+executeCommand "sdk install gradle" "Installing Gradle"
+executeCommand "sudo add-apt-repository -y ppa:webupd8team/java" "Resolving Java repo"
+executeCommand "wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -" "Resolving Jenkins - 1"
+executeCommand "echo deb http://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list" "Resolving Jenkins - 2"
+executeCommand "sudo apt-get update"
+executeCommand "sudo apt-get install -y oracle-java8-installer" "Install Java8"
+executeCommand "echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections" "Accept Java8 agreement"
+executeCommand "sudo apt-get install -y jenkins" "Install Jenkins"
+executeCommand "sudo systemctl start jenkins" "Start Jenkins"
+executeCommand "sudo systemctl status jenkins" "Check Jenkins Status"
+executeCommand "sudo ufw allow 8080" "Open port 8080"
+executeCommand "sudo ufw allow 22" "Open port 22"
+executeCommand "sudo ufw enable" "Enable ufw"
+executeCommand "sudo ufw status" "Status of ufw"
+executeCommand "sudo cat /var/lib/jenkins/secrets/initialAdminPassword" "Displaying Jenkins Admin Password"
 
 installAndroidSDK() {
     mkdir /var/lib/jenkins/android-sdk

@@ -18,9 +18,17 @@
 #  limitations under the License.
 
 #!/bin/bash
+source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
+logInfo "apt-get update"
+sudo apt-get update
+
+logInfo "install unzip"
 sudo apt-get install -y unzip
+
+logInfo "install zip"
 sudo apt-get install -y zip
 
+logInfo "Installing sdkman"
 curl -s "https://get.sdkman.io" | bash
 source "/home/ubuntu/.sdkman/bin/sdkman-init.sh"
 
@@ -47,8 +55,6 @@ echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | su
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 
 
-
-
 installAndroidSDK() {
     mkdir /var/lib/jenkins/android-sdk
     cd /var/lib/jenkins/android-sdk
@@ -71,4 +77,5 @@ setupAndroidSDKAndNDK() {
     ANDROID_NDK_HOME=/var/lib/jenkins/android-sdk/ndk-bundle
     PATH=\$PATH:\$ANDROID_NDK_HOME/tools/bin
 }
+
 PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_NDK_HOME}/tools/bin

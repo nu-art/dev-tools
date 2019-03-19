@@ -19,4 +19,4 @@
 
 #!/bin/bash
 git clone git@github.com:nu-art/dev-tools.git
-bash ./dev-tools/scripts/server/_source.sh
+bash ./dev-tools/scripts/jenkins/_setup.sh

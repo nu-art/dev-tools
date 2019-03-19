@@ -19,6 +19,7 @@
 
 #!/bin/bash
 source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
+source ${BASH_SOURCE%/*}/../android/install.sh
 function executeCommand() {
     local command=${1}
     local message=${2}
@@ -48,29 +49,8 @@ executeCommand "sudo ufw allow 8080" "Open port 8080"
 executeCommand "sudo ufw allow 22" "Open port 22"
 executeCommand "sudo ufw enable" "Enable ufw"
 executeCommand "sudo ufw status" "Status of ufw"
+executeCommand "installAndroidSDK" "Install Android SDK"
+executeCommand "setupAndroidSDKAndNDK" "Setup Android SDK and NDK"
 executeCommand "sudo cat /var/lib/jenkins/secrets/initialAdminPassword" "Displaying Jenkins Admin Password"
-
-installAndroidSDK() {
-    mkdir /var/lib/jenkins/android-sdk
-    cd /var/lib/jenkins/android-sdk
-
-    wget https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip
-    mv sdk-tools-linux-3859397.zip sdk-tools-linux.zip
-    unzip sdk-tools-linux.zip
-
-    # Example of how to install packages
-    # /var/lib/jenkins/android-sdk/tools/bin/sdkmanager "platforms;android-24"
-
-    sudo chown -R jenkins:jenkins /var/lib/jenkins/android-sdk
-}
-
-setupAndroidSDKAndNDK() {
-    USE_SDK_WRAPPER=true
-    ANDROID_HOME=/var/lib/jenkins/android-sdk/
-    PATH=\$PATH:\$ANDROID_HOME/tools:\$ANDROID_HOME/tools/bin:\$ANDROID_HOME/platform-tools:\$ANDROID_NDK_HOME/tools/bin
-
-    ANDROID_NDK_HOME=/var/lib/jenkins/android-sdk/ndk-bundle
-    PATH=\$PATH:\$ANDROID_NDK_HOME/tools/bin
-}
 
 PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_NDK_HOME}/tools/bin

@@ -44,13 +44,14 @@ executeCommand "sudo apt-get install -y oracle-java8-installer" "Install Java8"
 executeCommand "echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections" "Accept Java8 agreement"
 executeCommand "sudo apt-get install -y jenkins" "Install Jenkins"
 executeCommand "sudo systemctl start jenkins" "Start Jenkins"
-executeCommand "sudo systemctl status jenkins" "Check Jenkins Status"
 executeCommand "sudo ufw allow 8080" "Open port 8080"
 executeCommand "sudo ufw allow 22" "Open port 22"
-executeCommand "sudo ufw enable" "Enable ufw"
 executeCommand "sudo ufw status" "Status of ufw"
 executeCommand "installAndroidSDK" "Install Android SDK"
 executeCommand "setupAndroidSDKAndNDK" "Setup Android SDK and NDK"
 executeCommand "sudo cat /var/lib/jenkins/secrets/initialAdminPassword" "Displaying Jenkins Admin Password"
 
 PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_NDK_HOME}/tools/bin
+
+#executeCommand "sudo ufw enable" "Enable ufw"
+#executeCommand "sudo systemctl status jenkins" "Check Jenkins Status"

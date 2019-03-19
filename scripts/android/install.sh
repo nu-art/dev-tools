@@ -33,7 +33,7 @@ installAndroidSDK() {
 
     logInfo "Downloading Android tools SDK..."
     wget https://dl.google.com/android/repository/${latestLinuxSDK}
-    throwError "Could not find latest Android tools SDK"
+    throwError "Could not find latest Android tools SDK"$ ?
 
     mv ${latestLinuxSDK} sdk-tools-linux.zip
 

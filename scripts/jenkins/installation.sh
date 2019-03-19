@@ -18,5 +18,9 @@
 #  limitations under the License.
 
 #!/bin/bash
-git clone git@github.com:nu-art/dev-tools.git
+if [[ -e "dev-tools" ]]; then
+    cd dev-tools && git pull && cd ..
+else
+    git clone https://github.com/nu-art/dev-tools.git
+fi
 bash ./dev-tools/scripts/jenkins/_setup.sh

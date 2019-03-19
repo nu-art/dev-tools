@@ -51,15 +51,14 @@ installAndroidSDK() {
 
 setupAndroidEnvironmentVariables() {
     if [[ ! `cat /etc/environment | grep USE_SDK_WRAPPER` ]]; then
-        sudo USE_SDK_WRAPPER=true >> /etc/environment
+        echo 'USE_SDK_WRAPPER=true' | sudo tee --append /etc/environment > /dev/null
     fi
 
     if [[ ! `cat /etc/environment | grep ANDROID_HOME` ]]; then
-        sudo ANDROID_HOME=/var/lib/jenkins/android-sdk/ >> /etc/environment
+        echo 'ANDROID_HOME=/var/lib/jenkins/android-sdk' | sudo tee --append /etc/environment > /dev/null
     fi
 
     if [[ ! `cat /etc/environment | grep ANDROID_NDK_HOME` ]]; then
-        sudo ANDROID_NDK_HOME=/var/lib/jenkins/android-sdk/ndk-bundle >> /etc/environment
+        echo 'ANDROID_NDK_HOME=/var/lib/jenkins/android-sdk/ndk-bundle' | sudo tee --append /etc/environment > /dev/null
     fi
-
 }

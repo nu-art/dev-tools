@@ -30,28 +30,50 @@ function executeCommand() {
 }
 
 executeCommand "sudo apt-get update"
-executeCommand "sudo apt-get install -y unzip" "Installing unzip"
-executeCommand "sudo apt-get install -y zip" "Installing zip"
+
+# Set 16 gb swap
+executeCommand "sudo fallocate -l 16G /swapfile" "Setup 16gb swapfile"
+executeCommand "sudo chmod 600 /swapfile" "chmod 600 for swapfile"
+executeCommand "sudo mkswap /swapfile" "Make swap to swapfile"
+executeCommand "sudo swapon /swapfile" "Enable swap"
+
+# Install Groovy & Gradle
 executeCommand "curl -s \"https://get.sdkman.io\" | bash" "Downloading sdkman"
 executeCommand "source /home/ubuntu/.sdkman/bin/sdkman-init.sh" "Source sdkman"
 executeCommand "sdk install groovy" "Installing Groovy"
 executeCommand "sdk install gradle" "Installing Gradle"
+
+# New repos for apt-get
 executeCommand "sudo add-apt-repository -y ppa:webupd8team/java" "Resolving Java repo"
 executeCommand "wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -" "Resolving Jenkins - 1"
 executeCommand "echo deb http://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list" "Resolving Jenkins - 2"
+
 executeCommand "sudo apt-get update"
+
+# Installing packages
+executeCommand "sudo apt-get install -y unzip" "Installing unzip"
+executeCommand "sudo apt-get install -y zip" "Installing zip"
+
+# Installing Java8
 executeCommand "sudo apt-get install -y oracle-java8-installer" "Install Java8"
 executeCommand "echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections" "Accept Java8 agreement"
+
+# Installing Jenkins
 executeCommand "sudo apt-get install -y jenkins" "Install Jenkins"
 executeCommand "sudo systemctl start jenkins" "Start Jenkins"
+
+# Open ports
 executeCommand "sudo ufw allow 8080" "Open port 8080"
 executeCommand "sudo ufw allow 22" "Open port 22"
 executeCommand "sudo ufw status" "Status of ufw"
+
+# Install Android SDK
 executeCommand "installAndroidSDK" "Install Android SDK"
 executeCommand "setupAndroidEnvironmentVariables" "Setup Android SDK and NDK Environment"
-executeCommand "sudo cat /var/lib/jenkins/secrets/initialAdminPassword" "Displaying Jenkins Admin Password"
 
-PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_NDK_HOME}/tools/bin
+
+executeCommand "sudo cat /var/lib/jenkins/secrets/initialAdminPassword" "Displaying Jenkins Admin Password"
 
 #executeCommand "sudo ufw enable" "Enable ufw"
 #executeCommand "sudo systemctl status jenkins" "Check Jenkins Status"
+

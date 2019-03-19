@@ -39,16 +39,27 @@ installAndroidSDK() {
 
     logInfo "Unzip Android tools SDK..."
     sudo unzip sdk-tools-linux.zip
+    throwError "Could not unzip Android SDK" $?
+
+    logInfo "Deleting sdk zip file"
+    sudo rm sdk-tools-linux.zip
+    throwError "Could delete zip file" $?
 
     logInfo "Allow permissions to jenkins"
     sudo chown -R jenkins:jenkins /var/lib/jenkins/android-sdk
 }
 
 setupAndroidEnvironmentVariables() {
-    USE_SDK_WRAPPER=true
-    ANDROID_HOME=/var/lib/jenkins/android-sdk/
-    PATH=\$PATH:\$ANDROID_HOME/tools:\$ANDROID_HOME/tools/bin:\$ANDROID_HOME/platform-tools:\$ANDROID_NDK_HOME/tools/bin
+    if [[ ! `cat /etc/environment | grep USE_SDK_WRAPPER` ]]; then
+        sudo USE_SDK_WRAPPER=true >> /etc/environment
+    fi
 
-    ANDROID_NDK_HOME=/var/lib/jenkins/android-sdk/ndk-bundle
-    PATH=\$PATH:\$ANDROID_NDK_HOME/tools/bin
+    if [[ ! `cat /etc/environment | grep ANDROID_HOME` ]]; then
+        sudo ANDROID_HOME=/var/lib/jenkins/android-sdk/ >> /etc/environment
+    fi
+
+    if [[ ! `cat /etc/environment | grep ANDROID_NDK_HOME` ]]; then
+        sudo ANDROID_NDK_HOME=/var/lib/jenkins/android-sdk/ndk-bundle >> /etc/environment
+    fi
+
 }

@@ -48,7 +48,7 @@ executeCommand "sudo ufw allow 8080" "Open port 8080"
 executeCommand "sudo ufw allow 22" "Open port 22"
 executeCommand "sudo ufw status" "Status of ufw"
 executeCommand "installAndroidSDK" "Install Android SDK"
-executeCommand "setupAndroidSDKAndNDK" "Setup Android SDK and NDK"
+executeCommand "setupAndroidEnvironmentVariables" "Setup Android SDK and NDK Environment"
 executeCommand "sudo cat /var/lib/jenkins/secrets/initialAdminPassword" "Displaying Jenkins Admin Password"
 
 PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools:${ANDROID_NDK_HOME}/tools/bin

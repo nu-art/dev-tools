@@ -18,8 +18,8 @@
 #  limitations under the License.
 
 #!/bin/bash
-source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
-source ${BASH_SOURCE%/*}/../android/install.sh
+source ${BASH_SOURCE%/*}/../android/_source.sh
+
 function executeCommand() {
     local command=${1}
     local message=${2}

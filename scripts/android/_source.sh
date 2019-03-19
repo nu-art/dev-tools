@@ -20,4 +20,5 @@
 #!/bin/bash
 
 source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
+source ${BASH_SOURCE%/*}/install.sh
 source ${BASH_SOURCE%/*}/tools.sh

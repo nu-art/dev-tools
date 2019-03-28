@@ -141,16 +141,16 @@ function processSubmodule() {
     done
 }
 
-#processSubmodule "${runningDir}"
-#
-#for pid in "${pids[@]}"; do
-#    wait ${pid}
-#done
-#
-#
-#if [[ ! "${githubUserName}" == "TacB0sS" ]]; then
-#    git submodule update dev-tools
-#fi
+processSubmodule "${runningDir}"
+
+for pid in "${pids[@]}"; do
+    wait ${pid}
+done
+
+
+if [[ ! "${githubUserName}" == "TacB0sS" ]]; then
+    git submodule update dev-tools
+fi
 
 
 listGitFolders "${projectsToIgnore}"

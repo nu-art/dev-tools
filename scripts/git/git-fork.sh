@@ -93,14 +93,12 @@ printDebugParams ${debug} "${params[@]}"
 
 targetName=../temp-repo.git
 logInfo "Cloning: ${fromRepo} => ${targetName}"
+
 git clone --bare ${fromRepo} ${targetName}
 cd ${targetName}
-
-logInfo "Mirroring: ${targetName} => ${toRepo}"
-git push --mirror ${toRepo}
+    logInfo "Mirroring: ${targetName} => ${toRepo}"
+    git push --mirror ${toRepo}
 cd -
 rm -rf ${targetName}
 
-cd ${output}
-    git clone --recursive ${toRepo}
-cd -
+git clone --recursive ${toRepo} ${output}

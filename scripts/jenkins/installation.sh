@@ -18,7 +18,9 @@
 #  limitations under the License.
 
 #!/bin/bash
-
-source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
-source ${BASH_SOURCE%/*}/install.sh
-source ${BASH_SOURCE%/*}/tools.sh
+if [[ -e "dev-tools" ]]; then
+    cd dev-tools && git pull && cd ..
+else
+    git clone https://github.com/nu-art/dev-tools.git
+fi
+bash ./dev-tools/scripts/jenkins/_setup.sh

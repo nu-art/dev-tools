@@ -33,12 +33,13 @@ allGitFolders() {
 }
 
 gitFolders() {
-    if [[ "${1}" == "dev-tools" ]]; then
+    local module=${1}
+    if [[ "${module}" == "dev-tools" ]]; then
         echo false
         return
     fi
 
-    if [[ -e "${1}/.git" ]]; then
+    if [[ -e "${module}/.git" ]]; then
         echo true
         return
     fi
@@ -82,7 +83,8 @@ listFoldersImpl() {
         folderName="${folderName:0: -1}"
         add=true
         for (( arg=1; arg<=$#; arg+=1 )); do
-            if [[ "`${!arg} \"${folderName}\"`" == "false" ]]; then
+            local result=`${!arg} ${folderName}`
+            if [[ "${result}" == "false" ]]; then
                 add=
                 break
             fi

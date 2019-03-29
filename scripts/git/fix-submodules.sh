@@ -28,13 +28,8 @@ directories=$(listAllGitFolders)
 directories=(${directories//,/ })
 for folderName in "${directories[@]}"; do
     pushd ${folderName} >> /dev/null
-#
-        if [[ "$(uname -v)" =~ "Darwin" ]]; then
-            url=`git remote -v | grep push | perl -pe 's/origin\s//' | perl -pe 's/\s\(push\)//'`
-        else
-            url=`git remote -v | grep push | sed -E 's/origin\s//' | sed -E 's/\s\(push\)//'`
-        fi
-        branch=`git status | grep -e 'On branch' | sed -E 's/On branch//'`
+        url=`gitGetRepoUrl`
+        branch=`gitGetCurrentBranch`
 
         if [[ ! "${branch}" ]]; then
             branch=master
@@ -49,4 +44,4 @@ for folderName in "${directories[@]}"; do
     git submodule add ${url} ${folderName}
 done
 
-logVerbose $"${finalOutput}" > ./.gitmodules
+echo "${finalOutput}" > ./.gitmodules

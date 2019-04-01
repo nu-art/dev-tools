@@ -48,8 +48,9 @@ function gitCheckoutBranch() {
     fi
     return "${ErrorCode}"
 }
+
 function gitGetRepoUrl(){
-    if [[ "$(uname -v)" =~ "Darwin" ]]; then
+    if [[ `isMacOS` ]]; then
         echo `git remote -v | grep push | perl -pe 's/origin\s//' | perl -pe 's/\s\(push\)//'`
     else
         echo `git remote -v | grep push | sed -E 's/origin\s//' | sed -E 's/\s\(push\)//'`
@@ -271,10 +272,6 @@ function getAllNoneProjectSubmodules() {
     echo "${repos[@]}"
 }
 
-function getGitRepoName() {
-    echo `git remote -v | head -1 | perl -pe "s/.*:(.*?)(:?.git| ).*/\1/"`
-}
-
 function hasUntrackedFiles() {
     if [[ `git status | grep "Untracked files:"` ]]; then echo true; else echo; fi
 }
@@ -289,6 +286,14 @@ function hasChanged() {
 
 function hasCommits() {
     if [[ `git status | grep "Your branch is ahead"` ]]; then echo true; else echo; fi
+}
+
+function gitAssertOrigin() {
+    local expectedOrigin=${1}
+    local currentOrigin=`gitGetRepoUrl`
+    if [[]]; then
+        throwError "Expected origin: ${expectedOrigin}\n Found Origin: ${currentOrigin}"
+    fi
 }
 
 function gitAssertRepoClean() {

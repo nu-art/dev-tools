@@ -21,7 +21,7 @@
 
 source ${BASH_SOURCE%/*}/_core.sh
 
-runningDir=${PWD##*/}
+runningDir=`getRunningDir`
 paramColor=${BRed}
 
 projectsToIgnore=("dev-tools")

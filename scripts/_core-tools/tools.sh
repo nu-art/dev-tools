@@ -18,6 +18,9 @@
 #  limitations under the License.
 
 #!/bin/bash
+function getRunningDir(){
+    echo ${PWD##*/}
+}
 
 function contains() {
     local array=(${@:2})

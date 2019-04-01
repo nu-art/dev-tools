@@ -25,7 +25,7 @@ pids=()
 projectsToIgnore=("dev-tools")
 stashName="pull-all-script"
 scope="changed"
-runningDir=${PWD##*/}
+runningDir=`getRunningDir`
 mainRepoBranch=`gitGetCurrentBranch`
 
 params=(stashName scope mainRepoBranch)
@@ -69,7 +69,7 @@ printDebugParams ${debug} "${params[@]}"
 
 function execute() {
     local submoduleBranch=`gitGetCurrentBranch`
-    local runningDir=${PWD##*/}
+runningDir=`getRunningDir`
 
     if [[ "${mainRepoBranch}" != "${submoduleBranch}" ]]; then
         cd .. > /dev/null

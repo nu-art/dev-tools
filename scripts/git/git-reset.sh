@@ -22,7 +22,7 @@
 projectsToIgnore=("dev-tools")
 source ${BASH_SOURCE%/*}/_core.sh
 scope="changed"
-runningDir=${PWD##*/}
+runningDir=`getRunningDir`
 
 params=(origin scope branchName)
 

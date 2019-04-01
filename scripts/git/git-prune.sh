@@ -22,7 +22,7 @@
 source ${BASH_SOURCE%/*}/_core.sh
 
 projectsToIgnore=("dev-tools")
-runningDir=${PWD##*/}
+runningDir=`getRunningDir`
 
 function processFolder() {
     git remote prune origin

@@ -21,7 +21,7 @@
 
 source ${BASH_SOURCE%/*}/_core.sh
 
-runningDir=${PWD##*/}
+runningDir=`getRunningDir`
 projectsToIgnore=("dev-tools")
 params=(branchName scope commitMessage noPointers projectsToIgnore noPush)
 scope="changed"

@@ -21,7 +21,7 @@
 
 source ${BASH_SOURCE%/*}/_core.sh
 
-runningDir=${PWD##*/}
+runningDir=`getRunningDir`
 projectsToIgnore=("dev-tools")
 params=(fromBranch toBranch)
 scope="conflict"

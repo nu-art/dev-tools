@@ -297,6 +297,14 @@ function gitAssertRepoClean() {
     fi
 }
 
+function gitAssertBranch() {
+    local assertionBranch=${1}
+    local branch=`gitGetCurrentBranch`
+    if [[ "${branch}" != "${assertionBranch}" ]]; then
+        throwError "In order to promote a app version you MUST be on branch: ${assertionBranch}!!!\n  found: branch ${branch} in `getRunningDir`"
+    fi
+}
+
 function gitNoConflictsAddCommitPush() {
     local submoduleName=${1}
     local branchName=${2}

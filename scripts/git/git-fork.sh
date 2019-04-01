@@ -20,7 +20,7 @@
 #!/bin/bash
 
 source ${BASH_SOURCE%/*}/_core.sh
-runningDir=${PWD##*/}
+runningDir=`getRunningDir`
 
 fromRepo=`gitGetRepoUrl`
 params=(debug toRepo fromRepo output)

@@ -21,7 +21,7 @@
 
 source ${BASH_SOURCE%/*}/_core.sh
 
-runningDir=${PWD##*/}
+runningDir=`getRunningDir`
 projectsToIgnore=("dev-tools")
 scope="changed"
 grepFilter="HEAD detached|Processing|Your branch|modified|On branch|\^"

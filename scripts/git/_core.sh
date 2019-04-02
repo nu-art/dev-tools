@@ -291,7 +291,7 @@ function hasCommits() {
 function gitAssertOrigin() {
     local expectedOrigin=${1}
     local currentOrigin=`gitGetRepoUrl`
-    if [[]]; then
+    if [[ "${currentOrigin}" != "${expectedOrigin}" ]]; then
         throwError "Expected origin: ${expectedOrigin}\n Found Origin: ${currentOrigin}"
     fi
 }

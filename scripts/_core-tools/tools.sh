@@ -197,7 +197,7 @@ function throwError() {
     fi
 
     function fixSource() {
-        local file=`echo "${1}" | sed -E "s/(.*)\/[a-zA-z_-]+\/\.\.\/(.*)/\1\/\2/"`
+        local file=`echo "${1}" | sed -E "s/(.*)\/[a-zA-Z_-]+\/\.\.\/(.*)/\1\/\2/"`
 
         if [[ "${file}" == "${1}" ]]; then
             echo "${file}"

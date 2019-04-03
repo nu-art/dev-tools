@@ -26,7 +26,7 @@ function executeCommand() {
     if [[ ! "${message}" ]]; then message="Running: ${1}"; fi
     logInfo "${message}"
     eval "${command}"
-    throwError "${message}" $?
+    throwError "${message}"
 }
 
 executeCommand "sudo apt-get update"

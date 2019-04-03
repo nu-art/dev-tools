@@ -304,7 +304,7 @@ function buildImpl() {
     fi
 
     execute "bash gradlew${clean}${command}${offline} " "Building '${appName}'..."
-    checkExecutionError "Build error..."
+    throwError "Build error..."
 }
 
 function deleteApksImpl() {

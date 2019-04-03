@@ -18,10 +18,6 @@
 #  limitations under the License.
 
 #!/bin/bash
-function getRunningDir(){
-    echo ${PWD##*/}
-}
-
 function contains() {
     local array=(${@:2})
     for i in "${array[@]}"; do
@@ -90,21 +86,14 @@ function execute() {
     local errorCode=
     if [[ "${indentOutput}" == "false" ]]; then
         ${command}
-        errorCode=$?
     else
         ${command} | indent "    "
-        errorCode=$?
     fi
+
     logVerbose
+    throwError "${message}"
 
     return ${errorCode}
-}
-
-function deleteFolder() {
-    local folderName=${1}
-    logInfo "Deleting folder: ${folderName}"
-    rm -rf "${folderName}"
-    checkExecutionError
 }
 
 function executeProcessor() {
@@ -135,11 +124,11 @@ function yesOrNoQuestion() {
     case "$response" in
         [yY])
                 eval ${toExecuteYes}
-                throwError "Error executing: ${toExecuteYes}" $?
+                throwError "Error executing: ${toExecuteYes}"
             ;;
         [nN])
                 eval ${toExecuteNo}
-                throwError "Error executing: ${toExecuteNo}" $?
+                throwError "Error executing: ${toExecuteNo}"
             ;;
         *)
                 logError "Canceling..."
@@ -184,92 +173,6 @@ function isNumeric() {
     echo "${1}"
 }
 
-function throwError() {
-    local errorMessage=${1}
-    local errorCode=${2}
-
-    if [[ ! "${errorCode}" ]]; then
-        errorCode=666
-    fi
-
-    if [[ "${errorCode}" == "0" ]]; then
-        return;
-    fi
-
-    function fixSource() {
-        local file=`echo "${1}" | sed -E "s/(.*)\/[a-zA-Z_-]+\/\.\.\/(.*)/\1\/\2/"`
-
-        if [[ "${file}" == "${1}" ]]; then
-            echo "${file}"
-            return;
-        fi
-
-        fixSource "${file}"
-    }
-
-    function printStacktrace() {
-        local length=0
-        for (( arg=2; arg<${#FUNCNAME[@]}; arg+=1 )); do
-            local sourceFile=`fixSource "${BASH_SOURCE[${arg}]}"`
-            if (( ${#sourceFile} > length )); then
-                length=${#sourceFile}
-            fi
-        done
-
-        logError "  Stack:"
-        for (( arg=2; arg<${#FUNCNAME[@]}; arg+=1 )); do
-            local sourceFile=`fixSource "${BASH_SOURCE[${arg}]}"`
-            sourceFile=`printf "%${length}s" "${sourceFile}"`
-
-            local lineNumber="[${BASH_LINENO[${arg}-1]}]"
-            lineNumber=`printf "%6s" "${lineNumber}"`
-
-            logError "    ${sourceFile} ${lineNumber} ${FUNCNAME[${arg}]}"
-        done
-    }
-
-    logError
-    logError "  ERROR: ${errorMessage}"
-    printStacktrace
-    logError
-    logError "Exiting with Error code: ${errorCode}"
-    echo
-    exit ${errorCode}
-
-}
-
-function createDir() {
-    local pathToDir="${1}"
-    if [[ ! -e "${pathToDir}" ]]; then
-        mkdir -p "${pathToDir}"
-    fi
-}
-
-function renameFiles() {
-    local rootFolder=${1}
-    local matchPattern=${2}
-    local replaceWith=${3}
-
-    local files=(`find "${rootFolder}" -iname "*${matchPattern}*"`)
-    for file in ${files[@]} ; do
-        local newFile=`echo ${file} | sed -E "s/${matchPattern}/${replaceWith}/g"`
-        mv ${file} ${newFile}
-    done
-}
-
-function renameStringInFiles() {
-    local rootFolder=${1}
-    local matchPattern=${2}
-    local replaceWith="${3}"
-    local files=(`grep -rl ${matchPattern} "${rootFolder}"`)
-    for file in ${files[@]} ; do
-        sed -i '' -E "s/${matchPattern}/${replaceWith}/g" ${file}
-    done
-}
-
 function isMacOS() {
     if [[ "$(uname -v)" =~ "Darwin" ]]; then echo "true"; else echo; fi
 }
-#isNumeric 2 -100
-#isNumeric 4 -100
-#isNumeric e -100

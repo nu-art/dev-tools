@@ -72,7 +72,7 @@ function gitSaveStash() {
     local stashName=${1}
     logInfo "${GIT_TAG} Stashing changes with message: ${stashName}"
     local result=`git stash save "${stashName}"`
-    checkExecutionError
+    throwError "Error stashing changes"
 }
 
 function gitStashPop() {
@@ -101,7 +101,7 @@ function gitRemoveSubmoduleFromCache() {
     local pathToFile=${1}
     logInfo "${GIT_TAG} Removing file from git: ${pathToFile}"
     git rm -rf --cache "${pathToFile}"
-    checkExecutionError
+    throwError "Removing submodule `getRunningDir` from cache"
 }
 
 function gitCloneRepoByUrl() {
@@ -109,7 +109,7 @@ function gitCloneRepoByUrl() {
     local recursive=${recursive}
     logInfo "${GIT_TAG} Cloning repo from url: ${repoUrl}"
     git clone "${repoUrl}" ${recursive}
-    checkExecutionError
+    throwError "Cloning repo!"
 }
 
 
@@ -135,23 +135,25 @@ function gitTag() {
     local message=$2
     logInfo "${GIT_TAG} Creating tag \"${tag}\" with message: ${message}"
     git tag -a ${tag} -am "${message}"
-    checkExecutionError
+    throwError "Setting Tag"
 }
 
 function gitPush() {
     logInfo "${GIT_TAG} Pushing to origin..."
     local branchName=${1}
     local output=`git push`
+    local ErrorCode=$?
     if [[ "${branchName}" ]] && [[ "${output}" =~ "has no upstream branch" ]]; then
         git push --set-upstream origin ${branchName}
+        ErrorCode=$?
     fi
-    checkExecutionError
+    throwError "Pushing to ${branchName}" ${ErrorCode}
 }
 
 function gitPushTags() {
     logInfo "${GIT_TAG} Pushing tags to origin..."
     git push --tags
-    checkExecutionError
+    throwError "Pushing tags"
 }
 
 function gitResetHard() {
@@ -164,7 +166,7 @@ function gitUpdateSubmodules() {
     local submodules=(${@})
     logInfo "${GIT_TAG} Updating Submodules: ${submodules[@]}"
     git submodule update --init ${submodules[@]}
-    checkExecutionError
+    throwError "Updating submodules"
 }
 
 function gitCommitAndTagAndPush() {
@@ -323,17 +325,17 @@ function gitNoConflictsAddCommitPush() {
 
     if [[ `hasUntrackedFiles` ]]; then
         gitAddAll
-        throwError "Error adding files" $?
+        throwError "Error adding files"
     fi
 
     if [[ `hasChanged` ]]; then
         gitCommit "${commitMessage}"
-        throwError "Error committing changes" $?
+        throwError "Error committing changes"
     fi
 
     if [[ `hasCommits` ]] && [[ ! "${noPush}" ]]; then
         gitPush ${branchName}
-        throwError "Error pushing changes" $?
+        throwError "Error pushing changes"
         if [[ `hasCommits` ]]; then
             throwError "Failed to push... probably need to pull" 2
         fi

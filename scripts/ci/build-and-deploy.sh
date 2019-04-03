@@ -50,11 +50,11 @@ function build() {
         done
 
         bash gradlew ${gradleParams}
-	    throwError "Building projects" $?
+	    throwError "Building projects"
     done
 
     bash gradlew  :closeAndReleaseRepository -i
-    throwError "Error deploying to central" $?
+    throwError "Error deploying to central"
 
   	logInfo "-----------------------------------     Build Completed      -----------------------------------"
   	logInfo "------------------------------------------------------------------------------------------------"
@@ -106,11 +106,11 @@ function buildDeployPush() {
     local tasks=uploadArchives
 
     bash gradlew assembleDebug
-    throwError "Error compiling project in Debug" $?
+    throwError "Error compiling project in Debug"
 
     build "${modules}" "${tasks}"
-    throwError "Error while building artifacts" $?
+    throwError "Error while building artifacts"
 
     updateRepository "${modules}"
-    throwError "Error while updating repos" $?
+    throwError "Error while updating repos"
 }

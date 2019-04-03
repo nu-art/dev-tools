@@ -25,7 +25,7 @@ function getFolderId {
     folderId=`gdrive list --name-width 0 --no-header --query "mimeType='application/vnd.google-apps.folder'andname='${folderName}'"`
     folderId=`echo ${folderId} | awk '{print $1}'`
 
-	checkExecutionError "Error getting the folder id"
+	throwError "Error getting the folder id"
 
 	echo "${folderId}"
 }
@@ -36,7 +36,7 @@ function getFileId {
     local fileId=`gdrive list --name-width 0 --no-header --query "name='${fileName}'"`
     fileId=`echo ${fileId} | awk '{print $1}'`
 
-	checkExecutionError "Error getting the file id"
+	throwError "Error getting the file id"
 
 	echo "${fileId}"
 }
@@ -51,5 +51,5 @@ function upload {
         gdrive upload "${fileName}"
     fi
 
-	checkExecutionError "Error uploading ${fileName} => ${parentFolder}"
+	throwError "Error uploading ${fileName} => ${parentFolder}"
 }

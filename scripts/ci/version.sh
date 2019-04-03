@@ -27,7 +27,7 @@ function incrementVersionCode() {
 
     logInfo "bash gradlew :incrementVersionCode -PpathToVersionFile=${pathToVersionFile}"
     bash gradlew ":incrementVersionCode" "-PpathToVersionFile=${pathToVersionFile}"
-    checkExecutionError  "Error incrementing version code"
+    throwError "Error incrementing version code"
 }
 
 function incrementVersionName() {
@@ -37,7 +37,7 @@ function incrementVersionName() {
 
     logInfo "bash gradlew :incrementVersionName -PpathToVersionFile=${pathToVersionFile} -PpromoteVersion=${promoteVersion}"
     bash gradlew ":incrementVersionName" "-PpathToVersionFile=${pathToVersionFile}" "-PpromoteVersion=${promoteVersion}"
-    checkExecutionError  "Error incrementing '${promoteVersion}' version name"
+    throwError "Error incrementing '${promoteVersion}' version name"
 }
 
 function getVersionFileName() {

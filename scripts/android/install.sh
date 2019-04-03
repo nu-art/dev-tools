@@ -25,7 +25,7 @@ installAndroidSDK() {
 
     logInfo "Resolving latest Android tools SDK..."
     local latestLinuxSDK=`curl -s "https://developer.android.com/studio#downloads" | grep sdk-tools-linux-[0-9] | head -1 | sed -E "s/.*(sdk-tools-linux-.*.zip).*/\1/"`
-    throwError "Error resolving latest Android tools SDK" $?
+    throwError "Error resolving latest Android tools SDK"
 
     if [[ ! "${latestLinuxSDK}" ]]; then
         throwError "Could not find latest Android tools SDK"
@@ -33,17 +33,17 @@ installAndroidSDK() {
 
     logInfo "Downloading Android tools SDK..."
     sudo wget https://dl.google.com/android/repository/${latestLinuxSDK}
-    throwError "Could not find latest Android tools SDK" $?
+    throwError "Could not find latest Android tools SDK"
 
     sudo mv ${latestLinuxSDK} sdk-tools-linux.zip
 
     logInfo "Unzip Android tools SDK..."
     sudo unzip sdk-tools-linux.zip
-    throwError "Could not unzip Android SDK" $?
+    throwError "Could not unzip Android SDK"
 
     logInfo "Deleting sdk zip file"
     sudo rm sdk-tools-linux.zip
-    throwError "Could delete zip file" $?
+    throwError "Could delete zip file"
 
     logInfo "Allow permissions to jenkins"
     sudo chown -R jenkins:jenkins /var/lib/jenkins/android-sdk

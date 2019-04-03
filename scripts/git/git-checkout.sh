@@ -102,8 +102,7 @@ function processSubmodule() {
     local errorCode=$?
 
     if [[ "${#submodules[@]}" -gt "0" ]]; then
-        forceError ${errorCode}
-        checkExecutionError "Error checking out branch"
+        throwError "Error checking out branch" ${errorCode}
 
         for submoduleName in "${submodules[@]}"; do
             cd ${submoduleName}

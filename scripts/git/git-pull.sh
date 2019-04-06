@@ -151,6 +151,3 @@ done
 if [[ ! "${githubUserName}" == "TacB0sS" ]]; then
     git submodule update dev-tools
 fi
-
-
-listGitFolders "${projectsToIgnore}"

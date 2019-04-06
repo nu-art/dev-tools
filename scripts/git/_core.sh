@@ -97,6 +97,10 @@ function gitPullRepo() {
     git pull ${silent}
 }
 
+function gitFetchRepo() {
+    git fetch
+}
+
 function gitRemoveSubmoduleFromCache() {
     local pathToFile=${1}
     logInfo "${GIT_TAG} Removing file from git: ${pathToFile}"
@@ -290,11 +294,21 @@ function hasCommits() {
     if [[ `git status | grep "Your branch is ahead"` ]]; then echo true; else echo; fi
 }
 
+function hasCommitsToPull() {
+    if [[ `git status | grep "Your branch is behind"` ]]; then echo true; else echo; fi
+}
+
 function gitAssertOrigin() {
     local expectedOrigin=${1}
     local currentOrigin=`gitGetRepoUrl`
     if [[ "${currentOrigin}" != "${expectedOrigin}" ]]; then
         throwError "Expected origin: ${expectedOrigin}\n Found Origin: ${currentOrigin}"
+    fi
+}
+
+function gitAssertNoCommitsToPull() {
+    if [[ `hasCommitsToPull` ]]; then
+        throwError "Repo is not up to date... you got to pull it baby..."
     fi
 }
 

@@ -18,6 +18,7 @@
 #  limitations under the License.
 
 #!/bin/bash
+
 function contains() {
     local array=(${@:2})
     for i in "${array[@]}"; do
@@ -26,22 +27,6 @@ function contains() {
             return
         fi
     done
-}
-
-function sedFunc() {
-    local data=$1
-    local pattern=$2
-    local command
-
-    if [[ "$(uname -v)" =~ "Darwin" ]]; then
-        command="perl -pe"
-    else
-        command="sed -E"
-    fi
-
-    local result=`echo "${data}" | ${command} "${pattern}"`
-
-    echo "${result}"
 }
 
 function setDefaultAndroidHome() {
@@ -61,10 +46,6 @@ function setDefaultAndroidHome() {
     else
         ANDROID_HOME="~/Android/sdk"
     fi
-}
-
-function indent() {
-    sed "s/^/${1}/";
 }
 
 function execute() {
@@ -94,22 +75,6 @@ function execute() {
     throwError "${message}"
 
     return ${errorCode}
-}
-
-function executeProcessor() {
-    local processor=${1}
-    local dataFetcher=(${2})
-    local data=(`${dataFetcher}`)
-
-#    echo "processor: ${processor}"
-#    echo "data: ${data[@]}"
-    for dataItem in "${data[@]}"; do
-        bannerDebug "Processing: ${dataItem}"
-        ${processor} ${dataItem}
-        logVerbose "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
-        logVerbose
-    done
-
 }
 
 function yesOrNoQuestion() {
@@ -173,6 +138,66 @@ function isNumeric() {
     echo "${1}"
 }
 
+function killProcess() {
+    local processName=${1}
+    local killMethod=${2} || 15
+
+    if [[ `isMacOS` ]]; then
+        kill ${killMethod} ${processName}
+    else
+        kill -${killMethod} ${processName}
+    fi
+}
+
+function killAllProcess() {
+    local processName=${1}
+    local killMethod=${2} || 15
+
+    if [[ `isMacOS` ]]; then
+        killall ${killMethod} ${processName}
+    else
+        killall -${killMethod} ${processName}
+    fi
+}
+
 function isMacOS() {
     if [[ "$(uname -v)" =~ "Darwin" ]]; then echo "true"; else echo; fi
+}
+
+# To reconsider
+
+function sedFunc() {
+    local data=$1
+    local pattern=$2
+    local command
+
+    if [[ `isMacOS` ]]; then
+        command="perl -pe"
+    else
+        command="sed -E"
+    fi
+
+    local result=`echo "${data}" | ${command} "${pattern}"`
+
+    echo "${result}"
+}
+
+function indent() {
+    sed "s/^/${1}/";
+}
+
+function executeProcessor() {
+    local processor=${1}
+    local dataFetcher=(${2})
+    local data=(`${dataFetcher}`)
+
+#    echo "processor: ${processor}"
+#    echo "data: ${data[@]}"
+    for dataItem in "${data[@]}"; do
+        bannerDebug "Processing: ${dataItem}"
+        ${processor} ${dataItem}
+        logVerbose "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+        logVerbose
+    done
+
 }

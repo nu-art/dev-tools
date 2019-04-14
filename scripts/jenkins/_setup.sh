@@ -62,6 +62,10 @@ executeCommand "echo oracle-java8-installer shared/accepted-oracle-license-v1-1 
 executeCommand "sudo apt-get install -y jenkins" "Install Jenkins"
 executeCommand "sudo systemctl start jenkins" "Start Jenkins"
 
+# Installing Node & npm
+executeCommand "curl -sL https://deb.nodesource.com/setup_8.x | sudo bash -" "Install Node & npm"
+executeCommand "sudo apt-get install -y nodejs"
+
 # Open ports
 executeCommand "sudo ufw allow 8080" "Open port 8080"
 executeCommand "sudo ufw allow 22" "Open port 22"

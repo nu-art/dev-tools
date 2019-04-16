@@ -67,12 +67,14 @@ function execute() {
     local errorCode=
     if [[ "${indentOutput}" == "false" ]]; then
         ${command}
+        errorCode=$?
     else
         ${command} | indent "    "
+        errorCode=$?
     fi
 
     logVerbose
-    throwError "${message}"
+    throwError "${message}" ${errorCode}
 
     return ${errorCode}
 }

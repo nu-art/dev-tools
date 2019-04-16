@@ -27,7 +27,7 @@ function getVersionFileName() {
     fi
 
     if [[ ! -e "${versionFile}" ]]; then
-        throwError "No such version file: ${versionFile}"
+        throwError "No such version file: ${versionFile}" 2
     fi
 
     echo "${versionFile}"

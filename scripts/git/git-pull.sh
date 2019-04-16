@@ -133,7 +133,7 @@ function processSubmodule() {
 
     for submodule in "${submodules[@]}"; do
         if [[ ! -e ${submodule} ]]; then
-            throwError "could not find Folder: ${submodule}"
+            throwError "could not find Folder: ${submodule}" 2
         fi
         cd ${submodule}
             processSubmodule "${mainModule}/${submodule}"

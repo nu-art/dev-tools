@@ -60,6 +60,7 @@ function gitGetRepoUrl(){
 function gitAddAll() {
     logInfo "${GIT_TAG} git add all"
     git add .
+    return $?
 }
 
 function gitAdd() {
@@ -126,6 +127,7 @@ function gitCommit() {
     local message=$1
     logInfo "${GIT_TAG} Commit with message: ${message}"
     git commit -am "${message}"
+    return $?
 }
 
 function gitMerge() {
@@ -302,19 +304,19 @@ function gitAssertOrigin() {
     local expectedOrigin=${1}
     local currentOrigin=`gitGetRepoUrl`
     if [[ "${currentOrigin}" != "${expectedOrigin}" ]]; then
-        throwError "Expected origin: ${expectedOrigin}\n Found Origin: ${currentOrigin}"
+        throwError "Expected origin: ${expectedOrigin}\n Found Origin: ${currentOrigin}" 2
     fi
 }
 
 function gitAssertNoCommitsToPull() {
     if [[ `hasCommitsToPull` ]]; then
-        throwError "Repo is not up to date... you got to pull it baby..."
+        throwError "Repo is not up to date... you got to pull it baby..." 2
     fi
 }
 
 function gitAssertRepoClean() {
     if [[ `hasConflicts` ]] || [[ `hasUntrackedFiles` ]] || [[ `hasChanged` ]]; then
-        throwError "Repo has changes... Repo MUST be clean"
+        throwError "Repo has changes... Repo MUST be clean" 2
     fi
 }
 
@@ -322,7 +324,7 @@ function gitAssertBranch() {
     local assertionBranch=${1}
     local branch=`gitGetCurrentBranch`
     if [[ "${branch}" != "${assertionBranch}" ]]; then
-        throwError "In order to promote a app version you MUST be on branch: ${assertionBranch}!!!\n  found: branch ${branch} in `getRunningDir`"
+        throwError "In order to promote a app version you MUST be on branch: ${assertionBranch}!!!\n  found: branch ${branch} in `getRunningDir`" 2
     fi
 }
 

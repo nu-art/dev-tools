@@ -28,7 +28,7 @@ installAndroidSDK() {
     throwError "Error resolving latest Android tools SDK"
 
     if [[ ! "${latestLinuxSDK}" ]]; then
-        throwError "Could not find latest Android tools SDK"
+        throwError "Could not find latest Android tools SDK" 2
     fi
 
     logInfo "Downloading Android tools SDK..."

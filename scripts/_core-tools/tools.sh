@@ -201,3 +201,8 @@ function executeProcessor() {
     done
 
 }
+
+function joinArray {
+    local delimiter=${1}
+    local IFS="${delimiter}"; shift; echo "$*";
+}

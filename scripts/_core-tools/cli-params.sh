@@ -56,25 +56,13 @@ function enforceBashVersion() {
     local _minVersion=${1}
     local _bashVersion=`getBashVersion`
 
-    if [[ ! "${_minVersion}" ]]; then return; fi
+    if [[ ! `checkMinVersion ${_bashVersion} ${_minVersion}` ]]; then
+        return
+    fi
 
-    minVersion=(${_minVersion//./ })
-    bashVersion=(${_bashVersion//./ })
-
-    for (( arg=0; arg<${#minVersion[@]}; arg+=1 )); do
-        local min="${minVersion[${arg}]}"
-        local current="${bashVersion[${arg}]}"
-
-        if (( ${current} > ${min})); then
-            return
-        elif (( ${current} == ${min})); then
-            continue
-        else
-            logError "Found unsupported 'bash' version: ${_bashVersion}"
-            logError "Required min version: ${_minVersion}\n ..."
-            yesOrNoQuestion "Would you like to install latest 'bash' version [y/n]:" "installBash && logInfo \"Please re-run command..\" && exit 0 " "logError \"Terminating process...\" && exit 2"
-        fi
-    done
+    logError "Found unsupported 'bash' version: ${_bashVersion}"
+    logError "Required min version: ${_minVersion}\n ..."
+    yesOrNoQuestion "Would you like to install latest 'bash' version [y/n]:" "installBash && logInfo \"Please re-run command..\" && exit 0 " "logError \"Terminating process...\" && exit 2"
 }
 
 function printDebugParams() {

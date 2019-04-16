@@ -18,15 +18,5 @@
 #  limitations under the License.
 
 #!/bin/bash
-
-source ${BASH_SOURCE%/*}/colors.sh
-source ${BASH_SOURCE%/*}/logger.sh
-source ${BASH_SOURCE%/*}/time.sh
-source ${BASH_SOURCE%/*}/signature.sh
-
-source ${BASH_SOURCE%/*}/tools.sh
-source ${BASH_SOURCE%/*}/error-handling.sh
-source ${BASH_SOURCE%/*}/cli-params.sh
-source ${BASH_SOURCE%/*}/folder-filters.sh
-source ${BASH_SOURCE%/*}/file-tools.sh
-source ${BASH_SOURCE%/*}/versioning.sh
+source ${BASH_SOURCE%/*}/../../_core-tools/_source.sh
+source ${BASH_SOURCE%/*}/version.sh

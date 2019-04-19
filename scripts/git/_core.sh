@@ -321,14 +321,14 @@ function gitAssertRepoClean() {
 }
 
 function gitAssertBranch() {
-    local assertionBranches=(${1})
+    local assertionBranches=(${@})
 
     local branch=`gitGetCurrentBranch`
     if [[ `contains ${branch} "${assertionBranches[@]}"` ]]; then
         return
     fi
 
-    throwError "In order to promote a app version you MUST be on branch: ${assertionBranch}!!!\n  found: branch ${branch} in `getRunningDir`" 2
+    throwError "In order to promote a app version you MUST be on one of the branches: ${assertionBranches[@]}!!!\n  found: branch ${branch} in `getRunningDir`" 2
 }
 
 function gitNoConflictsAddCommitPush() {

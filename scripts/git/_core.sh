@@ -157,9 +157,9 @@ function gitPush() {
 }
 
 function gitPushTags() {
-    logInfo "${GIT_TAG} Pushing tags to origin..."
+    logInfo "${GIT_TAG} Pushing with tags to origin..."
     git push --tags
-    throwError "Pushing tags"
+    throwError "Pushing with tags"
 }
 
 function gitResetHard() {

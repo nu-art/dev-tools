@@ -49,6 +49,7 @@ function throwError() {
             fi
         done
 
+        logError "  pwd: `pwd`"
         logError "  Stack:"
         for (( arg=2; arg<${#FUNCNAME[@]}; arg+=1 )); do
             local sourceFile=`fixSource "${BASH_SOURCE[${arg}]}"`

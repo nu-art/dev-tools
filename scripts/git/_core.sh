@@ -157,9 +157,9 @@ function gitPush() {
 }
 
 function gitPushTags() {
-    logInfo "${GIT_TAG} Pushing tags to origin..."
+    logInfo "${GIT_TAG} Pushing with tags to origin..."
     git push --tags
-    throwError "Pushing tags"
+    throwError "Pushing with tags"
 }
 
 function gitResetHard() {
@@ -321,11 +321,14 @@ function gitAssertRepoClean() {
 }
 
 function gitAssertBranch() {
-    local assertionBranch=${1}
+    local assertionBranches=(${@})
+
     local branch=`gitGetCurrentBranch`
-    if [[ "${branch}" != "${assertionBranch}" ]]; then
-        throwError "In order to promote a app version you MUST be on branch: ${assertionBranch}!!!\n  found: branch ${branch} in `getRunningDir`" 2
+    if [[ `contains ${branch} "${assertionBranches[@]}"` ]]; then
+        return
     fi
+
+    throwError "In order to promote a app version you MUST be on one of the branches: ${assertionBranches[@]}!!!\n  found: branch ${branch} in `getRunningDir`" 2
 }
 
 function gitNoConflictsAddCommitPush() {

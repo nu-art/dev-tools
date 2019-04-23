@@ -31,15 +31,15 @@ params=(scope grepFilter)
 function extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
-            "--all")
-                scope="all"
-            ;;
-
-            "--project")
+            "--project" | "-p")
                 scope="project"
             ;;
 
-            "--external")
+            "--all" | "-a")
+                scope="all"
+            ;;
+
+            "--external" | "-e")
                 scope="external"
             ;;
 

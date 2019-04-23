@@ -41,8 +41,16 @@ function extractParams() {
                 toBranch=`gitGetCurrentBranch`
             ;;
 
-            "--project")
+            "--project" | "-p")
                 scope="project"
+            ;;
+
+            "--all" | "-a")
+                scope="all"
+            ;;
+
+            "--external" | "-e")
+                scope="external"
             ;;
 
             "--debug")

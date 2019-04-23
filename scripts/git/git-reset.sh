@@ -37,15 +37,15 @@ function extractParams() {
                 branchName=`regexParam "-b" ${paramValue}`
             ;;
 
-            "--all")
-                scope="all"
-            ;;
-
-            "--project")
+            "--project" | "-p")
                 scope="project"
             ;;
 
-            "--external")
+            "--all" | "-a")
+                scope="all"
+            ;;
+
+            "--external" | "-e")
                 scope="external"
             ;;
 

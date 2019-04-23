@@ -64,12 +64,16 @@ function extractParams() {
 #                echo "${projectsToIgnore[@]}"
             ;;
 
-            "--project")
-                scope=`removePrefix "project"`
+            "--project" | "-p")
+                scope="project"
             ;;
 
-            "--external")
-                scope=`removePrefix "external"`
+            "--all" | "-a")
+                scope="all"
+            ;;
+
+            "--external" | "-e")
+                scope="external"
             ;;
 
             "--debug")

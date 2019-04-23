@@ -25,10 +25,11 @@ pids=()
 projectsToIgnore=("dev-tools")
 stashName="pull-all-script"
 scope="changed"
+force=
 runningDir=`getRunningDir`
 mainRepoBranch=`gitGetCurrentBranch`
 
-params=(stashName scope mainRepoBranch)
+params=(stashName scope force mainRepoBranch)
 
 function extractParams() {
     for paramValue in "${@}"; do
@@ -37,15 +38,19 @@ function extractParams() {
                 stashName=`echo "${paramValue}" | sed -E "s/--stash-name=(.*)/\1/"`
             ;;
 
-            "--all")
-                scope="all"
+            "--force" | "-f")
+                force=true
             ;;
 
-            "--project")
+            "--project" | "-p")
                 scope="project"
             ;;
 
-            "--external")
+            "--all" | "-a")
+                scope="all"
+            ;;
+
+            "--external" | "-e")
                 scope="external"
             ;;
 
@@ -69,9 +74,9 @@ printDebugParams ${debug} "${params[@]}"
 
 function execute() {
     local submoduleBranch=`gitGetCurrentBranch`
-runningDir=`getRunningDir`
+    runningDir=`getRunningDir`
 
-    if [[ "${mainRepoBranch}" != "${submoduleBranch}" ]]; then
+    if [[ "${mainRepoBranch}" != "${submoduleBranch}" ]] && [[ ! "${force}" ]]; then
         cd .. > /dev/null
             local submodules=(`getSubmodulesByScope "project" "${projectsToIgnore[@]}"`)
             # Make sure that the submodule is a part of the project before updating its pointer
@@ -123,6 +128,8 @@ runningDir=`getRunningDir`
 function processSubmodule() {
     local mainModule=${1}
     local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
+    getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"
+
     if [[ "${#submodules[@]}" -gt "0" ]]; then
         execute
     else
@@ -130,7 +137,7 @@ function processSubmodule() {
         pid=$!
         pids+=(${pid})
     fi
-
+#
     for submodule in "${submodules[@]}"; do
         if [[ ! -e ${submodule} ]]; then
             throwError "could not find Folder: ${submodule}" 2

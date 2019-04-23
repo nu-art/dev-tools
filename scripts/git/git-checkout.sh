@@ -40,12 +40,16 @@ function extractParams() {
                 branchName=`echo "${paramValue}" | sed -E "s/--branch=(.*)/\1/"`
             ;;
 
-            "--all")
+            "--project" | "-p")
+                scope="project"
+            ;;
+
+            "--all" | "-a")
                 scope="all"
             ;;
 
-            "--project")
-                scope="project"
+            "--external" | "-e")
+                scope="external"
             ;;
 
             "--debug")

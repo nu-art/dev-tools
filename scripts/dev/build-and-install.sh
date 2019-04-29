@@ -79,10 +79,15 @@ nobuild=""
 deviceIds=("")
 outputFolder=
 packageName=
+launcherClass=
 
 function extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
+            "--launcher-class="*)
+                launcherClass=`echo "${paramValue}" | sed -E "s/--launcher-class=(.*)/\1/"`
+            ;;
+
             "--package-name="*)
                 packageName=`echo "${paramValue}" | sed -E "s/--package-name=(.*)/\1/"`
             ;;
@@ -227,7 +232,7 @@ if [[ "${testMode}" ]]; then
 fi
 
 
-params=(appName packageName buildType flavor projectName projectFolder outputFolder pathToApk outputTestFolder pathToTestApk apkPattern deviceIdParam testMode uninstall clearData forceStop clean build noBuild noInstall noLaunch waitForDevice)
+params=(appName packageName launcherClass buildType flavor projectName projectFolder outputFolder pathToApk outputTestFolder pathToTestApk apkPattern deviceIdParam testMode uninstall clearData forceStop clean build noBuild noInstall noLaunch waitForDevice)
 printDebugParams ${debug} "${params[@]}"
 
 if [[ ! "${packageName}" ]]; then
@@ -454,7 +459,7 @@ function launchImpl() {
 
     function launchOnDevice() {
         local deviceId=${1}
-        execute "${adbCommand} -s ${deviceId} shell am start -n ${packageName}/com.nu.art.cyborg.ui.ApplicationLauncher -a android.intent.action.MAIN -c android.intent.category.LAUNCHER" "Launching '${appName}':"
+        execute "${adbCommand} -s ${deviceId} shell am start -n ${packageName}/${launcherClass} -a android.intent.action.MAIN -c android.intent.category.LAUNCHER" "Launching '${appName}':"
     }
 
     runOnAllDevices "launchOnDevice"

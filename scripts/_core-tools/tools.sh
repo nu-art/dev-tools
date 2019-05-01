@@ -51,7 +51,7 @@ function setDefaultAndroidHome() {
 function execute() {
     local command=$1
     local message=$2
-    local indentOutput=$3
+    local ignoreError=$3
 
 
     if [[ "${message}" ]]; then
@@ -65,16 +65,13 @@ function execute() {
     fi
 
     local errorCode=
-    if [[ "${indentOutput}" == "false" ]]; then
-        ${command}
-        errorCode=$?
-    else
-        ${command} | indent "    "
-        errorCode=$?
-    fi
+    ${command}
+    errorCode=$?
 
-    logVerbose
-    throwError "${message}" ${errorCode}
+    if [[ "${ignoreError}" == "true" ]]; then
+        logVerbose
+        throwError "${message}" ${errorCode}
+    fi
 
     return ${errorCode}
 }

@@ -213,8 +213,7 @@ function verifyHasDevices() {
 
     if [[ "${#deviceIds[@]}" == "0" ]]; then
         logError "${message}"
-        logError "No device found"
-        exit 1
+        throwError "${message}\nNo device found" 2
     fi
 }
 
@@ -363,12 +362,12 @@ function retry() {
     fi
 
     if [[ "${output}" =~ "INSTALL_FAILED_VERSION_DOWNGRADE" ]]; then
-        yesOrNoQuestion "Failed to install! trying to install an older version, Uninstall newer version? [y/n]" "${uninstallCommand} && ${installCommand}" "logError \"${errorMessage}\"; exit 1"
+        yesOrNoQuestion "Failed to install! trying to install an older version, Uninstall newer version? [y/n]" "${uninstallCommand} && ${installCommand}" "throwError \"${errorMessage}\" 2"
         return
     fi
 
     if [[ "${output}" =~ "failed to install" ]]; then
-        yesOrNoQuestion "Failed to install, Try again? [y/n]" "${installCommand}" "logError \"${errorMessage}\"; exit 1"
+        yesOrNoQuestion "Failed to install, Try again? [y/n]" "${installCommand}" "throwError \"${errorMessage}\" 2"
         return
     fi
 }
@@ -379,14 +378,13 @@ function installImpl() {
     function installAppOnDevice() {
         local deviceId=${1}
         waitForDevice ${deviceId}
-#        execute "${adbCommand} -s ${deviceId} install -r -d ${testFlag}${pathToApk}" "Installing '${appName}':" false 2> ${errorFileName}
         local targetApkName="${appName}-app.apk"
         local pathToTargetApkName="/sdcard/${targetApkName}"
 
         logVerbose
-        execute "${adbCommand} -s ${deviceId} push ${pathToApk} ${pathToTargetApkName}" "Copy ${appName} apk onto device: ${pathToTargetApkName}" false 2> ${errorFileName}
+        execute "${adbCommand} -s ${deviceId} push ${pathToApk} ${pathToTargetApkName}" "Copy ${appName} apk onto device: ${pathToTargetApkName}" 2> ${errorFileName}
         logVerbose
-        execute "${adbCommand} -s ${deviceId} shell pm install -r -d  ${pathToTargetApkName}" "Installing ${appName} apk onto device: ${pathToTargetApkName}" false 2> ${errorFileName}
+        execute "${adbCommand} -s ${deviceId} shell pm install -r -d  ${pathToTargetApkName}" "Installing ${appName} apk onto device: ${pathToTargetApkName}" true 2> ${errorFileName}
 
         output=`cat ${errorFileName}`
         rm ${errorFileName}
@@ -399,8 +397,7 @@ function installImpl() {
     fi
 
     if [[ ! -e "${outputFolder}" ]]; then
-        logError "Output folder does not exists... Build needed - ${outputFolder}"
-        exit 2
+        throwError "Output folder does not exists... Build needed - ${outputFolder}" 2
     fi
 
     if [[ ! "${pathToApk}" ]]; then
@@ -408,8 +405,7 @@ function installImpl() {
     fi
 
     if [[ ! "${pathToApk}" ]]; then
-        logError "Could not find apk in path '${outputFolder}', matching the pattern '${apkPattern}'"
-        exit 2
+        throwError "Could not find apk in path '${outputFolder}', matching the pattern '${apkPattern}'" 2
     fi
 
     runOnAllDevices "installAppOnDevice"
@@ -419,7 +415,7 @@ function installTestImpl() {
     function installTestAppOnDevice() {
         local deviceId=${1}
         waitForDevice ${deviceId}
-        execute "${adbCommand} -s ${deviceId} install -r -d ${testFlag}${pathToTestApk}" "Installing '${appName}' tests:" false 2> ${errorFileName}
+        execute "${adbCommand} -s ${deviceId} install -r -d ${testFlag}${pathToTestApk}" "Installing '${appName}' tests:" true 2> ${errorFileName}
         output=`cat ${errorFileName}`
         rm ${errorFileName}
 
@@ -436,8 +432,7 @@ function installTestImpl() {
     fi
 
     if [[ ! -e "${outputTestFolder}" ]]; then
-        logError "Test Output folder does not exists... Build needed - ${outputTestFolder}"
-        exit 2
+        throwError "Test Output folder does not exists... Build needed - ${outputTestFolder}" 2
     fi
 
     if [[ ! "${pathToTestApk}" ]]; then
@@ -445,8 +440,7 @@ function installTestImpl() {
     fi
 
     if [[ ! "${pathToApk}" ]]; then
-        logError "Could not find apk in path '${outputTestFolder}', matching the pattern '${apkPattern}'"
-        exit 2
+        throwError "Could not find apk in path '${outputTestFolder}', matching the pattern '${apkPattern}'" 2
     fi
 
     runOnAllDevices "installTestAppOnDevice"

@@ -73,12 +73,14 @@ function printUsage {
 }
 
 adbCommand=${ANDROID_HOME}/platform-tools/adb
-
+printDependencies=
 offline=""
 nobuild=""
 deviceIds=("")
+trashFolder="./.trash"
 outputFolder=
 packageName=
+projectName=
 launcherClass=
 
 function extractParams() {
@@ -197,6 +199,13 @@ function extractParams() {
                 noInstall="true"
             ;;
 
+            "--dependencies" | "--tree")
+                printDependencies="true"
+                noBuild=true
+                noInstall=true
+                noLaunch=true
+            ;;
+
             "*")
                 logWarning "UNKNOWN PARAM: ${paramValue}";
             ;;
@@ -231,7 +240,7 @@ if [[ "${testMode}" ]]; then
 fi
 
 
-params=(appName packageName launcherClass buildType flavor projectName projectFolder outputFolder pathToApk outputTestFolder pathToTestApk apkPattern deviceIdParam testMode uninstall clearData forceStop clean build noBuild noInstall noLaunch waitForDevice)
+params=(appName packageName launcherClass buildType flavor projectName projectFolder printDependencies outputFolder pathToApk outputTestFolder pathToTestApk apkPattern deviceIdParam testMode uninstall clearData forceStop clean build noBuild noInstall noLaunch waitForDevice)
 printDebugParams ${debug} "${params[@]}"
 
 if [[ ! "${packageName}" ]]; then
@@ -476,6 +485,24 @@ function runTestsImpl() {
     runOnAllDevices "runTestsOnDevice"
 }
 
+function dependenciesImpl() {
+    if [[ ! "${printDependencies}" ]]; then
+        return
+    fi
+
+    local outputPath="${trashFolder}/tree"
+    createDir "${outputPath}"
+    local dateTimeFormatted=`date +%Y-%m-%d--%H-%M-%S`
+
+    local outputFile=${outputPath}/${dateTimeFormatted}.txt
+    logInfo "printing dependencies into ${outputFile}"
+    bash gradlew ${projectName}:dependencies > ${outputFile}
+    ERROR_CODE=$?
+
+    exit ${ERROR_CODE}
+}
+
+dependenciesImpl
 deleteApksImpl
 forceStopImpl
 clearDataImpl

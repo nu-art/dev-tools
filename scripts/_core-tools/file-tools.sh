@@ -18,10 +18,23 @@
 #  limitations under the License.
 
 #!/bin/bash
-#    execute "command" "logmessage"
 
 function getRunningDir(){
     echo ${PWD##*/}
+}
+
+function copyFileTo() {
+    local origin="${1}"
+    local target="${2}"
+
+    if [[ ! -e "${target}" ]]; then
+        if [[ "${target: -3}" == "/" ]]; then
+            createDir ${target}
+        fi
+    fi
+
+    cp ${origin} ${target}
+    execute "cp ${origin} ${target}" "Copying file: ${origin} => ${target}"
 }
 
 function createDir() {

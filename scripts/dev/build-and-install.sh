@@ -81,7 +81,7 @@ trashFolder="./.trash"
 outputFolder=
 packageName=
 projectName=
-launcherClass=
+launcherClass=com.nu.art.cyborg.ui.ApplicationLauncher
 
 function extractParams() {
     for paramValue in "${@}"; do

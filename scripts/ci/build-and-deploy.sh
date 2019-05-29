@@ -91,7 +91,7 @@ function updateRepository() {
             git push origin ${tag}
         popd > /dev/null
     done
-
+loading
     git commit -am "${message}"
     git tag -a "${tag}" -am "${message}"
     git push --tags

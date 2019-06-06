@@ -73,16 +73,23 @@ function printUsage {
 }
 
 adbCommand=${ANDROID_HOME}/platform-tools/adb
-
+printDependencies=
 offline=""
 nobuild=""
 deviceIds=("")
+trashFolder="./.trash"
 outputFolder=
 packageName=
+projectName=
+launcherClass=com.nu.art.cyborg.ui.ApplicationLauncher
 
 function extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
+            "--launcher-class="*)
+                launcherClass=`echo "${paramValue}" | sed -E "s/--launcher-class=(.*)/\1/"`
+            ;;
+
             "--package-name="*)
                 packageName=`echo "${paramValue}" | sed -E "s/--package-name=(.*)/\1/"`
             ;;
@@ -192,6 +199,13 @@ function extractParams() {
                 noInstall="true"
             ;;
 
+            "--dependencies" | "--tree")
+                printDependencies="true"
+                noBuild=true
+                noInstall=true
+                noLaunch=true
+            ;;
+
             "*")
                 logWarning "UNKNOWN PARAM: ${paramValue}";
             ;;
@@ -208,8 +222,7 @@ function verifyHasDevices() {
 
     if [[ "${#deviceIds[@]}" == "0" ]]; then
         logError "${message}"
-        logError "No device found"
-        exit 1
+        throwError "${message}\nNo device found" 2
     fi
 }
 
@@ -227,7 +240,7 @@ if [[ "${testMode}" ]]; then
 fi
 
 
-params=(appName packageName buildType flavor projectName projectFolder outputFolder pathToApk outputTestFolder pathToTestApk apkPattern deviceIdParam testMode uninstall clearData forceStop clean build noBuild noInstall noLaunch waitForDevice)
+params=(appName packageName launcherClass buildType flavor projectName projectFolder printDependencies outputFolder pathToApk outputTestFolder pathToTestApk apkPattern deviceIdParam testMode uninstall clearData forceStop clean build noBuild noInstall noLaunch waitForDevice)
 printDebugParams ${debug} "${params[@]}"
 
 if [[ ! "${packageName}" ]]; then
@@ -358,12 +371,12 @@ function retry() {
     fi
 
     if [[ "${output}" =~ "INSTALL_FAILED_VERSION_DOWNGRADE" ]]; then
-        yesOrNoQuestion "Failed to install! trying to install an older version, Uninstall newer version? [y/n]" "${uninstallCommand} && ${installCommand}" "logError \"${errorMessage}\"; exit 1"
+        yesOrNoQuestion "Failed to install! trying to install an older version, Uninstall newer version? [y/n]" "${uninstallCommand} && ${installCommand}" "throwError \"${errorMessage}\" 2"
         return
     fi
 
     if [[ "${output}" =~ "failed to install" ]]; then
-        yesOrNoQuestion "Failed to install, Try again? [y/n]" "${installCommand}" "logError \"${errorMessage}\"; exit 1"
+        yesOrNoQuestion "Failed to install, Try again? [y/n]" "${installCommand}" "throwError \"${errorMessage}\" 2"
         return
     fi
 }
@@ -374,14 +387,13 @@ function installImpl() {
     function installAppOnDevice() {
         local deviceId=${1}
         waitForDevice ${deviceId}
-#        execute "${adbCommand} -s ${deviceId} install -r -d ${testFlag}${pathToApk}" "Installing '${appName}':" false 2> ${errorFileName}
         local targetApkName="${appName}-app.apk"
         local pathToTargetApkName="/sdcard/${targetApkName}"
 
         logVerbose
-        execute "${adbCommand} -s ${deviceId} push ${pathToApk} ${pathToTargetApkName}" "Copy ${appName} apk onto device: ${pathToTargetApkName}" false 2> ${errorFileName}
+        execute "${adbCommand} -s ${deviceId} push ${pathToApk} ${pathToTargetApkName}" "Copy ${appName} apk onto device: ${pathToTargetApkName}" 2> ${errorFileName}
         logVerbose
-        execute "${adbCommand} -s ${deviceId} shell pm install -r -d  ${pathToTargetApkName}" "Installing ${appName} apk onto device: ${pathToTargetApkName}" false 2> ${errorFileName}
+        execute "${adbCommand} -s ${deviceId} shell pm install -r -d  ${pathToTargetApkName}" "Installing ${appName} apk onto device: ${pathToTargetApkName}" true 2> ${errorFileName}
 
         output=`cat ${errorFileName}`
         rm ${errorFileName}
@@ -394,8 +406,7 @@ function installImpl() {
     fi
 
     if [[ ! -e "${outputFolder}" ]]; then
-        logError "Output folder does not exists... Build needed - ${outputFolder}"
-        exit 2
+        throwError "Output folder does not exists... Build needed - ${outputFolder}" 2
     fi
 
     if [[ ! "${pathToApk}" ]]; then
@@ -403,8 +414,7 @@ function installImpl() {
     fi
 
     if [[ ! "${pathToApk}" ]]; then
-        logError "Could not find apk in path '${outputFolder}', matching the pattern '${apkPattern}'"
-        exit 2
+        throwError "Could not find apk in path '${outputFolder}', matching the pattern '${apkPattern}'" 2
     fi
 
     runOnAllDevices "installAppOnDevice"
@@ -414,7 +424,7 @@ function installTestImpl() {
     function installTestAppOnDevice() {
         local deviceId=${1}
         waitForDevice ${deviceId}
-        execute "${adbCommand} -s ${deviceId} install -r -d ${testFlag}${pathToTestApk}" "Installing '${appName}' tests:" false 2> ${errorFileName}
+        execute "${adbCommand} -s ${deviceId} install -r -d ${testFlag}${pathToTestApk}" "Installing '${appName}' tests:" true 2> ${errorFileName}
         output=`cat ${errorFileName}`
         rm ${errorFileName}
 
@@ -431,8 +441,7 @@ function installTestImpl() {
     fi
 
     if [[ ! -e "${outputTestFolder}" ]]; then
-        logError "Test Output folder does not exists... Build needed - ${outputTestFolder}"
-        exit 2
+        throwError "Test Output folder does not exists... Build needed - ${outputTestFolder}" 2
     fi
 
     if [[ ! "${pathToTestApk}" ]]; then
@@ -440,8 +449,7 @@ function installTestImpl() {
     fi
 
     if [[ ! "${pathToApk}" ]]; then
-        logError "Could not find apk in path '${outputTestFolder}', matching the pattern '${apkPattern}'"
-        exit 2
+        throwError "Could not find apk in path '${outputTestFolder}', matching the pattern '${apkPattern}'" 2
     fi
 
     runOnAllDevices "installTestAppOnDevice"
@@ -454,7 +462,7 @@ function launchImpl() {
 
     function launchOnDevice() {
         local deviceId=${1}
-        execute "${adbCommand} -s ${deviceId} shell am start -n ${packageName}/com.nu.art.cyborg.ui.ApplicationLauncher -a android.intent.action.MAIN -c android.intent.category.LAUNCHER" "Launching '${appName}':"
+        execute "${adbCommand} -s ${deviceId} shell am start -n ${packageName}/${launcherClass} -a android.intent.action.MAIN -c android.intent.category.LAUNCHER" "Launching '${appName}':"
     }
 
     runOnAllDevices "launchOnDevice"
@@ -477,6 +485,24 @@ function runTestsImpl() {
     runOnAllDevices "runTestsOnDevice"
 }
 
+function dependenciesImpl() {
+    if [[ ! "${printDependencies}" ]]; then
+        return
+    fi
+
+    local outputPath="${trashFolder}/tree"
+    createDir "${outputPath}"
+    local dateTimeFormatted=`date +%Y-%m-%d--%H-%M-%S`
+
+    local outputFile=${outputPath}/${dateTimeFormatted}.txt
+    logInfo "printing dependencies into ${outputFile}"
+    bash gradlew ${projectName}:dependencies > ${outputFile}
+    ERROR_CODE=$?
+
+    exit ${ERROR_CODE}
+}
+
+dependenciesImpl
 deleteApksImpl
 forceStopImpl
 clearDataImpl

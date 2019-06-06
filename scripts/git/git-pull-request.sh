@@ -105,7 +105,7 @@ function processFolder() {
         exit 1
     fi
 
-    local project=`gitGetRepoUrl`
+    local project=`getGitRepoName`
     throwError "Unable to extract remote project name"
 
     url="https://github.com/${project}/compare/${toBranch}...${fromBranch}?expand=1"

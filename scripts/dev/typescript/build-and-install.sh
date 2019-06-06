@@ -356,7 +356,7 @@ function promoteNuArt() {
     done
 
     logInfo "Repo is ready for version promotion"
-    logInfo "Promoting to version ${promotedVersion} in package json files..."
+    logInfo "Promoting Libs: ${versionName} => ${promotedVersion}"
     setVersionName ${promotedVersion} ${versionFile}
     executeOnModules linkDependenciesImpl
 
@@ -390,21 +390,13 @@ function promoteApps() {
     gitAssertNoCommitsToPull
 
     logInfo "Repo is ready for version promotion: ${promotionType}"
-
-
     logInfo "Promoting Apps: ${versionName} => ${promotedVersion}"
+    setVersionName ${promotedVersion} ${versionFile}
+    executeOnModules linkDependenciesImpl
+
     if [[ `git tag -l | grep ${promotedVersion}` ]]; then
         throwError "Tag already exists: v${promotedVersion}" 2
     fi
-
-
-    for module in "${projectModules[@]}"; do
-        cd ${module}
-            logInfo "Promoting module: ${module} to version: ${promotedVersion}"
-            setupModule ${module}
-            setVersionName ${promotedVersion} package.json
-        cd ..
-    done
 
     setVersionName ${promotedVersion} ${versionFile}
     gitNoConflictsAddCommitPush ${module} `gitGetCurrentBranch` "Promoted apps version to: v${promotedVersion}"
@@ -604,6 +596,12 @@ if [[ "${test}" ]]; then
     executeOnModules testModule
 fi
 
+# PRE-Launch and deploy
+
+if [[ "${promoteAppVersion}" ]]; then
+    promoteApps
+fi
+
 # LAUNCH
 
 if [[ "${launchBackend}" ]]; then
@@ -652,12 +650,6 @@ if [[ "${deployBackend}" ]] || [[ "${deployFrontend}" ]]; then
         firebase deploy --only hosting
         throwError "Error while deploying hosting"
     fi
-fi
-
-# PRE-Launch and deploy
-
-if [[ "${promoteAppVersion}" ]]; then
-    promoteApps
 fi
 
 # OTHER

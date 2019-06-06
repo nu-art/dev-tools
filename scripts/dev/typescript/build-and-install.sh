@@ -326,9 +326,9 @@ function promoteNuArt() {
     local versionFile="version-nu-art.json"
     local promotionType=`deriveVersionType ${promoteNuArtVersion}`
     local versionName=`getVersionName ${versionFile}`
-    local promotedVersion=`promoteVersion ${versionName} ${promotionType}`
+    nuArtVersion=`promoteVersion ${versionName} ${promotionType}`
 
-    logInfo "Promoting Nu-Art: ${versionName} => ${promotedVersion}"
+    logInfo "Promoting Nu-Art: ${versionName} => ${nuArtVersion}"
 
     logInfo "Asserting main repo readiness to promote a version..."
     gitAssertBranch master
@@ -348,29 +348,29 @@ function promoteNuArt() {
             gitFetchRepo
             gitAssertNoCommitsToPull
 
-            if [[ `git tag -l | grep ${promotedVersion}` ]]; then
-                throwError "Tag already exists: v${promotedVersion}" 2
+            if [[ `git tag -l | grep ${nuArtVersion}` ]]; then
+                throwError "Tag already exists: v${nuArtVersion}" 2
             fi
         cd ..
     done
 
     logInfo "Repo is ready for version promotion"
-    logInfo "Promoting Libs: ${versionName} => ${promotedVersion}"
-    setVersionName ${promotedVersion} ${versionFile}
+    logInfo "Promoting Libs: ${versionName} => ${nuArtVersion}"
+    setVersionName ${nuArtVersion} ${versionFile}
     executeOnModules linkDependenciesImpl
 
     for module in "${nuArtModules[@]}"; do
         cd ${module}
-            gitNoConflictsAddCommitPush ${module} `gitGetCurrentBranch` "Promoted to: v${promotedVersion}"
+            gitNoConflictsAddCommitPush ${module} `gitGetCurrentBranch` "Promoted to: v${nuArtVersion}"
 
-            gitTag "v${promotedVersion}" "Promoted to: v${promotedVersion}"
+            gitTag "v${nuArtVersion}" "Promoted to: v${nuArtVersion}"
             gitPushTags
             throwError "Error pushing promotion tag"
         cd ..
     done
 
-    gitNoConflictsAddCommitPush ${module} `gitGetCurrentBranch` "Promoted infra version to: v${promotedVersion}"
-    gitTag "libs-v${promotedVersion}" "Promoted libs to: v${promotedVersion}"
+    gitNoConflictsAddCommitPush ${module} `gitGetCurrentBranch` "Promoted infra version to: v${nuArtVersion}"
+    gitTag "libs-v${nuArtVersion}" "Promoted libs to: v${nuArtVersion}"
     gitPushTags
     throwError "Error pushing promotion tag"
 }

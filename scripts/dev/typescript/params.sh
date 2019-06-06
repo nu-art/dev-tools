@@ -29,7 +29,7 @@ deployFrontend=
 promoteNuArtVersion=
 promoteAppVersion=
 publish=
-appVersion=
+newAppVersion=
 
 modulesPackageName=()
 modulesVersion=()
@@ -134,7 +134,7 @@ function extractParams() {
             ;;
 
             "--set-version="* | "-sv="*)
-                appVersion=`echo "${paramValue}" | sed -E "s/(--set-version=|-sv=)(.*)/\2/"`
+                newAppVersion=`echo "${paramValue}" | sed -E "s/(--set-version=|-sv=)(.*)/\2/"`
                 linkDependencies=true
                 build=true
                 lint=true

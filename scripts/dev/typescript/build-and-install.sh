@@ -382,10 +382,11 @@ function promoteNuArt() {
 }
 
 function promoteApps() {
-    if [[ ! "${appVersion}" ]]; then
+    if [[ ! "${newAppVersion}" ]]; then
         throwError "MUST specify a new version for the apps... use --set-version=x.y.z" 2
     fi
 
+    appVersion=${newAppVersion}
     logInfo "Asserting repo readiness to promote a version..."
     if [[ `git tag -l | grep ${appVersion}` ]]; then
         throwError "Tag already exists: v${appVersion}" 2

@@ -38,7 +38,6 @@ function mapModulesVersions() {
 
     executeOnModules mapModule
 }
-
 function mapExistingLibraries() {
     _modules=()
     local module
@@ -554,12 +553,14 @@ if [[ "${#modules[@]}" == 0 ]]; then
 fi
 
 if [[ "${mergeOriginRepo}" ]]; then
+    bannerInfo "Merge Origin"
     mergeFromFork
     logInfo "Merged from origin boilerplate... DONE"
     exit 0
 fi
 
 if [[ "${cloneNuArt}" ]]; then
+    bannerInfo "Clone Nu-Art"
     cloneNuArtModules
     bash $0 --setup
 fi
@@ -570,18 +571,22 @@ mapModulesVersions
 # BUILD
 
 if [[ "${purge}" ]]; then
+    bannerInfo "purge"
     executeOnModules purgeModule
 fi
 
 if [[ "${envType}" ]]; then
+    bannerInfo "set env"
     setEnvironment
 fi
 
 if [[ "${setup}" ]]; then
+    bannerInfo "setup"
     executeOnModules setupModule
 fi
 
 if [[ "${linkDependencies}" ]]; then
+    bannerInfo "link dependencies"
     executeOnModules linkDependenciesImpl
 fi
 
@@ -592,22 +597,27 @@ if [[ "${build}" ]]; then
 fi
 
 if [[ "${lint}" ]]; then
+    bannerInfo "lint"
     executeOnModules lintModule
 fi
 
 if [[ "${test}" ]]; then
+    bannerInfo "test"
     executeOnModules testModule
 fi
 
 # PRE-Launch and deploy
 
 if [[ "${newVersion}" ]]; then
+    bannerInfo "promote apps"
     promoteApps
 fi
 
 # LAUNCH
 
 if [[ "${launchBackend}" ]]; then
+    bannerInfo "launchBackend"
+
     npm list -g nodemon > /dev/null
     throwError "nodemon package is missing... Please install nodemon:\n npm i -g nodemon"
 
@@ -622,6 +632,8 @@ if [[ "${launchBackend}" ]]; then
 fi
 
 if [[ "${launchFrontend}" ]]; then
+    bannerInfo "launchFrontend"
+
     cd ${frontendModule}
         if [[ "${launchBackend}" ]]; then
             npm run dev &
@@ -634,6 +646,8 @@ fi
 # Deploy
 
 if [[ "${deployBackend}" ]] || [[ "${deployFrontend}" ]]; then
+    bannerInfo "deployBackend || deployFrontend"
+
     if [[ ! "${envType}" ]]; then
         throwError "MUST set env while deploying!!" 2
     fi
@@ -658,15 +672,20 @@ fi
 # OTHER
 
 if [[ "${pushNuArtMessage}" ]]; then
+    bannerInfo "pushNuArtMessage"
     pushNuArt
 fi
 
 if [[ "${promoteNuArtVersion}" ]]; then
+    bannerInfo "promoteNuArtVersion"
+
     gitAssertOrigin "${boilerplateRepo}"
     promoteNuArt
 fi
 
 if [[ "${publish}" ]]; then
+    bannerInfo "publish"
+
     gitAssertOrigin "${boilerplateRepo}"
     publishNuArt
     executeOnModules setupModule
@@ -674,5 +693,7 @@ if [[ "${publish}" ]]; then
 fi
 
 if [[ "${listen}" ]]; then
+    bannerInfo "listen"
+
     compileOnCodeChanges
 fi

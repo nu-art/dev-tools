@@ -102,11 +102,11 @@ function linkDependenciesImpl() {
     logInfo "Linking dependencies sources to: ${module}"
 
     if [[ `contains "${module}" "${nuArtModules[@]}"` ]]; then
-        setVersionName ${nuArtVersion} "package.json"
+        setVersionName ${nuArtVersion}
     fi
 
     if [[ `contains "${module}" "${projectModules[@]}"` ]]; then
-        setVersionName ${appVersion} "package.json"
+        setVersionName ${appVersion}
 
         for otherModule in "${otherModules[@]}"; do
             local target="`pwd`/src/main/${otherModule}"
@@ -120,8 +120,9 @@ function linkDependenciesImpl() {
             throwError "Error symlink dependency: ${otherModule}"
         done
     fi
-
-    mapModulesVersions
+    cd ..
+        mapModulesVersions
+    cd -
     local i
     for (( i=0; i<${#modules[@]}; i+=1 )); do
         if [[ "${module}" == "${modules[${i}]}" ]];then break; fi
@@ -570,7 +571,6 @@ fi
 
 mapExistingLibraries
 mapModulesVersions
-printVersions
 
 # BUILD
 
@@ -589,6 +589,8 @@ fi
 if [[ "${linkDependencies}" ]]; then
     executeOnModules linkDependenciesImpl
 fi
+
+printVersions
 
 if [[ "${build}" ]]; then
     executeOnModules buildModule

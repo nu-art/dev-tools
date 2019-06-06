@@ -30,7 +30,10 @@ function printVersions() {
 function mapModulesVersions() {
     modulesPackageName=()
     modulesVersion=()
-    nuArtVersion=`getVersionName "version-nu-art.json"`
+    if [[ -e "version-nu-art.json" ]]; then
+        nuArtVersion=`getVersionName "version-nu-art.json"`
+    fi
+
     appVersion=`getVersionName "version-app.json"`
 
     executeOnModules mapModule
@@ -101,11 +104,11 @@ function linkDependenciesImpl() {
     copyFileTo package.json dist/
     logInfo "Linking dependencies sources to: ${module}"
 
-    if [[ `contains "${module}" "${nuArtModules[@]}"` ]]; then
+    if [[ `contains "${module}" "${nuArtModules[@]}"` ]] && [[ -e "${module}" ]] && [[ "${nuArtVersion}" ]]; then
         setVersionName ${nuArtVersion}
     fi
 
-    if [[ `contains "${module}" "${projectModules[@]}"` ]]; then
+    if [[ `contains "${module}" "${projectModules[@]}"` ]] && [[ -e "${module}" ]]; then
         setVersionName ${appVersion}
 
         for otherModule in "${otherModules[@]}"; do

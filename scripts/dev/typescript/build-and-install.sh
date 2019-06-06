@@ -30,11 +30,13 @@ function printVersions() {
 function mapModulesVersions() {
     modulesPackageName=()
     modulesVersion=()
-    if [[ -e "version-nu-art.json" ]]; then
+    if [[ ! "${nuArtVersion}" ]] && [[ -e "version-nu-art.json" ]]; then
         nuArtVersion=`getVersionName "version-nu-art.json"`
     fi
 
-    appVersion=`getVersionName "version-app.json"`
+    if [[ ! "${appVersion}" ]]; then
+        appVersion=`getVersionName "version-app.json"`
+    fi
 
     executeOnModules mapModule
 }
@@ -121,6 +123,10 @@ function linkDependenciesImpl() {
             throwError "Error symlink dependency: ${otherModule}"
         done
     fi
+    local BACKTO=`pwd`
+    cd ..
+        mapModulesVersions
+    cd ${BACKTO}
 
     local i
     for (( i=0; i<${#modules[@]}; i+=1 )); do

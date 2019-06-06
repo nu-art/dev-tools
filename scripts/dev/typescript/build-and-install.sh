@@ -382,6 +382,9 @@ function promoteApps() {
     fi
 
     logInfo "Asserting repo readiness to promote a version..."
+    if [[ `git tag -l | grep ${newVersion}` ]]; then
+        throwError "Tag already exists: v${newVersion}" 2
+    fi
 
     gitAssertBranch "${allowedBranchesForPromotion[@]}"
     gitAssertRepoClean
@@ -394,16 +397,9 @@ function promoteApps() {
     setVersionName ${newVersion} ${versionFile}
     executeOnModules linkDependenciesImpl
 
-    if [[ `git tag -l | grep ${newVersion}` ]]; then
-        throwError "Tag already exists: v${newVersion}" 2
-    fi
-
-    setVersionName ${newVersion} ${versionFile}
     local currentBranch=`gitGetCurrentBranch`
-    logWarning "module=${module}"
-    logWarning "currentBranch=${currentBranch}"
 
-    gitNoConflictsAddCommitPush ${module} ${currentBranch} "Promoted apps version to: v${newVersion}"
+    gitNoConflictsAddCommitPush "main-repo" ${currentBranch} "Promoted apps version to: v${newVersion}"
     gitTag "apps-v${newVersion}" "Promoted apps to: v${newVersion}"
     gitPushTags
     throwError "Error pushing promotion tag"

@@ -405,7 +405,7 @@ function promoteApps() {
 
     local currentBranch=`gitGetCurrentBranch`
 
-    gitTag "apps-v${appVersion}" "Promoted apps to: v${appVersion}"
+    gitTag "v${appVersion}" "Promoted apps to: v${appVersion}"
     gitPushTags
     throwError "Error pushing promotion tag"
 }

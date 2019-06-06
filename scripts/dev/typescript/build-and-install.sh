@@ -399,7 +399,11 @@ function promoteApps() {
     fi
 
     setVersionName ${newVersion} ${versionFile}
-    gitNoConflictsAddCommitPush ${module} `gitGetCurrentBranch` "Promoted apps version to: v${newVersion}"
+    local currentBranch=`gitGetCurrentBranch`
+    logWarning "module=${module}"
+    logWarning "currentBranch=${currentBranch}"
+
+    gitNoConflictsAddCommitPush ${module} ${currentBranch} "Promoted apps version to: v${newVersion}"
     gitTag "apps-v${newVersion}" "Promoted apps to: v${newVersion}"
     gitPushTags
     throwError "Error pushing promotion tag"

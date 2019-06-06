@@ -102,12 +102,11 @@ function linkDependenciesImpl() {
 
     copyFileTo package.json dist/
     logInfo "Linking dependencies sources to: ${module}"
-
-    if [[ `contains "${module}" "${nuArtModules[@]}"` ]] && [[ -e "${module}" ]] && [[ "${nuArtVersion}" ]]; then
+    if [[ `contains "${module}" "${nuArtModules[@]}"` ]] && [[ "${nuArtVersion}" ]]; then
         setVersionName ${nuArtVersion}
     fi
 
-    if [[ `contains "${module}" "${projectModules[@]}"` ]] && [[ -e "${module}" ]]; then
+    if [[ `contains "${module}" "${projectModules[@]}"` ]]; then
         setVersionName ${appVersion}
 
         for otherModule in "${otherModules[@]}"; do
@@ -122,12 +121,10 @@ function linkDependenciesImpl() {
             throwError "Error symlink dependency: ${otherModule}"
         done
     fi
-    cd ..
-        mapModulesVersions
-    cd -
+
     local i
     for (( i=0; i<${#modules[@]}; i+=1 )); do
-        if [[ "${module}" == "${modules[${i}]}" ]];then break; fi
+        if [[ "${module}" == "${modules[${i}]}" ]]; then break; fi
 
         if [[ `contains "${modules[${i}]}" "${projectModules[@]}"` ]]; then
             return
@@ -588,9 +585,11 @@ fi
 if [[ "${linkDependencies}" ]]; then
     bannerInfo "link dependencies"
     executeOnModules linkDependenciesImpl
+
+    mapModulesVersions
+    printVersions
 fi
 
-printVersions
 
 if [[ "${build}" ]]; then
     executeOnModules buildModule

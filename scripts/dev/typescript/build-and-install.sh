@@ -382,13 +382,13 @@ function promoteNuArt() {
 }
 
 function promoteApps() {
-    if [[ ! "${newVersion}" ]]; then
+    if [[ ! "${appVersion}" ]]; then
         throwError "MUST specify a new version for the apps... use --set-version=x.y.z" 2
     fi
 
     logInfo "Asserting repo readiness to promote a version..."
-    if [[ `git tag -l | grep ${newVersion}` ]]; then
-        throwError "Tag already exists: v${newVersion}" 2
+    if [[ `git tag -l | grep ${appVersion}` ]]; then
+        throwError "Tag already exists: v${appVersion}" 2
     fi
 
     gitAssertBranch "${allowedBranchesForPromotion[@]}"
@@ -398,14 +398,14 @@ function promoteApps() {
 
     local versionFile="version-app.json"
     local versionName=`getVersionName ${versionFile}`
-    logInfo "Promoting Apps: ${versionName} => ${newVersion}"
-    setVersionName ${newVersion} ${versionFile}
+    logInfo "Promoting Apps: ${versionName} => ${appVersion}"
+    setVersionName ${appVersion} ${versionFile}
     executeOnModules linkDependenciesImpl
 
     local currentBranch=`gitGetCurrentBranch`
 
-    gitNoConflictsAddCommitPush "main-repo" ${currentBranch} "Promoted apps version to: v${newVersion}"
-    gitTag "apps-v${newVersion}" "Promoted apps to: v${newVersion}"
+    gitNoConflictsAddCommitPush "main-repo" ${currentBranch} "Promoted apps version to: v${appVersion}"
+    gitTag "apps-v${appVersion}" "Promoted apps to: v${appVersion}"
     gitPushTags
     throwError "Error pushing promotion tag"
 }
@@ -613,7 +613,7 @@ fi
 
 # PRE-Launch and deploy
 
-if [[ "${newVersion}" ]]; then
+if [[ "${appVersion}" ]]; then
     bannerInfo "promote apps"
     promoteApps
 fi

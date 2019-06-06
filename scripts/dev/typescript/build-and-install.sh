@@ -304,7 +304,7 @@ function pushNuArt() {
     done
 }
 
-function deriveVersion() {
+function deriveVersionType() {
     local _version=${1}
     case "${_version}" in
         "patch" | "minor" | "major")
@@ -325,7 +325,7 @@ function deriveVersion() {
 
 function promoteNuArt() {
     local versionFile="version-nu-art.json"
-    local promotionType=`deriveVersion ${promoteNuArtVersion}`
+    local promotionType=`deriveVersionType ${promoteNuArtVersion}`
     local versionName=`getVersionName ${versionFile}`
     local promotedVersion=`promoteVersion ${versionName} ${promotionType}`
 
@@ -377,30 +377,30 @@ function promoteNuArt() {
 }
 
 function promoteApps() {
-    logInfo "Asserting repo readiness to promote a version..."
+    if [[ ! "${newVersion}" ]]; then
+        throwError "MUST specify a new version for the apps... use --set-version=x.y.z" 2
+    fi
 
-    local versionFile="version-app.json"
-    local promotionType=`deriveVersion ${promoteAppVersion}`
-    local versionName=`getVersionName ${versionFile}`
-    local promotedVersion=`promoteVersion ${versionName} ${promotionType}`
+    logInfo "Asserting repo readiness to promote a version..."
 
     gitAssertBranch "${allowedBranchesForPromotion[@]}"
     gitAssertRepoClean
     gitFetchRepo
     gitAssertNoCommitsToPull
 
-    logInfo "Repo is ready for version promotion: ${promotionType}"
-    logInfo "Promoting Apps: ${versionName} => ${promotedVersion}"
-    setVersionName ${promotedVersion} ${versionFile}
+    local versionFile="version-app.json"
+    local versionName=`getVersionName ${versionFile}`
+    logInfo "Promoting Apps: ${versionName} => ${newVersion}"
+    setVersionName ${newVersion} ${versionFile}
     executeOnModules linkDependenciesImpl
 
-    if [[ `git tag -l | grep ${promotedVersion}` ]]; then
-        throwError "Tag already exists: v${promotedVersion}" 2
+    if [[ `git tag -l | grep ${newVersion}` ]]; then
+        throwError "Tag already exists: v${newVersion}" 2
     fi
 
-    setVersionName ${promotedVersion} ${versionFile}
-    gitNoConflictsAddCommitPush ${module} `gitGetCurrentBranch` "Promoted apps version to: v${promotedVersion}"
-    gitTag "apps-v${promotedVersion}" "Promoted apps to: v${promotedVersion}"
+    setVersionName ${newVersion} ${versionFile}
+    gitNoConflictsAddCommitPush ${module} `gitGetCurrentBranch` "Promoted apps version to: v${newVersion}"
+    gitTag "apps-v${newVersion}" "Promoted apps to: v${newVersion}"
     gitPushTags
     throwError "Error pushing promotion tag"
 }
@@ -598,7 +598,7 @@ fi
 
 # PRE-Launch and deploy
 
-if [[ "${promoteAppVersion}" ]]; then
+if [[ "${newVersion}" ]]; then
     promoteApps
 fi
 

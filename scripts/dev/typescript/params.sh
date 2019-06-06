@@ -29,6 +29,7 @@ deployFrontend=
 promoteNuArtVersion=
 promoteAppVersion=
 publish=
+newVersion=
 
 modulesPackageName=()
 modulesVersion=()
@@ -132,6 +133,13 @@ function extractParams() {
                 envType=`echo "${paramValue}" | sed -E "s/(--set-env=|-se=)(.*)/\2/"`
             ;;
 
+            "--set-version="* | "-sv="*)
+                newVersion=`echo "${paramValue}" | sed -E "s/(--set-version=|-sv=)(.*)/\2/"`
+                linkDependencies=true
+                build=true
+                lint=true
+            ;;
+
 #        ==== LAUNCH =====
             "--launch" | "-la")
                 envType=dev
@@ -158,13 +166,6 @@ function extractParams() {
 
             "--version-nu-art="* | "-vn="*)
                 promoteNuArtVersion=`echo "${paramValue}" | sed -E "s/(--version-nu-art=|-vn=)(.*)/\2/"`
-                linkDependencies=true
-                build=true
-                lint=true
-            ;;
-
-            "--version-app="* | "-va="*)
-                promoteAppVersion=`echo "${paramValue}" | sed -E "s/(--version-app=|-va=)(.*)/\2/"`
                 linkDependencies=true
                 build=true
                 lint=true

@@ -35,7 +35,14 @@ function mapModulesVersions() {
     fi
 
     if [[ ! "${appVersion}" ]]; then
-        appVersion=`getVersionName "version-app.json"`
+        local tempVersion=`getVersionName "version-app.json"`
+        local splitVersion=(${tempVersion//./ })
+        for (( arg=0; arg<3; arg+=1 )); do
+            if [[ ! "${splitVersion[${arg}]}" ]];then
+                splitVersion[${arg}]=0
+            fi
+        done
+        appVersion=`joinArray "." ${splitVersion[@]}`
     fi
 
     executeOnModules mapModule

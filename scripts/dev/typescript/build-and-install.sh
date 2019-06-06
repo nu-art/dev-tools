@@ -408,7 +408,7 @@ function promoteApps() {
     gitTag "v${appVersion}" "Promoted apps to: v${appVersion}"
     gitPushTags
     throwError "Error pushing promotion tag"
-}updated
+}
 
 function publishNuArt() {
     for module in "${nuArtModules[@]}"; do

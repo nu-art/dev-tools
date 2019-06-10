@@ -116,10 +116,12 @@ function linkDependenciesImpl() {
     copyFileToFolder package.json dist/
     logInfo "Linking dependencies sources to: ${module}"
     if [[ `contains "${module}" "${nuArtModules[@]}"` ]] && [[ "${nuArtVersion}" ]]; then
+        logInfo "Setting version '${nuArtVersion}' to module: ${module}"
         setVersionName ${nuArtVersion}
     fi
 
     if [[ `contains "${module}" "${projectModules[@]}"` ]]; then
+        logInfo "Setting version '${appVersion}' to module: ${module}"
         setVersionName ${appVersion}
 
         for otherModule in "${otherModules[@]}"; do

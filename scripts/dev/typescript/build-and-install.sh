@@ -34,6 +34,10 @@ function mapModulesVersions() {
         nuArtVersion=`getVersionName "version-nu-art.json"`
     fi
 
+    if [[ "${newAppVersion}" ]]; then
+        appVersion=${newAppVersion}
+    fi
+
     if [[ ! "${appVersion}" ]]; then
         local tempVersion=`getVersionName "version-app.json"`
         local splitVersion=(${tempVersion//./ })

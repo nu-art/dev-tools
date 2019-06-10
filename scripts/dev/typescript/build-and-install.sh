@@ -620,7 +620,7 @@ fi
 
 # PRE-Launch and deploy
 
-if [[ "${appVersion}" ]]; then
+if [[ "${newAppVersion}" ]]; then
     bannerInfo "promote apps"
     promoteApps
 fi

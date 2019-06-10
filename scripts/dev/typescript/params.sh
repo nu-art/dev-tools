@@ -29,12 +29,12 @@ deployFrontend=
 promoteNuArtVersion=
 promoteAppVersion=
 publish=
-newVersion=
+newAppVersion=
 
 modulesPackageName=()
 modulesVersion=()
 
-params=(mergeOriginRepo cloneNuArt pushNuArtMessage purge clean setup linkDependencies install build lint cleanDirt test launchBackend launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
+params=(mergeOriginRepo cloneNuArt pushNuArtMessage purge clean setup newVersion linkDependencies install build lint cleanDirt test launchBackend launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
 
 function extractParams() {
     for paramValue in "${@}"; do
@@ -134,7 +134,7 @@ function extractParams() {
             ;;
 
             "--set-version="* | "-sv="*)
-                newVersion=`echo "${paramValue}" | sed -E "s/(--set-version=|-sv=)(.*)/\2/"`
+                newAppVersion=`echo "${paramValue}" | sed -E "s/(--set-version=|-sv=)(.*)/\2/"`
                 linkDependencies=true
                 build=true
                 lint=true

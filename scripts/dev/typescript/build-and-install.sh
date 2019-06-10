@@ -102,7 +102,7 @@ function linkDependenciesImpl() {
     sort-package-json
     throwError "Please install sort-package-json:\n   npm i -g sort-package-json"
 
-    copyFileTo package.json dist/
+    copyFileToFolder package.json dist/
     logInfo "Linking dependencies sources to: ${module}"
     if [[ `contains "${module}" "${nuArtModules[@]}"` ]] && [[ "${nuArtVersion}" ]]; then
         setVersionName ${nuArtVersion}

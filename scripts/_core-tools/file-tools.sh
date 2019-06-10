@@ -23,14 +23,12 @@ function getRunningDir(){
     echo ${PWD##*/}
 }
 
-function copyFileTo() {
+function copyFileToFolder() {
     local origin="${1}"
     local target="${2}"
 
     if [[ ! -e "${target}" ]]; then
-        if [[ "${target: -3}" == "/" ]]; then
-            createDir ${target}
-        fi
+        createDir ${target}
     fi
 
     cp ${origin} ${target}

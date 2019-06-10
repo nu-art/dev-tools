@@ -400,7 +400,6 @@ function promoteApps() {
     fi
 
     gitAssertBranch "${allowedBranchesForPromotion[@]}"
-    gitAssertRepoClean
     gitFetchRepo
     gitAssertNoCommitsToPull
 

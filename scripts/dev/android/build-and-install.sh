@@ -19,7 +19,7 @@
 
 #!/bin/bash
 
-source ${BASH_SOURCE%/*}/../android/_source.sh
+source ${BASH_SOURCE%/*}/../../android/_source.sh
 enforceBashVersion 4.4
 setDefaultAndroidHome
 

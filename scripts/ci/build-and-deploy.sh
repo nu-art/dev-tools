@@ -108,8 +108,8 @@ function buildDeployPush() {
     bash gradlew assembleDebug
     throwError "Error compiling project in Debug"
 
-    bash gradlew test -i
-    throwError "Error compiling project in Debug"
+#    bash gradlew test -i
+#    throwError "Error running tests"
 
     build "${modules}" "${tasks}"
     throwError "Error while building artifacts"

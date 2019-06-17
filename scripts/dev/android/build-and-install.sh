@@ -334,8 +334,10 @@ function buildImpl() {
 }
 
 function javaTestsImpl() {
-    execute "bash gradlew test -i" "testing '${appName}'..."
-    throwError "Test error..."
+    if [[ "${javaTests}" ]]; then
+        execute "bash gradlew test -i" "testing '${appName}'..."
+        throwError "Test error..."
+    fi
 }
 
 function deleteApksImpl() {

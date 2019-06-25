@@ -30,6 +30,7 @@ function executeCommand() {
 }
 
 executeCommand "sudo apt-get update"
+executeCommand "sudo apt-get install unzip" "Install UnZip"
 
 # Set 16 gb swap
 executeCommand "sudo fallocate -l 16G /swapfile" "Setup 16gb swapfile"

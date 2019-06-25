@@ -25,7 +25,7 @@ function copyFromRemoteServer() {
     local fromPath=${3}
     local toPath=${4}
 
-    scp -i ${pathToPrivateKey} ${remoteServer}:${fromPath} ${toPath}
+    scp -r -i ${pathToPrivateKey} ${remoteServer}:${fromPath} ${toPath}
 }
 
 copyFromRemoteServer ${1} ${2} ${3} ${4}

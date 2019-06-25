@@ -23,10 +23,6 @@ source ${BASH_SOURCE%/*}/../../android/_source.sh
 enforceBashVersion 4.4
 setDefaultAndroidHome
 
-apkPattern="*.apk"
-deviceIdParam=""
-errorFileName=error
-
 paramColor=${BBlue}
 valueColor=${BGreen}
 
@@ -73,15 +69,29 @@ function printUsage {
 }
 
 adbCommand=${ANDROID_HOME}/platform-tools/adb
-printDependencies=
-offline=""
-nobuild=""
-deviceIds=("")
+launcherClass=com.nu.art.cyborg.ui.ApplicationLauncher
 trashFolder="./.trash"
+deviceIds=("")
+apkPattern="*.apk"
+errorFileName=error.tmp
+
+deviceIdParam=
+printDependencies=
+offline=
+nobuild=
 outputFolder=
 packageName=
 projectName=
-launcherClass=com.nu.art.cyborg.ui.ApplicationLauncher
+pathToApk=
+pathToTestApk=
+appName=
+projectFolder=
+buildType=
+flavor=
+javaTests=
+outputTestFolder=
+
+params=(appName packageName launcherClass buildType flavor projectName projectFolder printDependencies outputFolder pathToApk outputTestFolder javaTests pathToTestApk apkPattern deviceIdParam testMode uninstall clearData forceStop clean build noBuild noInstall noLaunch waitForDevice)
 
 function extractParams() {
     for paramValue in "${@}"; do
@@ -132,6 +142,10 @@ function extractParams() {
 
             "--tests-to-run="*)
                 testsToRun=`echo "${paramValue}" | sed -E "s/--tests-to-run=(.*)/\1/"`
+            ;;
+
+            "--test")
+                javaTests=true
             ;;
 
             "--clean")
@@ -240,7 +254,6 @@ if [[ "${testMode}" ]]; then
 fi
 
 
-params=(appName packageName launcherClass buildType flavor projectName projectFolder printDependencies outputFolder pathToApk outputTestFolder pathToTestApk apkPattern deviceIdParam testMode uninstall clearData forceStop clean build noBuild noInstall noLaunch waitForDevice)
 printDebugParams ${debug} "${params[@]}"
 
 if [[ ! "${packageName}" ]]; then
@@ -318,6 +331,13 @@ function buildImpl() {
 
     execute "bash gradlew${clean}${command}${offline} " "Building '${appName}'..."
     throwError "Build error..."
+}
+
+function javaTestsImpl() {
+    if [[ "${javaTests}" ]]; then
+        execute "bash gradlew test -i" "testing '${appName}'..."
+        throwError "Test error..."
+    fi
 }
 
 function deleteApksImpl() {
@@ -508,6 +528,7 @@ forceStopImpl
 clearDataImpl
 uninstallImpl
 buildImpl
+javaTestsImpl
 installImpl
 installTestImpl
 launchImpl

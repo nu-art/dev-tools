@@ -56,6 +56,12 @@ function extractParams() {
     done
 }
 
+extractParams "$@"
+
+signature "Pull repo"
+printCommand "$@"
+printDebugParams ${debug} "${params[@]}"
+
 executeCommand "sudo apt-get update"
 
 # Installing packages

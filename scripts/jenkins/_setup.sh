@@ -30,7 +30,7 @@ function executeCommand() {
 }
 
 executeCommand "sudo apt-get update"
-executeCommand "sudo apt-get install unzip" "Install UnZip"
+executeCommand "sudo apt-get install zip" "Install UnZip"
 
 # Set 16 gb swap
 

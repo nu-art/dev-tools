@@ -31,10 +31,11 @@ function executeCommand() {
 
 setupSwap=true
 setupJenkins=true
+setupNodeAndNpm=true
 setupJava=
 javaUrl=
 
-params=(setupSwap setupJenkins setupJava javaUrl)
+params=(setupSwap setupJenkins setupJava javaUrl setupNodeAndNpm)
 
 function extractParams() {
     for paramValue in "${@}"; do
@@ -50,6 +51,10 @@ function extractParams() {
 
             "--no-jenkins")
                 setupJenkins=
+            ;;
+
+            "--no-node")
+                setupNodeAndNpm=
             ;;
 
         esac
@@ -112,8 +117,14 @@ if [[ "${setupJenkins}" ]]; then
 fi
 
 # Installing Node & npm
-executeCommand "curl -sL https://deb.nodesource.com/setup_8.x | sudo bash -" "Install Node & npm"
-executeCommand "sudo apt-get install -y nodejs"
+if [[ "${setupNodeAndNpm}" ]]; then
+    executeCommand "curl -sL https://deb.nodesource.com/setup_8.x | sudo bash -" "Install Node & npm"
+    executeCommand "sudo apt-get install -y nodejs"
+    executeCommand "sudo npm i -g sort-package-json"
+    executeCommand "sudo npm i -g typescript"
+    executeCommand "sudo npm i -g tslint"
+    executeCommand "sudo npm i -g firebase-tools"
+fi
 
 # Open ports
 executeCommand "sudo ufw allow 8080" "Open port 8080"

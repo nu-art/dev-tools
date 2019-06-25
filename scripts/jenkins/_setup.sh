@@ -32,6 +32,8 @@ function executeCommand() {
 executeCommand "sudo apt-get update"
 
 # Set 16 gb swap
+
+executeCommand "echo \"/swapfile       none    swap    sw      0       0\" | sudo tee /etc/fstab" "Make sure swap would last after reboot"
 executeCommand "sudo fallocate -l 16G /swapfile" "Setup 16gb swapfile"
 executeCommand "sudo chmod 600 /swapfile" "chmod 600 for swapfile"
 executeCommand "sudo mkswap /swapfile" "Make swap to swapfile"

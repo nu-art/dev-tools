@@ -60,7 +60,7 @@ extractParams "$@"
 
 signature "Pull repo"
 printCommand "$@"
-printDebugParams ${debug} "${params[@]}"
+printDebugParams "${params[@]}"
 
 executeCommand "sudo apt-get update"
 

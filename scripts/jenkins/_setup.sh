@@ -58,7 +58,7 @@ function extractParams() {
 
 extractParams "$@"
 
-signature "Pull repo"
+signature "Jenkins Setup"
 printCommand "$@"
 printDebugParams "${params[@]}"
 

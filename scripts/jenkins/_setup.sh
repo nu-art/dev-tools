@@ -29,26 +29,32 @@ function executeCommand() {
     throwError "${message}"
 }
 
-executeCommand "sudo apt-get update"
-executeCommand "sudo apt-get install zip" "Install UnZip"
+setupSwap=true
+setupJenkins=true
+setupJava=
+javaUrl=
 
-# Set 16 gb swap
+params=(setupSwap setupJenkins setupJava javaUrl)
 
-executeCommand "sudo fallocate -l 16G /swapfile" "Setup 16gb swapfile"
-executeCommand "sudo chmod 600 /swapfile" "chmod 600 for swapfile"
-executeCommand "sudo mkswap /swapfile" "Make swap to swapfile"
-executeCommand "sudo swapon /swapfile" "Enable swap"
+function extractParams() {
+    for paramValue in "${@}"; do
+        case "${paramValue}" in
+            "--java-url="*)
+                javaUrl=`echo "${paramValue}" | sed -E "s/--java-url=(.*)/\1/"`
+                setupJava=true
+            ;;
 
-# Install Groovy & Gradle
-executeCommand "curl -s \"https://get.sdkman.io\" | bash" "Downloading sdkman"
-executeCommand "source /home/ubuntu/.sdkman/bin/sdkman-init.sh" "Source sdkman"
-executeCommand "sdk install groovy" "Installing Groovy"
-executeCommand "sdk install gradle" "Installing Gradle"
+            "--no-swap")
+                setupSwap=
+            ;;
 
-# New repos for apt-get
-executeCommand "sudo add-apt-repository -y ppa:webupd8team/java" "Resolving Java repo"
-executeCommand "wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -" "Resolving Jenkins - 1"
-executeCommand "echo deb http://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list" "Resolving Jenkins - 2"
+            "--no-jenkins")
+                setupJenkins=
+            ;;
+
+        esac
+    done
+}
 
 executeCommand "sudo apt-get update"
 
@@ -56,13 +62,48 @@ executeCommand "sudo apt-get update"
 executeCommand "sudo apt-get install -y unzip" "Installing unzip"
 executeCommand "sudo apt-get install -y zip" "Installing zip"
 
+if [[ "${setupSwap}" ]]; then
+    # Set 16 gb swap
+    executeCommand "sudo fallocate -l 16G /swapfile" "Setup 16gb swapfile"
+    executeCommand "sudo chmod 600 /swapfile" "chmod 600 for swapfile"
+    executeCommand "sudo mkswap /swapfile" "Make swap to swapfile"
+    executeCommand "sudo swapon /swapfile" "Enable swap"
+fi
+
+# Install Groovy & Gradle
+executeCommand "curl -s \"https://get.sdkman.io\" | bash" "Downloading sdkman"
+executeCommand "source /home/ubuntu/.sdkman/bin/sdkman-init.sh" "Source sdkman"
+executeCommand "sdk install groovy" "Installing Groovy"
+executeCommand "sdk install gradle" "Installing Gradle"
+
 # Installing Java8
-executeCommand "sudo apt-get install -y oracle-java8-installer" "Install Java8"
-executeCommand "echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections" "Accept Java8 agreement"
+if [[ "${setupJava}" ]]; then
+    javaFileName="java-jdk8.tar.gz"
+    javaOutputFolder="jdk1.8.0"
+    javaSystemPath="/usr/lib/jvm"
+
+    executeCommand "wget -O ${javaFileName} ${javaUrl}" "Downloading Java 8 JDK"
+    executeCommand "mkdir ./${javaOutputFolder}" "Creating java 8 output folder"
+    executeCommand "tar -xvf ${javaFileName} -C ./${javaOutputFolder} --strip-components=1" "Extracting Java 8 JDK"
+    executeCommand "sudo mkdir -p ${javaSystemPath}" "Creating system jvm folder"
+    executeCommand "sudo mv ./${javaOutputFolder} ${javaSystemPath}/" "Moving jdk to jvm folder"
+    executeCommand "sudo update-alternatives --install \"/usr/bin/java\" \"java\" \"/usr/lib/jvm/jdk1.8.0/bin/java\" 1" "setting default java"
+    executeCommand "sudo update-alternatives --install \"/usr/bin/javac\" \"javac\" \"/usr/lib/jvm/jdk1.8.0/bin/javac\" 1" "setting default javac"
+    executeCommand "sudo update-alternatives --install \"/usr/bin/javaws\" \"javaws\" \"/usr/lib/jvm/jdk1.8.0/bin/javaws\" 1" "setting default javaws"
+    executeCommand "sudo chmod a+x /usr/bin/java" "Set as executable java"
+    executeCommand "sudo chmod a+x /usr/bin/javac" "Set as executable javac"
+    executeCommand "sudo chmod a+x /usr/bin/javaws" "Set as executable javaws"
+fi
 
 # Installing Jenkins
-executeCommand "sudo apt-get install -y jenkins" "Install Jenkins"
-executeCommand "sudo systemctl start jenkins" "Start Jenkins"
+if [[ "${setupJenkins}" ]]; then
+    executeCommand "wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -" "Resolving Jenkins - 1"
+    executeCommand "echo deb http://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list" "Resolving Jenkins - 2"
+
+    executeCommand "sudo apt-get update"
+    executeCommand "sudo apt-get install -y jenkins" "Install Jenkins"
+    executeCommand "sudo systemctl start jenkins" "Start Jenkins"
+fi
 
 # Installing Node & npm
 executeCommand "curl -sL https://deb.nodesource.com/setup_8.x | sudo bash -" "Install Node & npm"

@@ -30,7 +30,7 @@ function assertNodePackageInstalled() {
     rm error
 
     if [[ "${code}" != "0" ]]; then
-        throwError "Missing node module '${package}'  Please run:      npm i -g ${package}" ${code}
+        throwError "Missing node module '${package}'  Please run:      npm i -g ${package}@latest" ${code}
     fi
 }
 

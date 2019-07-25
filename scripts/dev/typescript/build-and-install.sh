@@ -23,14 +23,14 @@ nuArtVersion=
 
 function assertNodePackageInstalled() {
     local package=${1}
-    local command=${2}
 
-    ${command} 2> error
+    logInfo "Verifing package installed ${package}"
+    npm list -g ${package} > error 2>&1
     local code=$?
     rm error
 
-    if [[ "${code}" != "" ]]; then
-        throwError "Missing node module '${package}'...\n  - Please run:\n    npm i -g ${package}"
+    if [[ "${code}" != "0" ]]; then
+        throwError "Missing node module '${package}'  Please run:      npm i -g ${package}" ${code}
     fi
 }
 
@@ -597,7 +597,6 @@ mapExistingLibraries
 mapModulesVersions
 
 # BUILD
-
 if [[ "${purge}" ]]; then
     bannerInfo "purge"
     executeOnModules purgeModule
@@ -609,7 +608,10 @@ if [[ "${envType}" ]]; then
 fi
 
 if [[ "${setup}" ]]; then
-    assertNodePackageInstalled typescript tsc
+    assertNodePackageInstalled typescript
+    assertNodePackageInstalled firebase-tools
+    assertNodePackageInstalled sort-package-json
+
     bannerInfo "setup"
     executeOnModules setupModule
 fi

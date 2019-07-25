@@ -21,6 +21,19 @@ nuArtVersion=
 #               #
 #################
 
+function assertNodePackageInstalled() {
+    local package=${1}
+    local command=${2}
+
+    ${command} 2> error
+    local code=$?
+    rm error
+
+    if [[ "${code}" != "" ]]; then
+        throwError "Missing node module '${package}'...\n  - Please run:\n    npm i -g ${package}"
+    fi
+}
+
 function printVersions() {
     logDebug "Nu-Art version: ${nuArtVersion}"
     logDebug "App version: ${appVersion}"
@@ -596,6 +609,7 @@ if [[ "${envType}" ]]; then
 fi
 
 if [[ "${setup}" ]]; then
+    assertNodePackageInstalled typescript tsc
     bannerInfo "setup"
     executeOnModules setupModule
 fi

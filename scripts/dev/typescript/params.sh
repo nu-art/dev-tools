@@ -129,6 +129,13 @@ function extractParams() {
                 lint=true
             ;;
 
+            "--quick-deploy" | "-qd")
+                lint=
+                build=
+                install=
+                linkDependencies=
+            ;;
+
             "--set-env="* | "-se="*)
                 envType=`echo "${paramValue}" | sed -E "s/(--set-env=|-se=)(.*)/\2/"`
             ;;

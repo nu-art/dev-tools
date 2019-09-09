@@ -185,9 +185,9 @@ function linkDependenciesImpl() {
         local escapedModuleName=${modulePackageName/\//\\/}
 
         if [[ `isMacOS` ]]; then
-            sed -i '' "s/\"${escapedModuleName}\": \".*\"/\"${escapedModuleName}\": \"^${moduleVersion}\"/g" package.json
+            sed -i '' "s/\"${escapedModuleName}\": \".*\"/\"${escapedModuleName}\": \"${moduleVersion}\"/g" package.json
         else
-            sed -i "s/\"${escapedModuleName}\": \".*\"/\"${escapedModuleName}\": \"^${moduleVersion}\"/g" package.json
+            sed -i "s/\"${escapedModuleName}\": \".*\"/\"${escapedModuleName}\": \"${moduleVersion}\"/g" package.json
         fi
         throwError "Error updating version of dependency in package.json"
     done

@@ -6,7 +6,14 @@ source ./dev-tools/scripts/ci/typescript/_source.sh
 source ${BASH_SOURCE%/*}/params.sh
 source ${BASH_SOURCE%/*}/help.sh
 
-source .scripts/setup.sh
+if [[ -e ".scripts/setup.sh" ]]; then
+    source .scripts/setup.sh
+fi
+if [[ -e ".scripts/modules.sh" ]]; then
+    source .scripts/modules.sh
+else
+    source ${BASH_SOURCE%/*}/modules.sh
+fi
 source .scripts/modules.sh
 source .scripts/signature.sh
 
@@ -20,6 +27,54 @@ nuArtVersion=
 #  DECLARATION  #
 #               #
 #################
+
+function migrateRepoToThunderstorm() {
+    local oldRepoName=${1}
+    local newRepoName=${2}
+
+    git submodule deinit ${oldRepoName}
+    git rm -rf --cache ${oldRepoName}
+
+    git clone git@github.com:nu-art-js/${newRepoName}.git
+    git submodule add git@github.com:nu-art-js/${newRepoName}.git ${newRepoName} -f
+
+    rm -rf ${oldRepoName}
+}
+
+function migrateToThunderstorm() {
+    clear
+    logVerbose "${Gray}             _____ _                     _                    _                                      ${NoColor}"
+    logVerbose "${Gray} -------    |_   _| |__  _   _ _ __   __| | ___ _ __      ___| |_ ___  _ __ _ __ ___    ${Gray}   ------- ${NoColor}"
+    logVerbose "${Gray} -------      | | | '_ \| | | | '_ \ / _\` |/ _ \ '__|____/ __| __/ _ \| '__| '_ \` _ \ ${Gray}   ------- ${NoColor}"
+    logVerbose "${Gray} -------      | | | | | | |_| | | | | (_| |  __/ | |_____\__ \ || (_) | |  | | | | | |  ${Gray}   ------- ${NoColor}"
+    logVerbose "${Gray} -------      |_| |_| |_|\__,_|_| |_|\__,_|\___|_|       |___/\__\___/|_|  |_| |_| |_|  ${Gray}   ------- ${NoColor}"
+    logVerbose "${Gray} -------                                                                                ${Gray}   ------- ${NoColor}"
+    logVerbose
+    sleep 1s
+
+    migrateRepoToThunderstorm "nu-art-core" "ts-common"
+    migrateRepoToThunderstorm "nu-art-test" "testelot"
+    migrateRepoToThunderstorm "nu-art-fronzy" "thunder"
+    migrateRepoToThunderstorm "nu-art-server" "storm"
+
+    rm .scripts/setup.sh
+    rm .scripts/modules.sh
+
+    bash dev-tools/scripts/git/fix-submodules.sh
+
+    exit 0
+}
+
+function reverseThunderstorm() {
+    migrateRepoToThunderstorm  "ts-common" "nu-art-core"
+    migrateRepoToThunderstorm  "testelot" "nu-art-test"
+    migrateRepoToThunderstorm  "thunder" "nu-art-fronzy"
+    migrateRepoToThunderstorm  "storm" "nu-art-server"
+
+    git reset --hard
+
+    exit 0
+}
 
 function assertNodePackageInstalled() {
     local package=${1}
@@ -574,6 +629,15 @@ fi
 #   EXECUTION   #
 #               #
 #################
+
+if [[ "${thunderstorm}" == "true" ]]; then
+    migrateToThunderstorm
+fi
+
+if [[ "${thunderstorm}" == "false" ]]; then
+    reverseThunderstorm
+fi
+
 
 if [[ "${#modules[@]}" == 0 ]]; then
     modules+=(${nuArtModules[@]})

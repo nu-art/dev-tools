@@ -30,11 +30,12 @@ promoteNuArtVersion=
 promoteAppVersion=
 publish=
 newAppVersion=
+thunderstorm=
 
 modulesPackageName=()
 modulesVersion=()
 
-params=(mergeOriginRepo cloneNuArt pushNuArtMessage purge clean setup newVersion linkDependencies install build lint cleanDirt test launchBackend launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
+params=(thunderstorm mergeOriginRepo cloneNuArt pushNuArtMessage purge clean setup newVersion linkDependencies install build lint cleanDirt test launchBackend launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
 
 function extractParams() {
     for paramValue in "${@}"; do
@@ -49,6 +50,14 @@ function extractParams() {
 
             "--merge-origin")
                 mergeOriginRepo=true
+            ;;
+
+            "--thunderstorm")
+                thunderstorm=true
+            ;;
+
+            "--unthunderstorm")
+                thunderstorm=false
             ;;
 
             "--nu-art")

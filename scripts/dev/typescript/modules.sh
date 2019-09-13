@@ -1,6 +1,6 @@
 #!/bin/bash
 
-boilerplateRepo="git@github.com:nu-art-js/typescript-boilerplate.git"
+boilerplateRepo="git@github.com:nu-art-js/thunderstorm-boilerplate.git"
 
 frontendModule=app-frontend
 backendModule=app-backend

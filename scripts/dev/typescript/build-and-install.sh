@@ -43,14 +43,17 @@ function signatureThunderstorm() {
 function assertNodePackageInstalled() {
     local package=${1}
 
-    logInfo "Verifing package installed ${package}"
-    npm list -g ${package} > error 2>&1
+    logDebug "Verifying package installed ${package}..."
+    npm list -g ${package} | grep ${package}> error 2>&1
     local code=$?
+    local version=`cat error | tail -1 | sed -E "s/.*${package}@(.*)/\1/"`
     rm error
 
     if [[ "${code}" != "0" ]]; then
         throwError "Missing node module '${package}'  Please run:      npm i -g ${package}@latest" ${code}
     fi
+
+    logInfo "Found package ${package} == ${version}"
 }
 
 function printVersions() {
@@ -633,6 +636,7 @@ if [[ "${setup}" ]]; then
     assertNodePackageInstalled typescript
     assertNodePackageInstalled firebase-tools
     assertNodePackageInstalled sort-package-json
+    assertNodePackageInstalled nodemon
 
     bannerInfo "setup"
     executeOnModules setupModule
@@ -678,10 +682,6 @@ fi
 
 if [[ "${launchBackend}" ]]; then
     bannerInfo "launchBackend"
-
-    npm list -g nodemon > /dev/null
-    throwError "nodemon package is missing... Please install nodemon:\n npm i -g nodemon"
-
     cd ${backendModule}
         if [[ "${launchFrontend}" ]]; then
             npm run serve &

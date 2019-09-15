@@ -35,7 +35,7 @@ function extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--stash-name="*)
-                stashName=`echo "${paramValue}" | sed -E "s/--stash-name=(.*)/\1/"`
+                stashName=`regexParam "--stash-name" "${paramValue}"`
             ;;
 
             "--force" | "-f")

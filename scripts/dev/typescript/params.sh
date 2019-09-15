@@ -56,7 +56,7 @@ function extractParams() {
             ;;
 
             "--push="*)
-                pushNuArtMessage=`echo "${paramValue}" | sed -E "s/--push=(.*)/\1/"`
+                pushNuArtMessage=`regexParam "--push" "${paramValue}"`
             ;;
 
 #        ==== CLEAN =====
@@ -91,7 +91,7 @@ function extractParams() {
             ;;
 
             "--flag-dirty="*)
-                dirtyLib=`echo "${paramValue}" | sed -E "s/--flag-dirty=(.*)/\1/"`
+                dirtyLib=`regexParam "--flag-dirty" "${paramValue}"`
             ;;
 
             "--no-build" | "-nb")
@@ -151,11 +151,11 @@ function extractParams() {
             ;;
 
             "--set-env="* | "-se="*)
-                envType=`echo "${paramValue}" | sed -E "s/(--set-env=|-se=)(.*)/\2/"`
+                envType=`regexParam "--set-env|-se" "${paramValue}"`
             ;;
 
             "--set-version="* | "-sv="*)
-                newAppVersion=`echo "${paramValue}" | sed -E "s/(--set-version=|-sv=)(.*)/\2/"`
+                newAppVersion=`regexParam "--set-version|-sv" "${paramValue}"`
                 linkDependencies=true
                 build=true
                 lint=true
@@ -186,7 +186,7 @@ function extractParams() {
             ;;
 
             "--version-nu-art="* | "-vn="*)
-                promoteNuArtVersion=`echo "${paramValue}" | sed -E "s/(--version-nu-art=|-vn=)(.*)/\2/"`
+                promoteNuArtVersion=`regexParam "--version-nu-art|-vn" "${paramValue}"`
                 linkDependencies=true
                 build=true
                 lint=true

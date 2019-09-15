@@ -34,11 +34,11 @@ function extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--tag="*)
-                tagName=`echo "${paramValue}" | sed -E "s/--tag=(.*)/\1/"`
+                tagName=`regexParam "--tag" "${paramValue}"`
             ;;
 
             "--branch="*)
-                branchName=`echo "${paramValue}" | sed -E "s/--branch=(.*)/\1/"`
+                branchName=`regexParam "--branch" "${paramValue}"`
             ;;
 
             "--project" | "-p")

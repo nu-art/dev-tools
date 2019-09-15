@@ -529,14 +529,17 @@ function setEnvironment() {
     logInfo "Setting envType: ${envType}"
     copyConfigFile "Setting firebase.json for env: ${envType}" "./.config" "firebase-${envType}.json" "firebase.json"
     copyConfigFile "Setting .firebaserc for env: ${envType}" "./.config" ".firebaserc-${envType}" ".firebaserc"
+    if [[ -e ${backendModule} ]];then
+        cd ${backendModule}
+            copyConfigFile "Setting frontend config.ts for env: ${envType}" "./.config" "config-${envType}.ts" "./src/main/config.ts"
+        cd - > /dev/null
+    fi
 
-    cd ${backendModule}
-        copyConfigFile "Setting frontend config.ts for env: ${envType}" "./.config" "config-${envType}.ts" "./src/main/config.ts"
-    cd - > /dev/null
-
-    cd ${frontendModule}
-        copyConfigFile "Setting frontend config.ts for env: ${envType}" "./.config" "config-${envType}.ts" "./src/main/config.ts"
-    cd - > /dev/null
+    if [[ -e ${frontendModule} ]];then
+        cd ${frontendModule}
+            copyConfigFile "Setting frontend config.ts for env: ${envType}" "./.config" "config-${envType}.ts" "./src/main/config.ts"
+        cd - > /dev/null
+    fi
 
     firebase use `getJsonValueForKey .firebaserc "default"`
 }

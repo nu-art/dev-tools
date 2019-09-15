@@ -754,14 +754,14 @@ if [[ "${deployBackend}" ]] || [[ "${deployFrontend}" ]]; then
 
     firebaseProject=`getJsonValueForKey .firebaserc "default"`
 
-    if [[ "${deployBackend}" ]]; then
+    if [[ "${deployBackend}" ]] && [[ -e ${backendModule} ]]; then
         logInfo "Using firebase project: ${firebaseProject}"
         firebase use ${firebaseProject}
         firebase deploy --only functions
         throwError "Error while deploying functions"
     fi
 
-    if [[ "${deployFrontend}" ]]; then
+    if [[ "${deployFrontend}" ]] && [[ -e ${frontendModule} ]];  then
         logInfo "Using firebase project: ${firebaseProject}"
         firebase use ${firebaseProject}
         firebase deploy --only hosting

@@ -97,51 +97,51 @@ function extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--launcher-class="*)
-                launcherClass=`echo "${paramValue}" | sed -E "s/--launcher-class=(.*)/\1/"`
+                launcherClass=`regexParam "--launcher-class" "${paramValue}"`
             ;;
 
             "--package-name="*)
-                packageName=`echo "${paramValue}" | sed -E "s/--package-name=(.*)/\1/"`
+                packageName=`regexParam "--package-name" "${paramValue}"`
             ;;
 
             "--path-to-apk="*)
-                pathToApk=`echo "${paramValue}" | sed -E "s/--path-to-apk=(.*)/\1/"`
+                pathToApk=`regexParam "--path-to-apk" "${paramValue}"`
             ;;
 
             "--path-to-test-apk="*)
-                pathToTestApk=`echo "${paramValue}" | sed -E "s/--path-to-test-apk=(.*)/\1/"`
+                pathToTestApk=`regexParam "--path-to-test-apk" "${paramValue}"`
             ;;
 
             "--apk-pattern="*)
-                apkPattern=`echo "${paramValue}" | sed -E "s/--apk-pattern=(.*)/\1/"`
+                apkPattern=`regexParam "--apk-pattern" "${paramValue}"`
             ;;
 
             "--app-name="*)
-                appName=`echo "${paramValue}" | sed -E "s/--app-name=(.*)/\1/"`
+                appName=`regexParam "--app-name" "${paramValue}"`
             ;;
 
             "--device-id="*)
-                deviceIdParam=`echo "${paramValue}" | sed -E "s/--device-id=(.*)/\1/"`
+                deviceIdParam=`regexParam "--device-id" "${paramValue}"`
             ;;
 
             "--project="*)
-                projectName=`echo "${paramValue}" | sed -E "s/--project=(.*)/\1/"`
+                projectName=`regexParam "--project" "${paramValue}"`
             ;;
 
             "--folder="*)
-                projectFolder=`echo "${paramValue}" | sed -E "s/--folder=(.*)/\1/"`
+                projectFolder=`regexParam "--folder" "${paramValue}"`
             ;;
 
             "--build="*)
-                buildType=`echo "${paramValue}" | sed -E "s/--build=(.*)/\1/"`
+                buildType=`regexParam "--build" "${paramValue}"`
             ;;
 
             "--flavor="*)
-                flavor=`echo "${paramValue}" | sed -E "s/--flavor=(.*)/\1/"`
+                flavor=`regexParam "--flavor" "${paramValue}"`
             ;;
 
             "--tests-to-run="*)
-                testsToRun=`echo "${paramValue}" | sed -E "s/--tests-to-run=(.*)/\1/"`
+                testsToRun=`regexParam "--tests-to-run" "${paramValue}"`
             ;;
 
             "--test")

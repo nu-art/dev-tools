@@ -41,7 +41,7 @@ function extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--java-url="*)
-                javaUrl=`echo "${paramValue}" | sed -E "s/--java-url=(.*)/\1/"`
+                javaUrl=`regexParam "--java-url" "${paramValue}"`
                 setupJava=true
             ;;
 

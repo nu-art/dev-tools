@@ -9,7 +9,7 @@ function extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--branch="*)
-                branchName=`echo "${paramValue}" | sed -E "s/--branch=(.*)/\1/"`
+                branchName=`regexParam "--branch" "${paramValue}"`
             ;;
 
             "--gsu")

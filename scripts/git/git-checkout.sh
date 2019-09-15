@@ -36,8 +36,8 @@ function extractParams() {
                 force="true"
             ;;
 
-            "--branch="*)
-                branchName=`echo "${paramValue}" | sed -E "s/--branch=(.*)/\1/"`
+            "--branch="* | "-b="*)
+                branchName=`regexParam "--branch|-b" "${paramValue}"`
             ;;
 
             "--project" | "-p")

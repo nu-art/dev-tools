@@ -23,16 +23,16 @@ for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
     paramValue="${!lastParam}"
     case ${paramValue} in
         "--output="*)
-            outputFolder=`echo "${paramValue}" | sed -E "s/--output=(.*)/\1/"`
+            outputFolder=`regexParam "--output" "${paramValue}"`
         ;;
 
         "--postfix="*)
-            postfix=`echo "${paramValue}" | sed -E "s/--postfix=(.*)/\1/"`
+            postfix=`regexParam "--postfix" "${paramValue}"`
             postfix="-${postfix}"
         ;;
 
         "--domain="*)
-            domain=`echo "${paramValue}" | sed -E "s/--domain=(.*)/\1/"`
+            domain=`regexParam "--domain" "${paramValue}"`
         ;;
 
         "*")

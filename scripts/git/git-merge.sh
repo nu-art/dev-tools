@@ -30,11 +30,11 @@ function extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--from="*)
-                fromBranch=`echo "${paramValue}" | sed -E "s/--from=(.*)/\1/"`
+                fromBranch=`regexParam "--from" "${paramValue}"`
             ;;
 
             "--to="*)
-                toBranch=`echo "${paramValue}" | sed -E "s/--to=(.*)/\1/"`
+                toBranch=`regexParam "--to" "${paramValue}"`
             ;;
 
             "--to-this")

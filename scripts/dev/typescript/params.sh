@@ -15,11 +15,11 @@ setup=
 install=true
 listen=
 linkDependencies=true
-test=
 build=true
 lint=
 
 launchBackend=
+runBackendTests=
 launchFrontend=
 
 envType=
@@ -30,12 +30,11 @@ promoteNuArtVersion=
 promoteAppVersion=
 publish=
 newAppVersion=
-thunderstorm=
 
 modulesPackageName=()
 modulesVersion=()
 
-params=(thunderstorm mergeOriginRepo cloneNuArt pushNuArtMessage purge clean setup newVersion linkDependencies install build lint cleanDirt test launchBackend launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
+params=(mergeOriginRepo cloneNuArt pushNuArtMessage purge clean setup newVersion linkDependencies install build lint cleanDirt launchBackend runBackendTests launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
 
 function extractParams() {
     for paramValue in "${@}"; do
@@ -50,14 +49,6 @@ function extractParams() {
 
             "--merge-origin")
                 mergeOriginRepo=true
-            ;;
-
-            "--thunderstorm")
-                thunderstorm=true
-            ;;
-
-            "--unthunderstorm")
-                thunderstorm=false
             ;;
 
             "--nu-art")
@@ -111,8 +102,22 @@ function extractParams() {
                 lint=true
             ;;
 
-            "--test" | "-t")
-                test=true
+            "--test-modules" | "-tm")
+                testModules=true
+            ;;
+
+            "--run-backend-tests" | "-rbt")
+                runBackendTests=true
+                launchFrontend=
+                build=
+            ;;
+
+            "--launch-backend-test-mode" | "-lbtm")
+                launchBackend=true
+                launchFrontend=
+                linkDependencies=true
+                envType=test
+                build=
             ;;
 
             "--listen" | "-l")

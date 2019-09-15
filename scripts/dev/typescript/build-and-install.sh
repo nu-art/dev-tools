@@ -28,20 +28,7 @@ nuArtVersion=
 #               #
 #################
 
-function migrateRepoToThunderstorm() {
-    local oldRepoName=${1}
-    local newRepoName=${2}
-
-    git submodule deinit ${oldRepoName}
-    git rm -rf --cache ${oldRepoName}
-
-    git clone git@github.com:nu-art-js/${newRepoName}.git
-    git submodule add git@github.com:nu-art-js/${newRepoName}.git ${newRepoName} -f
-
-    rm -rf ${oldRepoName}
-}
-
-function migrateToThunderstorm() {
+function signatureThunderstorm() {
     clear
     logVerbose "${Gray}             _____ _                     _                    _                                      ${NoColor}"
     logVerbose "${Gray} -------    |_   _| |__  _   _ _ __   __| | ___ _ __      ___| |_ ___  _ __ _ __ ___    ${Gray}   ------- ${NoColor}"
@@ -51,29 +38,6 @@ function migrateToThunderstorm() {
     logVerbose "${Gray} -------                                                                                ${Gray}   ------- ${NoColor}"
     logVerbose
     sleep 1s
-
-    migrateRepoToThunderstorm "nu-art-core" "ts-common"
-    migrateRepoToThunderstorm "nu-art-test" "testelot"
-    migrateRepoToThunderstorm "nu-art-fronzy" "thunder"
-    migrateRepoToThunderstorm "nu-art-server" "storm"
-
-    rm .scripts/setup.sh
-    rm .scripts/modules.sh
-
-    bash dev-tools/scripts/git/fix-submodules.sh
-
-    exit 0
-}
-
-function reverseThunderstorm() {
-    migrateRepoToThunderstorm  "ts-common" "nu-art-core"
-    migrateRepoToThunderstorm  "testelot" "nu-art-test"
-    migrateRepoToThunderstorm  "thunder" "nu-art-fronzy"
-    migrateRepoToThunderstorm  "storm" "nu-art-server"
-
-    git reset --hard
-
-    exit 0
 }
 
 function assertNodePackageInstalled() {
@@ -630,15 +594,6 @@ fi
 #               #
 #################
 
-if [[ "${thunderstorm}" == "true" ]]; then
-    migrateToThunderstorm
-fi
-
-if [[ "${thunderstorm}" == "false" ]]; then
-    reverseThunderstorm
-fi
-
-
 if [[ "${#modules[@]}" == 0 ]]; then
     modules+=(${nuArtModules[@]})
     modules+=(${projectModules[@]})
@@ -698,7 +653,7 @@ if [[ "${lint}" ]]; then
     executeOnModules lintModule
 fi
 
-if [[ "${test}" ]]; then
+if [[ "${testModules}" ]]; then
     bannerInfo "test"
     executeOnModules testModule
 fi
@@ -711,6 +666,12 @@ if [[ "${newAppVersion}" ]]; then
 fi
 
 # LAUNCH
+if [[ "${runBackendTests}" ]]; then
+    cd ${backendModule}
+        npm run test
+    cd ..
+    exit 0
+fi
 
 if [[ "${launchBackend}" ]]; then
     bannerInfo "launchBackend"
@@ -718,7 +679,6 @@ if [[ "${launchBackend}" ]]; then
     npm list -g nodemon > /dev/null
     throwError "nodemon package is missing... Please install nodemon:\n npm i -g nodemon"
 
-    setupBackend
     cd ${backendModule}
         if [[ "${launchFrontend}" ]]; then
             npm run serve &

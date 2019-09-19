@@ -40,13 +40,13 @@ def addTask_DeployToNexus(groupId, _packaging) {
         repositories {
             mavenDeployer {
                 repository(url: nexusRepoUrl) {
-                    def userName = System.properties['NEXUS_USER']
+                    def userName = System.getenv('NEXUS_USER')
                     if (!userName)
-                        userName = System.getenv('NEXUS_USER')
+                        userName = System.properties['NEXUS_USER']
 
-                    def password = System.properties['NEXUS_PASSWORD']
+                    def password = System.getenv('NEXUS_PASSWORD')
                     if (!password)
-                        password = System.getenv('NEXUS_PASSWORD')
+                        password = System.properties['NEXUS_PASSWORD']
 
                     println("userName: " + userName + "  password: " + password)
                     authentication(userName: userName, password: password)

@@ -30,17 +30,22 @@ promoteNuArtVersion=
 promoteAppVersion=
 publish=
 newAppVersion=
+printEnv=
 
 modulesPackageName=()
 modulesVersion=()
 
-params=(mergeOriginRepo cloneNuArt pushNuArtMessage purge clean setup newVersion linkDependencies install build lint cleanDirt launchBackend runBackendTests launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
+params=(mergeOriginRepo printEnv cloneNuArt pushNuArtMessage purge clean setup newVersion linkDependencies install build lint cleanDirt launchBackend runBackendTests launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
 
 function extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--help")
                 printHelp
+            ;;
+
+            "--print-env")
+                printEnv=true
             ;;
 
             "--debug")

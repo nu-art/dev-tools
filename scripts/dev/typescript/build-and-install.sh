@@ -600,6 +600,16 @@ fi
 #               #
 #################
 
+if [[ "${printEnv}" ]]; then
+    assertNodePackageInstalled typescript
+    assertNodePackageInstalled firebase-tools
+    assertNodePackageInstalled sort-package-json
+    logDebug "node version: "`node -v`
+    logDebug "npm version: "`npm -v`
+    logDebug "bash version: "`getBashVersion`
+    exit 0
+fi
+
 if [[ "${#modules[@]}" == 0 ]]; then
     modules+=(${nuArtModules[@]})
     modules+=(${projectModules[@]})

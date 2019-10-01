@@ -2,7 +2,7 @@
 source ./dev-tools/scripts/git/_core.sh
 source ./dev-tools/scripts/ci/typescript/_source.sh
 
-const_BoilerplateProject=thunderstorm-boilerplate
+const_BoilerplateFirebaseProject=nu-art-thunderstorm
 const_BoilerplateLocation=us-central1
 
 repoUrl=git@github.com:nu-art-js/thunderclone.git
@@ -11,6 +11,7 @@ withSources=n
 allGood=n
 firebaseProject=`firebase use | head -1`
 firebaseProjectLocation=us-central22
+timestamp=`date +%Y-%m-%d--%H-%M-%S`
 
 function signatureThunderstorm() {
     clear
@@ -68,6 +69,7 @@ function promptForRepoUrl() {
     if [[ "${status}" != "0" ]]; then
         promptForRepoUrl
     fi
+    logInfo
 }
 
 function verifyNpmPackageInstalledGlobally() {
@@ -127,18 +129,22 @@ function promptForFirebaseProject() {
         logWarning "Make sure you have access rights to the firebase project called: ${firebaseProject}"
         promptForFirebaseProject
     fi
+    logInfo
 }
 
 function promptForFirebaseProjectLocationRepo() {
     promptUserForInput projectLocation "Please enter the Firebase Project LOCATION assigned to your project ${firebaseProjectLocation}"
+    logInfo
 }
 
 function installNpmPackages() {
+    logInfo "Verify required npm packages are installed"
     verifyNpmPackageInstalledGlobally "typescript" 3.6.3
     verifyNpmPackageInstalledGlobally "tslint" 5.20.0
     verifyNpmPackageInstalledGlobally "firebase-tools" 7.4.0
-    verifyNpmPackageInstalledGlobally "nodemon" latest
-    verifyNpmPackageInstalledGlobally "sort-package-json" latest
+    verifyNpmPackageInstalledGlobally "nodemon" 1.19.3
+    verifyNpmPackageInstalledGlobally "sort-package-json" 1.22.1
+    logInfo
 }
 
 #function verifyLocalPathExists() {
@@ -153,12 +159,22 @@ function installNpmPackages() {
 
 function promptForLocalPathForFork() {
     promptUserForInput localPath "Please enter the path to fork the project to:" ${localPath}
-#    verifyLocalPathExists ${localPath}
-#    local status=$?
-#    if [[ "${status}" != "0" ]]; then
-#        logWarning "Could not create folder at: ${localPath}"
-#        promptForLocalPathForFork
-#    fi
+    local deleteLocalFolder=y
+    if [[ -e "${localPath}" ]]; then
+        yesOrNoQuestion_new deleteLocalFolder "Folder already exists and need to be deleted: ${localPath}\n Delete Folder? [Y/n]" ${deleteLocalFolder}
+        case "${deleteLocalFolder}" in
+            [y])
+                deleteFolder ${localPath}
+                return
+            ;;
+            [n])
+                promptForLocalPathForFork
+                return
+            ;;
+        esac
+
+    fi
+    logInfo
 }
 
 function promptForWithOrWithoutSources() {
@@ -175,7 +191,7 @@ function promptUserForConfirmation() {
 
     yesOrNoQuestion_new allGood "Are all these details correct: [y/N]\n${userInput}" ${allGood}
 
-    case "allGood" in
+    case "${allGood}" in
         [n])
             logError "Aborting fork due to incorrect user input!!"
             exit 2
@@ -186,7 +202,9 @@ function promptUserForConfirmation() {
 
 function uploadDefaultConfigToFirebase() {
     logInfo "Setting boilerplate example config to your project"
-    local backupFile=".fork/${firebaseProject}_backup_`date +%Y-%m-%d--%H-%M-%S`.json"
+    logDebug "pwd: `pwd`"
+
+    local backupFile=".fork/${firebaseProject}_backup_${timestamp}.json"
 
     logDebug "Using firebase project: ${firebaseProject}"
     firebase use ${firebaseProject}
@@ -199,8 +217,8 @@ function uploadDefaultConfigToFirebase() {
 }
 
 function forkThunderstorm() {
-    local forkingOutput=".fork/${firebaseProject}_forking`date +%Y-%m-%d--%H-%M-%S`.json"
-    logInfo "Forking Thunderstorm boilerplate into..."
+    local forkingOutput=".fork/${firebaseProject}_forking_${timestamp}.json"
+    logInfo "Forking Thunderstorm boilerplate into...  ${repoUrl}"
     bash ./dev-tools/scripts/git/git-fork.sh --to=${repoUrl} --output=${localPath} > ${forkingOutput}
     throwError "Error while forking Thunderstorm... logs can be found here: ${forkingOutput}"
 }
@@ -219,22 +237,22 @@ function cleanUpForkedRepo() {
 }
 
 function replaceBoilerplateNamesWithNewForkedNames() {
-    renameStringInFiles ./ ${const_BoilerplateProject} "${firebaseProject}"
+    renameStringInFiles ./ ${const_BoilerplateFirebaseProject} "${firebaseProject}"
     renameStringInFiles ./ ${const_BoilerplateLocation} "${firebaseProjectLocation}"
 }
 
 function setupForkedProject() {
-    local setupOutput=".fork/${firebaseProject}_forking`date +%Y-%m-%d--%H-%M-%S`.json"
+    local output=".fork/${firebaseProject}_setup_${timestamp}.json"
     logInfo "Running initial setup of forked repo..."
-    bash ./build-and-install.sh -se=dev --setup
-    throwError "Error while forking Thunderstorm... logs can be found here: ${forkingOutput}"
+    bash build-and-install.sh -se=dev --setup > ${output}
+    throwError "Error while setting up forked Thunderstorm... logs can be found here: ${output}"
 }
 
 function launchForkedProject() {
-    local setupOutput=".fork/${firebaseProject}_forking`date +%Y-%m-%d--%H-%M-%S`.json"
+    local output=".fork/${firebaseProject}_launch_${timestamp}.json"
     logInfo "Launching forked project..."
-    bash ./build-and-install.sh -se=dev --setup
-    throwError "Error while forking Thunderstorm... logs can be found here: ${forkingOutput}"
+    bash ./build-and-install.sh -lf -lb> ${output}
+    throwError "Error while launching forked Thunderstorm... logs can be found here: ${output}"
 }
 
 function sayHello() {
@@ -247,6 +265,7 @@ function sayHello() {
     logWarning "Bellow is a link to a video tutorial on how to fork Thunderstorm:"
     logWarning
     logWarning "   https://future-link-here"
+    logWarning
     sleep 5s
 }
 
@@ -264,16 +283,14 @@ function start() {
 
     forkThunderstorm
     cd ${localPath}
-    cleanUpForkedRepo
-    replaceBoilerplateNamesWithNewForkedNames
-    uploadDefaultConfigToFirebase
-    setupForkedProject
-
+        cleanUpForkedRepo
+        replaceBoilerplateNamesWithNewForkedNames
+        uploadDefaultConfigToFirebase
+        setupForkedProject
+    cd -
 #    echo "Your forked repo url: ${repoUrl}"
 #    echo "Your Firebase project: ${firebaseProject}"
 #    echo "The Firebase project location: ${firebaseProjectLocation}"
-
-
 }
 
 start

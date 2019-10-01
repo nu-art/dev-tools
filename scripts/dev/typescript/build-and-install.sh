@@ -14,8 +14,6 @@ if [[ -e ".scripts/modules.sh" ]]; then
 else
     source ${BASH_SOURCE%/*}/modules.sh
 fi
-source .scripts/modules.sh
-source .scripts/signature.sh
 
 enforceBashVersion 4.4
 

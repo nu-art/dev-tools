@@ -49,6 +49,10 @@ function deleteFile() {
     execute "rm ${pathToFile}" "Deleting file: ${pathToFile}"
 }
 
+function deleteFolder() {
+    deleteDir $@
+}
+
 function deleteDir() {
     local pathToDir="${1}"
     if [[ ! -e "${pathToDir}" ]] && [[ ! -d "${pathToDir}" ]] && [[ ! -L "${pathToDir}" ]]; then return; fi

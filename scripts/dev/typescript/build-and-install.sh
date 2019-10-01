@@ -602,6 +602,7 @@ fi
 
 if [[ "${printEnv}" ]]; then
     assertNodePackageInstalled typescript
+    assertNodePackageInstalled tslint
     assertNodePackageInstalled firebase-tools
     assertNodePackageInstalled sort-package-json
     logDebug "node version: "`node -v`
@@ -647,6 +648,7 @@ if [[ "${setup}" ]]; then
     assertNodePackageInstalled firebase-tools
     assertNodePackageInstalled sort-package-json
     assertNodePackageInstalled nodemon
+    assertNodePackageInstalled tslint
 
     bannerInfo "setup"
     executeOnModules setupModule

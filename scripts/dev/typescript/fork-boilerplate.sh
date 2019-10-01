@@ -7,6 +7,8 @@ const_BoilerplateLocation=us-central1
 
 repoUrl=git@github.com:nu-art-js/thunderclone.git
 localPath=../thunderstorm-forked
+withSources=n
+allGood=n
 firebaseProject=`firebase use | head -1`
 firebaseProjectLocation=us-central22
 
@@ -112,19 +114,31 @@ function verifyFirebaseProjectIsAccessible() {
     return 0
 }
 
-function promptForFirebaseRepo() {
+function promptForFirebaseProject() {
     promptUserForInput firebaseProject "Please enter the Firebase Project you will be using:" ${firebaseProject}
     verifyFirebaseProjectIsAccessible ${firebaseProject}
     local status=$?
     if [[ "${status}" == "2" ]]; then
         logWarning "Please open another terminal and run 'firebase login' and follow the instruction... \nOnce logged in return to this terminal press enter"
-        promptForFirebaseRepo
+        promptForFirebaseProject
     fi
 
     if [[ "${status}" != "0" ]]; then
         logWarning "Make sure you have access rights to the firebase project called: ${firebaseProject}"
-        promptForFirebaseRepo
+        promptForFirebaseProject
     fi
+}
+
+function promptForFirebaseProjectLocationRepo() {
+    promptUserForInput projectLocation "Please enter the Firebase Project LOCATION assigned to your project ${firebaseProjectLocation}"
+}
+
+function installNpmPackages() {
+    verifyNpmPackageInstalledGlobally "typescript" 3.6.3
+    verifyNpmPackageInstalledGlobally "tslint" 5.20.0
+    verifyNpmPackageInstalledGlobally "firebase-tools" 7.4.0
+    verifyNpmPackageInstalledGlobally "nodemon" latest
+    verifyNpmPackageInstalledGlobally "sort-package-json" latest
 }
 
 #function verifyLocalPathExists() {
@@ -148,15 +162,26 @@ function promptForLocalPathForFork() {
 }
 
 function promptForWithOrWithoutSources() {
-    yesOrNoQuestion "Would you like to install latest 'bash' version [y/n]:" "installBash && logInfo \"Please re-run command..\" && exit 0 " "logError \"Terminating process...\" && exit 2"
+    yesOrNoQuestion_new withSources "Do you want to fork with the thunderstorm sources: [y/N]" ${withSources}
+}
 
-    yesOrNo localPath "Please enter the path to fork the project to:" ${localPath}
-#    verifyLocalPathExists ${localPath}
-#    local status=$?
-#    if [[ "${status}" != "0" ]]; then
-#        logWarning "Could not create folder at: ${localPath}"
-#        promptForLocalPathForFork
-#    fi
+function promptUserForConfirmation() {
+    local userInput=""
+    userInput="${userInput}\n    Git fork repository url: ${repoUrl}"
+    userInput="${userInput}\n    Local folder for project: ${localPath}"
+    userInput="${userInput}\n    Your firebase project name: ${firebaseProject}"
+    userInput="${userInput}\n    Your firebase project location: ${firebaseProjectLocation}"
+    userInput="${userInput}\n    Keep Thunderstorm sources: ${withSources}"
+
+    yesOrNoQuestion_new allGood "Are all these details correct: [y/N]\n${userInput}" ${allGood}
+
+    case "allGood" in
+        [n])
+            logError "Aborting fork due to incorrect user input!!"
+            exit 2
+        ;;
+    esac
+
 }
 
 function uploadDefaultConfigToFirebase() {
@@ -178,6 +203,19 @@ function forkThunderstorm() {
     logInfo "Forking Thunderstorm boilerplate into..."
     bash ./dev-tools/scripts/git/git-fork.sh --to=${repoUrl} --output=${localPath} > ${forkingOutput}
     throwError "Error while forking Thunderstorm... logs can be found here: ${forkingOutput}"
+}
+
+function cleanUpForkedRepo() {
+    deleteFile ./version-nu-art.json
+    if [[ "${withSources}" == "n" ]]; then
+        deleteFolder ./ts-common
+        deleteFolder ./testelot
+        deleteFolder ./thunder
+        deleteFolder ./storm
+
+        gitCommit "Removed Thunderstorm sources..."
+        gitPush
+    fi
 }
 
 function replaceBoilerplateNamesWithNewForkedNames() {
@@ -202,23 +240,34 @@ function launchForkedProject() {
 function sayHello() {
     signatureThunderstorm
     logInfo "Let's fork thunderstorm...."
-    sleep 3s
+    logInfo
+    sleep 2s
+
+    logWarning "If you are not familiar with Firebase or git... please educate yourself!"
+    logWarning "Bellow is a link to a video tutorial on how to fork Thunderstorm:"
+    logWarning
+    logWarning "   https://future-link-here"
+    sleep 5s
 }
 
 function start() {
     sayHello
 
-#    verifyNpmPackageInstalledGlobally "firebase-tools" 7.0.0
-#    promptForRepoUrl
-#    promptForFirebaseRepo
-#    promptUserForInput projectLocation "Please enter the Firebase Project LOCATION assigned to your project ${firebaseProjectLocation}"
-#    promptForLocalPathForFork
-#    promptForWithOrWithoutSources
-#    forkThunderstorm
+    installNpmPackages
+    promptForRepoUrl
+    promptForFirebaseProject
+    promptForFirebaseProjectLocationRepo
+    promptForLocalPathForFork
+    promptForWithOrWithoutSources
+
+    promptUserForConfirmation
+
+    forkThunderstorm
     cd ${localPath}
+    cleanUpForkedRepo
     replaceBoilerplateNamesWithNewForkedNames
-#    uploadDefaultConfigToFirebase
-#    setupForkedProject
+    uploadDefaultConfigToFirebase
+    setupForkedProject
 
 #    echo "Your forked repo url: ${repoUrl}"
 #    echo "Your Firebase project: ${firebaseProject}"
@@ -228,6 +277,3 @@ function start() {
 }
 
 start
-
-# thunderclone-1e7ee
-# git@github.com:nu-art-js/thunderclone.git

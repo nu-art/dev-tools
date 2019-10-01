@@ -104,6 +104,7 @@ function yesOrNoQuestion() {
 function yesOrNoQuestion_new() {
     local var=${1}
     local message=${2}
+    local defaultOption=${3}
 
     logInfo "${message}"
     read  -n 1 -p "" response
@@ -119,6 +120,11 @@ function yesOrNoQuestion_new() {
         ;;
 
         *)
+            if [[ "${defaultOption}" ]] && [[ "$response" == "" ]]; then
+                setVariableName ${var} ${defaultOption}
+                return
+            fi
+
             deleteTerminalLine
             deleteTerminalLine
             yesOrNoQuestion_new $@

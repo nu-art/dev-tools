@@ -18,6 +18,16 @@ function signatureThunderstorm() {
     clear
     logVerbose "${Gray}             _____ _                     _                    _                                      ${NoColor}"
     logVerbose "${Gray} -------    |_   _| |__  _   _ _ __   __| | ___ _ __      ___| |_ ___  _ __ _ __ ___    ${Gray}   ------- ${NoColor}"
+    logVerbose "${Gray} -------      | | | '_ \| | | | '_ \ / _\` |/ _ \ '__|____/ __| __/ _ \| '__| '_ \` _ \   ${Gray}   ------- ${NoColor}"
+    logVerbose "${Gray} -------      | | | | | | |_| | | | | (_| |  __/ | |_____\__ \ || (_) | |  | | | | | |  ${Gray}   ------- ${NoColor}"
+    logVerbose "${Gray} -------      |_| |_| |_|\__,_|_| |_|\__,_|\___|_|       |___/\__\___/|_|  |_| |_| |_|  ${Gray}   ------- ${NoColor}"
+    logVerbose "${Gray} -------                                                                                ${Gray}   ------- ${NoColor}"
+    logVerbose
+}
+function signatureThunderstorm() {
+    clear
+    logVerbose "${Gray}             _____ _                     _                    _                                      ${NoColor}"
+    logVerbose "${Gray} -------    |_   _| |__  _   _ _ __   __| | ___ _ __      ___| |_ ___  _ __ _ __ ___    ${Gray}   ------- ${NoColor}"
     logVerbose "${Gray} -------      | | | '_ \| | | | '_ \ / _\` |/ _ \ '__|____/ __| __/ _ \| '__| '_ \` _ \ ${Gray}   ------- ${NoColor}"
     logVerbose "${Gray} -------      | | | | | | |_| | | | | (_| |  __/ | |_____\__ \ || (_) | |  | | | | | |  ${Gray}   ------- ${NoColor}"
     logVerbose "${Gray} -------      |_| |_| |_|\__,_|_| |_|\__,_|\___|_|       |___/\__\___/|_|  |_| |_| |_|  ${Gray}   ------- ${NoColor}"
@@ -47,6 +57,8 @@ function promptUserForInput() {
 
 function verifyRepoExists() {
     local repoUrl=${1}
+
+    logDebug "Verifying access to repo ${repoUrl}"
     local output=$(git ls-remote ${repoUrl} 2>&1)
     if [[ "${output}" =~ "Please make sure you have the correct access rights" ]]; then
         return 2
@@ -62,6 +74,7 @@ function verifyRepoExists() {
 function promptForRepoUrl() {
     promptUserForInput repoUrl "Please enter the repo url to fork into:" ${repoUrl}
     verifyRepoExists ${repoUrl}
+
     local status=$?
     if [[ "${status}" == "2" ]]; then
         repoUrl=
@@ -102,6 +115,7 @@ function verifyFirebaseProjectIsAccessible() {
 
     logDebug "Verifying You are logged in to firebase tools...'"
     firebase login
+    logDebug
 
     logDebug "Verifying access to firebase project: '${firebaseProject}'"
     local output=$(firebase list | grep "${firebaseProject}" 2>&1)
@@ -114,7 +128,6 @@ function verifyFirebaseProjectIsAccessible() {
         logError "    No access found"
         return 1
     fi
-
     return 0
 }
 
@@ -172,8 +185,8 @@ function promptForLocalPathForFork() {
         case "${deleteLocalFolder}" in
             [y])
                 deleteFolder ${localPath}
-                return
             ;;
+
             [n])
                 promptForLocalPathForFork
                 return
@@ -266,6 +279,11 @@ function launchForkedProject() {
     throwError "Error while launching forked Thunderstorm... logs can be found here: ${output}"
 }
 
+function promptUserToLaunchDeployOrExit() {
+    logInfo "To LAUNCH your forked project run: bash build-and-install.sh -lf -lb"
+    logInfo "To DEPLOY your forked project run: bash build-and-install.sh -se=staging -df -db"
+}
+
 function sayHello() {
     signatureThunderstorm
     logInfo "Let's fork thunderstorm...."
@@ -300,7 +318,9 @@ function start() {
         pushPreparedProjectToRepo
         uploadDefaultConfigToFirebase
         setupForkedProject
-    cd -
+        promptUserToLaunchDeployOrExit
+
+    sayGoodbye
 #    echo "Your forked repo url: ${repoUrl}"
 #    echo "Your Firebase project: ${firebaseProject}"
 #    echo "The Firebase project location: ${firebaseProjectLocation}"

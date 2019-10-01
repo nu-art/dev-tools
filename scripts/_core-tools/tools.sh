@@ -130,6 +130,8 @@ function yesOrNoQuestion_new() {
             yesOrNoQuestion_new $@
         ;;
     esac
+
+    deleteTerminalLine
 }
 
 function choicePrintOptions() {

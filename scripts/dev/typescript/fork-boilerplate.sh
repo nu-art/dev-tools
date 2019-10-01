@@ -4,14 +4,15 @@ source ./dev-tools/scripts/ci/typescript/_source.sh
 
 const_BoilerplateFirebaseProject=nu-art-thunderstorm
 const_BoilerplateLocation=us-central1
+const_LogFolder="`pwd`/.fork"
+const_Timestamp=`date +%Y-%m-%d--%H-%M-%S`
 
 repoUrl=git@github.com:nu-art-js/thunderclone.git
 localPath=../thunderstorm-forked
 withSources=n
 allGood=n
 firebaseProject=`firebase use | head -1`
-firebaseProjectLocation=us-central22
-timestamp=`date +%Y-%m-%d--%H-%M-%S`
+firebaseProjectLocation=us-central1
 
 function signatureThunderstorm() {
     clear
@@ -47,12 +48,12 @@ function promptUserForInput() {
 function verifyRepoExists() {
     local repoUrl=${1}
     local output=$(git ls-remote ${repoUrl} 2>&1)
-    if [[ "${output}" =~ "ERROR: Repository not found" ]]; then
-        return 1
+    if [[ "${output}" =~ "Please make sure you have the correct access rights" ]]; then
+        return 2
     fi
 
-    if [[ "${output}" =~ "fatal:" ]]; then
-        return 2
+    if [[ "${output}" =~ "ERROR: Repository not found" ]]; then
+        return 1
     fi
 
     return 0
@@ -67,6 +68,7 @@ function promptForRepoUrl() {
     fi
 
     if [[ "${status}" != "0" ]]; then
+        deleteTerminalLine 2
         promptForRepoUrl
     fi
     logInfo
@@ -119,21 +121,26 @@ function verifyFirebaseProjectIsAccessible() {
 function promptForFirebaseProject() {
     promptUserForInput firebaseProject "Please enter the Firebase Project you will be using:" ${firebaseProject}
     verifyFirebaseProjectIsAccessible ${firebaseProject}
+    logInfo
+
     local status=$?
     if [[ "${status}" == "2" ]]; then
         logWarning "Please open another terminal and run 'firebase login' and follow the instruction... \nOnce logged in return to this terminal press enter"
         promptForFirebaseProject
+        return
     fi
 
     if [[ "${status}" != "0" ]]; then
         logWarning "Make sure you have access rights to the firebase project called: ${firebaseProject}"
         promptForFirebaseProject
+        return
     fi
+
     logInfo
 }
 
 function promptForFirebaseProjectLocationRepo() {
-    promptUserForInput projectLocation "Please enter the Firebase Project LOCATION assigned to your project ${firebaseProjectLocation}"
+    promptUserForInput projectLocation "Please enter the Firebase Project LOCATION assigned to your project" ${firebaseProjectLocation}
     logInfo
 }
 
@@ -202,12 +209,7 @@ function promptUserForConfirmation() {
 
 function uploadDefaultConfigToFirebase() {
     logInfo "Setting boilerplate example config to your project"
-    logDebug "pwd: `pwd`"
-
-    local backupFile=".fork/${firebaseProject}_backup_${timestamp}.json"
-
-    logDebug "Using firebase project: ${firebaseProject}"
-    firebase use ${firebaseProject}
+    local backupFile="${const_LogFolder}/${firebaseProject}_backup_${const_Timestamp}.json"
 
     logWarning "If your database has content it will be backed up to: ${backupFile}"
     firebase database:get / > ${backupFile}
@@ -217,7 +219,7 @@ function uploadDefaultConfigToFirebase() {
 }
 
 function forkThunderstorm() {
-    local forkingOutput=".fork/${firebaseProject}_forking_${timestamp}.json"
+    local forkingOutput="${const_LogFolder}/${firebaseProject}_forking_${const_Timestamp}.json"
     logInfo "Forking Thunderstorm boilerplate into...  ${repoUrl}"
     bash ./dev-tools/scripts/git/git-fork.sh --to=${repoUrl} --output=${localPath} > ${forkingOutput}
     throwError "Error while forking Thunderstorm... logs can be found here: ${forkingOutput}"
@@ -241,15 +243,22 @@ function replaceBoilerplateNamesWithNewForkedNames() {
     renameStringInFiles ./ ${const_BoilerplateLocation} "${firebaseProjectLocation}"
 }
 
+function prepareForkedProjectEnvironment() {
+    local output="${const_LogFolder}/${firebaseProject}_prepare_${const_Timestamp}.json"
+    logInfo "Preparing project env..."
+    bash build-and-install.sh -se=dev -nb > ${output}
+    throwError "Error while Preparing forked Thunderstorm... logs can be found here: ${output}"
+}
+
 function setupForkedProject() {
-    local output=".fork/${firebaseProject}_setup_${timestamp}.json"
+    local output="${const_LogFolder}/${firebaseProject}_setup_${const_Timestamp}.json"
     logInfo "Running initial setup of forked repo..."
     bash build-and-install.sh -se=dev --setup > ${output}
     throwError "Error while setting up forked Thunderstorm... logs can be found here: ${output}"
 }
 
 function launchForkedProject() {
-    local output=".fork/${firebaseProject}_launch_${timestamp}.json"
+    local output="${const_LogFolder}/${firebaseProject}_launch_${const_Timestamp}.json"
     logInfo "Launching forked project..."
     bash ./build-and-install.sh -lf -lb> ${output}
     throwError "Error while launching forked Thunderstorm... logs can be found here: ${output}"
@@ -285,6 +294,7 @@ function start() {
     cd ${localPath}
         cleanUpForkedRepo
         replaceBoilerplateNamesWithNewForkedNames
+        prepareForkedProjectEnvironment
         uploadDefaultConfigToFirebase
         setupForkedProject
     cd -

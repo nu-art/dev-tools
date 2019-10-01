@@ -120,9 +120,9 @@ function verifyFirebaseProjectIsAccessible() {
 
 function promptForFirebaseProject() {
     promptUserForInput firebaseProject "Please enter the Firebase Project you will be using:" ${firebaseProject}
-    verifyFirebaseProjectIsAccessible ${firebaseProject}
     logInfo
 
+    verifyFirebaseProjectIsAccessible ${firebaseProject}
     local status=$?
     if [[ "${status}" == "2" ]]; then
         logWarning "Please open another terminal and run 'firebase login' and follow the instruction... \nOnce logged in return to this terminal press enter"
@@ -232,15 +232,12 @@ function cleanUpForkedRepo() {
         deleteFolder ./testelot
         deleteFolder ./thunder
         deleteFolder ./storm
-
-        gitCommit "Removed Thunderstorm sources..."
-        gitPush
     fi
 }
 
 function replaceBoilerplateNamesWithNewForkedNames() {
-    renameStringInFiles ./ ${const_BoilerplateFirebaseProject} "${firebaseProject}"
-    renameStringInFiles ./ ${const_BoilerplateLocation} "${firebaseProjectLocation}"
+    renameStringInFiles ./ ${const_BoilerplateFirebaseProject} "${firebaseProject}" "dev-tools"
+    renameStringInFiles ./ ${const_BoilerplateLocation} "${firebaseProjectLocation}" "dev-tools"
 }
 
 function prepareForkedProjectEnvironment() {
@@ -248,6 +245,11 @@ function prepareForkedProjectEnvironment() {
     logInfo "Preparing project env..."
     bash build-and-install.sh -se=dev -nb > ${output}
     throwError "Error while Preparing forked Thunderstorm... logs can be found here: ${output}"
+}
+
+function pushPreparedProjectToRepo() {
+    gitCommit "Forked project is prepared!"
+    gitPush
 }
 
 function setupForkedProject() {
@@ -295,6 +297,7 @@ function start() {
         cleanUpForkedRepo
         replaceBoilerplateNamesWithNewForkedNames
         prepareForkedProjectEnvironment
+        pushPreparedProjectToRepo
         uploadDefaultConfigToFirebase
         setupForkedProject
     cd -

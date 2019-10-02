@@ -7,7 +7,7 @@ function create() {
     declare logLevel
 
     LogEntry.printLog(){
-        log${logLevel} "${logMessage}"
+        log`LogEntry.logLevel` "`LogEntry.logMessage`"
     }
 }
 

@@ -24,14 +24,19 @@ function signatureThunderstorm() {
     logVerbose "${Gray} -------                                                                                ${Gray}   ------- ${NoColor}"
     logVerbose
 }
-function signatureThunderstorm() {
+
+
+
+
+
+function sayGoodbye() {
     clear
-    logVerbose "${Gray}             _____ _                     _                    _                                      ${NoColor}"
-    logVerbose "${Gray} -------    |_   _| |__  _   _ _ __   __| | ___ _ __      ___| |_ ___  _ __ _ __ ___    ${Gray}   ------- ${NoColor}"
-    logVerbose "${Gray} -------      | | | '_ \| | | | '_ \ / _\` |/ _ \ '__|____/ __| __/ _ \| '__| '_ \` _ \ ${Gray}   ------- ${NoColor}"
-    logVerbose "${Gray} -------      | | | | | | |_| | | | | (_| |  __/ | |_____\__ \ || (_) | |  | | | | | |  ${Gray}   ------- ${NoColor}"
-    logVerbose "${Gray} -------      |_| |_| |_|\__,_|_| |_|\__,_|\___|_|       |___/\__\___/|_|  |_| |_| |_|  ${Gray}   ------- ${NoColor}"
-    logVerbose "${Gray} -------                                                                                ${Gray}   ------- ${NoColor}"
+    logVerbose "${Gray}     __   _             __   _            __   _        __   _                 ${NoColor}"
+    logVerbose "${Gray}   _(  )_( )_         _(  )_( )_        _(  )_( )_    _(  )_( )_  ${Gray}   ------- ${NoColor}"
+    logVerbose "${Gray}  (_   _    _)       (_   _    _)      (_   _    _)  (_   _    _) ${Gray}   ------- ${NoColor}"
+    logVerbose "${Gray}    (_) (__)           (_) (__)          (_) (__)      (_) (__)   ${Gray}   ------- ${NoColor}"
+    logVerbose "${Gray}  ${Gray}   ------- ${NoColor}"
+    logVerbose "${Gray}  ${Gray}   ------- ${NoColor}"
     logVerbose
 }
 
@@ -133,8 +138,6 @@ function verifyFirebaseProjectIsAccessible() {
 
 function promptForFirebaseProject() {
     promptUserForInput firebaseProject "Please enter the Firebase Project you will be using:" ${firebaseProject}
-    logInfo
-
     verifyFirebaseProjectIsAccessible ${firebaseProject}
     local status=$?
     if [[ "${status}" == "2" ]]; then

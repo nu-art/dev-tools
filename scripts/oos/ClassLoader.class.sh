@@ -2,11 +2,11 @@
 source `pwd`/../_core-tools/_source.sh
 
 
-LogEntry() {
+ClassLoader() {
     declare logMessage
     declare logLevel=Error
 
-    _printLog() {
+    printLog() {
         log${logLevel} "${logMessage}"
     }
 }

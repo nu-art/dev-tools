@@ -2,12 +2,12 @@
 source `pwd`/../_core-tools/_source.sh
 
 
-function create() {
+class_LogEntry() {
     declare logMessage
-    declare logLevel
+    declare logLevel=Error
 
     LogEntry.printLog(){
-        log`LogEntry.logLevel` "`LogEntry.logMessage`"
+        log${LogEntry_logLevel} "${LogEntry_logMessage}"
     }
 }
 

@@ -7,9 +7,9 @@ new LogEntry logEntry2
 new LogEntry logEntry3
 
 
-logEntry3.logMessage = "Pah Zevel 3"
-logEntry1.logMessage = "Pah Zevel 1"
-logEntry2.logMessage = "Pah Zevel 2"
+logEntry3.logMessage = "print log with default error level"
+logEntry1.logMessage = "This will be a Debug log"
+logEntry2.logMessage = "This will be a Warning log"
 
 logEntry3.printLog
 logEntry2.logLevel = "Warning"

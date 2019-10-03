@@ -5,10 +5,13 @@ new (){
     local className=${1}
     local instanceName=${2}
 
-    local class=$(cat ${className}.class.sh)
-    local defaultValues=$(transpile_GetMembersDefaultValues ${instanceName} "${class}")
+#    loadClass ${className}
+        local className=${1}
 
+    local class=$(cat ${className}.class.sh)
+    local defaultValues=$(transpile_GetMembersDefaultValues ${className} "${class}")
     class=$(transpile_Class ${className} "${class}")
+
     class=$(echo -e "${class}" | sed -E "s/${className}/${instanceName}/g")
 
 #    echo -e "${class}"
@@ -18,6 +21,15 @@ new (){
     ${defaultValues}
 }
 
+loadClass() {
+    local className=${1}
+
+    local class=$(cat ${className}.class.sh)
+    local defaultValues=$(transpile_GetMembersDefaultValues ${className} "${class}")
+    class=$(transpile_Class ${className} "${class}")
+
+    echo -e "${class}"
+}
 
 transpile_Class() {
     local className=${1}

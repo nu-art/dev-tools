@@ -2,7 +2,6 @@
 OOS_TranspileConst_InstanceId=__InstanceId__
 OOS_TranspileConst_StaticId=__StaticId__
 OOS_TranspileConst_Name=__Name__
-OOS_TranspileConst_DefaultValue=__DefaultValue__
 
 
 #OOS_TranspileConst_InstanceName=__InstanceName__
@@ -27,7 +26,7 @@ OOS_TranspileConst_DefaultValue=__DefaultValue__
 #        fi
 #    }"
 
-OOS_TranspileConst_PropertyWithGetterAndSetter_Naive="local ${OOS_TranspileConst_InstanceId}_${OOS_TranspileConst_Name}=${OOS_TranspileConst_DefaultValue}
+OOS_TranspileConst_PropertyWithGetterAndSetter_Naive="local ${OOS_TranspileConst_InstanceId}_${OOS_TranspileConst_Name}=
     function ${OOS_TranspileConst_InstanceId}.${OOS_TranspileConst_Name}() {
         if [[ \"\$1\" == \"=\" ]]; then
             ${OOS_TranspileConst_InstanceId}_${OOS_TranspileConst_Name}=\"\$2\"

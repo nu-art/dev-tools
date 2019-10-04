@@ -1,8 +1,29 @@
 #!/bin/bash
-source ./transpiler-consts.sh
-source ./transpiler-logs.sh
+source ${BASH_SOURCE%/*}/transpiler-consts.sh
+source ${BASH_SOURCE%/*}/transpiler-logs.sh
 
+GLOBAL_TranspilerPaths=()
 #CONST_Debug=true
+
+addTranspilerPath() {
+    GLOBAL_TranspilerPaths[${#GLOBAL_TranspilerPaths[@]}]=${1}
+}
+
+addTranspilerPath ${BASH_SOURCE%/*}
+
+resolveClassFile() {
+    local testPath=
+    for path in "${GLOBAL_TranspilerPaths[@]}"; do
+        testPath="${path}/${1}.class.sh"
+        if [[ ! -e "${testPath}" ]]; then
+            continue;
+        fi
+
+        echo "${testPath}"
+    done
+
+    return 2
+}
 
 new (){
     local className=${1}
@@ -32,16 +53,19 @@ new (){
 loadClass() {
     local className=${1}
     local instanceName=${2}
-    _logInfo "loadClass: className=${className}, instanceName=${instanceName}"
-
     fqn=Class_${className}
+
+    echo `resolveClassFile ${className}` > /dev/null
+    throwError "Unable to locate file for Class '${className}'" $?
+
     local class=
     local members=
     local methods=
     local defaultValues=
     if [[ `type -t "${fqn}.rawClass"` != 'function' ]]; then
-        _logError "Loading class from file: ${className} for instance: ${instanceName}"
-        class=$(cat ${className}.class.sh)
+        _logError "Loading class from file: ${className} for instance: ${instanceName} from: ${pathToClassFile}"
+        class=$(cat `resolveClassFile ${className}`)
+
         members=(`transpile_GetMemberNames "${class}"`)
         methods=(`transpile_GetMethodsNames "${class}"`)
         defaultValues=$(transpile_GetMembersDefaultValues ${className} "${class}")

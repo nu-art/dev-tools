@@ -1,5 +1,5 @@
 #!/bin/bash
-source `pwd`/../_core-tools/_source.sh
+source ${BASH_SOURCE%/*}/../../_core-tools/_source.sh
 CONST_Debug=
 
 function _logVerbose() {
@@ -7,7 +7,7 @@ function _logVerbose() {
         return
     fi
 
-    >&2 logVerbose $@
+    >&2 logVerbose "$@"
 }
 
 function _logDebug() {
@@ -15,7 +15,7 @@ function _logDebug() {
         return
     fi
 
-    >&2 logDebug $@
+    >&2 logDebug "$@"
 }
 
 function _logInfo() {
@@ -23,7 +23,7 @@ function _logInfo() {
         return
     fi
 
-    >&2 logInfo $@
+    >&2 logInfo "$@"
 }
 
 function _logWarning() {
@@ -31,7 +31,7 @@ function _logWarning() {
         return
     fi
 
-    >&2 logWarning $@
+    >&2 logWarning "$@"
 }
 
 function _logError() {
@@ -39,5 +39,5 @@ function _logError() {
         return
     fi
 
-    >&2 logError $@
+    >&2 logError "$@"
 }

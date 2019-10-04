@@ -1,6 +1,8 @@
 #!/bin/bash
 
-source transpiler.sh
+source ../core/transpiler.sh
+
+addTranspilerPath `pwd`
 
 new LogEntry logEntry1
 new LogEntry logEntry2

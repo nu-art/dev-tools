@@ -112,16 +112,16 @@ function yesOrNoQuestion_new() {
     logVerbose
     case "$response" in
         [yY])
-            setVariableName ${var} y
+            setVariable ${var} y
         ;;
 
         [nN])
-            setVariableName ${var} n
+            setVariable ${var} n
         ;;
 
         *)
             if [[ "${defaultOption}" ]] && [[ "$response" == "" ]]; then
-                setVariableName ${var} ${defaultOption}
+                setVariable ${var} ${defaultOption}
                 return
             fi
 
@@ -253,7 +253,7 @@ function deleteTerminalLine() {
     done
 }
 
-function setVariableName() {
+function setVariable() {
     local var=${1}
     local value=${2}
     eval "${var}='${value}'"

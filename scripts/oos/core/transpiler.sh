@@ -2,10 +2,15 @@
 source ${BASH_SOURCE%/*}/transpiler-consts.sh
 source ${BASH_SOURCE%/*}/transpiler-logs.sh
 
+GLOBAL_TranspilerOutput="`pwd`/output/classes"
 GLOBAL_TranspilerPaths=()
 #CONST_Debug=true
 
+rm -rf "${GLOBAL_TranspilerOutput}"
+mkdir -p "${GLOBAL_TranspilerOutput}"
+
 addTranspilerPath() {
+    _logInfo "Adding classpath: ${1}"
     GLOBAL_TranspilerPaths[${#GLOBAL_TranspilerPaths[@]}]=${1}
 }
 
@@ -15,11 +20,13 @@ resolveClassFile() {
     local testPath=
     for path in "${GLOBAL_TranspilerPaths[@]}"; do
         testPath="${path}/${1}.class.sh"
+        _logDebug "Searching: ${testPath}"
         if [[ ! -e "${testPath}" ]]; then
             continue;
         fi
 
-        echo "${testPath}"
+        setVariable ${2} ${testPath}
+        return
     done
 
     return 2
@@ -53,18 +60,20 @@ new (){
 loadClass() {
     local className=${1}
     local instanceName=${2}
-    fqn=Class_${className}
+    local pathToClassFile=
 
-    echo `resolveClassFile ${className}` > /dev/null
+    resolveClassFile ${className} pathToClassFile
     throwError "Unable to locate file for Class '${className}'" $?
 
     local class=
     local members=
     local methods=
     local defaultValues=
+
+    fqn=Class_${className}
     if [[ `type -t "${fqn}.rawClass"` != 'function' ]]; then
         _logError "Loading class from file: ${className} for instance: ${instanceName} from: ${pathToClassFile}"
-        class=$(cat `resolveClassFile ${className}`)
+        class=$(cat ${pathToClassFile})
 
         members=(`transpile_GetMemberNames "${class}"`)
         methods=(`transpile_GetMethodsNames "${class}"`)
@@ -73,7 +82,6 @@ loadClass() {
 
         if [[ "${fqn}" == "Class_ClassObj" ]]; then
             class=$(echo -e "${class}" | sed -E "s/ClassObj/${fqn}/g")
-
 #            _logWarning "Here 1"
 #            _logWarning "Class: ${class}"
 
@@ -87,6 +95,7 @@ loadClass() {
 
             . <(echo -e "${rawClass}")
         fi
+        echo -e "${class}" > ${GLOBAL_TranspilerOutput}/${className}.class.sh
 
         ${fqn}
         ${fqn}.rawClass = "${class}"
@@ -135,6 +144,7 @@ transpile_AllMembers() {
     local members=(`transpile_GetMemberNames "${class}"`)
     for member in "${members[@]}"; do
         class=$(echo -e "${class}" | sed -E "s/\\$\{${member}\}/\${${className}_${member}}/g")
+        class=$(echo -e "${class}" | sed -E "s/${member}=/${className}_${member}=/g")
     done
 
     class=$(echo -e "${class}" | sed -E "s/declare ([a-zA-Z_]{1,})=.*$/declare \1/g")

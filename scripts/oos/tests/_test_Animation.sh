@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source ../core/transpiler.sh
-addTranspilerPath ${BASH_SOURCE%/*}/../graphics
+addTranspilerPath `pwd`/../graphics
 
 function _cloud2() {
     echo -e "OS    .--

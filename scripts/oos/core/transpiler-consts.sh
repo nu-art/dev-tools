@@ -11,6 +11,7 @@ OOS_TranspileConst_PropertyWithGetterAndSetter_Naive="local ${OOS_TranspileConst
         else
             echo \"\${${OOS_TranspileConst_ClassName}_${OOS_TranspileConst_Name}}\"
         fi
-    }"
+    }
+    "
 
 

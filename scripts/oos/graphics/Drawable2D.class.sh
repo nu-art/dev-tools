@@ -1,6 +1,7 @@
 #!/bin/bash
 
 Drawable2D() {
+
     declare animObj
     declare x
     declare y

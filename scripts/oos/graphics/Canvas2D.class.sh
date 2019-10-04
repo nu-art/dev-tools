@@ -7,7 +7,7 @@ Canvas2D() {
     declare height
 
     _clean() {
-        buffer=`seq -f "-" -s '' $((width * height))`
+        buffer=`seq -f "-" -s '' $((${width} * ${height}))`
         for ((i=0; i< ${height}; i++)); do
             tput cuu1
         done

@@ -142,12 +142,13 @@ transpile_AllMembers() {
     local class="${2}"
 
     local members=(`transpile_GetMemberNames "${class}"`)
+    class=$(echo -e "${class}" | sed -E "s/declare ([a-zA-Z_]{1,})=.*$/declare \1/g")
+
     for member in "${members[@]}"; do
         class=$(echo -e "${class}" | sed -E "s/\\$\{${member}\}/\${${className}_${member}}/g")
         class=$(echo -e "${class}" | sed -E "s/${member}=/${className}_${member}=/g")
     done
 
-    class=$(echo -e "${class}" | sed -E "s/declare ([a-zA-Z_]{1,})=.*$/declare \1/g")
     class=$(echo -e "${class}" | sed -E "s/declare ([a-zA-Z_]{1,})$/`transpile_Member ${className} \"\\\\\1\"`/g")
 
     echo -e "${class}"

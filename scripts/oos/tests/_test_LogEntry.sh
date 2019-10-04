@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source ../core/transpiler.sh
+source `pwd`/../../_core-tools/_source.sh
 
 addTranspilerPath `pwd`
 

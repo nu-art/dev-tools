@@ -1,34 +1,89 @@
 #!/bin/bash
 source ./transpiler-consts.sh
+source ./transpiler-logs.sh
+
+#CONST_Debug=true
 
 new (){
     local className=${1}
     local instanceName=${2}
+    fqn=Class_${className}
 
-#    loadClass ${className}
-        local className=${1}
+    _logDebug "new ${className} ${instanceName}"
 
-    local class=$(cat ${className}.class.sh)
-    local defaultValues=$(transpile_GetMembersDefaultValues ${className} "${class}")
-    class=$(transpile_Class ${className} "${class}")
+    loadClass ${className} ${instanceName}
+
+    local class=$(${fqn}.rawClass)
+    local defaultValues=$(${fqn}.defaultValues)
 
     class=$(echo -e "${class}" | sed -E "s/${className}/${instanceName}/g")
+    defaultValues=$(echo -e "${defaultValues}" | sed -E "s/${className}/${instanceName}/g")
 
-#    echo -e "${class}"
     . <(echo -e "${class}")
+    if [[ "${className}" == "ClassObj" ]]; then
+        return
+    fi
 
     ${instanceName}
     ${defaultValues}
+
 }
 
 loadClass() {
     local className=${1}
+    local instanceName=${2}
+    _logInfo "loadClass: className=${className}, instanceName=${instanceName}"
 
-    local class=$(cat ${className}.class.sh)
-    local defaultValues=$(transpile_GetMembersDefaultValues ${className} "${class}")
-    class=$(transpile_Class ${className} "${class}")
+    fqn=Class_${className}
+    local class=
+    local members=
+    local methods=
+    local defaultValues=
+    if [[ `type -t "${fqn}.rawClass"` != 'function' ]]; then
+        _logError "Loading class from file: ${className} for instance: ${instanceName}"
+        class=$(cat ${className}.class.sh)
+        members=(`transpile_GetMemberNames "${class}"`)
+        methods=(`transpile_GetMethodsNames "${class}"`)
+        defaultValues=$(transpile_GetMembersDefaultValues ${className} "${class}")
+        class=$(transpile_Class ${className} "${class}")
 
-    echo -e "${class}"
+        if [[ "${fqn}" == "Class_ClassObj" ]]; then
+            class=$(echo -e "${class}" | sed -E "s/ClassObj/${fqn}/g")
+
+#            _logWarning "Here 1"
+#            _logWarning "Class: ${class}"
+
+            . <(echo -e "${class}")
+        else
+            _logWarning "Here 2"
+            new ClassObj ${className}
+            local rawClass="`Class_ClassObj.rawClass`"
+            rawClass=$(echo -e "${rawClass}" | sed -E "s/ClassObj/${className}/g")
+#            _logWarning "rawClass: ${rawClass}"
+
+            . <(echo -e "${rawClass}")
+        fi
+
+        ${fqn}
+        ${fqn}.rawClass = "${class}"
+        ${fqn}.defaultValues = "${defaultValues}"
+        ${fqn}.members = "`echo "${members[@]}"`"
+        ${fqn}.methods = "`echo "${methods[@]}"`"
+    else
+        class="`${fqn}.rawClass`"
+    fi
+
+##    _logDebug "found defaultValues: ${defaultValues}"
+#
+#    if [[ "${className}" == "ClassObj" ]] && [[ "${instanceName}" == "Class_ClassObj" ]] ; then
+#        _logWarning "Creating a new Class instance for: ${className}"
+#    else
+#        _logInfo "Creating a new Class instance for: ${className} ${classInstanceName}"
+#        new ClassObj ${classInstanceName}
+#    fi
+#
+#    _logInfo "Setting class values: ${className}"
+#    _logInfo "${classInstanceName}.defaultValues = \"${defaultValues}\""
 }
 
 transpile_Class() {
@@ -91,4 +146,3 @@ transpile_AllMethods() {
 
     echo -e "${class}"
 }
-

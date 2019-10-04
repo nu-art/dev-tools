@@ -1,6 +1,6 @@
 #!/bin/bash
 
-Class() {
+ClassObj() {
     declare rawClass
     declare members
     declare methods

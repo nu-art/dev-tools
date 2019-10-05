@@ -134,7 +134,7 @@ transpile_GetMembersDefaultValues() {
 }
 
 transpile_GetMemberNames() {
-    echo "$(echo -e "${1}" | grep -E "declare .*" | sed -E "s/.*declare ([a-zA-Z_]{1,}).*$/\1/g")"
+    echo "$(echo -e "${1}" | grep -E "declare .*" | sed -E "s/.*declare (array )?([a-zA-Z_]{1,}).*$/\2/g")"
 }
 
 transpile_AllMembers() {
@@ -145,13 +145,26 @@ transpile_AllMembers() {
     class=$(echo -e "${class}" | sed -E "s/declare ([a-zA-Z_]{1,})=.*$/declare \1/g")
 
     for member in "${members[@]}"; do
-        class=$(echo -e "${class}" | sed -E "s/\\$\{${member}\}/\${${className}_${member}}/g")
+        class=$(echo -e "${class}" | sed -E "s/\\$\{${member}([\[\}:])/\${${className}_${member}\1/g")
         class=$(echo -e "${class}" | sed -E "s/${member}=/${className}_${member}=/g")
     done
 
+    class=$(echo -e "${class}" | sed -E "s/declare array ([a-zA-Z_]{1,})$/`transpile_ArrayMember ${className} \"\\\\\1\"`/g")
     class=$(echo -e "${class}" | sed -E "s/declare ([a-zA-Z_]{1,})$/`transpile_Member ${className} \"\\\\\1\"`/g")
 
     echo -e "${class}"
+}
+
+transpile_ArrayMember() {
+    local className=${1}
+    local memberName=${2}
+    local defaultValue=${3}
+
+    local method="${OOS_TranspileConst_ArrayMemberWithGetterAndSetter}"
+    method=`echo "${method}" | sed -E "s/${OOS_TranspileConst_ClassName}/${className}/g"`
+    method=`echo "${method}" | sed -E "s/${OOS_TranspileConst_Name}/${memberName}/g"`
+
+    echo "${method//$'\n'/'\\n'}"
 }
 
 transpile_Member() {
@@ -159,7 +172,7 @@ transpile_Member() {
     local memberName=${2}
     local defaultValue=${3}
 
-    local method="${OOS_TranspileConst_PropertyWithGetterAndSetter_Naive}"
+    local method="${OOS_TranspileConst_PrimitiveMemberWithGetterAndSetter}"
     method=`echo "${method}" | sed -E "s/${OOS_TranspileConst_ClassName}/${className}/g"`
     method=`echo "${method}" | sed -E "s/${OOS_TranspileConst_Name}/${memberName}/g"`
 

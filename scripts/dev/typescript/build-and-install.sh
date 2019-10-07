@@ -311,7 +311,7 @@ function printModule() {
     logDebug "${output}"
 }
 
-function cloneNuArtModules() {
+function cloneThunderstormModules() {
     local module
     for module in "${nuArtModules[@]}"; do
         if [[ ! -e "${module}" ]]; then
@@ -610,7 +610,9 @@ if [[ "${printEnv}" ]]; then
 fi
 
 if [[ "${#modules[@]}" == 0 ]]; then
-    modules+=(${nuArtModules[@]})
+    if [[ "${buildThunderstorm}" ]]; then
+        modules+=(${nuArtModules[@]})
+    fi
     modules+=(${projectModules[@]})
 fi
 
@@ -621,9 +623,9 @@ if [[ "${mergeOriginRepo}" ]]; then
     exit 0
 fi
 
-if [[ "${cloneNuArt}" ]]; then
+if [[ "${cloneThunderstorm}" ]]; then
     bannerInfo "Clone Nu-Art"
-    cloneNuArtModules
+    cloneThunderstormModules
     bash $0 --setup
 fi
 

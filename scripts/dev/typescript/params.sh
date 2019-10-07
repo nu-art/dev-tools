@@ -2,7 +2,7 @@
 
 debug=
 mergeOriginRepo=
-cloneNuArt=
+cloneThunderstorm=
 pushNuArtMessage=
 
 dirtyLib=
@@ -30,17 +30,24 @@ promoteNuArtVersion=
 promoteAppVersion=
 publish=
 newAppVersion=
+printEnv=
+
+buildThunderstorm=true
 
 modulesPackageName=()
 modulesVersion=()
 
-params=(mergeOriginRepo cloneNuArt pushNuArtMessage purge clean setup newVersion linkDependencies install build lint cleanDirt launchBackend runBackendTests launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
+params=(mergeOriginRepo printEnv cloneThunderstorm buildThunderstorm pushNuArtMessage purge clean setup newVersion linkDependencies install build lint cleanDirt launchBackend runBackendTests launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
 
 function extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--help")
                 printHelp
+            ;;
+
+            "--print-env")
+                printEnv=true
             ;;
 
             "--debug")
@@ -51,8 +58,8 @@ function extractParams() {
                 mergeOriginRepo=true
             ;;
 
-            "--nu-art")
-                cloneNuArt=true
+            "--use-thunderstorm-sources")
+                cloneThunderstorm=true
             ;;
 
             "--push="*)
@@ -85,23 +92,25 @@ function extractParams() {
                 build=
             ;;
 
-            "--clean-dirt")
-                cleanDirt=true
-                clean=true
-            ;;
-
-            "--flag-dirty="*)
-                dirtyLib=`regexParam "--flag-dirty" "${paramValue}"`
-            ;;
-
             "--no-build" | "-nb")
                 build=
+            ;;
+
+            "--no-thunderstorm" | "-nts")
+                buildThunderstorm=
             ;;
 
             "--lint")
                 lint=true
             ;;
 
+            "--listen" | "-l")
+                listen=true
+                build=
+            ;;
+
+
+#        ==== TEST =====
             "--test-modules" | "-tm")
                 testModules=true
             ;;
@@ -120,11 +129,21 @@ function extractParams() {
                 build=
             ;;
 
-            "--listen" | "-l")
-                listen=true
-                build=
+#        ==== LAUNCH =====
+            "--launch" | "-la")
+                envType=dev
+                launchBackend=true
+                launchFrontend=true
             ;;
 
+            "--launch-backend" | "-lb")
+                envType=dev
+                launchBackend=true
+            ;;
+
+            "--launch-frontend" | "-lf")
+                launchFrontend=true
+            ;;
 
 #        ==== DEPLOY =====
             "--deploy" | "-d")
@@ -161,23 +180,17 @@ function extractParams() {
                 lint=true
             ;;
 
-#        ==== LAUNCH =====
-            "--launch" | "-la")
-                envType=dev
-                launchBackend=true
-                launchFrontend=true
+
+#        ==== OTHER =====
+            "--clean-dirt")
+                cleanDirt=true
+                clean=true
             ;;
 
-            "--launch-backend" | "-lb")
-                envType=dev
-                launchBackend=true
+            "--flag-dirty="*)
+                dirtyLib=`regexParam "--flag-dirty" "${paramValue}"`
             ;;
 
-            "--launch-frontend" | "-lf")
-                launchFrontend=true
-            ;;
-
-#        ==== PUBLISH =====
             "--publish" | "-p")
                 clean=true
                 build=true
@@ -193,21 +206,6 @@ function extractParams() {
             ;;
 
 #        ==== ERRORS & DEPRECATION =====
-            "--get-config-backend"*)
-                logWarning "COMMAND IS DEPRECATED... USE --get-backend-config"
-            ;;
-
-            "-gcb")
-                logWarning "COMMAND IS DEPRECATED... USE -gbc"
-            ;;
-
-            "--set-config-backend"*)
-                logWarning "COMMAND IS DEPRECATED... USE --set-backend-config"
-            ;;
-
-            "-scb"*)
-                logWarning "COMMAND IS DEPRECATED... USE -sbc"
-            ;;
 
             *)
                 logWarning "UNKNOWN PARAM: ${paramValue}";

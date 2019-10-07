@@ -14,8 +14,6 @@ if [[ -e ".scripts/modules.sh" ]]; then
 else
     source ${BASH_SOURCE%/*}/modules.sh
 fi
-source .scripts/modules.sh
-source .scripts/signature.sh
 
 enforceBashVersion 4.4
 
@@ -313,7 +311,7 @@ function printModule() {
     logDebug "${output}"
 }
 
-function cloneNuArtModules() {
+function cloneThunderstormModules() {
     local module
     for module in "${nuArtModules[@]}"; do
         if [[ ! -e "${module}" ]]; then
@@ -600,8 +598,21 @@ fi
 #               #
 #################
 
+if [[ "${printEnv}" ]]; then
+    assertNodePackageInstalled typescript
+    assertNodePackageInstalled tslint
+    assertNodePackageInstalled firebase-tools
+    assertNodePackageInstalled sort-package-json
+    logDebug "node version: "`node -v`
+    logDebug "npm version: "`npm -v`
+    logDebug "bash version: "`getBashVersion`
+    exit 0
+fi
+
 if [[ "${#modules[@]}" == 0 ]]; then
-    modules+=(${nuArtModules[@]})
+    if [[ "${buildThunderstorm}" ]]; then
+        modules+=(${nuArtModules[@]})
+    fi
     modules+=(${projectModules[@]})
 fi
 
@@ -612,9 +623,9 @@ if [[ "${mergeOriginRepo}" ]]; then
     exit 0
 fi
 
-if [[ "${cloneNuArt}" ]]; then
+if [[ "${cloneThunderstorm}" ]]; then
     bannerInfo "Clone Nu-Art"
-    cloneNuArtModules
+    cloneThunderstormModules
     bash $0 --setup
 fi
 
@@ -637,6 +648,7 @@ if [[ "${setup}" ]]; then
     assertNodePackageInstalled firebase-tools
     assertNodePackageInstalled sort-package-json
     assertNodePackageInstalled nodemon
+    assertNodePackageInstalled tslint
 
     bannerInfo "setup"
     executeOnModules setupModule

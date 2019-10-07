@@ -9,6 +9,19 @@ function printHelp() {
     local dcb="${BGreen}"
     local noColor="${NoColor}"
 
+    logVerbose " ==== ${group}General:${noColor} ===="
+    logVerbose
+    logVerbose "   ${pc}--help | -h${noColor}"
+    logVerbose "        ${dc}This Menu${noColor}"
+    logVerbose
+    logVerbose "   ${pc}--print-env${noColor}"
+    logVerbose "        ${dc}Will print the current versions of the important tools${noColor}"
+    logVerbose
+    logVerbose "   ${pc}--use-thunderstorm-sources${noColor}"
+    logVerbose "        ${dc}Will print the current versions of the important tools${noColor}"
+    logVerbose
+    logVerbose
+
     logVerbose " ==== ${group}CLEAN:${noColor} ===="
     logVerbose
     logVerbose "   ${pc}--purge${noColor}"
@@ -22,26 +35,39 @@ function printHelp() {
 
     logVerbose " ==== ${group}BUILD:${noColor} ===="
     logVerbose
-    logVerbose "   ${pc}--unlink${noColor}"
-    logVerbose "        ${dc}Will purge & setup without dependencies${noColor}"
-    logVerbose
     logVerbose "   ${pc}--setup${noColor}"
     logVerbose "        ${dc}Will link all modules and create link dependencies${noColor}"
     logVerbose
-    logVerbose "   ${pc}--no-build${noColor}"
+    logVerbose "   ${pc}--unlink${noColor}"
+    logVerbose "        ${dc}Will purge & setup without dependencies${noColor}"
+    logVerbose
+    logVerbose "   ${pc}--link-only | -lo${noColor}"
+    logVerbose "        ${dc}Would only link dependencies between projects${noColor}"
+    logVerbose
+    logVerbose "   ${pc}--no-build | -nb${noColor}"
     logVerbose "        ${dc}Skip the build${noColor}"
     logVerbose
-    logVerbose "   ${pc}--no-frontend-hack${noColor}"
-    logVerbose "        ${dc}Do not apply the frontend development hack${noColor}"
+    logVerbose "   ${pc}--no-thunderstorm | -nts${noColor}"
+    logVerbose "        ${dc}Completely ignore Thunderstorm infra${noColor}"
+    logVerbose
+    logVerbose "   ${pc}--lint${noColor}"
+    logVerbose "        ${dc}Run lint on all the packages${noColor}"
     logVerbose
     logVerbose "   ${pc}--listen${noColor}"
     logVerbose "        ${dc}listen and rebuild on changes in modules${noColor}"
     logVerbose
-    logVerbose "   ${pc}--link-only${noColor}"
-    logVerbose "        ${dc}Would only link dependencies between projects${noColor}"
     logVerbose
-    logVerbose "   ${pc}--test${noColor}"
+
+    logVerbose " ==== ${group}TEST:${noColor} ===="
+    logVerbose
+    logVerbose "   ${pc}--test-modules | -tm${noColor}"
     logVerbose "        ${dc}Run tests in all modules${noColor}"
+    logVerbose
+    logVerbose "   ${pc}--launch-backend-test-mode | -lbtm${noColor}"
+    logVerbose "        ${dc}Setting project env to test and running the backend locally${noColor}"
+    logVerbose
+    logVerbose "   ${pc}--run-backend-tests | -rbt{noColor}"
+    logVerbose "        ${dc}Run the backend test${noColor}"
     logVerbose
     logVerbose
 

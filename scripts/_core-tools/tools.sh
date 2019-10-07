@@ -87,18 +87,51 @@ function yesOrNoQuestion() {
     logVerbose
     case "$response" in
         [yY])
-                eval ${toExecuteYes}
-                throwError "Error executing: ${toExecuteYes}"
-            ;;
+            eval ${toExecuteYes}
+            throwError "Error executing: ${toExecuteYes}"
+        ;;
         [nN])
-                eval ${toExecuteNo}
-                throwError "Error executing: ${toExecuteNo}"
-            ;;
+            eval ${toExecuteNo}
+            throwError "Error executing: ${toExecuteNo}"
+        ;;
         *)
-                logError "Canceling..."
-                exit 2
-            ;;
+            logError "Canceling..."
+            exit 2
+        ;;
     esac
+}
+
+function yesOrNoQuestion_new() {
+    local var=${1}
+    local message=${2}
+    local defaultOption=${3}
+
+    logInfo "${message}"
+    read  -n 1 -p "" response
+
+    logVerbose
+    case "$response" in
+        [yY])
+            setVariable ${var} y
+        ;;
+
+        [nN])
+            setVariable ${var} n
+        ;;
+
+        *)
+            if [[ "${defaultOption}" ]] && [[ "$response" == "" ]]; then
+                setVariable ${var} ${defaultOption}
+                return
+            fi
+
+            deleteTerminalLine
+            deleteTerminalLine
+            yesOrNoQuestion_new $@
+        ;;
+    esac
+
+    deleteTerminalLine
 }
 
 function choicePrintOptions() {
@@ -204,4 +237,24 @@ function executeProcessor() {
 function joinArray {
     local delimiter=${1}
     local IFS="${delimiter}"; shift; echo "$*";
+}
+
+
+function deleteTerminalLine() {
+    local count=${1:-1}
+    for (( arg=0; arg<${count}; arg+=1 )); do
+        tput cuu1 tput el
+    done
+    for (( arg=0; arg<${count}; arg+=1 )); do
+        echo "                                                                                                                                              "
+    done
+    for (( arg=0; arg<${count}; arg+=1 )); do
+        tput cuu1 tput el
+    done
+}
+
+function setVariable() {
+    local var=${1}
+    local value=${2}
+    eval "${var}='${value}'"
 }

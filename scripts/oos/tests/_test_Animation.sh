@@ -67,9 +67,11 @@ function runEngine() {
 
 #        eval "${name}_calcX() { echo \"${calcX}\" | bc; }"
 #        eval "${name}_calcY() { echo \"${calcY}\" | bc; }"
+        eval "${name}_calcX() { setVariable \${1} `echo \"${calcX}\" | bc;` }"
+        eval "${name}_calcY() { setVariable \${1} `echo \"${calcY}\" | bc;` }"
 
-        eval "${name}_calcX() { setVariable \${1} \"80\"; }"
-        eval "${name}_calcY() { setVariable \${1} \"2\"; }"
+#        eval "${name}_calcX() { setVariable \${1} \"80\"; }"
+#        eval "${name}_calcY() { setVariable \${1} \"2\"; }"
 
         anim_${name}.interpolatorX = ${name}_calcX
         anim_${name}.interpolatorY = ${name}_calcY

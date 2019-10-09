@@ -408,7 +408,7 @@ function installImpl() {
         local deviceId=${1}
         waitForDevice ${deviceId}
         local targetApkName="${appName}-app.apk"
-        local pathToTargetApkName="/sdcard/${targetApkName}"
+        local pathToTargetApkName="/data/local/tmp/${targetApkName}"
 
         logVerbose
         execute "${adbCommand} -s ${deviceId} push ${pathToApk} ${pathToTargetApkName}" "Copy ${appName} apk onto device: ${pathToTargetApkName}" 2> ${errorFileName}

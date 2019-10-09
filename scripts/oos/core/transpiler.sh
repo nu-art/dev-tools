@@ -146,7 +146,7 @@ transpile_AllMembers() {
 
     for member in "${members[@]}"; do
         class=$(echo -e "${class}" | sed -E "s/\\$\{${member}([\[\}:])/\${${className}_${member}\1/g")
-        class=$(echo -e "${class}" | sed -E "s/${member}=/${className}_${member}=/g")
+        class=$(echo -e "${class}" | sed -E "s/${member}(\+|\[.*])?=/${className}_${member}\1=/g")
     done
 
     class=$(echo -e "${class}" | sed -E "s/declare array ([a-zA-Z_]{1,})$/`transpile_ArrayMember ${className} \"\\\\\1\"`/g")
@@ -190,6 +190,7 @@ transpile_AllMethods() {
     local methods=(`transpile_GetMethodsNames "${class}"`)
     for method in "${methods[@]}"; do
         class=$(echo -e "${class}" | sed -E "s/_${method}\(\)/${className}.${method}()/g")
+        class=$(echo -e "${class}" | sed -E "s/this.${method}/${className}.${method}/g")
     done
 
     echo -e "${class}"

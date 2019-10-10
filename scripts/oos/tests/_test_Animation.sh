@@ -39,11 +39,10 @@ function run() {
 
 function runEngine() {
     function createEngine() {
-        new Engine2D engine
-        new Canvas2D canvas
+        new Engine2DS engine
+        new Canvas2DS canvas
         canvas.width = 100
         canvas.height = 15
-        canvas.prepare
         engine.canvas = canvas
     }
 
@@ -67,8 +66,10 @@ function runEngine() {
 
 #        eval "${name}_calcX() { echo \"${calcX}\" | bc; }"
 #        eval "${name}_calcY() { echo \"${calcY}\" | bc; }"
-        eval "${name}_calcX() { setVariable \${1} `echo \"${calcX}\" | bc;` }"
-        eval "${name}_calcY() { setVariable \${1} `echo \"${calcY}\" | bc;` }"
+        eval "${name}_calcX() { setVariable \${1} \`echo \"${calcX}\" | bc;\`; }"
+        eval "${name}_calcY() { setVariable \${1} \`echo \"${calcY}\" | bc;\`; }"
+#        eval "${name}_calcX() { echo \"${calcX}\" | bc; }"
+#        eval "${name}_calcY() { echo \"${calcY}\" | bc; }"
 
 #        eval "${name}_calcX() { setVariable \${1} \"80\"; }"
 #        eval "${name}_calcY() { setVariable \${1} \"2\"; }"
@@ -78,15 +79,15 @@ function runEngine() {
         engine.addAnimation anim_${name}
     }
     createEngine
-    createCloud cloud1 "`_cloud1`" 5 90 "80" "4"
-    createCloud cloud3 "`_cloud3`" 5 90 "80" "4"
-    createCloud cloud2 "`_cloud2`" 5 90 "80" "4"
-    createCloud cloud4 "`_cloud4`" 5 90 "80" "4"
+#    createCloud cloud1 "`_cloud1`" 5 90 "80" "4"
+#    createCloud cloud3 "`_cloud3`" 5 90 "80" "4"
+#    createCloud cloud2 "`_cloud2`" 5 90 "80" "4"
+#    createCloud cloud4 "`_cloud4`" 5 90 "80" "4"
 
-#    createCloud cloud1 "`_cloud1`" 5 90 "(\${1} * 80)/1" "(2 + \${1} * 6)/1"
-#    createCloud cloud3 "`_cloud3`" 5 90 "(\${1} * 80)/1" "(10 - (2 + \${1} * 6))/1"
-#    createCloud cloud2 "`_cloud2`" 5 90 "(80 - \${1} * 80)/1" "(2 + \${1} * 6)/1"
-#    createCloud cloud4 "`_cloud4`" 5 90 "(80 - \${1} * 80)/1" "(10 - (2 + \${1} * 6))/1"
+    createCloud cloud1 "`_cloud1`" 5 90 "(\${2} * 80)/1" "(2 + \${2} * 6)/1"
+    createCloud cloud3 "`_cloud3`" 5 90 "(\${2} * 80)/1" "(10 - (2 + \${2} * 6))/1"
+    createCloud cloud2 "`_cloud2`" 5 90 "(80 - \${2} * 80)/1" "(2 + \${2} * 6)/1"
+    createCloud cloud4 "`_cloud4`" 5 90 "(80 - \${2} * 80)/1" "(10 - (2 + \${2} * 6))/1"
 
 
 

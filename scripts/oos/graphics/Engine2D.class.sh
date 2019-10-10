@@ -2,7 +2,10 @@
 
 Engine2D() {
 
-    declare canvas
+    declare canvasCount=0
+    declare array canvas=()
+    declare width
+    declare height
     declare array animators
     declare totalFrames=1
     declare frame=0
@@ -12,18 +15,23 @@ Engine2D() {
     }
 
     _start() {
+        eval "new Canvas2D canvas1"
         while (( ${frame} < ${totalFrames} )); do
             this.render
+#            sleep 0.05
             frame=$(( ${frame} + 1 ))
         done
-
-        canvas.draw
     }
 
+
     _render() {
-        canvas.prepare
-        local width=canvas.width
-        local height=canvas.height
+        canvas1.width = ${width}
+        canvas1.height = ${height}
+
+        pickedCanvas=canvas1
+        ${pickedCanvas}.prepare
+        local width=${pickedCanvas}.width
+        local height=${pickedCanvas}.height
 
         for animator in "${animators[@]}"; do
             local startFrame=`${animator}.startFrame`
@@ -36,8 +44,11 @@ Engine2D() {
                 continue
             fi
 
-            local progress="0.5"
+#            local progress="0.5"
             local progress=`echo " (${frame} - ${startFrame}) / (${endFrame} - ${startFrame}) " | bc -l`
+
+#            local posX=`${animator}.calculateX posX ${progress} ${width} ${height}`
+#            local posY=`${animator}.calculateY posY ${progress} ${width} ${height}`
 
             local posX=
             ${animator}.calculateX posX ${progress} ${width} ${height}
@@ -46,12 +57,12 @@ Engine2D() {
 
 #            >&2 echo "Render: ${animator} (${posX}, ${posY})"
             local drawable=`${animator}.drawable`
-            canvas.paint ${drawable} ${posX} ${posY}
+            ${pickedCanvas}.paint ${drawable} ${posX} ${posY}
 
-#            canvas.paint ${drawable} 80 4
+#            pickedCanvas.paint ${drawable} 80 4
         done
-        canvas.draw
-        canvas.clean
+        ${pickedCanvas}.draw
+        ${pickedCanvas}.clean
 #        sleep 0.01
     }
 }

@@ -2,12 +2,17 @@
 source ${BASH_SOURCE%/*}/transpiler-consts.sh
 source ${BASH_SOURCE%/*}/transpiler-logs.sh
 
-GLOBAL_TranspilerOutput="`pwd`/output/classes"
+GLOBAL_TranspilerOutput="`pwd`/output"
+GLOBAL_TranspilerOutputClasses="`pwd`/output/classes"
+GLOBAL_TranspilerOutputInstances="`pwd`/output/instances"
 GLOBAL_TranspilerPaths=()
 #CONST_Debug=true
 
-rm -rf "${GLOBAL_TranspilerOutput}"
-mkdir -p "${GLOBAL_TranspilerOutput}"
+rm -rf "${GLOBAL_TranspilerOutputClasses}"
+mkdir -p "${GLOBAL_TranspilerOutputClasses}"
+
+rm -rf "${GLOBAL_TranspilerOutputInstances}"
+mkdir -p "${GLOBAL_TranspilerOutputInstances}"
 
 addTranspilerPath() {
     _logInfo "Adding classpath: ${1}"
@@ -52,6 +57,7 @@ new (){
         return
     fi
 
+    echo -e "${class}" > ${GLOBAL_TranspilerOutputInstances}/${className}_${instanceName}.class.sh
     ${instanceName}
     ${defaultValues}
 
@@ -95,7 +101,7 @@ loadClass() {
 
             . <(echo -e "${rawClass}")
         fi
-        echo -e "${class}" > ${GLOBAL_TranspilerOutput}/${className}.class.sh
+        echo -e "${class}" > ${GLOBAL_TranspilerOutputClasses}/${className}.class.sh
 
         ${fqn}
         ${fqn}.rawClass = "${class}"
@@ -105,18 +111,6 @@ loadClass() {
     else
         class="`${fqn}.rawClass`"
     fi
-
-##    _logDebug "found defaultValues: ${defaultValues}"
-#
-#    if [[ "${className}" == "ClassObj" ]] && [[ "${instanceName}" == "Class_ClassObj" ]] ; then
-#        _logWarning "Creating a new Class instance for: ${className}"
-#    else
-#        _logInfo "Creating a new Class instance for: ${className} ${classInstanceName}"
-#        new ClassObj ${classInstanceName}
-#    fi
-#
-#    _logInfo "Setting class values: ${className}"
-#    _logInfo "${classInstanceName}.defaultValues = \"${defaultValues}\""
 }
 
 transpile_Class() {

@@ -9,21 +9,11 @@ Animator2D() {
     declare interpolatorY
 
     _calculateX() {
-        local name=${1}
-        local progress=${2}
-        local width=${3}
-        local height=${4}
-
-        ${interpolatorX} ${name} ${progress} ${width} ${height}
+        ${interpolatorX} ${1} ${2} ${3} ${4}
     }
 
     _calculateY() {
-        local name=${1}
-        local progress=${1}
-        local width=${2}
-        local height=${3}
-
-        ${interpolatorY} ${name} ${progress} ${width} ${height}
+        ${interpolatorY} ${1} ${2} ${3} ${4}
     }
 }
 

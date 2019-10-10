@@ -2,12 +2,14 @@
 
 Canvas2DS() {
 
+    declare frame
     declare buffer
     declare width
     declare height
 
     _prepare() {
-        buffer=`seq -f " " -s '' $((${width} * ${height}))`
+        buffer=`seq -f " " -s '' $(( ${width} * ${height} ))`
+        frame=`seq -f " " -s '' $(( ${width} + 2 ))`
     }
 
     _paint() {
@@ -27,15 +29,17 @@ Canvas2DS() {
     }
 
     _clean() {
-        for ((i=0; i< ${height}; i++)); do
+        for ((i=0; i< ${height} +2; i++)); do
             tput cuu1 tput el
         done
     }
 
     _draw() {
+        echo -e "${On_Black}${frame}${NoColor}"
         for (( h=0; h<${height}; h+=1 )); do
-            echo "A${buffer:$(( ${h} * ${width} )):${width}}B"
+            echo -e "${On_Black} ${NoColor}${buffer:$(( ${h} * ${width} )):${width}}${On_Black} ${NoColor}"
         done
+        echo -e "${On_Black}${frame}${NoColor}"
     }
 }
 

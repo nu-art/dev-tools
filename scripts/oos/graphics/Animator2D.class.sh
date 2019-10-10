@@ -9,11 +9,11 @@ Animator2D() {
     declare interpolatorY
 
     _calculateX() {
-        ${interpolatorX} ${1} ${2} ${3} ${4}
+        setVariable ${1} `eval "echo \"${interpolatorX}\"" | bc`;
     }
 
     _calculateY() {
-        ${interpolatorY} ${1} ${2} ${3} ${4}
+        setVariable ${1} `eval "echo \"${interpolatorY}\"" | bc`;
     }
 }
 

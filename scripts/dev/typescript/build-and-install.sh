@@ -162,10 +162,13 @@ function linkDependenciesImpl() {
             local origin="`pwd`/../${otherModule}/src/main/ts"
 
             createDir ${target}
+
+            chmod -R 777  ${target}
             deleteDir ${target}
 
-            logDebug "ln -s ${origin} ${target}"
-            ln -s ${origin} ${target}
+            logDebug "cp -r ${origin} ${target}"
+            cp -r ${origin} ${target}
+            chmod -R 444  ${target}/*
             throwError "Error symlink dependency: ${otherModule}"
         done
     fi
@@ -192,6 +195,8 @@ function linkDependenciesImpl() {
         local origin="`pwd`/../${modules[${i}]}/dist"
 
         createDir ${target}
+
+        chmod -R 777 ${target}
         deleteDir ${target}
 
         logDebug "ln -s ${origin} ${target}"

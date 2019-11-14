@@ -252,8 +252,8 @@ function cleanUpForkedRepo() {
 }
 
 function replaceBoilerplateNamesWithNewForkedNames() {
-    renameStringInFiles ./ ${const_BoilerplateFirebaseProject} "${firebaseProject}" "dev-tools"
-    renameStringInFiles ./ ${const_BoilerplateLocation} "${firebaseProjectLocation}" "dev-tools"
+    renameStringInFiles . ${const_BoilerplateFirebaseProject} "${firebaseProject}" "dev-tools"
+    renameStringInFiles . ${const_BoilerplateLocation} "${firebaseProjectLocation}" "dev-tools"
 }
 
 function prepareForkedProjectEnvironment() {

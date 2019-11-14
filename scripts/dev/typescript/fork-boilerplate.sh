@@ -162,9 +162,9 @@ function promptForFirebaseProjectLocationRepo() {
 
 function installNpmPackages() {
     logInfo "Verify required npm packages are installed"
-    verifyNpmPackageInstalledGlobally "typescript" 3.6.3
+    verifyNpmPackageInstalledGlobally "typescript" 3.7.2
     verifyNpmPackageInstalledGlobally "tslint" 5.20.0
-    verifyNpmPackageInstalledGlobally "firebase-tools" 7.4.0
+    verifyNpmPackageInstalledGlobally "firebase-tools" 7.6.2
     verifyNpmPackageInstalledGlobally "nodemon" 1.19.3
     verifyNpmPackageInstalledGlobally "sort-package-json" 1.22.1
     logInfo
@@ -212,7 +212,7 @@ function promptUserForConfirmation() {
     userInput="${userInput}\n    Your firebase project location: ${firebaseProjectLocation}"
     userInput="${userInput}\n    Keep Thunderstorm sources: ${withSources}"
 
-    yesOrNoQuestion_new allGood "Are all these details correct: [y/N]\n${userInput}" ${allGood}
+    yesOrNoQuestion_new allGood "${userInput}\n\nAre all these details correct: [y/N]" ${allGood}
 
     case "${allGood}" in
         [n])

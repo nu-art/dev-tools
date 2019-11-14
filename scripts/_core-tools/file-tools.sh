@@ -89,11 +89,12 @@ function renameStringInFiles() {
     local toExclude=""
 
     for (( arg=0; arg<${#excludeDirs[@]}; arg+=1 )); do
-        toExclude="${toExclude} --exclude-dir '${excludeDirs[${arg}]}'"
+        toExclude="${toExclude} --exclude-dir=${excludeDirs[${arg}]}"
     done
 
     local files=(`grep -rl ${matchPattern} "${rootFolder}"${toExclude}`)
     for file in ${files[@]} ; do
+        echo ${file}
         if [[ `isMacOS` ]]; then
             sed -i '' -E "s/${matchPattern}/${replaceWith}/g" ${file}
         else

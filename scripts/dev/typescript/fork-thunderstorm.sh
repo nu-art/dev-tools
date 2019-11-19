@@ -323,7 +323,7 @@ function start() {
         setupForkedProject
         promptUserToLaunchDeployOrExit
 
-    sayGoodbye
+#    sayGoodbye
 #    echo "Your forked repo url: ${repoUrl}"
 #    echo "Your Firebase project: ${firebaseProject}"
 #    echo "The Firebase project location: ${firebaseProjectLocation}"

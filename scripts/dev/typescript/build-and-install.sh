@@ -9,6 +9,9 @@ source ${BASH_SOURCE%/*}/help.sh
 if [[ -e ".scripts/setup.sh" ]]; then
     source .scripts/setup.sh
 fi
+if [[ -e ".scripts/signature.sh" ]]; then
+    source .scripts/signature.sh
+fi
 if [[ -e ".scripts/modules.sh" ]]; then
     source .scripts/modules.sh
 else
@@ -168,7 +171,9 @@ function linkDependenciesImpl() {
 
             logDebug "cp -r ${origin} ${target}"
             cp -r ${origin} ${target}
-            chmod -R 444  ${target}/*
+            if [[ "${readOnly}" ]]; then
+                chmod -R 444  ${target}/*
+            fi
             throwError "Error symlink dependency: ${otherModule}"
         done
     fi

@@ -726,12 +726,19 @@ mapModulesVersions
 }
 
 [[ "${launchTmux}" ]] && {
-    bannerInfo "launchFrontend"
+    bannerInfo "launchTmux"
 
-    runBackend="cd ${backendModule} && npm run serve; read -p 'Process finished'"
-    runFrontend="cd ${frontendModule} && npm run dev; read -p 'Process finished'"
+    command -v tmux >/dev/null 2>&1 && {
 
-    tmux new -d -s my-session "$runBackend" \; split-window -h "$runFrontend" \; attach \;
+        runBackend="cd ${backendModule} && npm run serve; read -p 'Process finished'"
+        runFrontend="cd ${frontendModule} && npm run dev; read -p 'Process finished'"
+
+        tmux new -d -s my-session "$runBackend" \; split-window -h "$runFrontend" \; attach \;
+
+        exit 0;
+    } || {
+        echo >&2 "I require tmux but it's not installed. Aborting.";
+    }
 }
 
 
@@ -753,7 +760,7 @@ mapModulesVersions
         throwError "Error while deploying functions"
     }
 
-    [[ "${deployFrontend}" ]] && [[ -e ${frontendModule} ]];  then
+    [[ "${deployFrontend}" ]] && [[ -e ${frontendModule} ]] && {
         logInfo "Using firebase project: ${firebaseProject}"
         firebase use ${firebaseProject}
         firebase deploy --only hosting

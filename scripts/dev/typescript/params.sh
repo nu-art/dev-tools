@@ -153,6 +153,10 @@ function extractParams() {
             "--launch-both" | "--tmux" | "-lt")
                 envType=dev
                 launchTmux=true
+
+                [[ `isMacOS` ]] && { throwError "The tmux feature has not been tested on MacOS."; }
+
+                command -v tmux >/dev/null 2>&1 || { throwError "Please install tmux through your package manager."; }
             ;;
 
 #        ==== DEPLOY =====

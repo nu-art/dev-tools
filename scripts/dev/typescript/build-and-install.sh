@@ -728,15 +728,10 @@ mapModulesVersions
 [[ "${launchTmux}" ]] && {
     bannerInfo "launchTmux"
 
-    command -v tmux >/dev/null 2>&1 && {
+    runBackend="cd ${backendModule} && npm run serve; read -p 'Process finished'"
+    runFrontend="cd ${frontendModule} && npm run dev; read -p 'Process finished'"
 
-        runBackend="cd ${backendModule} && npm run serve; read -p 'Process finished'"
-        runFrontend="cd ${frontendModule} && npm run dev; read -p 'Process finished'"
-
-        tmux new -d -s thunderstorm "$runBackend" \; split-window -h "$runFrontend" \; attach \;
-    } || {
-        echo "I require tmux but it's not installed. Aborting.";
-    }
+    tmux new -d -s thunderstorm "$runBackend" \; split-window -h "$runFrontend" \; attach \;
 }
 
 

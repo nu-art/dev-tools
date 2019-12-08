@@ -733,9 +733,9 @@ mapModulesVersions
         runBackend="cd ${backendModule} && npm run serve; read -p 'Process finished'"
         runFrontend="cd ${frontendModule} && npm run dev; read -p 'Process finished'"
 
-        tmux new -d -s my-session "$runBackend" \; split-window -h "$runFrontend" \; attach \;
+        tmux new -d -s thunderstorm "$runBackend" \; split-window -h "$runFrontend" \; attach \;
     } || {
-        echo >&2 "I require tmux but it's not installed. Aborting.";
+        echo "I require tmux but it's not installed. Aborting.";
     }
 }
 

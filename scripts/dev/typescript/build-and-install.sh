@@ -106,7 +106,7 @@ function purgeModule() {
 }
 
 function usingBackend() {
-    [[ ! "${deployBackend}" ]] && [[ ! "${launchBackend}" ]] && {
+    [[ ! "${deployBackend}" ]] && [[ ! "${launchBackend}" ]] && [[ ! "${launchTmux}" ]] && {
         echo
         return
     }
@@ -115,7 +115,7 @@ function usingBackend() {
 }
 
 function usingFrontend() {
-    [[ ! "${deployFrontend}" ]] && [[ ! "${launchFrontend}" ]] && {
+    [[ ! "${deployFrontend}" ]] && [[ ! "${launchFrontend}" ]] && [[ ! "${launchTmux}" ]] && {
         echo
         return
     }
@@ -725,8 +725,14 @@ mapModulesVersions
     cd ..
 }
 
+[[ "${launchTmux}" ]] && {
+    bannerInfo "launchFrontend"
 
-##### yak
+    runBackend="cd ${backendModule} && npm run serve; read -p 'Process finished'"
+    runFrontend="cd ${frontendModule} && npm run dev; read -p 'Process finished'"
+
+    tmux new -d -s my-session "$runBackend" \; split-window -h "$runFrontend" \; attach \;
+}
 
 
 # Deploy

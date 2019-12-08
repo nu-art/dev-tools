@@ -150,6 +150,11 @@ function extractParams() {
                 launchFrontend=true
             ;;
 
+            "--launch-both" | "--tmux" | "-lt")
+                envType=dev
+                launchTmux=true
+            ;;
+
 #        ==== DEPLOY =====
             "--deploy" | "-d")
                 deployBackend=true

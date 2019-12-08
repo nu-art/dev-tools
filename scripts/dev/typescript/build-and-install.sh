@@ -734,8 +734,6 @@ mapModulesVersions
         runFrontend="cd ${frontendModule} && npm run dev; read -p 'Process finished'"
 
         tmux new -d -s my-session "$runBackend" \; split-window -h "$runFrontend" \; attach \;
-
-        exit 0;
     } || {
         echo >&2 "I require tmux but it's not installed. Aborting.";
     }

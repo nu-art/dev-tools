@@ -74,3 +74,60 @@ function promoteVersion() {
 
     echo `joinArray "." ${version[@]}`
 }
+
+function getVersionFileName() {
+    local versionFile=${1}
+
+    if [[ ! "${versionFile}" ]]; then
+        versionFile=package.json
+    fi
+
+    if [[ ! -e "${versionFile}" ]]; then
+        throwError "No such version file: ${versionFile}" 2
+    fi
+
+    echo "${versionFile}"
+}
+
+function incrementVersionCode() {
+	local pathToVersionFile=`getVersionFileName ${1}`
+    throwError "Error incrementing version code"
+}
+
+function incrementVersionName() {
+    local promoteVersion=${1}
+	local pathToVersionFile=`getVersionFileName ${2}`
+    throwError "Error incrementing '${promoteVersion}' version name"
+}
+
+function getVersionName() {
+    local versionFile=`getVersionFileName ${1}`
+    local versionName=`cat ${versionFile} | grep '"version":' | head -1 | sed -E "s/.*\"version\".*\"(.*)\",?/\1/"`
+    echo ${versionName}
+}
+
+function getPackageName() {
+    local versionFile=`getVersionFileName ${1}`
+    local packageName=`cat ${versionFile} | grep '"name":' | head -1 | sed -E "s/.*\"name\".*\"(.*)\",?/\1/"`
+    echo ${packageName}
+}
+
+function setVersionName() {
+    local newVersionName=${1}
+    local versionFile=`getVersionFileName ${2}`
+
+    if [[ `isMacOS` ]]; then
+        sed -i '' "s/\"version\": \".*\"/\"version\": \"${newVersionName}\"/g" ${versionFile}
+    else
+        sed -i "s/\"version\": \".*\"/\"version\": \"${newVersionName}\"/g" ${versionFile}
+    fi
+}
+
+function getJsonValueForKey() {
+    local fileName=${1}
+    local key=${2}
+
+    local value=`cat ${fileName} | grep "\"${key}\":" | head -1 | sed -E "s/.*\"${key}\".*\"(.*)\",?/\1/"`
+    echo ${value}
+}
+

@@ -29,7 +29,7 @@ if [[ "${deviceId}" ]]; then
     deviceId="-s ${deviceId}"
 fi
 
-images=("boot" "cache" "recovery" "system")
+images=("boot" "system")
 
 pushd "${folder}"
     echo "Entering boot loader"

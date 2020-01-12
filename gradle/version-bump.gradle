@@ -26,7 +26,7 @@ def getVersionCodePattern(fileName) {
 }
 
 def getVersionNamePattern(fileName) {
-    return fileName.getName().endsWith(".json") ? "\"versionName\" ?: ?\"(.*?)\"" : "versionCode\\s*(\\d+)"
+    return fileName.getName().endsWith(".json") ? "\"versionName\" ?: ?\"(.*?)\"" : "versionName\\s*\"(.*?)\""
 }
 
 def getVersionNameFromFile() {

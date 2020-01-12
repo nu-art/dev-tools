@@ -18,8 +18,6 @@
 #  limitations under the License.
 
 #!/bin/bash
-source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
-
 artifactsIds=()
 
 function installAndroidPackages() {

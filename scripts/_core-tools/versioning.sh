@@ -47,18 +47,22 @@ function promoteVersion() {
     local _version=${1}
     local promotion=${2}
     local version=(${_version//./ })
+    local length=${3:-${#version[@]}}
     local index
     case "${promotion}" in
         "patch")
             index=2
+            (( ${length} < 3 )) && length=3
         ;;
 
         "minor")
             index=1
+            (( ${length} < 2 )) && length=2
         ;;
 
         "major")
             index=0
+            (( ${length} < 1 )) && length=1
         ;;
 
         "*")
@@ -68,8 +72,12 @@ function promoteVersion() {
 
     version[${index}]=$(( ${version[index]} + 1  ))
 
-    for (( arg=${index} + 1; arg < ${#version[@]}; arg+=1 )); do
+    for (( arg=${index} + 1; arg < ${length}; arg+=1 )); do
         version[${arg}]=0
+    done
+
+    for (( arg=${length}; arg < ${#version[@]}; arg+=1 )); do
+        version[${arg}]=
     done
 
     echo `joinArray "." ${version[@]}`

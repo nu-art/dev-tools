@@ -18,15 +18,16 @@
 #  limitations under the License.
 
 #!/bin/bash
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-source ${BASH_SOURCE%/*}/colors.sh
-source ${BASH_SOURCE%/*}/logger.sh
-source ${BASH_SOURCE%/*}/time.sh
-source ${BASH_SOURCE%/*}/signature.sh
+source ${DIR}/colors.sh
+source ${DIR}/logger.sh
+source ${DIR}/time.sh
+source ${DIR}/signature.sh
 
-source ${BASH_SOURCE%/*}/tools.sh
-source ${BASH_SOURCE%/*}/error-handling.sh
-source ${BASH_SOURCE%/*}/cli-params.sh
-source ${BASH_SOURCE%/*}/folder-filters.sh
-source ${BASH_SOURCE%/*}/file-tools.sh
-source ${BASH_SOURCE%/*}/versioning.sh
+source ${DIR}/tools.sh
+source ${DIR}/error-handling.sh
+source ${DIR}/cli-params.sh
+source ${DIR}/folder-filters.sh
+source ${DIR}/file-tools.sh
+source ${DIR}/versioning.sh

@@ -18,7 +18,30 @@
 #  limitations under the License.
 
 #!/bin/bash
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source "${DIR}/../_core-tools/_source.sh"
 
-source ${BASH_SOURCE%/*}/build-and-deploy.sh
-source ${BASH_SOURCE%/*}/install-android-build-tools.sh
-source ${BASH_SOURCE%/*}/version.sh
+totalSuccess=0
+totalErrors=0
+
+function assert() {
+    local expected=${1}
+    local toEval=${2}
+    local actual=`${toEval}`
+    local label=${3}
+
+    if [[ "${expected}" == ${actual} ]]; then
+        logVerbose "${toEval} => ${actual}"
+        ((totalSuccess++))
+        return;
+    else
+        logWarning "${toEval} => ${actual} ... expected: ${expected}"
+        ((totalErrors++))
+#        throwError "${label}\nError unexpected value...\n  expected: ${expected}\n  actual: ${actual}"
+    fi
+}
+
+function printSummary() {
+    logInfo "Success: ${totalSuccess}"
+    (( totalErrors > 0 )) && logError "Errors: ${totalErrors}"
+}

@@ -18,8 +18,6 @@
 #  limitations under the License.
 
 #!/bin/bash
-source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
-source ${BASH_SOURCE%/*}/version.sh
 
 function prepare() {
     local branch=${1}
@@ -67,8 +65,8 @@ function updateRepository() {
 
 	local modules=(`echo ${1}`)
     local pathToVersionFile=`getVersionFileName ${2}`
-    local newVersionName=`getVersionName ${pathToVersionFile}`
-    local newVersionCode=`getVersionCode ${pathToVersionFile}`
+    local newVersionName=`getJsonValueForKey ${pathToVersionFile} versionName`
+    local newVersionCode=`getJsonValueForKey ${pathToVersionFile} versionCode`
     local tag=
     local message=
 

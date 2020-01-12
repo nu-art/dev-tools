@@ -92,7 +92,7 @@ log() {
     local duration=`calcDuration "rootTimer"`
     logDate="(${duration}) "`date +"%Y-%m-%d_%H:%M:%S"`
     logMessage=${logMessage//$'\n'/'\n'${NoColor}${logDate} ${color}}
-    echo -e${_override} "${logDate} ${color}${logMessage}${NoColor}"\\r
+    echo -e${_override} "${logDate}  ${color}${logMessage}${NoColor}"\\r
 }
 
 logVerbose() {

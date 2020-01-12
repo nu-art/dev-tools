@@ -64,11 +64,14 @@ function updateRepository() {
   	logInfo "------------------------------       Update Repositories...        -----------------------------"
 
 	local modules=(`echo ${1}`)
-    local pathToVersionFile=`getVersionFileName ${2}`
-    local newVersionName=`getJsonValueForKey ${pathToVersionFile} versionName`
-    local newVersionCode=`getJsonValueForKey ${pathToVersionFile} versionCode`
+    local newVersionName=`getJsonValueForKey version.json versionName`
+    local newVersionCode=`getJsonValueForKey version.json versionCode`
     local tag=
     local message=
+
+    if [[ ! "${newVersionName}" ]]; then
+        throwError "could not resolve version" 3
+    fi
 
     if [[ ! "${newVersionCode}" ]] || [[ "${newVersionCode}" == "1" ]]; then
         tag="v${newVersionName}"
@@ -89,7 +92,7 @@ function updateRepository() {
             git push origin ${tag}
         popd > /dev/null
     done
-loading
+
     git commit -am "${message}"
     git tag -a "${tag}" -am "${message}"
     git push --tags

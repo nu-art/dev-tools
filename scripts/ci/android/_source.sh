@@ -22,4 +22,3 @@
 source ${BASH_SOURCE%/*}/../../_core-tools/_source.sh
 source ${BASH_SOURCE%/*}/build-and-deploy.sh
 source ${BASH_SOURCE%/*}/install-android-build-tools.sh
-source ${BASH_SOURCE%/*}/version.sh

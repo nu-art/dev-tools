@@ -21,12 +21,12 @@
 
 import java.util.regex.Pattern
 
-def getVersionCodePattern() {
-    return "versionCode\\s*(\\d+)"
+def getVersionCodePattern(fileName) {
+    return fileName.getName().endsWith(".json") ? "\"versionCode\" ?: ?\"(\\d+)\"" : "versionCode\\s*(\\d+)"
 }
 
-def getVersionNamePattern() {
-    return "versionName\\s*\"(.*?)\""
+def getVersionNamePattern(fileName) {
+    return fileName.getName().endsWith(".json") ? "\"versionName\" ?: ?\"(.*?)\"" : "versionName\\s*\"(.*?)\""
 }
 
 def getVersionNameFromFile() {
@@ -66,7 +66,7 @@ def getVersionNameFromFile(String pathToFile) {
         return "1.0.0"
     }
 
-    String versionNameFound = getPattern(file, getVersionNamePattern())
+    String versionNameFound = getPattern(file, getVersionNamePattern(file))
     return versionNameFound
 }
 
@@ -95,7 +95,7 @@ def getVersionCodeFromFile(String pathToFile) {
         return 1
     }
 
-    def versionCode = Integer.parseInt(getPattern(file, getVersionCodePattern()))
+    def versionCode = Integer.parseInt(getPattern(file, getVersionCodePattern(file)))
     return versionCode
 }
 
@@ -125,7 +125,7 @@ def incrementVersionName(int length, int index) {
 
     println("Incrementing Version Name: " + originalVersion + " ==> " + finalVersion)
 
-    updateVersionFile(pathToVersionFile, getVersionNamePattern(), "versionName \"" + finalVersion + "\"")
+    updateVersionFile(pathToVersionFile, getVersionNamePattern(pathToVersionFile), "versionName \"" + finalVersion + "\"")
 }
 
 def incrementVersionCode() {
@@ -133,7 +133,7 @@ def incrementVersionCode() {
     def finalVersionCode = originalVersionCode + 1
     println("Incrementing Version Code: " + originalVersionCode + " ==> " + finalVersionCode)
 
-    updateVersionFile(pathToVersionFile, getVersionCodePattern(), "versionCode " + finalVersionCode)
+    updateVersionFile(pathToVersionFile, getVersionCodePattern(pathToVersionFile), "versionCode " + finalVersionCode)
 }
 
 def updateVersionFile(fileName, pattern, replacement) {

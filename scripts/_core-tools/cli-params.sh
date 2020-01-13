@@ -21,7 +21,8 @@
 
 
 function regexParam() {
-    echo `echo "${2}" | sed -E "s/(${1})=(.*)/\2/"`
+    local value=`echo "${2}" | sed -E "s/(${1})=(.*)/\2/"`
+    echo "${value}"
 }
 
 function removePrefix() {

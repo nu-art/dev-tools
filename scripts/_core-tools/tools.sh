@@ -198,20 +198,33 @@ function isMacOS() {
 
 # To reconsider
 
-function sedFunc() {
-    local data=$1
-    local pattern=$2
-    local command
+function replaceAllInFile() {
+    replaceInFile $1 $2 $3 g
+}
+
+function replaceInFile() {
+    local matchPattern="${1}"
+    local replaceWith="${2}"
+    local file="${3}"
+    local flags="${4}"
 
     if [[ `isMacOS` ]]; then
-        command="perl -pe"
+        sed -i '' -E "s/${matchPattern}/${replaceWith}/${flags}" ${file}
     else
-        command="sed -E"
+        sed -i -E "s/${matchPattern}/${replaceWith}/${flags}" ${file}
     fi
+}
 
-    local result=`echo "${data}" | ${command} "${pattern}"`
+function replaceInText() {
+    local matchPattern="${1}"
+    local replaceWith="${2}"
+    local file="${3}"
 
-    echo "${result}"
+    if [[ `isMacOS` ]]; then
+        sed -i '' -E "s/${matchPattern}/${replaceWith}/g" ${file}
+    else
+        sed -i -E "s/${matchPattern}/${replaceWith}/g" ${file}
+    fi
 }
 
 function indent() {

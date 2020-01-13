@@ -638,7 +638,7 @@ if [[ "${cloneThunderstorm}" ]]; then
     cloneThunderstormModules
     bash $0 --setup
 fi
-
+echo "${modules[@]}"
 mapExistingLibraries
 mapModulesVersions
 

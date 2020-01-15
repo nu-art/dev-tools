@@ -410,7 +410,7 @@ function promoteNuArt() {
             gitFetchRepo
             gitAssertNoCommitsToPull
 
-            if [[ `git tag -l | grep ${nuArtVersion}` ]]; then
+            if [[ `gitAssertTagExists ${nuArtVersion}` ]]; then
                 throwError "Tag already exists: v${nuArtVersion}" 2
             fi
         cd ..
@@ -444,7 +444,7 @@ function promoteApps() {
 
     appVersion=${newAppVersion}
     logInfo "Asserting repo readiness to promote a version..."
-    if [[ `git tag -l | grep ${appVersion}` ]]; then
+    if [[ `gitAssertTagExists ${appVersion}` ]]; then
         throwError "Tag already exists: v${appVersion}" 2
     fi
 

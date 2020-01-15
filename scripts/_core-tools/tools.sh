@@ -271,3 +271,17 @@ function setVariable() {
     local value=${2}
     eval "${var}='${value}'"
 }
+
+function match(){
+    local content="${1}"
+    local regexps=("${@:2}")
+    local matches=()
+    for regexp in ${regexps[@]}; do
+        while [[ "${content}" =~ $regexp ]]; do
+            matches+=("${BASH_REMATCH[1]}")
+            content=`echo "${content}" | sed -E "s/${BASH_REMATCH[1]}//g"`
+        done
+    done
+
+    echo "${matches[@]}"
+}

@@ -312,6 +312,11 @@ function gitAssertOrigin() {
     fi
 }
 
+function gitAssertTagExists() {
+    local version=${1}
+    echo `git tag -l | grep ${version}`
+}
+
 function gitAssertNoCommitsToPull() {
     if [[ `hasCommitsToPull` ]]; then
         throwError "Repo is not up to date... you got to pull it baby..." 2

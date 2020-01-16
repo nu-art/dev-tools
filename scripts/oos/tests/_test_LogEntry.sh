@@ -3,7 +3,7 @@
 source ../core/transpiler.sh
 source `pwd`/../../_core-tools/_source.sh
 
-addTranspilerPath `pwd`
+addTranspilerClassPath `pwd`
 
 new LogEntry logEntry1
 new LogEntry logEntry2

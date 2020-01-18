@@ -99,8 +99,8 @@ loadClass() {
         _logError "Loading class from file: ${className} for instance: ${instanceName} from: ${pathToClassFile}"
         class=$(cat ${pathToClassFile})
 
-        class=$(echo -e "${class}" | sed -E "s/(${className}\(\) \{)/\1\\\n    declare __this\\\n    declare __class=${fqn}/g")
-
+        [[ ! "${class}" =~ "${className}()" ]] && throwError "Could not find constructor matching class name '${className}' in class file: ${pathToClassFile}" 3
+        class=$(echo "${class}" | sed -E "s/(${className}\(\) \{)/\1\\\n    declare __this\\\n    declare __class/g")
 
         members=(`transpile_GetMemberNames "${class}"`)
         staticMembers=(`transpile_GetStaticMemberNames "${class}"`)

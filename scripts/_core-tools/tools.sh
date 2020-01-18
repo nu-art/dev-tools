@@ -252,6 +252,10 @@ function joinArray {
     local IFS="${delimiter}"; shift; echo "$*";
 }
 
+function isFunction() {
+    local functionName=${1}
+    [[ `type -t ${functionName}` != 'function' ]] && echo "function"
+}
 
 function deleteTerminalLine() {
     local count=${1:-1}

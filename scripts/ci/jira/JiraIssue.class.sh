@@ -3,7 +3,7 @@
 JiraIssue() {
 
     declare __id=
-    declare accountId=
+    declare type=
 
     _updateFixVersion() {
         [[ ! "${__id}" ]] && throwError "Cannot update an issue without an id" 2
@@ -18,9 +18,26 @@ JiraIssue() {
              --header 'Accept: application/json' \
              --data "${data}")
 
-        _logWarning "output: ${output}"
+#        _logWarning "output: ${output}"
         local responseCode=`echo -e "${output}" | grep -E "Response:" | sed -E "s/--- Response: ([0-9]+) ---/\1/"`
-        (( responseCode >= 400)) && throwError "Error getting versions.\n\n${output}\n" "${responseCode}"
+        (( responseCode >= 400)) && throwError "Error updating an issue.\n\n${output}\n" "${responseCode}"
+    }
+
+    _resolveType() {
+        [[ ! "${__id}" ]] && throwError "Cannot get an issue without an id" 2
+
+        _logDebug "Getting issue data without an id: ${__id}\n data: ${data}"
+        local output=$(curl --write-out "\n--- Response: %{http_code} ---" \
+             --request GET \
+             --url https://introb.atlassian.net/rest/api/3/issue/${__id} \
+             --user ${JIRA_USER}:${JIRA_TOKEN} \
+             --header 'Accept: application/json')
+
+#        _logWarning "output: ${output}"
+        local responseCode=`echo -e "${output}" | grep -E "Response:" | sed -E "s/--- Response: ([0-9]+) ---/\1/"`
+        (( responseCode >= 400)) && throwError "Error getting issue.\n\n${output}\n" "${responseCode}"
+
+        type=`echo "${output}" | grep -E "issuetype" | sed -E 's/^.*"issuetype".*"name":"(Story|Task|Sub-task)".*$/\1/'`
     }
 
     _updateTransition() {
@@ -36,7 +53,10 @@ JiraIssue() {
              --header 'Accept: application/json'\
              --data "${data}")
 
-        _logWarning "output: ${output}"
+        local responseCode=`echo -e "${output}" | grep -E "Response:" | sed -E "s/--- Response: ([0-9]+) ---/\1/"`
+        (( responseCode >= 400)) && throwError "Error getting issue.\n\n${output}\n" "${responseCode}"
+
+#        _logWarning "output: ${output}"
     }
 
     _updateAssignee() {
@@ -52,7 +72,10 @@ JiraIssue() {
              --header 'Accept: application/json'\
              --data "${data}")
 
-        _logWarning "output: ${output}"
+        local responseCode=`echo -e "${output}" | grep -E "Response:" | sed -E "s/--- Response: ([0-9]+) ---/\1/"`
+        (( responseCode >= 400)) && throwError "Error getting issue.\n\n${output}\n" "${responseCode}"
+
+#        _logWarning "output: ${output}"
     }
 }
 

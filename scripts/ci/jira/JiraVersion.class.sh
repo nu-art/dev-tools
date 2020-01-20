@@ -24,7 +24,7 @@ JiraVersion() {
              --header 'Accept: application/json' \
              --data "${data}")
 
-         _logWarning "output: ${output}"
+#         _logWarning "output: ${output}"
         local responseCode=`echo -e "${output}" | grep -E "Response:" | sed -E "s/--- Response: ([0-9]+) ---/\1/"`
         (( responseCode >= 400)) && throwError "Error creating version: ${name}.\n\n  ${output}\n" "${responseCode}"
         id=`echo "${output}" | grep -E "\"id\":" | sed -E "s/^.*\"id\":\"([a-zA-Z0-9\.]+)\".*$/\1/"`
@@ -41,7 +41,7 @@ JiraVersion() {
              --header 'Content-Type: application/json' \
              --header 'Accept: application/json')
 
-        _logWarning "output: ${output}"
+#        _logWarning "output: ${output}"
         local responseCode=`echo -e "${output}" | grep -E "Response:" | sed -E "s/--- Response: ([0-9]+) ---/\1/"`
         (( responseCode >= 400)) && throwError "Error getting versions.\n\n${output}\n" "${responseCode}"
         id=`echo "${output}" | grep -E "${name}" | sed -E "s/.*\"id\":\"([a-zA-Z0-9\.]+)\".*,?\"name\":\"${name}\".*/\1/"`

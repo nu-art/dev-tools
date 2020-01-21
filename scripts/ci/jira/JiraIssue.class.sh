@@ -37,7 +37,7 @@ JiraIssue() {
         local responseCode=`echo -e "${output}" | grep -E "Response:" | sed -E "s/--- Response: ([0-9]+) ---/\1/"`
         (( responseCode >= 400)) && throwError "Error getting issue.\n\n${output}\n" "${responseCode}"
 
-        type=`echo "${output}" | grep -E "issuetype" | sed -E 's/^.*"issuetype".*"name":"(Story|Task|Sub-task)".*$/\1/'`
+        type=`echo "${output}" | grep -E "issuetype" | sed -E 's/^.*"issuetype".*"name":"(Story|Task|Sub-task|Bug)".*$/\1/'`
     }
 
     _updateTransition() {

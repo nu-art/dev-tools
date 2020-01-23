@@ -123,7 +123,7 @@ function verifyFirebaseProjectIsAccessible() {
     logDebug
 
     logDebug "Verifying access to firebase project: '${firebaseProject}'"
-    local output=$(firebase list | grep "${firebaseProject}" 2>&1)
+    local output=$(firebase projects:list | grep "${firebaseProject}" 2>&1)
     if [[ "${output}" =~ "Command requires authentication" ]]; then
         logError "    User not logged in"
         return 2

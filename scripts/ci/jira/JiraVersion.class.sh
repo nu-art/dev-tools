@@ -28,6 +28,7 @@ JiraVersion() {
         local responseCode=`echo -e "${output}" | grep -E "Response:" | sed -E "s/--- Response: ([0-9]+) ---/\1/"`
         (( responseCode >= 400)) && throwError "Error creating version: ${name}.\n\n  ${output}\n" "${responseCode}"
         id=`echo "${output}" | grep -E "\"id\":" | sed -E "s/^.*\"id\":\"([a-zA-Z0-9\.]+)\".*$/\1/"`
+        return 0
     }
 
     _exists() {
@@ -45,6 +46,8 @@ JiraVersion() {
         local responseCode=`echo -e "${output}" | grep -E "Response:" | sed -E "s/--- Response: ([0-9]+) ---/\1/"`
         (( responseCode >= 400)) && throwError "Error getting versions.\n\n${output}\n" "${responseCode}"
         id=`echo "${output}" | grep -E "${name}" | sed -E "s/.*\"id\":\"([a-zA-Z0-9\.]+)\".*,?\"name\":\"${name}\".*/\1/"`
+
+        return 0
     }
 
     _delete() {
@@ -58,6 +61,8 @@ JiraVersion() {
 
         local responseCode=`echo -e "${output}" | grep -E "Response:" | sed -E "s/--- Response: ([0-9]+) ---/\1/"`
         (( responseCode >= 400)) && throwError "Error getting versions.\n\n${output}\n" "${responseCode}"
+
+        return 0
     }
 }
 

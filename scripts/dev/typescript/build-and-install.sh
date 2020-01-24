@@ -7,10 +7,8 @@ source ${BASH_SOURCE%/*}/params.sh
 source ${BASH_SOURCE%/*}/help.sh
 
 [[ -e ".scripts/setup.sh" ]] && source .scripts/setup.sh
-[[ -e ".scripts/signature.sh" ]]; then
-    source .scripts/signature.sh
-fi
-if [[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh || source ${BASH_SOURCE%/*}/modules.sh
+[[ -e ".scripts/signature.sh" ]] && source .scripts/signature.sh
+[[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh || source ${BASH_SOURCE%/*}/modules.sh
 
 enforceBashVersion 4.4
 

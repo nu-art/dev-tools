@@ -84,13 +84,11 @@ function mapModulesVersions() {
 function mapExistingLibraries() {
     _modules=()
     local module
-    echo "${modules[@]}"
     for module in "${modules[@]}"; do
         if [[ ! -e "${module}" ]]; then continue; fi
         _modules+=(${module})
     done
     modules=("${_modules[@]}")
-    echo "${modules[@]}"
 }
 
 function purgeModule() {
@@ -635,7 +633,7 @@ if [[ "${cloneThunderstorm}" ]]; then
     cloneThunderstormModules
     bash $0 --setup
 fi
-echo "${modules[@]}"
+
 mapExistingLibraries
 mapModulesVersions
 

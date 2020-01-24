@@ -6,19 +6,14 @@ source ./dev-tools/scripts/ci/typescript/_source.sh
 source ${BASH_SOURCE%/*}/params.sh
 source ${BASH_SOURCE%/*}/help.sh
 
-if [[ -e ".scripts/setup.sh" ]]; then
-    source .scripts/setup.sh
-fi
-if [[ -e ".scripts/modules.sh" ]]; then
-    source .scripts/modules.sh
-else
-    source ${BASH_SOURCE%/*}/modules.sh
-fi
+[[ -e ".scripts/setup.sh" ]] && source .scripts/setup.sh
+[[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh || source ${BASH_SOURCE%/*}/modules.sh
 
 enforceBashVersion 4.4
 
 appVersion=
 nuArtVersion=
+modules=()
 
 #################
 #               #
@@ -84,14 +79,17 @@ function mapModulesVersions() {
 
     executeOnModules mapModule
 }
+
 function mapExistingLibraries() {
     _modules=()
     local module
+    echo "${modules[@]}"
     for module in "${modules[@]}"; do
         if [[ ! -e "${module}" ]]; then continue; fi
         _modules+=(${module})
     done
     modules=("${_modules[@]}")
+    echo "${modules[@]}"
 }
 
 function purgeModule() {
@@ -157,7 +155,7 @@ function linkDependenciesImpl() {
         logInfo "Setting version '${appVersion}' to module: ${module}"
         setVersionName ${appVersion}
 
-        for otherModule in "${otherModules[@]}"; do
+        for otherModule in "${linkedSourceModules[@]}"; do
             local target="`pwd`/src/main/${otherModule}"
             local origin="`pwd`/../${otherModule}/src/main/ts"
 
@@ -618,6 +616,7 @@ if [[ "${#modules[@]}" == 0 ]]; then
     if [[ "${buildThunderstorm}" ]]; then
         modules+=(${nuArtModules[@]})
     fi
+    modules+=(${dependencyModules[@]})
     modules+=(${projectModules[@]})
 fi
 

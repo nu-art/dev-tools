@@ -198,20 +198,33 @@ function isMacOS() {
 
 # To reconsider
 
-function sedFunc() {
-    local data=$1
-    local pattern=$2
-    local command
+function replaceAllInFile() {
+    replaceInFile $1 $2 $3 g
+}
+
+function replaceInFile() {
+    local matchPattern="${1}"
+    local replaceWith="${2}"
+    local file="${3}"
+    local flags="${4}"
 
     if [[ `isMacOS` ]]; then
-        command="perl -pe"
+        sed -i '' -E "s/${matchPattern}/${replaceWith}/${flags}" ${file}
     else
-        command="sed -E"
+        sed -i -E "s/${matchPattern}/${replaceWith}/${flags}" ${file}
     fi
+}
 
-    local result=`echo "${data}" | ${command} "${pattern}"`
+function replaceInText() {
+    local matchPattern="${1}"
+    local replaceWith="${2}"
+    local file="${3}"
 
-    echo "${result}"
+    if [[ `isMacOS` ]]; then
+        sed -i '' -E "s/${matchPattern}/${replaceWith}/g" ${file}
+    else
+        sed -i -E "s/${matchPattern}/${replaceWith}/g" ${file}
+    fi
 }
 
 function indent() {
@@ -239,6 +252,10 @@ function joinArray {
     local IFS="${delimiter}"; shift; echo "$*";
 }
 
+function isFunction() {
+    local functionName=${1}
+    [[ `type -t ${functionName}` != 'function' ]] && echo "function"
+}
 
 function deleteTerminalLine() {
     local count=${1:-1}
@@ -257,4 +274,18 @@ function setVariable() {
     local var=${1}
     local value=${2}
     eval "${var}='${value}'"
+}
+
+function match(){
+    local content="${1}"
+    local regexps=("${@:2}")
+    local matches=()
+    for regexp in ${regexps[@]}; do
+        while [[ "${content}" =~ $regexp ]]; do
+            matches+=("${BASH_REMATCH[1]}")
+            content=`echo "${content}" | sed -E "s/${BASH_REMATCH[1]}//g"`
+        done
+    done
+
+    echo "${matches[@]}"
 }

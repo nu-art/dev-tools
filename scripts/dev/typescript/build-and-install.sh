@@ -7,7 +7,10 @@ source ${BASH_SOURCE%/*}/params.sh
 source ${BASH_SOURCE%/*}/help.sh
 
 [[ -e ".scripts/setup.sh" ]] && source .scripts/setup.sh
-[[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh || source ${BASH_SOURCE%/*}/modules.sh
+[[ -e ".scripts/signature.sh" ]]; then
+    source .scripts/signature.sh
+fi
+if [[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh || source ${BASH_SOURCE%/*}/modules.sh
 
 enforceBashVersion 4.4
 
@@ -166,7 +169,9 @@ function linkDependenciesImpl() {
 
             logDebug "cp -r ${origin} ${target}"
             cp -r ${origin} ${target}
-            chmod -R 444  ${target}/*
+            if [[ "${readOnly}" ]]; then
+                chmod -R 444  ${target}/*
+            fi
             throwError "Error symlink dependency: ${otherModule}"
         done
     fi
@@ -403,7 +408,7 @@ function promoteNuArt() {
             gitFetchRepo
             gitAssertNoCommitsToPull
 
-            if [[ `git tag -l | grep ${nuArtVersion}` ]]; then
+            if [[ `gitAssertTagExists ${nuArtVersion}` ]]; then
                 throwError "Tag already exists: v${nuArtVersion}" 2
             fi
         cd ..
@@ -437,7 +442,7 @@ function promoteApps() {
 
     appVersion=${newAppVersion}
     logInfo "Asserting repo readiness to promote a version..."
-    if [[ `git tag -l | grep ${appVersion}` ]]; then
+    if [[ `gitAssertTagExists ${appVersion}` ]]; then
         throwError "Tag already exists: v${appVersion}" 2
     fi
 
@@ -632,7 +637,7 @@ if [[ "${cloneThunderstorm}" ]]; then
     cloneThunderstormModules
     bash $0 --setup
 fi
-
+echo "${modules[@]}"
 mapExistingLibraries
 mapModulesVersions
 

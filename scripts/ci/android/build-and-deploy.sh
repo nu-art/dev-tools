@@ -18,8 +18,6 @@
 #  limitations under the License.
 
 #!/bin/bash
-source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
-source ${BASH_SOURCE%/*}/version.sh
 
 function prepare() {
     local branch=${1}
@@ -66,11 +64,14 @@ function updateRepository() {
   	logInfo "------------------------------       Update Repositories...        -----------------------------"
 
 	local modules=(`echo ${1}`)
-    local pathToVersionFile=`getVersionFileName ${2}`
-    local newVersionName=`getVersionName ${pathToVersionFile}`
-    local newVersionCode=`getVersionCode ${pathToVersionFile}`
+    local newVersionName=`getJsonValueForKey version.json versionName`
+    local newVersionCode=`getJsonValueForKey version.json versionCode`
     local tag=
     local message=
+
+    if [[ ! "${newVersionName}" ]]; then
+        throwError "could not resolve version" 3
+    fi
 
     if [[ ! "${newVersionCode}" ]] || [[ "${newVersionCode}" == "1" ]]; then
         tag="v${newVersionName}"
@@ -91,7 +92,7 @@ function updateRepository() {
             git push origin ${tag}
         popd > /dev/null
     done
-loading
+
     git commit -am "${message}"
     git tag -a "${tag}" -am "${message}"
     git push --tags

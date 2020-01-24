@@ -27,9 +27,7 @@ function copyFileToFolder() {
     local origin="${1}"
     local target="${2}"
 
-    if [[ ! -e "${target}" ]]; then
-        createDir ${target}
-    fi
+    [[ ! -e "${target}" ]] && createDir ${target}
 
     cp ${origin} ${target}
     execute "cp ${origin} ${target}" "Copying file: ${origin} => ${target}"
@@ -37,14 +35,14 @@ function copyFileToFolder() {
 
 function createDir() {
     local pathToDir="${1}"
-    if [[ -e "${pathToDir}" ]]; then return; fi
+    [[ -e "${pathToDir}" ]] && return
 
     execute "mkdir -p ${pathToDir}" "Creating folder: ${pathToDir}"
 }
 
 function deleteFile() {
     local pathToFile="${1}"
-    if [[ ! -e "${pathToFile}" ]]; then return; fi
+    [[ ! -e "${pathToFile}" ]] && return
 
     execute "rm ${pathToFile}" "Deleting file: ${pathToFile}"
 }
@@ -55,14 +53,14 @@ function deleteFolder() {
 
 function deleteDir() {
     local pathToDir="${1}"
-    if [[ ! -e "${pathToDir}" ]] && [[ ! -d "${pathToDir}" ]] && [[ ! -L "${pathToDir}" ]]; then return; fi
+    [[ ! -e "${pathToDir}" ]] && [[ ! -d "${pathToDir}" ]] && [[ ! -L "${pathToDir}" ]] && return
 
     execute "rm -rf ${pathToDir}" "Deleting folder: ${pathToDir}"
 }
 
 function clearFolder() {
     local pathToDir="${1}"
-    if [[ ! -e "${pathToDir}" ]]; then return; fi
+    [[ -e "${pathToDir}" ]] && return
 
     cd ${pathToDir}
         execute "rm -rf *" "Deleting folder content: ${pathToDir}"
@@ -89,11 +87,12 @@ function renameStringInFiles() {
     local toExclude=""
 
     for (( arg=0; arg<${#excludeDirs[@]}; arg+=1 )); do
-        toExclude="${toExclude} --exclude-dir '${excludeDirs[${arg}]}'"
+        toExclude="${toExclude} --exclude-dir=${excludeDirs[${arg}]}"
     done
 
     local files=(`grep -rl ${matchPattern} "${rootFolder}"${toExclude}`)
     for file in ${files[@]} ; do
+        echo ${file}
         if [[ `isMacOS` ]]; then
             sed -i '' -E "s/${matchPattern}/${replaceWith}/g" ${file}
         else

@@ -12,10 +12,11 @@ purge=
 clean=
 
 setup=
+readOnly=true
+build=true
 install=true
 listen=
 linkDependencies=true
-build=true
 lint=
 
 launchBackend=
@@ -37,7 +38,7 @@ buildThunderstorm=true
 modulesPackageName=()
 modulesVersion=()
 
-params=(mergeOriginRepo printEnv cloneThunderstorm buildThunderstorm pushNuArtMessage purge clean setup newVersion linkDependencies install build lint cleanDirt launchBackend runBackendTests launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
+params=(mergeOriginRepo printEnv cloneThunderstorm buildThunderstorm pushNuArtMessage readOnly purge clean setup newVersion linkDependencies install build lint cleanDirt launchBackend runBackendTests launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
 
 function extractParams() {
     for paramValue in "${@}"; do
@@ -85,6 +86,10 @@ function extractParams() {
 
             "--unlink" | "-u")
                 setup=true
+            ;;
+
+            "--allow-write" | "-aw")
+                readOnly=
             ;;
 
             "--link-only" | "-lo")

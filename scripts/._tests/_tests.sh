@@ -18,4 +18,30 @@
 #  limitations under the License.
 
 #!/bin/bash
-source ${BASH_SOURCE%/*}/../../_core-tools/_source.sh
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source "${DIR}/../_core-tools/_source.sh"
+
+totalSuccess=0
+totalErrors=0
+
+function assert() {
+    local expected=${1}
+    local toEval=${2}
+    local actual=`${toEval}`
+    local label=${3}
+
+    if [[ "${expected}" == ${actual} ]]; then
+        logVerbose "${toEval} => ${actual}"
+        ((totalSuccess++))
+        return;
+    else
+        logWarning "${toEval} => ${actual} ... expected: ${expected}"
+        ((totalErrors++))
+#        throwError "${label}\nError unexpected value...\n  expected: ${expected}\n  actual: ${actual}"
+    fi
+}
+
+function printSummary() {
+    logInfo "Success: ${totalSuccess}"
+    (( totalErrors > 0 )) && logError "Errors: ${totalErrors}"
+}

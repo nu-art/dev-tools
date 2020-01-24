@@ -65,4 +65,4 @@ def addTask_DeployToNexus(groupId, _packaging) {
 
 ext.addTask_DeployJavaArtifactToNexus = this.&addTask_DeployJavaArtifactToNexus
 ext.addTask_DeployAndroidArtifactToNexus = this.&addTask_DeployAndroidArtifactToNexus
-
+ext.addTask_DeployToNexus = this.&addTask_DeployToNexus

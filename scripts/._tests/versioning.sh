@@ -18,4 +18,21 @@
 #  limitations under the License.
 
 #!/bin/bash
-source ${BASH_SOURCE%/*}/../../_core-tools/_source.sh
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source "${DIR}/_tests.sh"
+
+assert "0.0.2" "promoteVersion 0.0.1 patch"
+assert "0.1.1" "promoteVersion 0.1 patch 3"
+assert "0.1.1" "promoteVersion 0.1 patch 2"
+assert "0.1.1" "promoteVersion 0.1 patch"
+
+assert "0.2" "promoteVersion 0.1 minor"
+assert "0.3" "promoteVersion 0.2 minor 1"
+assert "0.2.0" "promoteVersion 0.1 minor 3"
+assert "1.0.0" "promoteVersion 0.2 major 3"
+assert "1.0" "promoteVersion 0.2 major"
+assert "1.0.0" "promoteVersion 0.2.0 major"
+assert "1.0" "promoteVersion 0.2 major 2"
+assert "1" "promoteVersion 0.2 major 1"
+
+printSummary

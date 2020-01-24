@@ -21,7 +21,8 @@
 
 
 function regexParam() {
-    echo `echo "${2}" | sed -E "s/(${1})=(.*)/\2/"`
+    local value=`echo "${2}" | sed -E "s/(${1})=(.*)/\2/"`
+    echo "${value}"
 }
 
 function removePrefix() {
@@ -42,9 +43,7 @@ function installBash() {
     local output=`cat error`
     rm error
 
-    if [[ "${output}" =~ "brew upgrade bash" ]]; then
-        brew upgrade bash 2> error
-    fi
+    [[ "${output}" =~ "brew upgrade bash" ]] && brew upgrade bash 2> error
 
     if [[ "${output}" =~ "brew: command not found" ]]; then
         logInfo "So... a new computer... ?? installing homebrew ;)"
@@ -56,9 +55,7 @@ function enforceBashVersion() {
     local _minVersion=${1}
     local _bashVersion=`getBashVersion`
 
-    if [[ ! `checkMinVersion ${_bashVersion} ${_minVersion}` ]]; then
-        return
-    fi
+    [[ ! `checkMinVersion ${_bashVersion} ${_minVersion}` ]] && return
 
     logError "Found unsupported 'bash' version: ${_bashVersion}"
     logError "Required min version: ${_minVersion}\n ..."
@@ -67,9 +64,7 @@ function enforceBashVersion() {
 
 function printDebugParams() {
     local debug=${1}
-    if [[ ! "${debug}" ]]; then
-        return
-    fi
+    [[ ! "${debug}" ]] && return
 
     local params=("${@}")
     params=("${params[@]}")

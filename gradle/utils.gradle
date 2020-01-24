@@ -46,12 +46,19 @@ def addJavadocTask() {
 }
 
 Object resolveDependency(String artifactId, String groupId, String version) {
-    def file = new File(rootProject.projectDir.getAbsolutePath() + "/${artifactId}", "build.gradle")
+    return resolveDependency(artifactId, groupId, version, null)
+}
+
+Object resolveDependency(String artifactId, String groupId, String version, String projectName) {
+    projectName = projectName == null ? artifactId : projectName
+    def pathToProject = projectName == null ? artifactId : projectName.replaceAll(":", "/")
+    def file = new File(rootProject.projectDir.getAbsolutePath() + "/${pathToProject}", "build.gradle")
     if (file.exists())
         try {
-            return project(":${artifactId}")
+            return project(":$projectName")
         } catch (e) {
-            System.err.println("Error while resolving project: ${artifactId}")
+            System.err.println("Error while resolving project: :${projectName}")
+            e.printStackTrace()
             return "${groupId}:${artifactId}:${version}"
         }
 
@@ -62,11 +69,14 @@ void includeIfExists(String artifactId) {
     if (artifactId.startsWith(":"))
         artifactId = artifactId.substring(1)
 
-    def folder = artifactId.replace(":", "/")
+    def folder = artifactId.replaceAll(":", "/")
     def file = new File(rootProject.projectDir.getAbsolutePath() + "/${folder}", "build.gradle")
-    if (!file.exists())
+    if (!file.exists()) {
+//        println "not found: ${file.getAbsolutePath()}"
         return
+    }
 
+    println "including: :${artifactId}"
     include ":${artifactId}"
 }
 
@@ -105,7 +115,7 @@ void defineDefaultVariantsAPK(String appName) {
     defineDefaultVariantsAPK(null, appName)
 }
 
-String SplitCamelCaseWithAbbreviations(s){
+String SplitCamelCaseWithAbbreviations(s) {
     def spl = s.split(/(?<=[a-z])(?=[A-Z])/)
     def out = ""
     for (def word in spl) {

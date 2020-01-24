@@ -47,18 +47,22 @@ function promoteVersion() {
     local _version=${1}
     local promotion=${2}
     local version=(${_version//./ })
+    local length=${3:-${#version[@]}}
     local index
     case "${promotion}" in
         "patch")
             index=2
+            (( ${length} < 3 )) && length=3
         ;;
 
         "minor")
             index=1
+            (( ${length} < 2 )) && length=2
         ;;
 
         "major")
             index=0
+            (( ${length} < 1 )) && length=1
         ;;
 
         "*")
@@ -68,9 +72,73 @@ function promoteVersion() {
 
     version[${index}]=$(( ${version[index]} + 1  ))
 
-    for (( arg=${index} + 1; arg < ${#version[@]}; arg+=1 )); do
+    for (( arg=${index} + 1; arg < ${length}; arg+=1 )); do
         version[${arg}]=0
+    done
+
+    for (( arg=${length}; arg < ${#version[@]}; arg+=1 )); do
+        version[${arg}]=
     done
 
     echo `joinArray "." ${version[@]}`
 }
+
+function getVersionFileName() {
+    local versionFile=${1}
+
+    if [[ ! "${versionFile}" ]]; then
+        versionFile=package.json
+    fi
+
+    if [[ ! "${versionFile}" ]]; then
+        versionFile=version.json
+    fi
+
+    if [[ ! -e "${versionFile}" ]]; then
+        throwError "No such version file: ${versionFile}" 2
+    fi
+
+    echo "${versionFile}"
+}
+
+function getVersionName() {
+    local versionFile=`getVersionFileName ${1}`
+    getJsonValueForKey "${versionFile}" "version"
+}
+
+function getPackageName() {
+    local versionFile=`getVersionFileName ${1}`
+    getJsonValueForKey "${versionFile}" "name"
+}
+
+function setVersionName() {
+    local newVersionName=${1}
+    local versionFile=`getVersionFileName ${2}`
+
+    if [[ `isMacOS` ]]; then
+        sed -i '' "s/\"version\": \".*\"/\"version\": \"${newVersionName}\"/g" ${versionFile}
+    else
+        sed -i "s/\"version\": \".*\"/\"version\": \"${newVersionName}\"/g" ${versionFile}
+    fi
+}
+
+function getJsonValueForKey() {
+    local fileName=${1}
+    local key=${2}
+
+    local value=`cat ${fileName} | grep "\"${key}\":" | head -1 | sed -E "s/.*\"${key}\".*\"(.*)\",?/\1/"`
+    echo ${value}
+}
+
+function setJsonValueForKey() {
+    local jsonFile=${1}
+    local key=${2}
+    local value=${3}
+
+    if [[ `isMacOS` ]]; then
+        sed -i '' "s/\"${key}\": \".*\"/\"${key}\": \"${value/"/\\"}\"/g" ${jsonFile}
+    else
+        sed -i "s/\"${key}\": \".*\"/\"${key}\": \"${value/"/\\"}\"/g" ${jsonFile}
+    fi
+}
+

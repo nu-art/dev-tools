@@ -28,6 +28,8 @@ logLevel=${LOG_LEVEL__VERBOSE}
 LOG_COLORS=("${NoColor}" "${BBlue}" "${BGreen}" "${BYellow}" "${BRed}")
 LOG_PREFIX=("-V-" "-D-" "-I-" "-W-" "-E-")
 
+CONST_Debug=
+
 function setLogLevel() {
     case ${1} in
         0|1|2|3|4)
@@ -63,9 +65,7 @@ setLogFile() {
     local logsFolder="$(pwd)/${relativePathToLogFolder}"
     local dateTimeFormatted=`date +%Y-%m-%d--%H-%M-%S`
 
-    if [[ ! -d "${logsFolder}" ]]; then
-        mkdir -p "${logsFolder}"
-    fi
+    [[ ! -d "${logsFolder}" ]] && mkdir -p "${logsFolder}"
 
     logFile="${logsFolder}/${logFilePrefix}-log-${dateTimeFormatted}.txt"
     echo > "${logFile}"
@@ -78,13 +78,10 @@ log() {
     local _override
 
     local color=${LOG_COLORS[${level}]}
-    if [[ "${override}" == "true" ]]; then
-        _override="n"
-    fi
 
-    if (( ${level} < ${logLevel}  )); then
-        return;
-    fi
+    [[ "${override}" == "true" ]] && _override="n"
+
+    (( ${level} < ${logLevel}  )) && return
 
 #    For Debug
 #    echo "echo -e${_override} \"${color}${logMessage}${NoColor}\"\\r"
@@ -92,7 +89,7 @@ log() {
     local duration=`calcDuration "rootTimer"`
     logDate="(${duration}) "`date +"%Y-%m-%d_%H:%M:%S"`
     logMessage=${logMessage//$'\n'/'\n'${NoColor}${logDate} ${color}}
-    echo -e${_override} "${logDate} ${color}${logMessage}${NoColor}"\\r
+    echo -e${_override} "${logDate}  ${color}${logMessage}${NoColor}"\\r
 }
 
 logVerbose() {
@@ -147,3 +144,22 @@ banner() {
     log ${level} "+---$add---+"
 }
 
+function _logVerbose() {
+    [[ "${CONST_Debug}" ]] && >&2 logVerbose "$@"
+}
+
+function _logDebug() {
+    [[ "${CONST_Debug}" ]] && >&2 logDebug "$@"
+}
+
+function _logInfo() {
+    [[ "${CONST_Debug}" ]] && >&2 logInfo "$@"
+}
+
+function _logWarning() {
+    [[ "${CONST_Debug}" ]] && >&2 logWarning "$@"
+}
+
+function _logError() {
+    [[ "${CONST_Debug}" ]] && >&2 logError "$@"
+}

@@ -3,7 +3,7 @@
 source ../core/transpiler.sh
 source ./clouds/clouds.sh
 
-addTranspilerPath `pwd`/../graphics
+addTranspilerClassPath `pwd`/../graphics
 
 function run() {
     new Canvas2D canvas

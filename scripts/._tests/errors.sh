@@ -21,17 +21,24 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source "${DIR}/_tests.sh"
 
-assertCommand "0.0.2" "promoteVersion 0.0.1 patch"
-assertCommand "0.1.1" "promoteVersion 0.1 patch 3"
-assertCommand "0.1.1" "promoteVersion 0.1 patch 2"
-assertCommand "0.1.1" "promoteVersion 0.1 patch"
-assertCommand "0.2" "promoteVersion 0.1 minor"
-assertCommand "0.3" "promoteVersion 0.2 minor 1"
-assertCommand "0.2.0" "promoteVersion 0.1 minor 3"
-assertCommand "1.0.0" "promoteVersion 0.2 major 3"
-assertCommand "1.0" "promoteVersion 0.2 major"
-assertCommand "1.0.0" "promoteVersion 0.2.0 major"
-assertCommand "1.0" "promoteVersion 0.2 major 2"
-assertCommand "1" "promoteVersion 0.2 major 1"
+var=true
 
-printSummary
+function return0() {
+    return 0
+}
+
+function return1() {
+    return 1
+}
+
+function return2() {
+    return 2
+}
+
+[[ ! ${var} ]] && return0
+assertValue "1" $?
+
+[[ ${var} ]] && return2
+assertValue "2" $?
+
+

@@ -27,7 +27,7 @@ function throwError() {
 
     if [[ ! "${errorCode}" ]]; then errorCode=${ERROR_CODE}; fi
 
-    if [[ "${errorCode}" == "0" ]]; then return; fi
+    [[ "${errorCode}" == "0" ]] || [[ "${errorCode}" == "1" ]] && return
 
     function fixSource() {
         local file=`echo "${1}" | sed -E "s/(.*)\/[a-zA-Z_-]+\/\.\.\/(.*)/\1\/\2/"`

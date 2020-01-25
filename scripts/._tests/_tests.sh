@@ -24,21 +24,38 @@ source "${DIR}/../_core-tools/_source.sh"
 totalSuccess=0
 totalErrors=0
 
+function assertValue() {
+    local expected=${1}
+    local actual=${2}
+
+    assert "${expected}" "${actual}"
+    result=$?
+    [[ ${result} == "1" ]] && logWarning "expected: ${expected} ... but got ${actual}"
+}
+
 function assert() {
+    local expected=${1}
+    local actual=${2}
+
+    if [[ "${expected}" == ${actual} ]]; then
+        ((totalSuccess++))
+        return 0
+    else
+        ((totalErrors++))
+        return 1
+    fi
+}
+
+function assertCommand() {
     local expected=${1}
     local toEval=${2}
     local actual=`${toEval}`
     local label=${3}
 
-    if [[ "${expected}" == ${actual} ]]; then
-        logVerbose "${toEval} => ${actual}"
-        ((totalSuccess++))
-        return;
-    else
-        logWarning "${toEval} => ${actual} ... expected: ${expected}"
-        ((totalErrors++))
-#        throwError "${label}\nError unexpected value...\n  expected: ${expected}\n  actual: ${actual}"
-    fi
+    assert "${expected}" "${actual}"
+    result=$?
+    [[ ${result} == "1" ]] && logWarning "${toEval} => ${actual} ... expected: ${expected}"
+    [[ ${result} == "0" ]] && logVerbose "${toEval} => ${actual}"
 }
 
 function printSummary() {

@@ -117,8 +117,8 @@ function printHelp() {
     logVerbose "   ${pc}--merge-origin"
     logVerbose "        ${dc}Pull and merge from the forked repo${noColor}"
     logVerbose
-    logVerbose "   ${pc}--nu-art${noColor}"
-    logVerbose "        ${dc}Add dependencies sources${noColor}"
+    logVerbose "   ${pc}--use-thunderstorm-sources${noColor}"
+    logVerbose "        ${dc}Add thunderstorm dependencies sources${noColor}"
     logVerbose
 
     exit 0

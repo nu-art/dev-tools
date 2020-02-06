@@ -215,16 +215,17 @@ function replaceInFile() {
     fi
 }
 
+function replaceAllInText() {
+    replaceInText $1 $2 $3 g
+}
+
 function replaceInText() {
     local matchPattern="${1}"
     local replaceWith="${2}"
-    local file="${3}"
+    local text="${3}"
+    local flags="${4}"
 
-    if [[ `isMacOS` ]]; then
-        sed -i '' -E "s/${matchPattern}/${replaceWith}/g" ${file}
-    else
-        sed -i -E "s/${matchPattern}/${replaceWith}/g" ${file}
-    fi
+    echo `echo "${text}" | sed -E "s/${matchPattern}/${replaceWith}/${flags}"`
 }
 
 function indent() {

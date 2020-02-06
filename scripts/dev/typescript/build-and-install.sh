@@ -205,13 +205,15 @@ function linkDependenciesImpl() {
         local moduleVersion="${modulesVersion[${i}]}"
         if [[ ! "${moduleVersion}" ]]; then continue; fi
 
-        logDebug "Updating dependency version to ${modulePackageName} => ${moduleVersion}"
         local escapedModuleName=${modulePackageName/\//\\/}
+        moduleVersion=`replaceInText "([0-9+]\\.[0-9]+\\.)[0-9]+" "\10" "${moduleVersion}"`
+        logDebug "Updating dependency version to ${modulePackageName} => ${moduleVersion}"
 
+#        replaceAllInFile "\"${escapedModuleName}\": \".*\"" "\"${escapedModuleName}\": \"~${moduleVersion}\"" package.json
         if [[ `isMacOS` ]]; then
-            sed -i '' "s/\"${escapedModuleName}\": \".*\"/\"${escapedModuleName}\": \"^${moduleVersion}\"/g" package.json
+            sed -i '' "s/\"${escapedModuleName}\": \".*\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" package.json
         else
-            sed -i "s/\"${escapedModuleName}\": \".*\"/\"${escapedModuleName}\": \"^${moduleVersion}\"/g" package.json
+            sed -i "s/\"${escapedModuleName}\": \".*\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" package.json
         fi
         throwError "Error updating version of dependency in package.json"
     done

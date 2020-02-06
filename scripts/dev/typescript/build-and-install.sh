@@ -318,6 +318,7 @@ function printModule() {
 function cloneThunderstormModules() {
     local module
     for module in "${nuArtModules[@]}"; do
+        logDebug " * Cloning Submodule : ${module}"
         if [[ ! -e "${module}" ]]; then
             git clone git@github.com:nu-art-js/${module}.git
         else
@@ -629,9 +630,8 @@ if [[ "${mergeOriginRepo}" ]]; then
 fi
 
 if [[ "${cloneThunderstorm}" ]]; then
-    bannerInfo "Clone Nu-Art"
+    bannerInfo "Cloning Thunderstorm sources"
     cloneThunderstormModules
-    bash $0 --setup
 fi
 
 mapExistingLibraries

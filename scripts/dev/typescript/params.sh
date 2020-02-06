@@ -61,6 +61,10 @@ function extractParams() {
 
             "--use-thunderstorm-sources")
                 cloneThunderstorm=true
+                setup=true
+                linkDependencies=true
+                purge=true
+                clean=true
             ;;
 
             "--push="*)

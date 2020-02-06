@@ -162,5 +162,6 @@ function processSubmodule() {
     gitNoConflictsAddCommitPush "${submoduleName}" "${branchName}" "${commitMessage}" ${noPush}
 }
 
+gitAssertBranch ${branchName}
 #getSubmodulesByScope ${scope} "`echo "${projectsToIgnore[@]}"`"
 processSubmodule "${runningDir}"

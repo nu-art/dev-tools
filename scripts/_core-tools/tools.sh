@@ -197,6 +197,31 @@ function isMacOS() {
 }
 
 # To reconsider
+function replaceStringInFiles() {
+    local rootFolder=${1}
+    local matchPattern=${2}
+    local replaceWith="${3}"
+    local excludeDirs=(${@:4})
+    local toExclude=""
+
+    for (( arg=0; arg<${#excludeDirs[@]}; arg+=1 )); do
+        toExclude="${toExclude} --exclude-dir=${excludeDirs[${arg}]}"
+    done
+
+    local files=(`grep -rl ${matchPattern} "${rootFolder}"${toExclude}`)
+    local matchPattern="${matchPattern//\//\\/}"
+    local replaceWith="${replaceWith//\//\\/}"
+
+#    echo sed -i '' -E "s/${matchPattern}/${replaceWith}/g" ${file}
+    for file in ${files[@]} ; do
+        echo ${file}
+        if [[ `isMacOS` ]]; then
+            sed -i '' -E "s/${matchPattern}/${replaceWith}/g" ${file}
+        else
+            sed -i -E "s/${matchPattern}/${replaceWith}/g" ${file}
+        fi
+    done
+}
 
 function replaceAllInFile() {
     replaceInFile $1 $2 $3 g

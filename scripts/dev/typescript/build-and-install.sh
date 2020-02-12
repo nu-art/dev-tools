@@ -51,10 +51,21 @@ function assertNodePackageInstalled() {
 }
 
 function printVersions() {
+    logDebug
     logDebug "Nu-Art version: ${nuArtVersion}"
     logDebug "App version: ${appVersion}"
+    logDebug
+    local output=`printf "       %-20s %-25s  %s\n" "Folder" "Package" "Version"`
+    logWarning "${output}"
     executeOnModules printModule
 }
+
+
+function printModule() {
+    local output=`printf "Found: %-20s %-25s  %s\n" ${1} ${2} v${3}`
+    logDebug "${output}"
+}
+
 
 function mapModulesVersions() {
     modulesPackageName=()
@@ -310,11 +321,6 @@ function mapModule() {
     local version=`getModuleVersion`
     modulesPackageName+=(${packageName})
     modulesVersion+=(${version})
-}
-
-function printModule() {
-    local output=`printf "Found: %-15s %-20s  %s\n" ${1} ${2} v${3}`
-    logDebug "${output}"
 }
 
 function cloneThunderstormModules() {

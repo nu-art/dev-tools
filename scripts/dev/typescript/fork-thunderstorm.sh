@@ -82,7 +82,8 @@ function promptForRepoUrl() {
 
     local status=$?
     if [[ "${status}" == "2" ]]; then
-        repoUrl=
+        logWarning "Repository doesn't exists.."
+        promptForRepoUrl
     fi
 
     if [[ "${status}" != "0" ]]; then
@@ -162,11 +163,11 @@ function promptForFirebaseProjectLocationRepo() {
 
 function installNpmPackages() {
     logInfo "Verify required npm packages are installed"
-    verifyNpmPackageInstalledGlobally "typescript" 3.7.2
+    verifyNpmPackageInstalledGlobally "typescript" 3.7.5
     verifyNpmPackageInstalledGlobally "tslint" 5.20.0
     verifyNpmPackageInstalledGlobally "firebase-tools" 7.6.2
     verifyNpmPackageInstalledGlobally "nodemon" 1.19.3
-    verifyNpmPackageInstalledGlobally "sort-package-json" 1.22.1
+    verifyNpmPackageInstalledGlobally "sort-package-json" 1.39.1
     logInfo
 }
 
@@ -252,8 +253,8 @@ function cleanUpForkedRepo() {
 }
 
 function replaceBoilerplateNamesWithNewForkedNames() {
-    renameStringInFiles . ${const_BoilerplateFirebaseProject} "${firebaseProject}" "dev-tools"
-    renameStringInFiles . ${const_BoilerplateLocation} "${firebaseProjectLocation}" "dev-tools"
+    replaceStringInFiles . ${const_BoilerplateFirebaseProject} "${firebaseProject}" "dev-tools"
+    replaceStringInFiles . ${const_BoilerplateLocation} "${firebaseProjectLocation}" "dev-tools"
 }
 
 function prepareForkedProjectEnvironment() {

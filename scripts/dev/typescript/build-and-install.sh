@@ -8,7 +8,9 @@ source ${BASH_SOURCE%/*}/help.sh
 
 [[ -e ".scripts/setup.sh" ]] && source .scripts/setup.sh
 [[ -e ".scripts/signature.sh" ]] && source .scripts/signature.sh
-[[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh || source ${BASH_SOURCE%/*}/modules.sh
+
+source ${BASH_SOURCE%/*}/modules.sh
+[[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh
 
 enforceBashVersion 4.4
 
@@ -156,7 +158,7 @@ function linkDependenciesImpl() {
 
     copyFileToFolder package.json dist/
     logInfo "Linking dependencies sources to: ${module}"
-    if [[ `contains "${module}" "${nuArtModules[@]}"` ]] && [[ "${nuArtVersion}" ]]; then
+    if [[ `contains "${module}" "${thunderstormLibraries[@]}"` ]] && [[ "${nuArtVersion}" ]]; then
         logInfo "Setting version '${nuArtVersion}' to module: ${module}"
         setVersionName ${nuArtVersion}
     fi
@@ -325,7 +327,7 @@ function mapModule() {
 
 function cloneThunderstormModules() {
     local module
-    for module in "${nuArtModules[@]}"; do
+    for module in "${thunderstormLibraries[@]}"; do
         logDebug " * Cloning Submodule : ${module}"
         if [[ ! -e "${module}" ]]; then
             git clone git@github.com:nu-art-js/${module}.git
@@ -354,13 +356,13 @@ function mergeFromFork() {
 }
 
 function pushNuArt() {
-    for module in "${nuArtModules[@]}"; do
+    for module in "${thunderstormLibraries[@]}"; do
         if [[ ! -e "${module}" ]]; then
             throwError "In order to promote a version ALL nu-art dependencies MUST be present!!!" 2
         fi
     done
 
-    for module in "${nuArtModules[@]}"; do
+    for module in "${thunderstormLibraries[@]}"; do
         cd ${module}
             gitPullRepo
             gitNoConflictsAddCommitPush ${module} `gitGetCurrentBranch` "${pushNuArtMessage}"
@@ -402,7 +404,7 @@ function promoteNuArt() {
     gitAssertNoCommitsToPull
     logInfo "Main Repo is ready for version promotion"
 
-    for module in "${nuArtModules[@]}"; do
+    for module in "${thunderstormLibraries[@]}"; do
         if [[ ! -e "${module}" ]]; then
             throwError "In order to promote a version ALL nu-art dependencies MUST be present!!!" 2
         fi
@@ -424,7 +426,7 @@ function promoteNuArt() {
     setVersionName ${nuArtVersion} ${versionFile}
     executeOnModules linkDependenciesImpl
 
-    for module in "${nuArtModules[@]}"; do
+    for module in "${thunderstormLibraries[@]}"; do
         cd ${module}
             gitNoConflictsAddCommitPush ${module} `gitGetCurrentBranch` "Promoted to: v${nuArtVersion}"
 
@@ -469,7 +471,7 @@ function promoteApps() {
 }
 
 function publishNuArt() {
-    for module in "${nuArtModules[@]}"; do
+    for module in "${thunderstormLibraries[@]}"; do
         cd ${module}
             logInfo "publishing module: ${module}"
             cp package.json dist/
@@ -624,7 +626,7 @@ fi
 
 if [[ "${#modules[@]}" == 0 ]]; then
     if [[ "${buildThunderstorm}" ]]; then
-        modules+=(${nuArtModules[@]})
+        modules+=(${thunderstormLibraries[@]})
     fi
     modules+=(${dependencyModules[@]})
     modules+=(${projectModules[@]})

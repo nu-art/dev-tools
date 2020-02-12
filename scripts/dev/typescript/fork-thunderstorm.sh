@@ -2,6 +2,9 @@
 source ./dev-tools/scripts/git/_core.sh
 source ./dev-tools/scripts/ci/typescript/_source.sh
 
+source ${BASH_SOURCE%/*}/modules.sh
+[[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh
+
 const_BoilerplateFirebaseProject=nu-art-thunderstorm
 const_BoilerplateLocation=us-central1
 const_LogFolder="`pwd`/.fork"
@@ -245,10 +248,9 @@ function forkThunderstorm() {
 function cleanUpForkedRepo() {
     deleteFile ./version-nu-art.json
     if [[ "${withSources}" == "n" ]]; then
-        deleteFolder ./ts-common
-        deleteFolder ./testelot
-        deleteFolder ./thunder
-        deleteFolder ./storm
+        for module in ${thunderstormLibraries[@]} ; do
+            deleteFolder ./${module}
+        done
     fi
 }
 

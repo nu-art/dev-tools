@@ -272,6 +272,7 @@ function setupModule() {
 
     if [[ "${install}" ]]; then
         trap 'restorePackageJson' SIGINT
+            deleteDir node_modules/@nu-art
             deleteFile package-lock.json
             logVerbose
             logInfo "Installing ${module}"

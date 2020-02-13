@@ -60,7 +60,7 @@ function deleteDir() {
 
 function clearFolder() {
     local pathToDir="${1}"
-    [[ -e "${pathToDir}" ]] && return
+    [[ ! -e "${pathToDir}" ]] && return
 
     cd ${pathToDir}
         execute "rm -rf *" "Deleting folder content: ${pathToDir}"

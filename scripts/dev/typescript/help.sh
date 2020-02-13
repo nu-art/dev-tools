@@ -41,8 +41,11 @@ function printHelp() {
     logVerbose "   ${pc}--unlink${noColor}"
     logVerbose "        ${dc}Will purge & setup without dependencies${noColor}"
     logVerbose
+    logVerbose "   ${pc}--link | -l${noColor}"
+    logVerbose "        ${dc}Would link dependencies between projects${noColor}"
+    logVerbose
     logVerbose "   ${pc}--link-only | -lo${noColor}"
-    logVerbose "        ${dc}Would only link dependencies between projects${noColor}"
+    logVerbose "        ${dc}Would ONLY link dependencies between projects${noColor}"
     logVerbose
     logVerbose "   ${pc}--no-build | -nb${noColor}"
     logVerbose "        ${dc}Skip the build${noColor}"
@@ -53,8 +56,11 @@ function printHelp() {
     logVerbose "   ${pc}--lint${noColor}"
     logVerbose "        ${dc}Run lint on all the packages${noColor}"
     logVerbose
-    logVerbose "   ${pc}--listen${noColor}"
+    logVerbose "   ${pc}--rebuild-on-change | -roc${noColor}"
     logVerbose "        ${dc}listen and rebuild on changes in modules${noColor}"
+    logVerbose
+    logVerbose "   ${pc}--thunderstorm-home=<${param}path-to-thunderstorm${pc}> | -th=<${param}path-to-thunderstorm${pc}>${noColor}"
+    logVerbose "        ${dc}Will link the output folder of the libraries of thunderstorm that exists under the give path${noColor}"
     logVerbose
     logVerbose
 
@@ -95,7 +101,7 @@ function printHelp() {
     logVerbose "   ${pc}--deploy-backend${noColor}"
     logVerbose "        ${dc}Will deploy ONLY backend${noColor}"
     logVerbose
-    logVerbose "   ${pc}--set-env=<${param}envType${pc}>${noColor}"
+    logVerbose "   ${pc}--set-env=<${param}envType${pc}> | -se=<${param}envType${pc}>${noColor}"
     logVerbose "        ${dc}Will set the .config-\${envType}.json as the current .config.json and prepare it as base 64 for local usage${noColor}"
     logVerbose
     logVerbose

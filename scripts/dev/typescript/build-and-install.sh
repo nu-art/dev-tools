@@ -148,7 +148,7 @@ function testModule() {
     npm run test
 }
 
-function linkDependenciesImpl() {
+function linkSourcesImpl() {
     local module=${1}
 
     logVerbose
@@ -184,27 +184,30 @@ function linkDependenciesImpl() {
             throwError "Error symlink dependency: ${otherModule}"
         done
     fi
+}
+
+function linkDependenciesImpl() {
+    local module=${1}
+
     local BACKTO=`pwd`
     cd ..
         mapModulesVersions
-    cd ${BACKTO}
+    cd "${BACKTO}"
 
     local i
     for (( i=0; i<${#modules[@]}; i+=1 )); do
         if [[ "${module}" == "${modules[${i}]}" ]]; then break; fi
 
-        if [[ `contains "${modules[${i}]}" "${projectModules[@]}"` ]]; then
-            return
-        fi
+        [[ `contains "${modules[${i}]}" "${projectModules[@]}"` ]] && break;
 
         local modulePackageName="${modulesPackageName[${i}]}"
-        if [[ ! "`cat package.json | grep ${modulePackageName}`" ]]; then
-            continue;
-        fi
+        [[ ! "`cat package.json | grep ${modulePackageName}`" ]] && continue;
 
         logInfo "Linking ${modules[${i}]} (${modulePackageName}) => ${module}"
         local target="`pwd`/node_modules/${modulePackageName}"
-        local origin="`pwd`/../${modules[${i}]}/dist"
+        local origin=
+
+        [[ "${ThunderstormHome}" ]] && [[ "${linkThunderstorm}" ]] && origin="${ThunderstormHome}/${modules[${i}]}/dist" || "`pwd`/../${modules[${i}]}/dist"
 
         createDir ${target}
 
@@ -229,6 +232,42 @@ function linkDependenciesImpl() {
             sed -i "s/\"${escapedModuleName}\": \".*\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" package.json
         fi
         throwError "Error updating version of dependency in package.json"
+    done
+}
+
+# for now this is duplicate for the sake of fast dev... need to combine the above and this one
+function linkThunderstormImpl() {
+    local module=${1}
+    local BACKTO=`pwd`
+
+    local temp=(${modules[@]})
+    modules=(${thunderstormLibraries[@]})
+    cd "${ThunderstormHome}"
+        mapModulesVersions
+    cd "${BACKTO}"
+    modules=(${temp[@]})
+
+    local i
+    for (( i=0; i<${#thunderstormLibraries[@]}; i+=1 )); do
+        if [[ "${module}" == "${thunderstormLibraries[${i}]}" ]]; then break; fi
+
+        [[ `contains "${thunderstormLibraries[${i}]}" "${projectModules[@]}"` ]] && break;
+
+        local modulePackageName="${modulesPackageName[${i}]}"
+        [[ ! "`cat package.json | grep ${modulePackageName}`" ]] && continue;
+
+        logInfo "Linking ${thunderstormLibraries[${i}]} (${modulePackageName}) => ${module}"
+        local target="`pwd`/node_modules/${modulePackageName}"
+        local origin="${ThunderstormHome}/${thunderstormLibraries[${i}]}/dist"
+
+        createDir ${target}
+
+        chmod -R 777 ${target}
+        deleteDir ${target}
+
+        logDebug "ln -s ${origin} ${target}"
+        ln -s ${origin} ${target}
+        throwError "Error symlink dependency: ${modulePackageName}"
     done
 }
 
@@ -425,7 +464,7 @@ function promoteNuArt() {
     logInfo "Repo is ready for version promotion"
     logInfo "Promoting Libs: ${versionName} => ${nuArtVersion}"
     setVersionName ${nuArtVersion} ${versionFile}
-    executeOnModules linkDependenciesImpl
+    executeOnModules linkSourcesImpl
 
     for module in "${thunderstormLibraries[@]}"; do
         cd ${module}
@@ -462,7 +501,7 @@ function promoteApps() {
     local versionName=`getVersionName ${versionFile}`
     logInfo "Promoting Apps: ${versionName} => ${appVersion}"
     setVersionName ${appVersion} ${versionFile}
-    executeOnModules linkDependenciesImpl
+    executeOnModules linkSourcesImpl
 
     local currentBranch=`gitGetCurrentBranch`
 
@@ -672,7 +711,11 @@ fi
 
 if [[ "${linkDependencies}" ]]; then
     bannerInfo "link dependencies"
-    executeOnModules linkDependenciesImpl
+    if [[ "${ThunderstormHome}" ]] && [[ "${linkThunderstorm}" ]]; then
+        executeOnModules linkThunderstormImpl
+    else
+        executeOnModules linkDependenciesImpl
+    fi
 
     mapModulesVersions
     printVersions
@@ -680,6 +723,7 @@ fi
 
 
 if [[ "${build}" ]]; then
+    executeOnModules linkSourcesImpl
     executeOnModules buildModule
 fi
 

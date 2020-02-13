@@ -16,7 +16,7 @@ readOnly=true
 build=true
 install=true
 listen=
-linkDependencies=true
+linkDependencies=
 lint=
 
 launchBackend=
@@ -38,7 +38,7 @@ buildThunderstorm=true
 modulesPackageName=()
 modulesVersion=()
 
-params=(mergeOriginRepo printEnv cloneThunderstorm buildThunderstorm pushNuArtMessage readOnly purge clean setup newVersion linkDependencies install build lint cleanDirt launchBackend runBackendTests launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
+params=(ThunderstormHome mergeOriginRepo printEnv cloneThunderstorm buildThunderstorm pushNuArtMessage readOnly purge clean setup newVersion linkDependencies install build lint cleanDirt launchBackend runBackendTests launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
 
 function extractParams() {
     for paramValue in "${@}"; do
@@ -96,6 +96,10 @@ function extractParams() {
                 readOnly=
             ;;
 
+            "--link" | "-l")
+                linkDependencies=true
+            ;;
+
             "--link-only" | "-lo")
                 linkDependencies=true
                 build=
@@ -109,11 +113,17 @@ function extractParams() {
                 buildThunderstorm=
             ;;
 
+            "--thunderstorm-home="* | "-th="*)
+                linkThunderstorm=true
+                local temp=`regexParam "--thunderstorm-home|-th" "${paramValue}"`
+                [[ "${temp}" ]] && ThunderstormHome="${temp}"
+            ;;
+
             "--lint")
                 lint=true
             ;;
 
-            "--listen" | "-l")
+            "--rebuild-on-change" | "-roc")
                 listen=true
                 build=
             ;;

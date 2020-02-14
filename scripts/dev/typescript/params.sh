@@ -111,6 +111,7 @@ function extractParams() {
 
             "--no-thunderstorm" | "-nts")
                 buildThunderstorm=
+                ThunderstormHome=
             ;;
 
             "--thunderstorm-home="* | "-th="*)

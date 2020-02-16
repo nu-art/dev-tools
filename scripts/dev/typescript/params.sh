@@ -34,6 +34,7 @@ newAppVersion=
 printEnv=
 
 buildThunderstorm=true
+internalThunderstormRefs=
 
 modulesPackageName=()
 modulesVersion=()
@@ -118,6 +119,13 @@ function extractParams() {
                 linkThunderstorm=true
                 local temp=`regexParam "--thunderstorm-home|-th" "${paramValue}"`
                 [[ "${temp}" ]] && ThunderstormHome="${temp}"
+            ;;
+
+            "--thunderstorm-libs="* | "-tl="*)
+                linkThunderstorm=true
+                local temp=`regexParam "--thunderstorm-libs|-tl" "${paramValue}"`
+
+                [[ "${temp}" ]] && internalThunderstormRefs=(${temp})
             ;;
 
             "--lint")

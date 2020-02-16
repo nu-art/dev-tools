@@ -240,25 +240,27 @@ function linkThunderstormImpl() {
     local module=${1}
     local BACKTO=`pwd`
 
+    [[ ! "${internalThunderstormRefs}" ]] && internalThunderstormRefs=(${thunderstormLibraries[@]})
+
     local temp=(${modules[@]})
-    modules=(${thunderstormLibraries[@]})
+    modules=(${internalThunderstormRefs[@]})
     cd "${ThunderstormHome}"
         mapModulesVersions
     cd "${BACKTO}"
     modules=(${temp[@]})
 
     local i
-    for (( i=0; i<${#thunderstormLibraries[@]}; i+=1 )); do
-        if [[ "${module}" == "${thunderstormLibraries[${i}]}" ]]; then break; fi
+    for (( i=0; i<${#internalThunderstormRefs[@]}; i+=1 )); do
+        if [[ "${module}" == "${internalThunderstormRefs[${i}]}" ]]; then break; fi
 
-        [[ `contains "${thunderstormLibraries[${i}]}" "${projectModules[@]}"` ]] && break;
+        [[ `contains "${internalThunderstormRefs[${i}]}" "${projectModules[@]}"` ]] && break;
 
         local modulePackageName="${modulesPackageName[${i}]}"
         [[ ! "`cat package.json | grep ${modulePackageName}`" ]] && continue;
 
-        logInfo "Linking ${thunderstormLibraries[${i}]} (${modulePackageName}) => ${module}"
+        logInfo "Linking ${internalThunderstormRefs[${i}]} (${modulePackageName}) => ${module}"
         local target="`pwd`/node_modules/${modulePackageName}"
-        local origin="${ThunderstormHome}/${thunderstormLibraries[${i}]}/dist"
+        local origin="${internalThunderstormRefs}/${internalThunderstormRefs[${i}]}/dist"
 
         createDir ${target}
 

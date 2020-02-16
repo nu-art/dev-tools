@@ -204,9 +204,7 @@ function linkDependenciesImpl() {
 
         logInfo "Linking ${modules[${i}]} (${modulePackageName}) => ${module}"
         local target="`pwd`/node_modules/${modulePackageName}"
-        local origin=
-
-        [[ "${ThunderstormHome}" ]] && [[ "${linkThunderstorm}" ]] && origin="${ThunderstormHome}/${modules[${i}]}/dist" || "`pwd`/../${modules[${i}]}/dist"
+        local origin="`pwd`/../${modules[${i}]}/dist"
 
         createDir ${target}
 

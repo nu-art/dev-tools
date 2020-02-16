@@ -34,12 +34,12 @@ newAppVersion=
 printEnv=
 
 buildThunderstorm=true
-internalThunderstormRefs=
+internalThunderstormRefs=()
 
 modulesPackageName=()
 modulesVersion=()
 
-params=(ThunderstormHome mergeOriginRepo printEnv cloneThunderstorm buildThunderstorm pushNuArtMessage readOnly purge clean setup newVersion linkDependencies install build lint cleanDirt launchBackend runBackendTests launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
+params=(ThunderstormHome internalThunderstormRefs mergeOriginRepo printEnv cloneThunderstorm buildThunderstorm pushNuArtMessage readOnly purge clean setup newVersion linkDependencies install build lint cleanDirt launchBackend runBackendTests launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
 
 function extractParams() {
     for paramValue in "${@}"; do
@@ -123,9 +123,9 @@ function extractParams() {
 
             "--thunderstorm-libs="* | "-tl="*)
                 linkThunderstorm=true
-                local temp=`regexParam "--thunderstorm-libs|-tl" "${paramValue}"`
+                local temp=`regexParam "--thunderstorm-lib|-tl" "${paramValue}"`
 
-                [[ "${temp}" ]] && internalThunderstormRefs=(${temp})
+                [[ "${temp}" ]] && internalThunderstormRefs+=(${temp})
             ;;
 
             "--lint")

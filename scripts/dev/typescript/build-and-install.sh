@@ -11,7 +11,6 @@ source ${BASH_SOURCE%/*}/help.sh
 
 source ${BASH_SOURCE%/*}/modules.sh
 [[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh
-
 enforceBashVersion 4.4
 
 appVersion=
@@ -260,7 +259,7 @@ function linkThunderstormImpl() {
 
         logInfo "Linking ${internalThunderstormRefs[${i}]} (${modulePackageName}) => ${module}"
         local target="`pwd`/node_modules/${modulePackageName}"
-        local origin="${internalThunderstormRefs}/${internalThunderstormRefs[${i}]}/dist"
+        local origin="${ThunderstormHome}/${internalThunderstormRefs[${i}]}/dist"
 
         createDir ${target}
 

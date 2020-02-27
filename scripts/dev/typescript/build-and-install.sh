@@ -554,7 +554,7 @@ function copyConfigFile() {
     local filePattern=${1}
     local targetFile=${2}
 
-    local envs=(${@:4})
+    local envs=(${@:3})
 
     for env in ${envs[@]}; do
         local envConfigFile=${filePattern//ENV_TYPE/${env}}

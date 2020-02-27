@@ -29,7 +29,7 @@ function throwError() {
 
     [[ "${errorCode}" == "0" ]] || [[ "${errorCode}" == "1" ]] && return
 
-    throwErrorImpl ${errorMessage} ${errorCode}
+    throwErrorImpl "${errorMessage}" ${errorCode}
 }
 
 function throwWarning() {
@@ -42,7 +42,7 @@ function throwWarning() {
 
     [[ "${errorCode}" == "0" ]] && return
 
-    throwErrorImpl ${errorMessage} ${errorCode}
+    throwErrorImpl "${errorMessage}" ${errorCode}
 }
 
 function throwErrorImpl() {

@@ -202,6 +202,10 @@ function extractParams() {
                 envType=`regexParam "--set-env|-se" "${paramValue}"`
             ;;
 
+            "--fallback-env="* | "-fe="*)
+                fallbackEnv=`regexParam "--fallback-env|-fe" "${paramValue}"`
+            ;;
+
             "--set-version="* | "-sv="*)
                 newAppVersion=`regexParam "--set-version|-sv" "${paramValue}"`
                 linkDependencies=true

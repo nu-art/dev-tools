@@ -16,7 +16,7 @@ readOnly=true
 build=true
 install=true
 listen=
-linkDependencies=
+linkDependencies=true
 lint=
 
 launchBackend=
@@ -116,6 +116,7 @@ function extractParams() {
             ;;
 
             "--thunderstorm-home="* | "-th="*)
+                linkDependencies=
                 linkThunderstorm=true
                 local temp=`regexParam "--thunderstorm-home|-th" "${paramValue}"`
                 [[ "${temp}" ]] && ThunderstormHome="${temp}"

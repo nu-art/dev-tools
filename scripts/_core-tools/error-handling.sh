@@ -29,6 +29,26 @@ function throwError() {
 
     [[ "${errorCode}" == "0" ]] || [[ "${errorCode}" == "1" ]] && return
 
+    throwErrorImpl ${errorMessage} ${errorCode}
+}
+
+function throwWarning() {
+	ERROR_CODE=$?
+
+    local errorMessage=${1}
+    local errorCode=${2}
+
+    if [[ ! "${errorCode}" ]]; then errorCode=${ERROR_CODE}; fi
+
+    [[ "${errorCode}" == "0" ]] && return
+
+    throwErrorImpl ${errorMessage} ${errorCode}
+}
+
+function throwErrorImpl() {
+    local errorMessage=${1}
+    local errorCode=${2}
+
     function fixSource() {
         local file=`echo "${1}" | sed -E "s/(.*)\/[a-zA-Z_-]+\/\.\.\/(.*)/\1\/\2/"`
 

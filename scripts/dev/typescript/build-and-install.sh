@@ -789,14 +789,14 @@ if [[ "${deployBackend}" ]] || [[ "${deployFrontend}" ]]; then
         logInfo "Using firebase project: ${firebaseProject}"
         firebase use ${firebaseProject}
         firebase deploy --only functions
-        throwError "Error while deploying functions"
+        throwWarning "Error while deploying functions"
     fi
 
     if [[ "${deployFrontend}" ]] && [[ -e ${frontendModule} ]];  then
         logInfo "Using firebase project: ${firebaseProject}"
         firebase use ${firebaseProject}
         firebase deploy --only hosting
-        throwError "Error while deploying hosting"
+        throwWarning "Error while deploying hosting"
     fi
 fi
 

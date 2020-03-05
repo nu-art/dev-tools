@@ -133,7 +133,7 @@ function extractParams() {
 
 
 #        ==== TEST =====
-            "--test=".* | "-t=".*)
+            "--test="* | "-t="*)
                 testServiceAccount=`regexParam "--test|-t" "${paramValue}"`
             ;;
 

@@ -656,7 +656,6 @@ if [[ "${dirtyLib}" ]]; then
     logInfo "flagged ${dirtyLib} as dirty... waiting for cleaning team"
     exit 0
 fi
-
 if [[ "${cleanDirt}" ]]; then
     logDebug "Cleaning team is ready, stalling 3 sec for dirt to pile up..."
     sleep 3s

@@ -129,9 +129,7 @@ function usingFrontend() {
     echo true
 }
 
-function buildModule() {
-    local module=${1}
-
+function shouldBuildModule() {
     if [[ `usingFrontend` ]] && [[ ! `usingBackend` ]] && [[ "${module}" == "${backendModule}" ]]; then
         return
     fi
@@ -140,11 +138,27 @@ function buildModule() {
         return
     fi
 
-    compileModule ${module}
+    echo true
+}
+
+function buildModule() {
+    local module=${1}
+
+    [[ `shouldBuildModule ${module}` ]] && compileModule ${module}
 }
 
 function testModule() {
-    npm run test
+    local module=${1}
+
+    if [[ ! -e "tsconfig-test.json" ]]; then
+        return
+    fi
+
+    [[ ! `shouldBuildModule ${module}` ]] && return 0
+
+    logInfo "${module} - Running tests..."
+    npm run test-cbr --service-account=${testServiceAccount}
+    throwError "Error while running tests in:  ${module}"
 }
 
 function linkSourcesImpl() {
@@ -731,7 +745,7 @@ if [[ "${lint}" ]]; then
     executeOnModules lintModule
 fi
 
-if [[ "${testModules}" ]]; then
+if [[ "${testServiceAccount}" ]]; then
     bannerInfo "test"
     executeOnModules testModule
 fi

@@ -14,6 +14,7 @@ clean=
 setup=
 readOnly=true
 build=true
+testServiceAccount=
 install=true
 listen=
 linkDependencies=true
@@ -39,7 +40,7 @@ internalThunderstormRefs=()
 modulesPackageName=()
 modulesVersion=()
 
-params=(ThunderstormHome internalThunderstormRefs mergeOriginRepo printEnv cloneThunderstorm buildThunderstorm pushNuArtMessage readOnly purge clean setup newVersion linkDependencies install build lint cleanDirt launchBackend runBackendTests launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
+params=(ThunderstormHome mergeOriginRepo printEnv cloneThunderstorm buildThunderstorm pushNuArtMessage readOnly purge clean setup newVersion linkDependencies install build testServiceAccount lint cleanDirt launchBackend runBackendTests launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
 
 function extractParams() {
     for paramValue in "${@}"; do
@@ -140,8 +141,8 @@ function extractParams() {
 
 
 #        ==== TEST =====
-            "--test-modules" | "-tm")
-                testModules=true
+            "--test=".* | "-t=".*)
+                testServiceAccount=`regexParam "--test|-t" "${paramValue}"`
             ;;
 
             "--run-backend-tests" | "-rbt")

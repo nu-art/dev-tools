@@ -542,39 +542,44 @@ function getFirebaseConfig() {
     throwError "Error while getting functions config"
 }
 
-function copyConfigFile() {
-    local message=${1}
-    local pathTo=${2}
-    local envFile=${3}
-    local targetFile=${4}
-    local envConfigFile="${pathTo}/${envFile}"
-    logInfo "${message}"
-
-    if [[ ! -e "${envConfigFile}" ]]; then
-        throwError "File not found: ${envConfigFile}" 2
-    fi
-    cp "${envConfigFile}" ${targetFile}
-
-
-}
 
 function setEnvironment() {
     logInfo "Setting envType: ${envType}"
-    copyConfigFile "Setting firebase.json for env: ${envType}" "./.config" "firebase-${envType}.json" "firebase.json"
-    copyConfigFile "Setting .firebaserc for env: ${envType}" "./.config" ".firebaserc-${envType}" ".firebaserc"
-    if [[ -e ${backendModule} ]];then
+    [[ "${fallbackEnv}" ]] && logWarning " -- Fallback env: ${fallbackEnv}"
+
+    copyConfigFile "./.config/firebase-ENV_TYPE.json" "firebase.json" ${envType} ${fallbackEnv}
+    copyConfigFile "./.config/.firebaserc-ENV_TYPE" ".firebaserc" ${envType} ${fallbackEnv}
+    if [[ -e ${backendModule} ]]; then
         cd ${backendModule}
-            copyConfigFile "Setting frontend config.ts for env: ${envType}" "./.config" "config-${envType}.ts" "./src/main/config.ts"
+            copyConfigFile "./.config/config-ENV_TYPE.ts" "./src/main/config.ts" ${envType} ${fallbackEnv}
         cd - > /dev/null
     fi
 
-    if [[ -e ${frontendModule} ]];then
+    if [[ -e ${frontendModule} ]]; then
         cd ${frontendModule}
-            copyConfigFile "Setting frontend config.ts for env: ${envType}" "./.config" "config-${envType}.ts" "./src/main/config.ts"
+            copyConfigFile "./.config/config-ENV_TYPE.ts" "./src/main/config.ts" ${envType} ${fallbackEnv}
         cd - > /dev/null
     fi
 
     firebase use `getJsonValueForKey .firebaserc "default"`
+}
+
+function copyConfigFile() {
+    local filePattern=${1}
+    local targetFile=${2}
+
+    local envs=(${@:3})
+
+    for env in ${envs[@]}; do
+        local envConfigFile=${filePattern//ENV_TYPE/${env}}
+        [[ ! -e "${envConfigFile}" ]] && continue
+
+        logInfo "Setting ${targetFile} from env: ${env}"
+        cp "${envConfigFile}" ${targetFile}
+        return 0
+    done
+
+    throwError "Could not find a match for target file: ${targetFile} in envs: ${envs[@]}" 2
 }
 
 function compileOnCodeChanges() {
@@ -803,14 +808,14 @@ if [[ "${deployBackend}" ]] || [[ "${deployFrontend}" ]]; then
         logInfo "Using firebase project: ${firebaseProject}"
         firebase use ${firebaseProject}
         firebase deploy --only functions
-        throwError "Error while deploying functions"
+        throwWarning "Error while deploying functions"
     fi
 
     if [[ "${deployFrontend}" ]] && [[ -e ${frontendModule} ]];  then
         logInfo "Using firebase project: ${firebaseProject}"
         firebase use ${firebaseProject}
         firebase deploy --only hosting
-        throwError "Error while deploying hosting"
+        throwWarning "Error while deploying hosting"
     fi
 fi
 

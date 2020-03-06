@@ -616,6 +616,7 @@ function compileModule() {
     if [[ "${clean}" ]]; then
         logVerbose
         clearFolder dist
+        clearFolder dist-test
     fi
 
     logInfo "${compileLib} - Compiling..."

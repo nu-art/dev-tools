@@ -62,9 +62,9 @@ function clearFolder() {
     local pathToDir="${1}"
     [[ ! -e "${pathToDir}" ]] && return
 
-    cd ${pathToDir}
+    pushd ${pathToDir} > /dev/null
         execute "rm -rf *" "Deleting folder content: ${pathToDir}"
-    cd ..
+    popd  > /dev/null
 }
 
 function renameFiles() {

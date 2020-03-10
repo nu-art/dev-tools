@@ -676,7 +676,7 @@ if [[ "${setup}" ]]; then
   logInfo
   bannerInfo "Setup"
 
-  nvm install
+  [[ -e ".nvmrc" ]] && nvm install
   nvm unalias default
 
   logInfo "Setting up global packages..."
@@ -712,7 +712,9 @@ fi
 if [[ "${build}" ]]; then
   logInfo
   bannerInfo "Compile"
-  nvm use
+
+  [[ -e ".nvmrc" ]] && nvm use
+
   executeOnModules linkSourcesImpl
   executeOnModules buildModule
   logInfo "Project Compiled!!"

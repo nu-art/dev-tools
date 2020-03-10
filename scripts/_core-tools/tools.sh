@@ -20,298 +20,289 @@
 #!/bin/bash
 
 function contains() {
-    local array=(${@:2})
-    for i in "${array[@]}"; do
-        if [[ "${i}" == "${1}" ]] ; then
-            echo "true"
-            return
-        fi
-    done
+  local array=(${@:2})
+  for i in "${array[@]}"; do
+    if [[ "${i}" == "${1}" ]]; then
+      echo "true"
+      return
+    fi
+  done
 }
 
 function setDefaultAndroidHome() {
-    if [[ "${ANDROID_HOME}" ]]; then
-        return
-    fi
+  if [[ "${ANDROID_HOME}" ]]; then
+    return
+  fi
 
-    if [[ `isMacOS` ]]; then
-        if [[ ! -e "/Users/${USER}/Library/Android/sdk" ]]; then
-            local pathToAdb=`which adb`
-            if [[ ${pathToAdb} ]]; then
-                ANDROID_HOME=`echo ${pathToAdb} | sed -E "s/^(.*)\/platform-tools\/adb$/\1/"`
-                return
-            fi
-        fi
-        ANDROID_HOME="/Users/${USER}/Library/Android/sdk"
-    else
-        ANDROID_HOME="~/Android/sdk"
+  if [[ $(isMacOS) ]]; then
+    if [[ ! -e "/Users/${USER}/Library/Android/sdk" ]]; then
+      # shellcheck disable=SC2230
+      local pathToAdb=$(which adb)
+      if [[ ${pathToAdb} ]]; then
+        ANDROID_HOME=$(echo "${pathToAdb}" | sed -E "s/^(.*)\/platform-tools\/adb$/\1/")
+        return
+      fi
     fi
+    ANDROID_HOME="/Users/${USER}/Library/Android/sdk"
+  else
+    ANDROID_HOME="$HOME/Android/sdk"
+  fi
 }
 
 function execute() {
-    local command=$1
-    local message=$2
-    local ignoreError=$3
+  local command=$1
+  local message=$2
+  local ignoreError=$3
 
+  if [[ "${message}" ]]; then
+    logDebug "${message}"
+  else
+    logDebug "${command}"
+  fi
 
-    if [[ "${message}" ]]; then
-        logInfo "${message}"
-    else
-        logInfo "${command}"
-    fi
+  if [[ "${message}" ]]; then
+    logVerbose "  ${command}"
+  fi
 
-    if [[ "${message}" ]]; then
-        logDebug "  ${command}"
-    fi
+  local errorCode=
+  ${command}
+  errorCode=$?
 
-    local errorCode=
-    ${command}
-    errorCode=$?
+  if [[ "${ignoreError}" == "true" ]]; then
+    logVerbose
+    throwError "${message}" ${errorCode}
+  fi
 
-    if [[ "${ignoreError}" == "true" ]]; then
-        logVerbose
-        throwError "${message}" ${errorCode}
-    fi
-
-    return ${errorCode}
+  return ${errorCode}
 }
 
 function yesOrNoQuestion() {
-    local message=${1}
-    local toExecuteYes=${2}
-    local toExecuteNo=${3}
+  local message=${1}
+  local toExecuteYes=${2}
+  local toExecuteNo=${3}
 
-    logWarning "${message}"
-    read  -n 1 -p "" response
+  logWarning "${message}"
+  # shellcheck disable=SC2162
+  read -n 1 -p "" response
 
-    logVerbose
-    case "$response" in
-        [yY])
-            eval ${toExecuteYes}
-            throwError "Error executing: ${toExecuteYes}"
-        ;;
-        [nN])
-            eval ${toExecuteNo}
-            throwError "Error executing: ${toExecuteNo}"
-        ;;
-        *)
-            logError "Canceling..."
-            exit 2
-        ;;
-    esac
+  logVerbose
+  case "$response" in
+  [yY])
+    eval "${toExecuteYes}"
+    throwError "Error executing: ${toExecuteYes}"
+    ;;
+  [nN])
+    eval "${toExecuteNo}"
+    throwError "Error executing: ${toExecuteNo}"
+    ;;
+  *)
+    logError "Canceling..."
+    exit 2
+    ;;
+  esac
 }
 
 function yesOrNoQuestion_new() {
-    local var=${1}
-    local message=${2}
-    local defaultOption=${3}
+  local var=${1}
+  local message=${2}
+  local defaultOption=${3}
 
-    logInfo "${message}"
-    read  -n 1 -p "" response
+  logInfo "${message}"
+  # shellcheck disable=SC2162
+  read -n 1 -p "" response
 
-    logVerbose
-    case "$response" in
-        [yY])
-            setVariable ${var} y
-        ;;
+  logVerbose
+  case "$response" in
+  [yY])
+    setVariable "${var}" y
+    ;;
 
-        [nN])
-            setVariable ${var} n
-        ;;
+  [nN])
+    setVariable "${var}" n
+    ;;
 
-        *)
-            if [[ "${defaultOption}" ]] && [[ "$response" == "" ]]; then
-                setVariable ${var} ${defaultOption}
-                return
-            fi
-
-            deleteTerminalLine
-            deleteTerminalLine
-            yesOrNoQuestion_new $@
-        ;;
-    esac
+  *)
+    if [[ "${defaultOption}" ]] && [[ "$response" == "" ]]; then
+      setVariable "${var}" "${defaultOption}"
+      return
+    fi
 
     deleteTerminalLine
+    deleteTerminalLine
+    yesOrNoQuestion_new $@
+    ;;
+  esac
+
+  deleteTerminalLine
 }
 
 function choicePrintOptions() {
-    local message=${1}
-    local options=("${@}")
-    options=("${options[@]:1}")
+  local message=${1}
+  local options=("${@}")
+  options=("${options[@]:1}")
 
-    for (( arg=0; arg<${#options[@]}; arg+=1 )); do
-        local option="${arg}. ${options[${arg}]}"
-        logDebug "   ${option}"
-    done
-    logVerbose
-    logWarning "   ${message}"
-    logVerbose
+  for ((arg = 0; arg < ${#options[@]}; arg += 1)); do
+    local option="${arg}. ${options[${arg}]}"
+    logDebug "   ${option}"
+  done
+  logVerbose
+  logWarning "   ${message}"
+  logVerbose
 }
 
 function choiceWaitForInput() {
-    local options=("${@}")
+  local options=("${@}")
 
-    response=-1
-    while (( "${response}" < 0 || ${response} >= ${#options[@]} )); do
-        read  -n 1 -p "" response
-        response=`isNumeric "${response}" "-1"`
-    done
+  response=-1
+  while (("${response}" < 0 || "${response}" >= ${#options[@]})); do
+    # shellcheck disable=SC2162
+    read -n 1 -p "" response
+    response=$(isNumeric "${response}" "-1")
+  done
 
-    echo "${options[${response}]}"
+  echo "${options[${response}]}"
 }
 
 function isNumeric() {
-    local re=''
-    if [[ ! "${1}" =~ ^[+-]?[0-9]+([.][0-9]+)?$ ]] ; then
-       echo "${2}"
-       return
-    fi
+  if [[ ! "${1}" =~ ^[+-]?[0-9]+([.][0-9]+)?$ ]]; then
+    echo "${2}"
+    return
+  fi
 
-    echo "${1}"
+  echo "${1}"
 }
 
 function killProcess() {
-    local processName=${1}
-    local killMethod=${2} || 15
+  local processName=${1}
+  local killMethod=${2} || 15
 
-    if [[ `isMacOS` ]]; then
-        kill ${killMethod} ${processName}
-    else
-        kill -${killMethod} ${processName}
-    fi
+  if [[ $(isMacOS) ]]; then
+    kill "${killMethod}" "${processName}"
+  else
+    kill "-${killMethod}" "${processName}"
+  fi
 }
 
 function killAllProcess() {
-    local processName=${1}
-    local killMethod=${2} || 15
+  local processName=${1}
+  local killMethod=${2} || 15
 
-    if [[ `isMacOS` ]]; then
-        killall ${killMethod} ${processName}
-    else
-        killall -${killMethod} ${processName}
-    fi
+  if [[ $(isMacOS) ]]; then
+    killall "${killMethod}" "${processName}"
+  else
+    killall "-${killMethod}" "${processName}"
+  fi
 }
 
 function isMacOS() {
-    if [[ "$(uname -v)" =~ "Darwin" ]]; then echo "true"; else echo; fi
+  if [[ "$(uname -v)" =~ "Darwin" ]]; then echo "true"; else echo; fi
 }
 
 # To reconsider
 function replaceStringInFiles() {
-    local rootFolder=${1}
-    local matchPattern=${2}
-    local replaceWith="${3}"
-    local excludeDirs=(${@:4})
-    local toExclude=""
+  local rootFolder=${1}
+  local matchPattern=${2}
+  local replaceWith="${3}"
+  local excludeDirs=(${@:4})
+  local toExclude=""
 
-    for (( arg=0; arg<${#excludeDirs[@]}; arg+=1 )); do
-        toExclude="${toExclude} --exclude-dir=${excludeDirs[${arg}]}"
-    done
+  for ((arg = 0; arg < ${#excludeDirs[@]}; arg += 1)); do
+    toExclude="${toExclude} --exclude-dir=${excludeDirs[${arg}]}"
+  done
 
-    local files=(`grep -rl ${matchPattern} "${rootFolder}"${toExclude}`)
-    local matchPattern="${matchPattern//\//\\/}"
-    local replaceWith="${replaceWith//\//\\/}"
+  # shellcheck disable=SC2086
+  local files=($(grep -rl "${matchPattern}" "${rootFolder}"${toExclude}))
+  local matchPattern="${matchPattern//\//\\/}"
+  local replaceWith="${replaceWith//\//\\/}"
 
-#    echo sed -i '' -E "s/${matchPattern}/${replaceWith}/g" ${file}
-    for file in ${files[@]} ; do
-        echo ${file}
-        if [[ `isMacOS` ]]; then
-            sed -i '' -E "s/${matchPattern}/${replaceWith}/g" ${file}
-        else
-            sed -i -E "s/${matchPattern}/${replaceWith}/g" ${file}
-        fi
-    done
+  #    echo sed -i '' -E "s/${matchPattern}/${replaceWith}/g" ${file}
+  for file in ${files[@]}; do
+    echo "${file}"
+    if [[ $(isMacOS) ]]; then
+      sed -i '' -E "s/${matchPattern}/${replaceWith}/g" "${file}"
+    else
+      sed -i -E "s/${matchPattern}/${replaceWith}/g" "${file}"
+    fi
+  done
 }
 
 function replaceAllInFile() {
-    replaceInFile $1 $2 $3 g
+  replaceInFile "$1" "$2" "$3" g
 }
 
 function replaceInFile() {
-    local matchPattern="${1}"
-    local replaceWith="${2}"
-    local file="${3}"
-    local flags="${4}"
+  local matchPattern="${1}"
+  local replaceWith="${2}"
+  local file="${3}"
+  local flags="${4}"
 
-    if [[ `isMacOS` ]]; then
-        sed -i '' -E "s/${matchPattern}/${replaceWith}/${flags}" ${file}
-    else
-        sed -i -E "s/${matchPattern}/${replaceWith}/${flags}" ${file}
-    fi
+  if [[ $(isMacOS) ]]; then
+    sed -i '' -E "s/${matchPattern}/${replaceWith}/${flags}" "${file}"
+  else
+    sed -i -E "s/${matchPattern}/${replaceWith}/${flags}" "${file}"
+  fi
 }
 
 function replaceAllInText() {
-    replaceInText $1 $2 $3 g
+  replaceInText "$1" "$2" "$3" g
 }
 
 function replaceInText() {
-    local matchPattern="${1}"
-    local replaceWith="${2}"
-    local text="${3}"
-    local flags="${4}"
+  local matchPattern="${1}"
+  local replaceWith="${2}"
+  local text="${3}"
+  local flags="${4}"
 
-    echo `echo "${text}" | sed -E "s/${matchPattern}/${replaceWith}/${flags}"`
+  # shellcheck disable=SC2005
+  echo "$(echo "${text}" | sed -E "s/${matchPattern}/${replaceWith}/${flags}")"
 }
 
 function indent() {
-    sed "s/^/${1}/";
+  sed "s/^/${1}/"
 }
 
-function executeProcessor() {
-    local processor=${1}
-    local dataFetcher=(${2})
-    local data=(`${dataFetcher}`)
-
-#    echo "processor: ${processor}"
-#    echo "data: ${data[@]}"
-    for dataItem in "${data[@]}"; do
-        bannerDebug "Processing: ${dataItem}"
-        ${processor} ${dataItem}
-        logVerbose "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
-        logVerbose
-    done
-
-}
-
-function joinArray {
-    local delimiter=${1}
-    local IFS="${delimiter}"; shift; echo "$*";
+function joinArray() {
+  local delimiter=${1}
+  local IFS="${delimiter}"
+  shift
+  echo "$*"
 }
 
 function isFunction() {
-    local functionName=${1}
-    [[ `type -t ${functionName}` != 'function' ]] && echo "function"
+  local functionName=${1}
+  [[ $(type -t "${functionName}") != 'function' ]] && echo "function"
 }
 
+# shellcheck disable=SC2120
 function deleteTerminalLine() {
-    local count=${1:-1}
-    for (( arg=0; arg<${count}; arg+=1 )); do
-        tput cuu1 tput el
-    done
-    for (( arg=0; arg<${count}; arg+=1 )); do
-        echo "                                                                                                                                              "
-    done
-    for (( arg=0; arg<${count}; arg+=1 )); do
-        tput cuu1 tput el
-    done
+  local count=${1:-1}
+  for ((arg = 0; arg < count; arg += 1)); do
+    tput cuu1 tput el
+  done
+  for ((arg = 0; arg < count; arg += 1)); do
+    echo "                                                                                                                                              "
+  done
+  for ((arg = 0; arg < count; arg += 1)); do
+    tput cuu1 tput el
+  done
 }
 
 function setVariable() {
-    local var=${1}
-    local value=${2}
-    eval "${var}='${value}'"
+  local var=${1}
+  local value=${2}
+  eval "${var}='${value}'"
 }
 
-function match(){
-    local content="${1}"
-    local regexps=("${@:2}")
-    local matches=()
-    for regexp in ${regexps[@]}; do
-        while [[ "${content}" =~ $regexp ]]; do
-            matches+=("${BASH_REMATCH[1]}")
-            content=`echo "${content}" | sed -E "s/${BASH_REMATCH[1]}//g"`
-        done
+function match() {
+  local content="${1}"
+  local regexps=("${@:2}")
+  local matches=()
+  for regexp in ${regexps[@]}; do
+    while [[ "${content}" =~ $regexp ]]; do
+      matches+=("${BASH_REMATCH[1]}")
+      content=$(echo "${content}" | sed -E "s/${BASH_REMATCH[1]}//g")
     done
+  done
 
-    echo "${matches[@]}"
+  echo "${matches[@]}"
 }

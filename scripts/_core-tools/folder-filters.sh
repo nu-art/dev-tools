@@ -20,126 +20,129 @@
 #!/bin/bash
 
 allFolders() {
-    echo true;
+  echo true
 }
 
 allGitFolders() {
-    if [[ -e "${1}/.git" ]]; then
-        echo true
-        return
-    fi
+  if [[ -e "${1}/.git" ]]; then
+    echo true
+    return
+  fi
 
-    echo false
+  echo false
 }
 
 gitFolders() {
-    local module=${1}
-    if [[ "${module}" == "dev-tools" ]]; then
-        echo false
-        return
-    fi
-
-    if [[ -e "${module}/.git" ]]; then
-        echo true
-        return
-    fi
-
+  local module=${1}
+  if [[ "${module}" == "dev-tools" ]]; then
     echo false
+    return
+  fi
+
+  if [[ -e "${module}/.git" ]]; then
+    echo true
+    return
+  fi
+
+  echo false
 }
 
 moduleFolder() {
-    if [[ "`cat ${1}/build.gradle | grep com.android.application`" =~ "com.android.application" ]]; then
-        echo false
-        return
-    fi
+  # shellcheck disable=SC2076
+  if [[ "$(cat "${1}/build.gradle" | grep com.android.application)" =~ "com.android.application" ]]; then
+    echo false
+    return
+  fi
 
-    echo true
+  echo true
 }
 
 androidAppsFolder() {
-    if [[ "`cat ${1}/build.gradle | grep com.android.application`" =~ "com.android.application" ]]; then
-        echo true
-        return
-    fi
+  # shellcheck disable=SC2076
+  if [[ "$(cat "${1}/build.gradle" | grep com.android.application)" =~ "com.android.application" ]]; then
+    echo true
+    return
+  fi
 
-    echo false
+  echo false
 }
 
-allGradleFolders(){
-    if [[ -e "${1}/build.gradle" ]] && [[ ! -e "${1}/settings.gradle" ]]; then
-        echo true
-        return
-    fi
+allGradleFolders() {
+  if [[ -e "${1}/build.gradle" ]] && [[ ! -e "${1}/settings.gradle" ]]; then
+    echo true
+    return
+  fi
 
-    echo false
+  echo false
 }
 
 listFoldersImpl() {
-    local folders=(`echo */`)
+  # shellcheck disable=SC2035
+  # listing only folders!!
+  local folders=($(echo */))
 
-    for folderName in "${folders[@]}"; do
-        local add= false
+  for folderName in "${folders[@]}"; do
+    local add=false
 
-        folderName="${folderName:0: -1}"
-        add=true
-        for (( arg=1; arg<=$#; arg+=1 )); do
-            local result=`${!arg} ${folderName}`
-            if [[ "${result}" == "false" ]]; then
-                add=
-                break
-            fi
-        done
-
-        if [[ "${add}" ]]; then
-            directories+=(${folderName})
-        fi
-
+    folderName="${folderName:0:-1}"
+    add=true
+    for ((arg = 1; arg <= $#; arg += 1)); do
+      local result=$(${!arg} "${folderName}")
+      if [[ "${result}" == "false" ]]; then
+        add=
+        break
+      fi
     done
-    echo "${directories[@]}"
+
+    if [[ "${add}" ]]; then
+      directories+=(${folderName})
+    fi
+
+  done
+  echo "${directories[@]}"
 }
 
-
-listFolders(){
-    listFoldersImpl allFolders
+listFolders() {
+  listFoldersImpl allFolders
 }
 
-listGitFolders(){
-    listFoldersImpl gitFolders
+listGitFolders() {
+  listFoldersImpl gitFolders
 }
 
-listAllGitFolders(){
-    listFoldersImpl allGitFolders
+listAllGitFolders() {
+  listFoldersImpl allGitFolders
 }
 
-listAllGradleFolders(){
-    listFoldersImpl allGradleFolders
+listAllGradleFolders() {
+  listFoldersImpl allGradleFolders
 }
 
 listGradleGitFolders() {
-    listFoldersImpl allGradleFolders allGitFolders
+  listFoldersImpl allGradleFolders allGitFolders
 }
 
 listGradleGitModulesFolders() {
-    listFoldersImpl allGradleFolders allGitFolders moduleFolder
+  listFoldersImpl allGradleFolders allGitFolders moduleFolder
 }
 
 listGradleAndroidAppsFolders() {
-    listFoldersImpl allGradleFolders allGitFolders androidAppsFolder
+  listFoldersImpl allGradleFolders allGitFolders androidAppsFolder
 }
 
 iterateOverFolders() {
-    local folderFilter=${1}
-    local toExecute=${2}
+  local folderFilter=${1}
+  local toExecute=${2}
 
-    local directories=$(${folderFilter})
-    directories=(${directories//,/ })
+  local directoriesAsString=$(${folderFilter})
+  local directories=(${directoriesAsString//,/ })
 
-    for folderName in "${directories[@]}"; do
-        bannerDebug "Processing: ${folderName}"
-        pushd ${folderName} > /dev/null
-            ${toExecute} ${folderName}
-        popd > /dev/null
-        logVerbose "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-    done
+  for folderName in "${directories[@]}"; do
+    bannerDebug "Processing: ${folderName}"
+    _pushd "${folderName}"
+    ${toExecute} "${folderName}"
+    _popd
+    logVerbose "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+  done
 
 }

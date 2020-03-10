@@ -19,62 +19,80 @@
 
 #!/bin/bash
 
-function getRunningDir(){
-    echo ${PWD##*/}
+function getRunningDir() {
+  echo "${PWD##*/}"
 }
 
 function copyFileToFolder() {
-    local origin="${1}"
-    local target="${2}"
+  local origin="${1}"
+  local target="${2}"
 
-    [[ ! -e "${target}" ]] && createDir ${target}
+  [[ ! -e "${target}" ]] && createDir "${target}"
 
-    cp ${origin} ${target}
-    execute "cp ${origin} ${target}" "Copying file: ${origin} => ${target}"
+  cp "${origin}" "${target}"
+  execute "cp ${origin} ${target}" "Copying file: ${origin} => ${target}"
 }
 
 function createDir() {
-    local pathToDir="${1}"
-    [[ -e "${pathToDir}" ]] && return
+  local pathToDir="${1}"
+  [[ -e "${pathToDir}" ]] || [[ -d "${pathToDir}" ]] || [[ -L "${pathToDir}" ]] && return
 
-    execute "mkdir -p ${pathToDir}" "Creating folder: ${pathToDir}"
+  execute "mkdir -p ${pathToDir}" "Creating folder: ${pathToDir}"
 }
 
 function deleteFile() {
-    local pathToFile="${1}"
-    [[ ! -e "${pathToFile}" ]] && return
+  local pathToFile=${1}
+  [[ ! -e "${pathToFile}" ]] && return
 
-    execute "rm ${pathToFile}" "Deleting file: ${pathToFile}"
+  execute "rm ${pathToFile}" "Deleting file: ${pathToFile}"
 }
 
 function deleteFolder() {
-    deleteDir $@
+  deleteDir $@
 }
 
 function deleteDir() {
-    local pathToDir="${1}"
-    [[ ! -e "${pathToDir}" ]] && [[ ! -d "${pathToDir}" ]] && [[ ! -L "${pathToDir}" ]] && return
+  local pathToDir="${1}"
+  [[ ! -e "${pathToDir}" ]] && [[ ! -d "${pathToDir}" ]] && [[ ! -L "${pathToDir}" ]] && return
 
-    execute "rm -rf ${pathToDir}" "Deleting folder: ${pathToDir}"
+  execute "rm -rf ${pathToDir}" "Deleting folder: ${pathToDir}"
+}
+
+function _cd() {
+  local path=${1}
+  cd "${path}" > /dev/null || throwError "$(pwd)/${path} folder does not exists"
+}
+
+function _cd..() {
+  cd ..
+}
+
+function _pushd() {
+  local path=${1}
+  pushd "${pathToDir}" > /dev/null 2>&1 || throwError "$(pwd)/${path} folder does not exists"
+}
+
+function _popd() {
+  popd > /dev/null 2>&1 || throwError "folder does not exists"
 }
 
 function clearFolder() {
-    local pathToDir="${1}"
-    [[ ! -e "${pathToDir}" ]] && return
+  local pathToDir=${1}
+  [[ ! -e "${pathToDir}" ]] && return
 
-    pushd ${pathToDir} > /dev/null
-        execute "rm -rf *" "Deleting folder content: ${pathToDir}"
-    popd  > /dev/null
+  _pushd "${pathToDir}"
+    execute "rm -rf *" "Deleting folder content: ${pathToDir}"
+  _popd
 }
 
 function renameFiles() {
-    local rootFolder=${1}
-    local matchPattern=${2}
-    local replaceWith=${3}
+  local rootFolder=${1}
+  local matchPattern=${2}
+  local replaceWith=${3}
 
-    local files=(`find "${rootFolder}" -iname "*${matchPattern}*"`)
-    for file in ${files[@]} ; do
-        local newFile=`echo ${file} | sed -E "s/${matchPattern}/${replaceWith}/g"`
-        mv ${file} ${newFile}
-    done
+  local files=($(find "${rootFolder}" -iname "*${matchPattern}*"))
+  for file in ${files[@]}; do
+    local newFile=$(echo "${file}" | sed -E "s/${matchPattern}/${replaceWith}/g")
+    mv "${file}" "${newFile}"
+  done
 }

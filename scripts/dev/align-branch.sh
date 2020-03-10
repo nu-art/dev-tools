@@ -59,7 +59,7 @@ git pull && git checkout ${branchName} && git pull
 bash ./dev-tools/scripts/git/git-checkout.sh --branch=${branchName} --project ${force}
 bash ./dev-tools/scripts/git/git-pull.sh --project
 
-if [[ "updateSubmodules" == "yes" ]]; then
+if [[ "${updateSubmodules}" == "yes" ]]; then
 	echo "calling git submodule update --init"
 	git submodule update --init
 fi

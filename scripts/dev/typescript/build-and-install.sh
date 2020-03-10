@@ -130,7 +130,7 @@ function buildModule() {
   [[ "${cleanDirt}" ]] && [[ ! -e ".dirty" ]] && return
 
   logInfo "${module} - Compiling..."
-  npm run build > /dev/null
+  npm run build
   throwError "Error compiling:  ${module}"
 
   cp package.json "${outputDir}"/
@@ -328,6 +328,11 @@ function setupModule() {
     #            npm audit fix
     #            throwError "Error fixing vulnerabilities"
     trap - SIGINT
+  fi
+
+  if [[ "${module}" == "${frontendModule}" ]] && [[ ! -e "./.config/ssl/server-key.pem" ]]; then
+     createDir "./.config/ssl"
+    bash ../dev-tools/scripts/utils/generate-ssl-cert.sh --output=./.config/ssl
   fi
 
   restorePackageJson "${module}"
@@ -621,6 +626,8 @@ fi
 
 extractParams "$@"
 
+setLogLevel ${tsLogLevel}
+
 if [[ "${printEnv}" ]]; then
   printNpmPackageVersion typescript
   printNpmPackageVersion tslint
@@ -680,7 +687,7 @@ fi
 
 if [[ "${linkDependencies}" ]]; then
   logInfo
-  bannerInfo "link dependencies"
+  bannerInfo "Linking Dependencies"
   if [[ "${ThunderstormHome}" ]] && [[ "${linkThunderstorm}" ]]; then
     executeOnModules linkThunderstormImpl
   else
@@ -699,9 +706,10 @@ fi
 
 if [[ "${build}" ]]; then
   logInfo
-  bannerInfo "Build"
+  bannerInfo "Compile"
   executeOnModules linkSourcesImpl
   executeOnModules buildModule
+  logInfo "Project Compiled!!"
 fi
 
 if [[ "${lint}" ]]; then

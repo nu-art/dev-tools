@@ -42,7 +42,7 @@ modulesVersion=()
 outputDir=dist
 outputTestDir=dist
 
-logLevel=${LOG_LEVEL__INFO}
+tsLogLevel=${LOG_LEVEL__INFO}
 
 params=(ThunderstormHome mergeOriginRepo printEnv cloneThunderstorm buildThunderstorm pushNuArtMessage readOnly purge clean setup newVersion linkDependencies install build testServiceAccount lint cleanDirt launchBackend launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
 
@@ -215,8 +215,8 @@ function extractParams() {
     "--log="*)
       local _logLevelKey=$(regexParam "--log" "${paramValue}")
       local logLevelKey=LOG_LEVEL__${_logLevelKey^^}
-      logLevel=${!logLevelKey}
-      [[ ! ${logLevel} ]] && logLevel=${LOG_LEVEL__INFO}
+      tsLogLevel=${!logLevelKey}
+      [[ ! ${tsLogLevel} ]] && tsLogLevel=${LOG_LEVEL__INFO}
       ;;
 
     "--clean-dirt")

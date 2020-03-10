@@ -16,7 +16,7 @@ source "${BASH_SOURCE%/*}/help.sh"
 # shellcheck source=./modules.sh
 source "${BASH_SOURCE%/*}/modules.sh"
 [[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh
-enforceBashVersion 5.0
+enforceBashVersion 4.4
 
 appVersion=
 nuArtVersion=
@@ -331,7 +331,7 @@ function setupModule() {
   fi
 
   if [[ "${module}" == "${frontendModule}" ]] && [[ ! -e "./.config/ssl/server-key.pem" ]]; then
-     createDir "./.config/ssl"
+    createDir "./.config/ssl"
     bash ../dev-tools/scripts/utils/generate-ssl-cert.sh --output=./.config/ssl
   fi
 
@@ -626,6 +626,8 @@ fi
 
 extractParams "$@"
 
+[[ ! $(command -v nvm > /dev/null) ]] && throwError "Please install nvm.."
+
 setLogLevel ${tsLogLevel}
 
 if [[ "${printEnv}" ]]; then
@@ -674,6 +676,9 @@ if [[ "${setup}" ]]; then
   logInfo
   bannerInfo "Setup"
 
+  nvm install
+  nvm unalias default
+
   logInfo "Setting up global packages..."
   npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest nodemon@latest
   executeOnModules setupModule
@@ -707,6 +712,7 @@ fi
 if [[ "${build}" ]]; then
   logInfo
   bannerInfo "Compile"
+  nvm use
   executeOnModules linkSourcesImpl
   executeOnModules buildModule
   logInfo "Project Compiled!!"

@@ -4,6 +4,10 @@ source ./dev-tools/scripts/git/_core.sh
 source ./dev-tools/scripts/firebase/core.sh
 source ./dev-tools/scripts/node/_source.sh
 
+# shellcheck source=~/.bash_profile
+# shellcheck disable=SC1090
+[[ -e "${HOME}/.bash_profile" ]] && source "${HOME}/.bash_profile"
+
 # shellcheck source=./params.sh
 source "${BASH_SOURCE%/*}/params.sh"
 
@@ -626,7 +630,7 @@ fi
 
 extractParams "$@"
 
-[[ ! $(command -v nvm > /dev/null) ]] && throwError "Please install nvm.."
+[[ ! $(isFunction nvm) ]] && throwError "Please install nvm.. and source it in your ~/.bash_profile"
 
 setLogLevel ${tsLogLevel}
 
@@ -676,8 +680,8 @@ if [[ "${setup}" ]]; then
   logInfo
   bannerInfo "Setup"
 
-  [[ -e ".nvmrc" ]] && nvm install
-  nvm unalias default
+  [[ $(isFunction nvm) ]] && [[ -e ".nvmrc" ]] && nvm install
+  [[ $(isFunction nvm) ]] && nvm unalias default
 
   logInfo "Setting up global packages..."
   npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest nodemon@latest
@@ -713,7 +717,7 @@ if [[ "${build}" ]]; then
   logInfo
   bannerInfo "Compile"
 
-  [[ -e ".nvmrc" ]] && nvm use
+  [[ $(isFunction nvm) ]] && [[ -e ".nvmrc" ]] && nvm use
 
   executeOnModules linkSourcesImpl
   executeOnModules buildModule

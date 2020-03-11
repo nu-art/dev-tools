@@ -20,73 +20,87 @@
 #!/bin/bash
 
 function throwError() {
-	ERROR_CODE=$?
+  ERROR_CODE=$?
 
-    local errorMessage=${1}
-    local errorCode=${2}
+  local errorMessage=${1}
+  local errorCode=${2}
 
-    if [[ ! "${errorCode}" ]]; then errorCode=${ERROR_CODE}; fi
+  if [[ ! "${errorCode}" ]]; then errorCode=${ERROR_CODE}; fi
 
-    [[ "${errorCode}" == "0" ]] || [[ "${errorCode}" == "1" ]] && return
+  [[ "${errorCode}" == "0" ]] || [[ "${errorCode}" == "1" ]] && return
 
-    throwErrorImpl "${errorMessage}" ${errorCode}
+  throwErrorImpl "${errorMessage}" ${errorCode}
 }
 
 function throwWarning() {
-	ERROR_CODE=$?
+  ERROR_CODE=$?
 
-    local errorMessage=${1}
-    local errorCode=${2}
+  local errorMessage=${1}
+  local errorCode=${2}
 
-    if [[ ! "${errorCode}" ]]; then errorCode=${ERROR_CODE}; fi
+  if [[ ! "${errorCode}" ]]; then errorCode=${ERROR_CODE}; fi
 
-    [[ "${errorCode}" == "0" ]] && return
+  [[ "${errorCode}" == "0" ]] && return
 
-    throwErrorImpl "${errorMessage}" ${errorCode}
+  throwErrorImpl "${errorMessage}" ${errorCode}
 }
 
 function throwErrorImpl() {
-    local errorMessage=${1}
-    local errorCode=${2}
+  local errorMessage=${1}
+  local errorCode=${2}
+  local _pwd=$(pwd)
 
-    function fixSource() {
-        local file=`echo "${1}" | sed -E "s/(.*)\/[a-zA-Z_-]+\/\.\.\/(.*)/\1\/\2/"`
+  function fixSource() {
+    local file=$(echo "${1}" | sed -E "s/(.*)\/[a-zA-Z_-]+\/\.\.\/(.*)/\1\/\2/")
+    file=$(echo "${1}" | sed -E "s/${_pwd//\//\\/}/./")
+    if [[ "${file}" == "${1}" ]]; then
+      echo "${file}"
+      return
+    fi
 
-        if [[ "${file}" == "${1}" ]]; then
-            echo "${file}"
-            return;
-        fi
+    fixSource "${file}"
+  }
 
-        fixSource "${file}"
-    }
+  function printStacktrace() {
+    local length=0
+    for ((arg = 2; arg < ${#FUNCNAME[@]}; arg += 1)); do
+      local sourceFile=$(fixSource "${BASH_SOURCE[${arg}]}")
+      if ((${#sourceFile} > length)); then
+        length=${#sourceFile}
+      fi
+    done
 
-    function printStacktrace() {
-        local length=0
-        for (( arg=2; arg<${#FUNCNAME[@]}; arg+=1 )); do
-            local sourceFile=`fixSource "${BASH_SOURCE[${arg}]}"`
-            if (( ${#sourceFile} > length )); then
-                length=${#sourceFile}
-            fi
-        done
+    logError "  pwd: ${_pwd}"
+    logError "  Stack:"
+    for ((arg = 2; arg < ${#FUNCNAME[@]}; arg += 1)); do
+      local sourceFile=$(fixSource "${BASH_SOURCE[${arg}]}")
+      sourceFile=$(printf "%${length}s" "${sourceFile}")
 
-        logError "  pwd: `pwd`"
-        logError "  Stack:"
-        for (( arg=2; arg<${#FUNCNAME[@]}; arg+=1 )); do
-            local sourceFile=`fixSource "${BASH_SOURCE[${arg}]}"`
-            sourceFile=`printf "%${length}s" "${sourceFile}"`
+      local lineNumber="[${BASH_LINENO[${arg} - 1]}]"
+      lineNumber=$(printf "%6s" "${lineNumber}")
 
-            local lineNumber="[${BASH_LINENO[${arg}-1]}]"
-            lineNumber=`printf "%6s" "${lineNumber}"`
+      logError "    ${sourceFile} ${lineNumber} ${FUNCNAME[${arg}]}"
+    done
+  }
 
-            logError "    ${sourceFile} ${lineNumber} ${FUNCNAME[${arg}]}"
-        done
-    }
+  logError
+  logError "  ERROR: ${errorMessage}"
+  printStacktrace
+  logError
+  logError "Exiting with Error code: ${errorCode}"
+  echo
+#  exit ${errorCode}
+}
 
-    logError
-    logError "  ERROR: ${errorMessage}"
-    printStacktrace
-    logError
-    logError "Exiting with Error code: ${errorCode}"
-    echo
-    exit ${errorCode}
+
+function test1() {
+  test3
+}
+
+function test2() {
+  throwError "zevel shel zevel" 3
+}
+
+function test3(){
+  test2
 }

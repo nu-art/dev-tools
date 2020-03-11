@@ -59,8 +59,9 @@ function deleteDir() {
 }
 
 function _cd() {
-  local path=${1}
-  cd "${path}" > /dev/null || throwError "$(pwd)/${path} folder does not exists" 2
+  local pathToDir=${1}
+  [[ -n "${pathToDir}" ]] && throwWarning "path is empty" 2
+  cd "${pathToDir}" > /dev/null 2>&1 || throwWarning "$(pwd)/${pathToDir} folder does not exists" 2
 }
 
 function _cd..() {
@@ -68,12 +69,13 @@ function _cd..() {
 }
 
 function _pushd() {
-  local path=${1}
-  pushd "${pathToDir}" > /dev/null 2>&1 || throwError "$(pwd)/${path} folder does not exists" 2
+  local pathToDir=${1}
+  [[ -n "${pathToDir}" ]] && throwWarning "path is empty" 2
+  pushd "${pathToDir}" > /dev/null 2>&1 || throwWarning "$(pwd)/${pathToDir} folder does not exists" 2
 }
 
 function _popd() {
-  popd > /dev/null 2>&1 || throwError "folder does not exists" 2
+  popd > /dev/null 2>&1 || throwWarning "folder does not exists" 2
 }
 
 function clearFolder() {

@@ -40,7 +40,7 @@ modulesPackageName=()
 modulesVersion=()
 
 outputDir=dist
-outputTestDir=dist
+outputTestDir=dist-test
 
 tsLogLevel=${LOG_LEVEL__INFO}
 

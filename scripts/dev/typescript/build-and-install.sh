@@ -163,7 +163,7 @@ function testModule() {
   tslint --project tsconfig-test.json
   throwError "Error while linting tests in:  ${module}"
 
-  node "${outputTestDir}/test/test"
+  node "${outputTestDir}/test/test" "--service-account=${testServiceAccount}"
   throwError "Error while running tests in:  ${module}"
 }
 
@@ -173,6 +173,8 @@ function linkSourcesImpl() {
   logVerbose
   logVerbose "Sorting package json file: ${module}"
   sort-package-json
+  [[ -f tsconfig.json ]] && sort-json tsconfig.json --ignore-case
+  [[ -f tsconfig-test.json ]] && sort-json tsconfig-test.json --ignore-case
 
   copyFileToFolder package.json "${outputDir}"/
   logDebug "Linking dependencies sources to: ${module}"
@@ -692,7 +694,9 @@ fi
 # shellcheck source=./$HOME/.nvm
 [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh" # This loads nvm
 if [[ ! $(assertNVM) ]] && [[ "v$(cat .nvmrc | head -1)" != "$(nvm current)" ]]; then
-  echo "nvm install" && nvm install
+
+  # shellcheck disable=SC2076
+  [[ ! "$(nvm ls | grep "v$(cat .nvmrc | head -1)") | head -1" =~ "v$(cat .nvmrc | head -1)" ]] && echo "nvm install" && nvm install
   nvm use --delete-prefix "v$(cat .nvmrc | head -1)" --silent
   echo "nvm use" && nvm use
 fi
@@ -702,7 +706,7 @@ if [[ "${setup}" ]]; then
   bannerInfo "Setup"
 
   logInfo "Setting up global packages..."
-  npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest nodemon@latest
+  npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest sort-json@latest nodemon@latest
   executeOnModules setupModule
 fi
 

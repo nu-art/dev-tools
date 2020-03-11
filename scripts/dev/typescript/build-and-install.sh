@@ -523,12 +523,14 @@ function promoteApps() {
 
 function publishNuArt() {
   for module in "${thunderstormLibraries[@]}"; do
-    _cd "${module}/${outputDir}"
+    _pushd "${module}/${outputDir}"
+
     logInfo "publishing module: ${module}"
     copyFileToFolder ../package.json .
     npm publish --access public
     throwError "Error publishing module: ${module}"
-    _cd..
+
+    _popd
   done
 }
 

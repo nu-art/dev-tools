@@ -60,7 +60,7 @@ function deleteDir() {
 
 function _cd() {
   local pathToDir=${1}
-  [[ -n "${pathToDir}" ]] && throwWarning "path is empty" 2
+  [[ -z "${pathToDir}" ]] && throwWarning "path is empty" 2
   cd "${pathToDir}" > /dev/null 2>&1 || throwWarning "$(pwd)/${pathToDir} folder does not exists" 2
 }
 
@@ -70,7 +70,7 @@ function _cd..() {
 
 function _pushd() {
   local pathToDir=${1}
-  [[ -n "${pathToDir}" ]] && throwWarning "path is empty" 2
+  [[ -z "${pathToDir}" ]] && throwWarning "path is empty" 2
   pushd "${pathToDir}" > /dev/null 2>&1 || throwWarning "$(pwd)/${pathToDir} folder does not exists" 2
 }
 

@@ -681,13 +681,13 @@ if [[ "${purge}" ]]; then
   executeOnModules purgeModule
 fi
 
-if [[ ! -d "${HOME}/.nvm" ]]; then
+NVM_DIR="$HOME/.nvm"
+if [[ ! -d "${NVM_DIR}" ]]; then
   logInfo
   bannerInfo "Installing NVM"
 
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
 
-  NVM_DIR="$HOME/.nvm"
   # shellcheck source=./$HOME/.nvm
   nvm install
 
@@ -695,13 +695,12 @@ if [[ ! -d "${HOME}/.nvm" ]]; then
 fi
 
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-[[ "$(nvm current)" == "none" ]] && nvm install
+[[ ! $(assertNVM) ]] && echo "nvm install" && nvm install
+[[ ! $(assertNVM) ]] && echo "nvm use" && nvm use
 
 if [[ "${setup}" ]]; then
   logInfo
   bannerInfo "Setup"
-
-  [[ ! $(assertNVM) ]] && echo "nvm install" && nvm install
 
   logInfo "Setting up global packages..."
   npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest nodemon@latest
@@ -736,8 +735,6 @@ fi
 if [[ "${build}" ]]; then
   logInfo
   bannerInfo "Compile"
-
-  [[ ! $(assertNVM) ]] && echo "nvm use" && nvm use
 
   executeOnModules linkSourcesImpl
   executeOnModules buildModule

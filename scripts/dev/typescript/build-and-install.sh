@@ -34,7 +34,7 @@ modules=()
 
 function assertNVM() {
   [[ ! $(isFunction nvm) ]] && throwError "NVM Does not exist.. Script should have installed it.. let's figure this out"
-  [[ -f ".nvmrc" ]] && return 0
+  [[ -s ".nvmrc" ]] && return 0
 
   return 1
 }
@@ -687,16 +687,15 @@ if [[ ! -d "${NVM_DIR}" ]]; then
   bannerInfo "Installing NVM"
 
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
-
-  # shellcheck source=./$HOME/.nvm
-  nvm install
-
-  nvm use --delete-prefix "v$(cat .nvmrc | head -1)" --silent
 fi
 
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-[[ ! $(assertNVM) ]] && echo "nvm install" && nvm install
-[[ ! $(assertNVM) ]] && echo "nvm use" && nvm use
+# shellcheck source=./$HOME/.nvm
+[ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh" # This loads nvm
+if [[ ! $(assertNVM) ]] && [[ "v$(cat .nvmrc | head -1)" != "$(nvm current)" ]]; then
+  echo "nvm install" && nvm install
+  nvm use --delete-prefix "v$(cat .nvmrc | head -1)" --silent
+  echo "nvm use" && nvm use
+fi
 
 if [[ "${setup}" ]]; then
   logInfo

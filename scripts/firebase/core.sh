@@ -4,7 +4,7 @@ function verifyFirebaseProjectIsAccessible() {
   local firebaseProject=${1}
 
   logDebug "Verifying You are logged in to firebase tools...'"
-  firebase login
+  [[ "${USER,,}" != "jenkins" ]] && firebase login
   logDebug
 
   logDebug "Verifying access to firebase project: '${firebaseProject}'"

@@ -60,7 +60,7 @@ function deleteDir() {
 
 function _cd() {
   local path=${1}
-  cd "${path}" > /dev/null || throwError "$(pwd)/${path} folder does not exists"
+  cd "${path}" > /dev/null || throwError "$(pwd)/${path} folder does not exists" 2
 }
 
 function _cd..() {
@@ -69,11 +69,11 @@ function _cd..() {
 
 function _pushd() {
   local path=${1}
-  pushd "${pathToDir}" > /dev/null 2>&1 || throwError "$(pwd)/${path} folder does not exists"
+  pushd "${pathToDir}" > /dev/null 2>&1 || throwError "$(pwd)/${path} folder does not exists" 2
 }
 
 function _popd() {
-  popd > /dev/null 2>&1 || throwError "folder does not exists"
+  popd > /dev/null 2>&1 || throwError "folder does not exists" 2
 }
 
 function clearFolder() {
@@ -81,7 +81,7 @@ function clearFolder() {
   [[ ! -e "${pathToDir}" ]] && return
 
   _pushd "${pathToDir}"
-    execute "rm -rf *" "Deleting folder content: ${pathToDir}"
+  execute "rm -rf *" "Deleting folder content: ${pathToDir}"
   _popd
 }
 

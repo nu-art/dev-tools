@@ -6,7 +6,7 @@ source ./dev-tools/scripts/node/_source.sh
 
 # shellcheck source=~/.bash_profile
 # shellcheck disable=SC1090
-[[ -e "${HOME}/.bash_profile" ]] && source "${HOME}/.bash_profile"
+#[[ -e "${HOME}/.bash_profile" ]] && source "${HOME}/.bash_profile"
 
 # shellcheck source=./params.sh
 source "${BASH_SOURCE%/*}/params.sh"
@@ -31,6 +31,13 @@ modules=()
 #  DECLARATION  #
 #               #
 #################
+
+function assertNVM() {
+  [[ ! $(isFunction nvm) ]] && throwError "NVM Does not exist.. Script should have installed it.. let's figure this out"
+  [[ -f ".nvmrc" ]] && return 0
+
+  return 1
+}
 
 function signatureThunderstorm() {
   clear
@@ -630,8 +637,6 @@ fi
 
 extractParams "$@"
 
-[[ ! $(isFunction nvm) ]] && throwError "Please install nvm.. and source it in your ~/.bash_profile"
-
 setLogLevel ${tsLogLevel}
 
 if [[ "${printEnv}" ]]; then
@@ -676,12 +681,27 @@ if [[ "${purge}" ]]; then
   executeOnModules purgeModule
 fi
 
+if [[ ! -d "${HOME}/.nvm" ]]; then
+  logInfo
+  bannerInfo "Installing NVM"
+
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+
+  NVM_DIR="$HOME/.nvm"
+  # shellcheck source=./$HOME/.nvm
+  nvm install
+
+  nvm use --delete-prefix "v$(cat .nvmrc | head -1)" --silent
+fi
+
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+[[ "$(nvm current)" == "none" ]] && nvm install
+
 if [[ "${setup}" ]]; then
   logInfo
   bannerInfo "Setup"
 
-  [[ $(isFunction nvm) ]] && [[ -e ".nvmrc" ]] && nvm install
-  [[ $(isFunction nvm) ]] && nvm unalias default
+  [[ ! $(assertNVM) ]] && echo "nvm install" && nvm install
 
   logInfo "Setting up global packages..."
   npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest nodemon@latest
@@ -717,7 +737,7 @@ if [[ "${build}" ]]; then
   logInfo
   bannerInfo "Compile"
 
-  [[ $(isFunction nvm) ]] && [[ -e ".nvmrc" ]] && nvm use
+  [[ ! $(assertNVM) ]] && echo "nvm use" && nvm use
 
   executeOnModules linkSourcesImpl
   executeOnModules buildModule

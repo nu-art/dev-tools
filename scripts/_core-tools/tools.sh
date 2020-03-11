@@ -270,7 +270,7 @@ function joinArray() {
 
 function isFunction() {
   local functionName=${1}
-  [[ $(type -t "${functionName}") != 'function' ]] && echo "function"
+  [[ $(type -t "${functionName}") == 'function' ]] && echo "function"
 }
 
 # shellcheck disable=SC2120

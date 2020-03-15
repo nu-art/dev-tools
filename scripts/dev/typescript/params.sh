@@ -158,13 +158,11 @@ function extractParams() {
 
       #        ==== LAUNCH =====
     "--launch" | "-la")
-      envType=dev
       launchBackend=true
       launchFrontend=true
       ;;
 
     "--launch-backend" | "-lb")
-      envType=dev
       launchBackend=true
       ;;
 

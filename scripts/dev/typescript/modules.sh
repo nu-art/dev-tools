@@ -8,7 +8,6 @@ backendModule=app-backend
 allowedBranchesForPromotion=(master staging dev)
 
 projectModules=(app-backend app-frontend)
-thunderstormLibraries=(ts-common testelot firebase thunderstorm db-api-generator storm live-docs user-account permissions push-pub-sub)
-linkedSourceModules=(app-shared)
+projectLibraries=(app-shared)
 
-dependencyModules=()
+thunderstormLibraries=(ts-common testelot firebase thunderstorm db-api-generator storm live-docs user-account permissions push-pub-sub)

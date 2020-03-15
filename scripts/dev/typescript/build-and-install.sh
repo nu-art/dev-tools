@@ -167,7 +167,7 @@ function testModule() {
   throwError "Error while running tests in:  ${module}"
 }
 
-function linkSourcesImpl() {
+function setVersionImpl() {
   local module=${1}
 
   logVerbose
@@ -186,22 +186,6 @@ function linkSourcesImpl() {
   if [[ $(contains "${module}" "${projectModules[@]}") ]]; then
     logDebug "Setting version '${appVersion}' to module: ${module}"
     setVersionName "${appVersion}"
-
-    for otherModule in "${linkedSourceModules[@]}"; do
-      local target="$(pwd)/src/main/${otherModule}"
-      local origin="$(pwd)/../${otherModule}/src/main/ts"
-
-      createDir "${target}"
-
-      chmod -R 777 "${target}"
-      deleteDir "${target}"
-
-      logVerbose "cp -r ${origin} ${target}"
-      cp -r "${origin}" "${target}"
-
-      [[ "${readOnly}" ]] && chmod -R 444 "${target}"/*
-      throwError "Error symlink dependency: ${otherModule}"
-    done
   fi
 }
 
@@ -480,7 +464,7 @@ function promoteNuArt() {
   logInfo "Submodules are ready for version promotion"
   logInfo "Promoting Libs: ${versionName} => ${nuArtVersion}"
   setVersionName "${nuArtVersion}" "${versionFile}"
-  executeOnModules linkSourcesImpl
+  executeOnModules setVersionImpl
 
   for module in "${thunderstormLibraries[@]}"; do
     _cd "${module}"
@@ -514,7 +498,7 @@ function promoteApps() {
   logInfo "Promoting Apps: ${versionName} => ${appVersion}"
 
   setVersionName "${appVersion}" "${versionFile}"
-  executeOnModules linkSourcesImpl
+  executeOnModules setVersionImpl
 
   gitTag "v${appVersion}" "Promoted apps to: v${appVersion}"
   gitPushTags
@@ -657,7 +641,7 @@ fi
 
 if [[ "${#modules[@]}" == 0 ]]; then
   [[ "${buildThunderstorm}" ]] && modules+=(${thunderstormLibraries[@]})
-  modules+=(${dependencyModules[@]})
+  modules+=(${projectLibraries[@]})
   modules+=(${projectModules[@]})
 fi
 
@@ -741,7 +725,7 @@ if [[ "${build}" ]]; then
   logInfo
   bannerInfo "Compile"
 
-  executeOnModules linkSourcesImpl
+  executeOnModules setVersionImpl
   executeOnModules buildModule
   logInfo "Project Compiled!!"
 fi

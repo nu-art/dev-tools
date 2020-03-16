@@ -89,9 +89,8 @@ function throwErrorImpl() {
   logError
   logError "Exiting with Error code: ${errorCode}"
   echo
-#  exit ${errorCode}
+  exit ${errorCode}
 }
-
 
 function test1() {
   test3
@@ -101,6 +100,6 @@ function test2() {
   throwError "zevel shel zevel" 3
 }
 
-function test3(){
+function test3() {
   test2
 }

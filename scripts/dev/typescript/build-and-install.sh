@@ -8,6 +8,9 @@ source ./dev-tools/scripts/node/_source.sh
 # shellcheck disable=SC1090
 #[[ -e "${HOME}/.bash_profile" ]] && source "${HOME}/.bash_profile"
 
+# shellcheck source=./modules.sh
+source "${BASH_SOURCE%/*}/modules.sh"
+
 # shellcheck source=./params.sh
 source "${BASH_SOURCE%/*}/params.sh"
 
@@ -17,8 +20,6 @@ source "${BASH_SOURCE%/*}/help.sh"
 [[ -e ".scripts/setup.sh" ]] && source .scripts/setup.sh
 [[ -e ".scripts/signature.sh" ]] && source .scripts/signature.sh
 
-# shellcheck source=./modules.sh
-source "${BASH_SOURCE%/*}/modules.sh"
 [[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh
 enforceBashVersion 4.4
 
@@ -610,6 +611,7 @@ if [[ "${dirtyLib}" ]]; then
   logInfo "flagged ${dirtyLib} as dirty... waiting for cleaning team"
   exit 0
 fi
+
 if [[ "${cleanDirt}" ]]; then
   logDebug "Cleaning team is ready, stalling 3 sec for dirt to pile up..."
   sleep 3s
@@ -624,6 +626,7 @@ fi
 #################
 
 extractParams "$@"
+printDebugParams "${debug}" "${params[@]}"
 
 setLogLevel ${tsLogLevel}
 

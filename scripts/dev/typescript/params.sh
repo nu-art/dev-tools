@@ -14,7 +14,6 @@ clean=
 setup=
 readOnly=true
 build=true
-testServiceAccount=
 install=true
 listen=
 linkDependencies=true
@@ -148,6 +147,10 @@ function extractParams() {
       ;;
 
       #        ==== TEST =====
+    "--test" | "-t")
+      [[ ! "${testServiceAccount}" ]] && throwError "MUST specify the path to the testServiceAccount in the .scripts/modules.sh in your project"
+      ;;
+
     "--test="* | "-t="*)
       testServiceAccount=$(regexParam "--test|-t" "${paramValue}")
       ;;

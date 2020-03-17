@@ -19,6 +19,7 @@ listen=
 linkDependencies=true
 linkThunderstorm=
 lint=
+runTests=
 
 launchBackend=
 launchFrontend=
@@ -43,7 +44,7 @@ outputTestDir=dist-test
 
 tsLogLevel=${LOG_LEVEL__INFO}
 
-params=(ThunderstormHome mergeOriginRepo printEnv cloneThunderstorm buildThunderstorm pushNuArtMessage readOnly purge clean setup newVersion linkDependencies install build testServiceAccount lint cleanDirt launchBackend launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
+params=(ThunderstormHome mergeOriginRepo printEnv cloneThunderstorm buildThunderstorm pushNuArtMessage readOnly purge clean setup newVersion linkDependencies install build runTests testServiceAccount lint cleanDirt launchBackend launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
 
 function extractParams() {
   for paramValue in "${@}"; do
@@ -153,6 +154,7 @@ function extractParams() {
 
     "--test="* | "-t="*)
       testServiceAccount=$(regexParam "--test|-t" "${paramValue}")
+      runTests=true
       ;;
 
     "--output-test-dir="* | "-otd="*)

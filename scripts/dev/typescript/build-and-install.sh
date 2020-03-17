@@ -739,7 +739,7 @@ if [[ "${lint}" ]]; then
   executeOnModules lintModule
 fi
 
-if [[ "${testServiceAccount}" ]]; then
+if [[ "${runTests}" ]] && [[ "${testServiceAccount}" ]]; then
   logInfo
   bannerInfo "Test"
   executeOnModules testModule
@@ -759,9 +759,9 @@ if [[ "${launchBackend}" ]]; then
 
   _cd "${backendModule}"
   if [[ "${launchFrontend}" ]]; then
-    npm run serve &
+    npm run launch &
   else
-    npm run serve
+    npm run launch
   fi
   _cd..
 fi
@@ -772,9 +772,9 @@ if [[ "${launchFrontend}" ]]; then
 
   _cd "${frontendModule}"
   if [[ "${launchBackend}" ]]; then
-    npm run dev &
+    npm run launch &
   else
-    npm run dev
+    npm run launch
   fi
   _cd..
 fi

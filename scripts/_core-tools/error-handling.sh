@@ -91,15 +91,3 @@ function throwErrorImpl() {
   echo
   exit ${errorCode}
 }
-
-function test1() {
-  test3
-}
-
-function test2() {
-  throwError "zevel shel zevel" 3
-}
-
-function test3() {
-  test2
-}

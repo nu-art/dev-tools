@@ -57,14 +57,18 @@ function printVersions() {
   logVerbose "Nu-Art version: ${nuArtVersion}"
   logVerbose "App version: ${appVersion}"
   logVerbose
-  local output=$(printf "       %-20s %-25s  %s\n" "Folder" "Package" "Version")
-  logDebug "${output}"
-  executeOnModules printModule
-}
 
-function printModule() {
-  local output=$(printf "Found: %-20s %-25s  %s\n" "${1}" "${2}" "v${3}")
-  logVerbose "${output}"
+  local format="%-$(($(getMaxLength "${modules[@]}") + 2))s %-$(($(getMaxLength "${modulesPackageName[@]}") + 2))s  %s\n"
+  # shellcheck disable=SC2059
+  logDebug "$(printf "       ${format}\n" "Folder" "Package" "Version")"
+
+  for ((i = 0; i < ${#modules[@]}; i += 1)); do
+    local module="${modules[${i}]}"
+    local packageName="${modulesPackageName[${i}]}"
+    local version="${modulesVersion[${i}]}"
+    # shellcheck disable=SC2059
+    logVerbose "$(printf "Found: ${format}\n" "${module}" "${packageName}" "v${version}")"
+  done
 }
 
 function mapModulesVersions() {
@@ -91,6 +95,7 @@ function mapExistingLibraries() {
   local module
   for module in "${modules[@]}"; do
     [[ ! -e "${module}" ]] && continue
+    [[ ! $(shouldUseModule "${module}") ]] && continue
     _modules+=("${module}")
   done
   modules=("${_modules[@]}")
@@ -120,7 +125,7 @@ function usingFrontend() {
   echo true
 }
 
-function shouldBuildModule() {
+function shouldUseModule() {
   [[ $(usingFrontend) ]] && [[ ! $(usingBackend) ]] && [[ "${module}" == "${backendModule}" ]] && return
 
   [[ $(usingBackend) ]] && [[ ! $(usingFrontend) ]] && [[ "${module}" == "${frontendModule}" ]] && return
@@ -138,7 +143,6 @@ function cleanModule() {
 function buildModule() {
   local module=${1}
 
-  [[ ! $(shouldBuildModule "${module}") ]] && return
   [[ "${cleanDirt}" ]] && [[ ! -e ".dirty" ]] && return
 
   logInfo "${module} - Compiling..."
@@ -147,13 +151,19 @@ function buildModule() {
 
   cp package.json "${outputDir}"/
   deleteFile .dirty
+
+  if [[ -e "../${backendModule}" ]] && [[ $(contains "${module}" "${projectLibraries[@]}") ]]; then
+    local backendDependencyPath="../${backendModule}/.dependencies/${module}"
+    createDir "${backendDependencyPath}"
+    cp -r "${outputDir}"/* "${backendDependencyPath}/"
+  fi
+
 }
 
 function testModule() {
   local module=${1}
 
   [[ ! -e "tsconfig-test.json" ]] && return 0
-  [[ ! $(shouldBuildModule "${module}") ]] && return 0
 
   logInfo "${module} - Running tests..."
 
@@ -224,14 +234,14 @@ function linkDependenciesImpl() {
     [[ ! "${moduleVersion}" ]] && continue
 
     local escapedModuleName=${modulePackageName/\//\\/}
-    moduleVersion=$(replaceInText "([0-9+]\\.[0-9]+\\.)[0-9]+" "\10" "${moduleVersion}")
+    moduleVersion=$(replaceInText "([0-9]+\\.[0-9]+\\.)[0-9]+" "\10" "${moduleVersion}")
     logVerbose "Updating dependency version to ${modulePackageName} => ${moduleVersion}"
 
     #        replaceAllInFile "\"${escapedModuleName}\": \".*\"" "\"${escapedModuleName}\": \"~${moduleVersion}\"" package.json
     if [[ $(isMacOS) ]]; then
-      sed -i '' "s/\"${escapedModuleName}\": \".*\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" package.json
+      sed -i '' "s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" package.json
     else
-      sed -i "s/\"${escapedModuleName}\": \".*\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" package.json
+      sed -i "s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" package.json
     fi
     throwError "Error updating version of dependency in package.json"
   done
@@ -240,15 +250,14 @@ function linkDependenciesImpl() {
 # for now this is duplicate for the sake of fast dev... need to combine the above and this one
 function linkThunderstormImpl() {
   local module=${1}
-  local BACKTO=$(pwd)
 
   [[ ! "${internalThunderstormRefs}" ]] && internalThunderstormRefs=(${thunderstormLibraries[@]})
 
   local temp=(${modules[@]})
   modules=(${internalThunderstormRefs[@]})
-  _cd "${ThunderstormHome}"
+  _pushd "${ThunderstormHome}"
   mapModulesVersions
-  _cd "${BACKTO}"
+  _popd
   modules=(${temp[@]})
 
   local i
@@ -347,13 +356,13 @@ function executeOnModules() {
     local version="${modulesVersion[${i}]}"
     [[ ! -e "./${module}" ]] && continue
 
-    _cd "${module}"
+    _pushd "${module}"
     if [[ "${async}" == "true" ]]; then
       ${toExecute} "${module}" "${packageName}" "${version}" &
     else
       ${toExecute} "${module}" "${packageName}" "${version}"
     fi
-    _cd..
+    _popd
   done
 }
 
@@ -381,9 +390,9 @@ function cloneThunderstormModules() {
     if [[ ! -e "${module}" ]]; then
       git clone "git@github.com:nu-art-js/${module}.git"
     else
-      _cd "${module}"
+      _pushd "${module}"
       git pull
-      _cd..
+      _popd
     fi
   done
 }
@@ -408,10 +417,10 @@ function pushNuArt() {
   done
 
   for module in "${thunderstormLibraries[@]}"; do
-    _cd "${module}"
+    _pushd "${module}"
     gitPullRepo
     gitNoConflictsAddCommitPush "${module}" "$(gitGetCurrentBranch)" "${pushNuArtMessage}"
-    _cd..
+    _popd
   done
 }
 
@@ -452,14 +461,14 @@ function promoteNuArt() {
   for module in "${thunderstormLibraries[@]}"; do
     [[ ! -e "${module}" ]] && throwError "In order to promote a version ALL nu-art dependencies MUST be present!!!" 2
 
-    _cd "${module}"
+    _pushd "${module}"
     gitAssertBranch master
     gitAssertRepoClean
     gitFetchRepo
     gitAssertNoCommitsToPull
 
     [[ $(gitAssertTagExists "${nuArtVersion}") ]] && throwError "Tag already exists: v${nuArtVersion}" 2
-    _cd..
+    _popd
   done
 
   logInfo "Submodules are ready for version promotion"
@@ -468,13 +477,13 @@ function promoteNuArt() {
   executeOnModules setVersionImpl
 
   for module in "${thunderstormLibraries[@]}"; do
-    _cd "${module}"
+    _pushd "${module}"
     gitNoConflictsAddCommitPush "${module}" "$(gitGetCurrentBranch)" "Promoted to: v${nuArtVersion}"
 
     gitTag "v${nuArtVersion}" "Promoted to: v${nuArtVersion}"
     gitPushTags
     throwError "Error pushing promotion tag"
-    _cd -
+    _popd
   done
 
   gitNoConflictsAddCommitPush "${module}" "$(gitGetCurrentBranch)" "Promoted infra version to: v${nuArtVersion}"
@@ -527,16 +536,16 @@ function setEnvironment() {
   copyConfigFile "./.config/.firebaserc-ENV_TYPE" ".firebaserc" "${envType}" "${fallbackEnv}"
   if [[ -e "${backendModule}" ]]; then
     logDebug "Setting backend env: ${envType}"
-    _cd "${backendModule}"
+    _pushd "${backendModule}"
     copyConfigFile "./.config/config-ENV_TYPE.ts" "./src/main/config.ts" "${envType}" "${fallbackEnv}"
-    _cd -
+    _popd
   fi
 
   if [[ -e "${frontendModule}" ]]; then
     logDebug "Setting frontend env: ${envType}"
-    _cd "${frontendModule}"
+    _pushd "${frontendModule}"
     copyConfigFile "./.config/config-ENV_TYPE.ts" "./src/main/config.ts" "${envType}" "${fallbackEnv}"
-    _cd - > /dev/null
+    _popd > /dev/null
   fi
 
   local firebaseProject="$(getJsonValueForKey .firebaserc default)"
@@ -664,6 +673,7 @@ fi
 
 mapExistingLibraries
 mapModulesVersions
+printVersions
 
 # BUILD
 if [[ "${purge}" ]]; then
@@ -757,26 +767,26 @@ if [[ "${launchBackend}" ]]; then
   logInfo
   bannerInfo "Launch Backend"
 
-  _cd "${backendModule}"
+  _pushd "${backendModule}"
   if [[ "${launchFrontend}" ]]; then
     npm run launch &
   else
     npm run launch
   fi
-  _cd..
+  _popd
 fi
 
 if [[ "${launchFrontend}" ]]; then
   logInfo
   bannerInfo "Launch Frontend"
 
-  _cd "${frontendModule}"
+  _pushd "${frontendModule}"
   if [[ "${launchBackend}" ]]; then
     npm run launch &
   else
     npm run launch
   fi
-  _cd..
+  _popd
 fi
 
 # Deploy

@@ -20,8 +20,7 @@
 #!/bin/bash
 
 function contains() {
-  local array=(${@:2})
-  for i in "${array[@]}"; do
+  for i in "${@:2}"; do
     if [[ "${i}" == "${1}" ]]; then
       echo "true"
       return
@@ -306,3 +305,26 @@ function match() {
 
   echo "${matches[@]}"
 }
+
+function getMaxLength() {
+  local length=${#1}
+  for item in "$@"; do
+    local itemLength=${#item}
+    ((itemLength > length)) && length=${#item}
+  done
+
+  echo "${length}"
+}
+
+function getMinLength() {
+  local length=${#1}
+  for item in "$@"; do
+    local itemLength=${#item}
+    ((itemLength < length)) && length=${#item}
+  done
+
+  echo "${length}"
+}
+
+#K=("adam" "asdas asda s" "sdsds" asdasdasd asdasdas asdasdaas dasd asasdasdasdadasdasasd we)
+#getMinLength "${K[@]}"

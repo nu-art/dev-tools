@@ -21,85 +21,82 @@
 artifactsIds=()
 
 function installAndroidPackages() {
-	echo
-  	logInfo "------------------------------------------------------------------------------------------------"
-  	logInfo "-----------------------------       Installing Packages...        ------------------------------"
-	local modules=(${1})
+  echo
+  logInfo "------------------------------------------------------------------------------------------------"
+  logInfo "-----------------------------       Installing Packages...        ------------------------------"
+  local modules=(${1})
 
+  for module in "${modules[@]}"; do
+    _pushd "${module}"
+    addSDKVersion
+    addBuildToolVersion
+    _popd
+  done
 
-    for module in "${modules[@]}"; do
-        pushd "${module}"
-            addSDKVersion
-            addBuildToolVersion
-        popd > /dev/null
-    done
+  addConstantVersions
 
-    addConstantVersions
+  addRepositories
+  installArtifacts
 
-    addRepositories
-    installArtifacts
-
-   	logInfo "----------------------------     Packages Installation Completed      ---------------------------"
-  	logInfo "------------------------------------------------------------------------------------------------"
+  logInfo "----------------------------     Packages Installation Completed      ---------------------------"
+  logInfo "------------------------------------------------------------------------------------------------"
 }
 
-
-
 function removeTrailingChar() {
-    local charValueToRemove=${1}
-    local string=${2}
-    local lastCharValue=`printf "%d\n" \'${string:$i-1:1}`
-    if [[ "${lastCharValue}" == "${charValueToRemove}" ]]; then
-        echo "${string:$i1:${#string}-1}"
-    else
-        echo "${string}"
-    fi
+  local charValueToRemove=${1}
+  local string=${2}
+  local lastCharValue=$(printf "%d\n" \'${string:$i-1:1})
+  if [[ "${lastCharValue}" == "${charValueToRemove}" ]]; then
+    echo "${string:$i1:${#string}-1}"
+  else
+    echo "${string}"
+  fi
 }
 
 function addId() {
-    local idToAdd=$1
-    if [[ ${artifactsIds[@]}  =~ ${idToAdd} ]]; then
-        echo already contains id: ${idToAdd}
-    else
-        artifactsIds+="${idToAdd} "
-    fi
+  local idToAdd=$1
+  if [[ ${artifactsIds[@]} =~ ${idToAdd} ]]; then
+    echo already contains id: ${idToAdd}
+  else
+    artifactsIds+="${idToAdd} "
+  fi
 }
 
 function addConstantVersions() {
-    local sdkVersion=`cat gradle.properties | grep "COMPILE_SDK=.*" | sed  -E 's/COMPILE_SDK=//g'`
-    if [[ "${sdkVersion}" ]]; then
-        sdkVersion=`removeTrailingChar 13 ${sdkVersion}`
-        addId "platforms;android-${sdkVersion}"
-    fi
+  local sdkVersion=$(cat gradle.properties | grep "COMPILE_SDK=.*" | sed -E 's/COMPILE_SDK=//g')
+  if [[ "${sdkVersion}" ]]; then
+    sdkVersion=$(removeTrailingChar 13 ${sdkVersion})
+    addId "platforms;android-${sdkVersion}"
+  fi
 
-    local buildTool=`cat gradle.properties | grep "TOOLS_VERSION=" | sed  -E 's/TOOLS_VERSION=//'`
-    if [[ "${buildTool}" ]]; then
-        buildTool=`removeTrailingChar 13 ${buildTool}`
-        addId "build-tools;${buildTool}"
-    fi
+  local buildTool=$(cat gradle.properties | grep "TOOLS_VERSION=" | sed -E 's/TOOLS_VERSION=//')
+  if [[ "${buildTool}" ]]; then
+    buildTool=$(removeTrailingChar 13 ${buildTool})
+    addId "build-tools;${buildTool}"
+  fi
 }
 
 function addSDKVersion() {
-    local sdkVersion=`cat build.gradle | grep "compileSdkVersion .*" | sed  -E 's/compileSdkVersion| //g'`
-    sdkVersion=`removeTrailingChar 13 ${sdkVersion}`
-    addId "platforms;android-${sdkVersion} "
+  local sdkVersion=$(cat build.gradle | grep "compileSdkVersion .*" | sed -E 's/compileSdkVersion| //g')
+  sdkVersion=$(removeTrailingChar 13 ${sdkVersion})
+  addId "platforms;android-${sdkVersion} "
 }
 
 function addBuildToolVersion() {
-   local buildTool=`cat build.gradle | grep "buildToolsVersion \".*\"" | sed  -E 's/buildToolsVersion| |"//g'`
-    buildTool=`removeTrailingChar 13 ${buildTool}`
-    addId "build-tools;${buildTool} "
+  local buildTool=$(cat build.gradle | grep "buildToolsVersion \".*\"" | sed -E 's/buildToolsVersion| |"//g')
+  buildTool=$(removeTrailingChar 13 ${buildTool})
+  addId "build-tools;${buildTool} "
 }
 
 function addRepositories() {
-    artifactsIds+="extras;google;google_play_services "
-    artifactsIds+="extras;android;m2repository "
-    artifactsIds+="extras;google;m2repository "
+  artifactsIds+="extras;google;google_play_services "
+  artifactsIds+="extras;android;m2repository "
+  artifactsIds+="extras;google;m2repository "
 }
 
 function installArtifacts() {
-    for artifactsId in ${artifactsIds[@]}; do
-        echo "---${artifactsId}---"
-        echo "y" |  ${ANDROID_HOME}/tools/bin/sdkmanager "${artifactsId}"
-    done
+  for artifactsId in ${artifactsIds[@]}; do
+    echo "---${artifactsId}---"
+    echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager "${artifactsId}"
+  done
 }

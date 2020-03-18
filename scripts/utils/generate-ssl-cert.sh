@@ -18,28 +18,30 @@
 #  limitations under the License.
 
 #!/bin/bash
+source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
 
-for (( lastParam=1; lastParam<=$#; lastParam+=1 )); do
-    paramValue="${!lastParam}"
-    case ${paramValue} in
-        "--output="*)
-            outputFolder=`regexParam "--output" "${paramValue}"`
-        ;;
+for ((lastParam = 1; lastParam <= $#; lastParam += 1)); do
+  paramValue="${!lastParam}"
+  case ${paramValue} in
+  "--output="*)
+    outputFolder=$(regexParam "--output" "${paramValue}")
+    echo "outputFolder=${outputFolder}"
+    ;;
 
-        "--postfix="*)
-            postfix=`regexParam "--postfix" "${paramValue}"`
-            postfix="-${postfix}"
-        ;;
+  "--postfix="*)
+    postfix=$(regexParam "--postfix" "${paramValue}")
+    postfix="-${postfix}"
+    ;;
 
-        "--domain="*)
-            domain=`regexParam "--domain" "${paramValue}"`
-        ;;
+  "--domain="*)
+    domain=$(regexParam "--domain" "${paramValue}")
+    ;;
 
-        "*")
-            echo "UNKNOWN PARAM: ${paramValue}"
-            exit 1
-        ;;
-    esac
+  "*")
+    echo "UNKNOWN PARAM: ${paramValue}"
+    exit 1
+    ;;
+  esac
 done
 
 if [[ ! "${domain}" ]]; then
@@ -59,18 +61,18 @@ certificateFile="${outputFolder}/server-cert${postfix}.pem"
 keyFile="${outputFolder}/server-key${postfix}.pem"
 
 openssl req \
-    -newkey rsa:2048 \
-    -x509 \
-    -nodes \
-    -keyout "${tempFile}" \
-    -new \
-    -out "${certificateFile}" \
-    -subj /CN=${domain} \
-    -reqexts SAN \
-    -extensions SAN \
-    -config <(cat /System/Library/OpenSSL/openssl.cnf \
-        <(printf "[SAN]\nsubjectAltName=DNS:${domain}")) \
-    -sha256 \
-    -days 3650
+  -newkey rsa:2048 \
+  -x509 \
+  -nodes \
+  -keyout "${tempFile}" \
+  -new \
+  -out "${certificateFile}" \
+  -subj /CN=${domain} \
+  -reqexts SAN \
+  -extensions SAN \
+  -config <(cat /System/Library/OpenSSL/openssl.cnf \
+    <(printf "[SAN]\nsubjectAltName=DNS:${domain}")) \
+  -sha256 \
+  -days 3650
 
 openssl rsa -in "${tempFile}" -out "${keyFile}"

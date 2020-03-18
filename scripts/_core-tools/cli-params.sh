@@ -19,91 +19,92 @@
 
 #!/bin/bash
 
-
 function regexParam() {
-    local value=`echo "${2}" | sed -E "s/(${1})=(.*)/\2/"`
-    echo "${value}"
+  local value=$(echo "${2}" | sed -E "s/(${1})=(.*)/\2/")
+  echo "${value}"
 }
 
 function removePrefix() {
-    echo "${1}"
+  echo "${1}"
 }
 
 function makeItSo() {
-    echo "true"
+  echo "true"
 }
 
 function getBashVersion() {
-    echo `bash --version | grep version | head -1 | sed -E "s/.* version (.*)\(.*\(.*/\1/"`
+  # shellcheck disable=SC2005
+  echo "$(bash --version | grep version | head -1 | sed -E "s/.* version (.*)\(.*\(.*/\1/")"
 }
 
 function installBash() {
-    logInfo "Installing bash... this can take some time"
-    brew install bash 2> error
-    local output=`cat error`
-    rm error
+  logInfo "Installing bash... this can take some time"
+  brew install bash 2> error
+  local output=$(cat error)
+  rm error
 
-    [[ "${output}" =~ "brew upgrade bash" ]] && brew upgrade bash 2> error
+  [[ "${output}" =~ "brew upgrade bash" ]] && brew upgrade bash 2> error
 
-    if [[ "${output}" =~ "brew: command not found" ]]; then
-        logInfo "So... a new computer... ?? installing homebrew ;)"
-        /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-    fi
+  if [[ "${output}" =~ "brew: command not found" ]]; then
+    logInfo "So... a new computer... ?? installing homebrew ;)"
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  fi
 }
 
 function enforceBashVersion() {
-    local _minVersion=${1}
-    local _bashVersion=`getBashVersion`
+  local _minVersion=${1}
+  local _bashVersion=$(getBashVersion)
 
-    [[ ! `checkMinVersion ${_bashVersion} ${_minVersion}` ]] && return
+  [[ ! $(checkMinVersion ${_bashVersion} ${_minVersion}) ]] && return
 
-    logError "Found unsupported 'bash' version: ${_bashVersion}"
-    logError "Required min version: ${_minVersion}\n ..."
-    yesOrNoQuestion "Would you like to install latest 'bash' version [y/n]:" "installBash && logInfo \"Please re-run command..\" && exit 0 " "logError \"Terminating process...\" && exit 2"
+  logError "Found unsupported 'bash' version: ${_bashVersion}"
+  logError "Required min version: ${_minVersion}\n ..."
+  yesOrNoQuestion "Would you like to install latest 'bash' version [y/n]:" "installBash && logInfo \"Please re-run command..\" && exit 0 " "logError \"Terminating process...\" && exit 2"
 }
 
 function printDebugParams() {
-    local debug=${1}
-    [[ ! "${debug}" ]] && return
+  local debug=${1}
+  [[ ! "${debug}" ]] && return
 
-    local params=("${@}")
-    params=("${params[@]}")
+  local params=("${@}")
+  params=("${params[@]}")
 
-    function printParam() {
-        if [[ ! "${2}" ]]; then
-            return
-        fi
+  function printParam() {
+    if [[ ! "${2}" ]]; then
+      return
+    fi
 
-        logDebug "--  ${1}: ${2}"
-    }
+    logDebug "--  ${1}: ${2}"
+  }
 
-    logInfo "------- DEBUG: PARAMS -------"
-    logDebug "--"
-    local bashVersion=`getBashVersion`
-    printParam "bashVersion" "${bashVersion}"
+  logInfo "------- DEBUG: PARAMS -------"
+  logDebug "--"
+  local bashVersion=$(getBashVersion)
+  printParam "bashVersion" "${bashVersion}"
 
-    for param in "${params[@]}"; do
-        local value=("${!param}")
-        printParam ${param} "${value}"
-    done
-    logDebug "--"
-    logInfo "----------- DEBUG -----------"
-    logVerbose
-    sleep 3s
+  for param in "${params[@]}"; do
+    local value=("${!param}")
+    # shellcheck disable=SC2128
+    printParam "${param}" "${value}"
+  done
+  logDebug "--"
+  logInfo "----------- DEBUG -----------"
+  logVerbose
+  sleep 3s
 }
 
 function printCommand() {
-    local params=("${@}")
-    local command=" "
-    command="${command}${NoColor}"
-#    clear
-    logVerbose
-    logVerbose
-    logVerbose
-    logDebug "Command:"
-    logVerbose "  ${Cyan}${0}${NoColor}"
-    for param in "${params[@]}"; do
-        logVerbose "       ${Purple}${param}${NoColor}"
-    done
-    logVerbose
+  local params=("${@}")
+  local command=" "
+  command="${command}${NoColor}"
+  #    clear
+  logVerbose
+  logVerbose
+  logVerbose
+  logDebug "Command:"
+  logVerbose "  ${Cyan}${0}${NoColor}"
+  for param in "${params[@]}"; do
+    logVerbose "       ${Purple}${param}${NoColor}"
+  done
+  logVerbose
 }

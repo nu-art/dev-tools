@@ -14,14 +14,14 @@ clean=
 setup=
 readOnly=true
 build=true
-testServiceAccount=
 install=true
 listen=
 linkDependencies=true
+linkThunderstorm=
 lint=
+runTests=
 
 launchBackend=
-runBackendTests=
 launchFrontend=
 
 envType=
@@ -39,203 +39,217 @@ buildThunderstorm=true
 modulesPackageName=()
 modulesVersion=()
 
-params=(ThunderstormHome mergeOriginRepo printEnv cloneThunderstorm buildThunderstorm pushNuArtMessage readOnly purge clean setup newVersion linkDependencies install build testServiceAccount lint cleanDirt launchBackend runBackendTests launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
+outputDir=dist
+outputTestDir=dist-test
+
+tsLogLevel=${LOG_LEVEL__INFO}
+
+params=(ThunderstormHome mergeOriginRepo printEnv cloneThunderstorm buildThunderstorm pushNuArtMessage readOnly purge clean setup newVersion linkDependencies install build runTests testServiceAccount lint cleanDirt launchBackend launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
 
 function extractParams() {
-    for paramValue in "${@}"; do
-        case "${paramValue}" in
-            "--help")
-                printHelp
-            ;;
+  for paramValue in "${@}"; do
+    case "${paramValue}" in
+    "--help")
+      printHelp
+      ;;
 
-            "--print-env")
-                printEnv=true
-            ;;
+    "--print-env")
+      printEnv=true
+      build=
+      linkThunderstorm=
+      linkDependencies=
+      ;;
 
-            "--debug")
-                debug=true
-            ;;
+    "--debug")
+      debug=true
+      ;;
 
-            "--merge-origin")
-                mergeOriginRepo=true
-            ;;
+    "--merge-origin")
+      mergeOriginRepo=true
+      ;;
 
-            "--use-thunderstorm-sources")
-                cloneThunderstorm=true
-                setup=true
-                linkDependencies=true
-                purge=true
-                clean=true
-            ;;
+    "--use-thunderstorm-sources")
+      cloneThunderstorm=true
+      setup=true
+      linkDependencies=true
+      purge=true
+      clean=true
+      ;;
 
-            "--push="*)
-                pushNuArtMessage=`regexParam "--push" "${paramValue}"`
-            ;;
+    "--push="*)
+      pushNuArtMessage=$(regexParam "--push" "${paramValue}")
+      ;;
 
-#        ==== CLEAN =====
-            "--purge")
-                purge=true
-                clean=true
-            ;;
+      #        ==== CLEAN =====
+    "--purge")
+      purge=true
+      clean=true
+      ;;
 
-            "--clean")
-                clean=true
-            ;;
+    "--clean")
+      clean=true
+      ;;
 
+      #        ==== BUILD =====
+    "--setup" | "-s")
+      setup=true
+      linkDependencies=true
+      ;;
 
-#        ==== BUILD =====
-            "--setup" | "-s")
-                setup=true
-                linkDependencies=true
-            ;;
+    "--unlink" | "-u")
+      setup=true
+      ;;
 
-            "--unlink" | "-u")
-                setup=true
-            ;;
+    "--allow-write" | "-aw")
+      readOnly=
+      ;;
 
-            "--allow-write" | "-aw")
-                readOnly=
-            ;;
+    "--link" | "-l")
+      linkDependencies=true
+      ;;
 
-            "--link" | "-l")
-                linkDependencies=true
-            ;;
+    "--link-only" | "-lo")
+      linkDependencies=true
+      build=
+      ;;
 
-            "--link-only" | "-lo")
-                linkDependencies=true
-                build=
-            ;;
+    "--no-build" | "-nb")
+      build=
+      ;;
 
-            "--no-build" | "-nb")
-                build=
-            ;;
+    "--no-link" | "-nl")
+      linkDependencies=
+      linkThunderstorm=
+      ;;
 
-            "--no-thunderstorm" | "-nts")
-                buildThunderstorm=
-                ThunderstormHome=
-            ;;
+    "--no-thunderstorm" | "-nts")
+      buildThunderstorm=
+      ThunderstormHome=
+      ;;
 
-            "--thunderstorm-home="* | "-th="*)
-                linkDependencies=true
-                linkThunderstorm=true
-                local temp=`regexParam "--thunderstorm-home|-th" "${paramValue}"`
-                [[ "${temp}" ]] && ThunderstormHome="${temp}"
-            ;;
+    "--thunderstorm-home="* | "-th="*)
+      linkDependencies=true
+      linkThunderstorm=true
+      local temp=$(regexParam "--thunderstorm-home|-th" "${paramValue}")
+      [[ "${temp}" ]] && ThunderstormHome="${temp}"
+      ;;
 
-            "--lint")
-                lint=true
-            ;;
+    "--lint")
+      lint=true
+      ;;
 
-            "--rebuild-on-change" | "-roc")
-                listen=true
-                build=
-            ;;
+    "--rebuild-on-change" | "-roc")
+      listen=true
+      build=
+      ;;
 
+    "--output-dir="* | "-od="*)
+      outputDir=$(regexParam "--output-dir|-od" "${paramValue}")
+      ;;
 
-#        ==== TEST =====
-            "--test="* | "-t="*)
-                testServiceAccount=`regexParam "--test|-t" "${paramValue}"`
-            ;;
+      #        ==== TEST =====
+    "--test" | "-t")
+      [[ ! "${testServiceAccount}" ]] && throwError "MUST specify the path to the testServiceAccount in the .scripts/modules.sh in your project"
+      ;;
 
-            "--run-backend-tests" | "-rbt")
-                runBackendTests=true
-                launchFrontend=
-                build=
-            ;;
+    "--test="* | "-t="*)
+      testServiceAccount=$(regexParam "--test|-t" "${paramValue}")
+      runTests=true
+      ;;
 
-            "--launch-backend-test-mode" | "-lbtm")
-                launchBackend=true
-                launchFrontend=
-                linkDependencies=true
-                envType=test
-                build=
-            ;;
+    "--output-test-dir="* | "-otd="*)
+      outputTestDir=$(regexParam "--output-test-dir|-otd" "${paramValue}")
+      ;;
 
-#        ==== LAUNCH =====
-            "--launch" | "-la")
-                envType=dev
-                launchBackend=true
-                launchFrontend=true
-            ;;
+      #        ==== LAUNCH =====
+    "--launch" | "-la")
+      launchBackend=true
+      launchFrontend=true
+      ;;
 
-            "--launch-backend" | "-lb")
-                envType=dev
-                launchBackend=true
-            ;;
+    "--launch-backend" | "-lb")
+      launchBackend=true
+      ;;
 
-            "--launch-frontend" | "-lf")
-                launchFrontend=true
-            ;;
+    "--launch-frontend" | "-lf")
+      launchFrontend=true
+      ;;
 
-#        ==== DEPLOY =====
-            "--deploy" | "-d")
-                deployBackend=true
-                deployFrontend=true
-                lint=true
-            ;;
+      #        ==== DEPLOY =====
+    "--deploy" | "-d")
+      deployBackend=true
+      deployFrontend=true
+      lint=true
+      ;;
 
-            "--deploy-backend" | "-db")
-                deployBackend=true
-                lint=true
-            ;;
+    "--deploy-backend" | "-db")
+      deployBackend=true
+      lint=true
+      ;;
 
-            "--deploy-frontend" | "-df")
-                deployFrontend=true
-                lint=true
-            ;;
+    "--deploy-frontend" | "-df")
+      deployFrontend=true
+      lint=true
+      ;;
 
-            "--quick-deploy" | "-qd")
-                lint=
-                build=
-                install=
-                linkDependencies=
-            ;;
+    "--quick-deploy" | "-qd")
+      lint=
+      build=
+      install=
+      linkDependencies=
+      ;;
 
-            "--set-env="* | "-se="*)
-                envType=`regexParam "--set-env|-se" "${paramValue}"`
-            ;;
+    "--set-env="* | "-se="*)
+      envType=$(regexParam "--set-env|-se" "${paramValue}")
+      ;;
 
-            "--fallback-env="* | "-fe="*)
-                fallbackEnv=`regexParam "--fallback-env|-fe" "${paramValue}"`
-            ;;
+    "--fallback-env="* | "-fe="*)
+      fallbackEnv=$(regexParam "--fallback-env|-fe" "${paramValue}")
+      ;;
 
-            "--set-version="* | "-sv="*)
-                newAppVersion=`regexParam "--set-version|-sv" "${paramValue}"`
-                linkDependencies=true
-                build=true
-                lint=true
-            ;;
+    "--set-version="* | "-sv="*)
+      newAppVersion=$(regexParam "--set-version|-sv" "${paramValue}")
+      linkDependencies=true
+      build=true
+      lint=true
+      ;;
 
+      #        ==== OTHER =====
+    "--log="*)
+      local _logLevelKey=$(regexParam "--log" "${paramValue}")
+      local logLevelKey=LOG_LEVEL__${_logLevelKey^^}
+      tsLogLevel=${!logLevelKey}
+      [[ ! ${tsLogLevel} ]] && tsLogLevel=${LOG_LEVEL__INFO}
+      ;;
 
-#        ==== OTHER =====
-            "--clean-dirt")
-                cleanDirt=true
-                clean=true
-            ;;
+    "--clean-dirt")
+      cleanDirt=true
+      clean=true
+      ;;
 
-            "--flag-dirty="*)
-                dirtyLib=`regexParam "--flag-dirty" "${paramValue}"`
-            ;;
+    "--flag-dirty="*)
+      dirtyLib=$(regexParam "--flag-dirty" "${paramValue}")
+      ;;
 
-            "--publish" | "-p")
-                clean=true
-                build=true
-                publish=true
-                lint=true
-            ;;
+    "--publish" | "-p")
+      clean=true
+      build=true
+      publish=true
+      lint=true
+      ;;
 
-            "--version-nu-art="* | "-vn="*)
-                promoteNuArtVersion=`regexParam "--version-nu-art|-vn" "${paramValue}"`
-                linkDependencies=true
-                build=true
-                lint=true
-            ;;
+    "--version-nu-art="* | "-vn="*)
+      promoteNuArtVersion=$(regexParam "--version-nu-art|-vn" "${paramValue}")
+      linkDependencies=true
+      build=true
+      lint=true
+      ;;
 
-#        ==== ERRORS & DEPRECATION =====
+      #        ==== ERRORS & DEPRECATION =====
 
-            *)
-                logWarning "UNKNOWN PARAM: ${paramValue}";
-            ;;
-        esac
-    done
+    *)
+      logWarning "UNKNOWN PARAM: ${paramValue}"
+      ;;
+    esac
+  done
 }

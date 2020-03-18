@@ -18,7 +18,7 @@ function jsonSerialize() {
         local value=`${instance}.${member}`
         [[ ! ${value} ]] && continue
 
-        [[ ! `isFunction ${value}.__class` ]] && value=`jsonSerialize ${value}`
+        [[ `isFunction ${value}.__class` ]] && value=`jsonSerialize ${value}`
 
         [[ "${value:0:1}" != "{" ]] || [[ "${value: -1}" != "}" ]] && value=`echo "${value}" | sed -E 's/"/\\\"/g'` && value="\"${value}\""
 #        _logInfo "${value}"

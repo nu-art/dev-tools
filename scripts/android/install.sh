@@ -19,46 +19,83 @@
 
 #!/bin/bash
 
-installAndroidSDK() {
-    sudo mkdir /var/lib/jenkins/android-sdk
-    cd /var/lib/jenkins/android-sdk
+installAndroidSDK_JENKINS() {
+  sudo mkdir /var/lib/jenkins/android-sdk
+  _cd /var/lib/jenkins/android-sdk
 
-    logInfo "Resolving latest Android tools SDK..."
-    local latestLinuxSDK=`curl -s "https://developer.android.com/studio#downloads" | grep sdk-tools-linux-[0-9] | head -1 | sed -E "s/.*(sdk-tools-linux-.*.zip).*/\1/"`
-    throwError "Error resolving latest Android tools SDK"
+  logInfo "Resolving latest Android tools SDK..."
+  local latestSDK=$(curl -s "https://developer.android.com/studio#downloads" | grep "commandlinetools-linux-[0-9]" | head -1 | sed -E "s/.*(commandlinetools-linux-.*.zip).*/\1/")
+  throwError "Error resolving latest Android tools SDK"
 
-    if [[ ! "${latestLinuxSDK}" ]]; then
-        throwError "Could not find latest Android tools SDK" 2
-    fi
+  [[ ! "${latestSDK}" ]] && throwError "Could not find latest Android tools SDK" 2
 
-    logInfo "Downloading Android tools SDK..."
-    sudo wget https://dl.google.com/android/repository/${latestLinuxSDK}
-    throwError "Could not find latest Android tools SDK"
+  logInfo "Downloading Android tools SDK..."
+  sudo wget https://dl.google.com/android/repository/"${latestSDK}"
+  throwError "Could not find latest Android tools SDK"
 
-    sudo mv ${latestLinuxSDK} sdk-tools-linux.zip
+  sudo mv "${latestSDK}" sdk-tools-linux.zip
 
-    logInfo "Unzip Android tools SDK..."
-    sudo unzip sdk-tools-linux.zip
-    throwError "Could not unzip Android SDK"
+  logInfo "Unzip Android tools SDK..."
+  sudo unzip sdk-tools-linux.zip
+  throwError "Could not unzip Android SDK"
 
-    logInfo "Deleting sdk zip file"
-    sudo rm sdk-tools-linux.zip
-    throwError "Could delete zip file"
+  logInfo "Deleting sdk zip file"
+  sudo rm sdk-tools-linux.zip
+  throwError "Could delete zip file"
 
-    logInfo "Allow permissions to jenkins"
-    sudo chown -R jenkins:jenkins /var/lib/jenkins/android-sdk
+  logInfo "Allow permissions to jenkins"
+  sudo chown -R jenkins:jenkins /var/lib/jenkins/android-sdk
 }
 
-setupAndroidEnvironmentVariables() {
-    if [[ ! `cat /etc/environment | grep USE_SDK_WRAPPER` ]]; then
-        echo 'USE_SDK_WRAPPER=true' | sudo tee --append /etc/environment > /dev/null
-    fi
+installAndroidSDK_MAC() {
+  local pathToAndroidHome=${HOME}/Library/Android/sdk
+  local sdkZipName=android-sdk.zip
+  mkdir -p "${pathToAndroidHome}"
+  _pushd "${pathToAndroidHome}"
 
-    if [[ ! `cat /etc/environment | grep ANDROID_HOME` ]]; then
-        echo 'ANDROID_HOME=/var/lib/jenkins/android-sdk' | sudo tee --append /etc/environment > /dev/null
-    fi
+  logInfo "Resolving latest Android tools SDK..."
+  local latestSDK=$(curl -s "https://developer.android.com/studio#downloads" | grep "commandlinetools-mac-[0-9]" | head -1 | sed -E "s/.*(commandlinetools-mac-.*.zip).*/\1/")
+  throwError "Error resolving latest Android tools SDK"
 
-    if [[ ! `cat /etc/environment | grep ANDROID_NDK_HOME` ]]; then
-        echo 'ANDROID_NDK_HOME=/var/lib/jenkins/android-sdk/ndk-bundle' | sudo tee --append /etc/environment > /dev/null
-    fi
+  [[ ! "${latestSDK}" ]] && throwError "Could not find latest Android tools SDK" 2
+
+  logInfo "Downloading Android tools SDK..."
+  curl https://dl.google.com/android/repository/"${latestSDK}" -o "${sdkZipName}"
+  throwError "Could not find latest Android tools SDK"
+
+  logInfo "Unzip Android tools SDK..."
+  unzip "${sdkZipName}"
+  throwError "Could not unzip Android SDK"
+
+  logInfo "Deleting sdk zip file"
+  rm "${sdkZipName}"
+  throwError "Could delete zip file"
 }
+
+setupAndroidEnvironmentVariables_MAC() {
+  local profileFile="${HOME}/.bash_profile"
+  if [[ ! $(cat "${profileFile}" | grep ANDROID_HOME) ]]; then
+    echo "export ANDROID_HOME=${HOME}/Library/Android/sdk" | tee --append "${profileFile}" > /dev/null
+  fi
+
+  if [[ ! $(cat "${profileFile}" | grep ANDROID_NDK_HOME) ]]; then
+    echo "export ANDROID_NDK_HOME=${HOME}/Library/Android/sdk/ndk-bundle" | tee --append "${profileFile}" > /dev/null
+  fi
+}
+
+setupAndroidEnvironmentVariables_JENKINS() {
+  if [[ ! $(cat /etc/environment | grep USE_SDK_WRAPPER) ]]; then
+    echo 'USE_SDK_WRAPPER=true' | sudo tee --append /etc/environment > /dev/null
+  fi
+
+  if [[ ! $(cat /etc/environment | grep ANDROID_HOME) ]]; then
+    echo 'ANDROID_HOME=/var/lib/jenkins/android-sdk' | sudo tee --append /etc/environment > /dev/null
+  fi
+
+  if [[ ! $(cat /etc/environment | grep ANDROID_NDK_HOME) ]]; then
+    echo 'ANDROID_NDK_HOME=/var/lib/jenkins/android-sdk/ndk-bundle' | sudo tee --append /etc/environment > /dev/null
+  fi
+}
+
+source dev-tools/scripts/_core-tools/_source.sh
+setupAndroidEnvironmentVariables_MAC

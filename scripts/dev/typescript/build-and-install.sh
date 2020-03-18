@@ -651,10 +651,14 @@ if [[ "${printEnv}" ]]; then
   exit 0
 fi
 
-if [[ "${#modules[@]}" == 0 ]]; then
+if (("${#modules[@]}" == 0)); then
   [[ "${buildThunderstorm}" ]] && modules+=(${thunderstormLibraries[@]})
   modules+=(${projectLibraries[@]})
   modules+=(${projectModules[@]})
+fi
+
+if (("${#libsToRun[@]}" > 0)); then
+  modules=(${libsToRun[@]})
 fi
 
 if [[ "${mergeOriginRepo}" ]]; then

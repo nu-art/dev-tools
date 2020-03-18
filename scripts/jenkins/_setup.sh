@@ -132,8 +132,8 @@ executeCommand "sudo ufw allow 22" "Open port 22"
 executeCommand "sudo ufw status" "Status of ufw"
 
 # Install Android SDK
-executeCommand "installAndroidSDK" "Install Android SDK"
-executeCommand "setupAndroidEnvironmentVariables" "Setup Android SDK and NDK Environment"
+executeCommand "installAndroidSDK_JENKINS" "Install Android SDK"
+executeCommand "setupAndroidEnvironmentVariables_JENKINS" "Setup Android SDK and NDK Environment"
 
 
 executeCommand "sudo cat /var/lib/jenkins/secrets/initialAdminPassword" "Displaying Jenkins Admin Password"

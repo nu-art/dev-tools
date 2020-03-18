@@ -43,6 +43,7 @@ outputDir=dist
 outputTestDir=dist-test
 
 tsLogLevel=${LOG_LEVEL__INFO}
+libsToRun=()
 
 params=(ThunderstormHome mergeOriginRepo printEnv cloneThunderstorm buildThunderstorm pushNuArtMessage readOnly purge clean setup newVersion linkDependencies install build runTests testServiceAccount lint cleanDirt launchBackend launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
 
@@ -91,6 +92,11 @@ function extractParams() {
       ;;
 
       #        ==== BUILD =====
+    "--use-library="* | "-ul="*)
+      local lib=$(regexParam "--use-library|-ul" "${paramValue}")
+      libsToRun+=("${lib}")
+      ;;
+
     "--setup" | "-s")
       setup=true
       linkDependencies=true
@@ -150,6 +156,7 @@ function extractParams() {
       #        ==== TEST =====
     "--test" | "-t")
       [[ ! "${testServiceAccount}" ]] && throwError "MUST specify the path to the testServiceAccount in the .scripts/modules.sh in your project"
+      runTests=true
       ;;
 
     "--test="* | "-t="*)

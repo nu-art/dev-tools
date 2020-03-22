@@ -122,12 +122,8 @@ function promptForFirebaseProjectLocationRepo() {
 }
 
 function installNpmPackages() {
-  logInfo "Verify required npm packages are installed"
-  verifyNpmPackageInstalledGlobally "typescript" 3.7.5
-  verifyNpmPackageInstalledGlobally "tslint" 5.20.0
-  verifyNpmPackageInstalledGlobally "firebase-tools" 7.6.2
-  verifyNpmPackageInstalledGlobally "nodemon" 1.19.3
-  verifyNpmPackageInstalledGlobally "sort-package-json" 1.39.1
+  logInfo "Verify required npm packages are installed gloabally"
+  npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest sort-json@latest nodemon@latest
   logInfo
 }
 
@@ -196,7 +192,7 @@ function uploadDefaultConfigToFirebase() {
 }
 
 function forkThunderstorm() {
-  local forkingOutput="${const_LogFolder}/${firebaseProject}_forking_${const_Timestamp}.json"
+  local forkingOutput="${const_LogFolder}/${firebaseProject}_forking_${const_Timestamp}.log.txt"
   logInfo "Forking Thunderstorm boilerplate into...  ${repoUrl}"
   bash ./dev-tools/scripts/git/git-fork.sh --to=${repoUrl} --output=${localPath} > ${forkingOutput}
   throwError "Error while forking Thunderstorm... logs can be found here: ${forkingOutput}"
@@ -217,7 +213,7 @@ function replaceBoilerplateNamesWithNewForkedNames() {
 }
 
 function prepareForkedProjectEnvironment() {
-  local output="${const_LogFolder}/${firebaseProject}_prepare_${const_Timestamp}.json"
+  local output="${const_LogFolder}/${firebaseProject}_prepare_${const_Timestamp}.log.txt"
   logInfo "Preparing project env..."
   bash build-and-install.sh -se=dev -nb > ${output}
   throwError "Error while Preparing forked Thunderstorm... logs can be found here: ${output}"
@@ -229,14 +225,14 @@ function pushPreparedProjectToRepo() {
 }
 
 function setupForkedProject() {
-  local output="${const_LogFolder}/${firebaseProject}_setup_${const_Timestamp}.json"
+  local output="${const_LogFolder}/${firebaseProject}_setup_${const_Timestamp}.log.txt"
   logInfo "Running initial setup of forked repo..."
   bash build-and-install.sh -se=dev --setup > ${output}
   throwError "Error while setting up forked Thunderstorm... logs can be found here: ${output}"
 }
 
 function launchForkedProject() {
-  local output="${const_LogFolder}/${firebaseProject}_launch_${const_Timestamp}.json"
+  local output="${const_LogFolder}/${firebaseProject}_launch_${const_Timestamp}.log.txt"
   logInfo "Launching forked project..."
   bash ./build-and-install.sh -lf -lb > ${output}
   throwError "Error while launching forked Thunderstorm... logs can be found here: ${output}"
@@ -289,4 +285,5 @@ function start() {
   #    echo "The Firebase project location: ${firebaseProjectLocation}"
 }
 
+installAndUseNvmIfNeeded
 start

@@ -6,19 +6,10 @@ alias kn='killall 9 node'
 alias kj='killall 9 java'
 
 alias bai='bash build-and-install.sh --debug'
-alias bai-test='bash build-and-install.sh --debug --test-mode'
-alias bait-test='bash build-and-install.sh --debug --test-mode --no-som'
-alias bais-test='bash build-and-install.sh --debug --test-mode --no-tablet'
-
-alias baia='bash build-and-install.sh --debug --agent-only'
-alias bait='bash build-and-install.sh --debug --no-som'
-alias bais='bash build-and-install.sh --debug --no-tablet'
 
 # Typescript Boilerplate
-alias deploy-test='bash build-and-install.sh -se=test --setup -df -db'
 alias deploy-staging='bash build-and-install.sh -se=staging --setup -df -db'
 alias deploy-prod='bash build-and-install.sh -se=prod --setup -df -db'
-
 
 # Git Scripts
 function gitcommitpush() {

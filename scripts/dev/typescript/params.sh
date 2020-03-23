@@ -50,7 +50,7 @@ params=(ThunderstormHome mergeOriginRepo printEnv cloneThunderstorm buildThunder
 function extractParams() {
   for paramValue in "${@}"; do
     case "${paramValue}" in
-    "--help")
+    "--help" | "-h")
       printHelp
       ;;
 

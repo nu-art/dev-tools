@@ -26,7 +26,7 @@ function printHelp() {
     logVerbose
     logVerbose "   ${pc}--purge${noColor}"
     logVerbose "        ${dc}Will delete the node_modules folder in all modules${noColor}"
-    logVerbose "        ${dc}Will perform --clean{noColor}"
+    logVerbose "        ${dc}Will perform --clean${noColor}"
     logVerbose
     logVerbose "   ${pc}--clean${noColor}"
     logVerbose "        ${dc}Will delete the output(dist) & test output(dist-test) folders in all modules${noColor}"

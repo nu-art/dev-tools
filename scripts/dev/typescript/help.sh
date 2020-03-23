@@ -18,7 +18,7 @@ function printHelp() {
     logVerbose "        ${dc}Will print the current versions of the important tools${noColor}"
     logVerbose
     logVerbose "   ${pc}--use-thunderstorm-sources${noColor}"
-    logVerbose "        ${dc}Will print the current versions of the important tools${noColor}"
+    logVerbose "        ${dc}Will clone thunderstorm libraries${noColor}"
     logVerbose
     logVerbose
 
@@ -29,29 +29,29 @@ function printHelp() {
     logVerbose "        ${dc}Will perform --clean{noColor}"
     logVerbose
     logVerbose "   ${pc}--clean${noColor}"
-    logVerbose "        ${dc}Will delete the dist folder in all modules${noColor}"
+    logVerbose "        ${dc}Will delete the output(dist) & test output(dist-test) folders in all modules${noColor}"
     logVerbose
     logVerbose
 
     logVerbose " ==== ${group}BUILD:${noColor} ===="
     logVerbose
     logVerbose "   ${pc}--setup${noColor}"
-    logVerbose "        ${dc}Will link all modules and create link dependencies${noColor}"
+    logVerbose "        ${dc}Will link the project and run npm install in all packages${noColor}"
     logVerbose
     logVerbose "   ${pc}--unlink${noColor}"
     logVerbose "        ${dc}Will purge & setup without dependencies${noColor}"
     logVerbose
     logVerbose "   ${pc}--link | -l${noColor}"
-    logVerbose "        ${dc}Would link dependencies between projects${noColor}"
+    logVerbose "        ${dc}Would link dependencies between packages${noColor}"
     logVerbose
     logVerbose "   ${pc}--link-only | -lo${noColor}"
-    logVerbose "        ${dc}Would ONLY link dependencies between projects${noColor}"
+    logVerbose "        ${dc}Would ONLY link dependencies between packages${noColor}"
     logVerbose
     logVerbose "   ${pc}--no-build | -nb${noColor}"
-    logVerbose "        ${dc}Skip the build${noColor}"
+    logVerbose "        ${dc}Skip the build step${noColor}"
     logVerbose
     logVerbose "   ${pc}--no-thunderstorm | -nts${noColor}"
-    logVerbose "        ${dc}Completely ignore Thunderstorm infra${noColor}"
+    logVerbose "        ${dc}Completely ignore Thunderstorm infra whether it exists or not in the project${noColor}"
     logVerbose
     logVerbose "   ${pc}--lint${noColor}"
     logVerbose "        ${dc}Run lint on all the packages${noColor}"
@@ -62,18 +62,18 @@ function printHelp() {
     logVerbose "   ${pc}--thunderstorm-home=<${param}path-to-thunderstorm${pc}> | -th=<${param}path-to-thunderstorm${pc}>${noColor}"
     logVerbose "        ${dc}Will link the output folder of the libraries of thunderstorm that exists under the give path${noColor}"
     logVerbose
+    logVerbose "   ${pc}--use-package | -up${noColor}"
+    logVerbose "        ${dc}Would ONLY link dependencies between packages${noColor}"
+    logVerbose
     logVerbose
 
     logVerbose " ==== ${group}TEST:${noColor} ===="
     logVerbose
-    logVerbose "   ${pc}--test-modules | -tm${noColor}"
+    logVerbose "   ${pc}--test | -t${noColor}"
     logVerbose "        ${dc}Run tests in all modules${noColor}"
     logVerbose
-    logVerbose "   ${pc}--launch-backend-test-mode | -lbtm${noColor}"
-    logVerbose "        ${dc}Setting project env to test and running the backend locally${noColor}"
-    logVerbose
-    logVerbose "   ${pc}--run-backend-tests | -rbt{noColor}"
-    logVerbose "        ${dc}Run the backend test${noColor}"
+    logVerbose "   ${pc}--test=<${param}path-to-test-service-account${pc}> | -t=<${param}path-to-test-service-account${pc}>${noColor}"
+    logVerbose "        ${dc}Will run the tests with the service account file provided${noColor}"
     logVerbose
     logVerbose
 
@@ -103,6 +103,9 @@ function printHelp() {
     logVerbose
     logVerbose "   ${pc}--set-env=<${param}envType${pc}> | -se=<${param}envType${pc}>${noColor}"
     logVerbose "        ${dc}Will set the .config-\${envType}.json as the current .config.json and prepare it as base 64 for local usage${noColor}"
+    logVerbose
+    logVerbose "   ${pc}--fallback-env=<${param}envType${pc}> | -fe=<${param}envType${pc}>${noColor}"
+    logVerbose "        ${dc}when setting env some of the files might be missing and would fallback to the provided env${noColor}"
     logVerbose
     logVerbose
 

@@ -97,6 +97,11 @@ function extractParams() {
       libsToRun+=("${lib}")
       ;;
 
+    "--use-package="* | "-up="*)
+      local lib=$(regexParam "--use-package|-up" "${paramValue}")
+      libsToRun+=("${lib}")
+      ;;
+
     "--setup" | "-s")
       setup=true
       linkDependencies=true
@@ -104,10 +109,6 @@ function extractParams() {
 
     "--unlink" | "-u")
       setup=true
-      ;;
-
-    "--allow-write" | "-aw")
-      readOnly=
       ;;
 
     "--link" | "-l")

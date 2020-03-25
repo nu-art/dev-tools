@@ -19,6 +19,7 @@ listen=
 linkDependencies=true
 linkThunderstorm=
 lint=
+checkCircularImports=
 runTests=
 
 launchBackend=
@@ -45,7 +46,7 @@ outputTestDir=dist-test
 tsLogLevel=${LOG_LEVEL__INFO}
 libsToRun=()
 
-params=(ThunderstormHome mergeOriginRepo printEnv cloneThunderstorm buildThunderstorm pushNuArtMessage readOnly purge clean setup newVersion linkDependencies install build runTests testServiceAccount lint cleanDirt launchBackend launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
+params=(ThunderstormHome mergeOriginRepo printEnv cloneThunderstorm buildThunderstorm pushNuArtMessage readOnly purge clean setup newVersion linkDependencies install build runTests testServiceAccount lint checkCircularImports cleanDirt launchBackend launchFrontend envType promoteNuArtVersion promoteAppVersion deployBackend deployFrontend version publish)
 
 function extractParams() {
   for paramValue in "${@}"; do
@@ -143,6 +144,10 @@ function extractParams() {
 
     "--lint")
       lint=true
+      ;;
+
+    "--check-imports" | "-ci")
+      checkCircularImports=true
       ;;
 
     "--rebuild-on-change" | "-roc")

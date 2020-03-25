@@ -603,6 +603,14 @@ function lintModule() {
   throwError "Error while linting:  ${module}"
 }
 
+function checkImportsModule() {
+  local module=${1}
+
+  logInfo "${module} - Checking imports..."
+  npx madge --circular --extensions ts ./src/main
+  throwError "Error found circular imports:  ${module}"
+}
+
 #################
 #               #
 #    PREPARE    #
@@ -735,6 +743,12 @@ if [[ "${lint}" ]]; then
   logInfo
   bannerInfo "Lint"
   executeOnModules lintModule
+fi
+
+if [[ "${checkCircularImports}" ]]; then
+  logInfo
+  bannerInfo "Checking Circular Imports"
+  executeOnModules checkImportsModule
 fi
 
 if [[ "${runTests}" ]] && [[ "${testServiceAccount}" ]]; then

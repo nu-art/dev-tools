@@ -326,5 +326,11 @@ function getMinLength() {
   echo "${length}"
 }
 
+function random() {
+  local numberOfVariations=$1
+  local number=$((1 + (RANDOM * RANDOM * RANDOM) % numberOfVariations))
+  echo "${number}"
+}
 #K=("adam" "asdas asda s" "sdsds" asdasdasd asdasdas asdasdaas dasd asasdasdasdadasdasasd we)
 #getMinLength "${K[@]}"
+#generateRandomNumber 8

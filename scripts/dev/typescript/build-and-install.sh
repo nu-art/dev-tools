@@ -663,6 +663,7 @@ if (("${#modules[@]}" == 0)); then
   [[ "${buildThunderstorm}" ]] && modules+=(${thunderstormLibraries[@]})
   modules+=(${projectLibraries[@]})
   modules+=(${projectModules[@]})
+  modules=($(filterDuplicates "${modules[@]}"))
 fi
 
 if (("${#libsToRun[@]}" > 0)); then

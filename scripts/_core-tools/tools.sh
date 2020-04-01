@@ -19,6 +19,11 @@
 
 #!/bin/bash
 
+## @function: contains(item, ...list)
+##
+## @description: Check if an item is in a list
+##
+## @return: true if contained, null otherwise
 function contains() {
   for i in "${@:2}"; do
     if [[ "${i}" == "${1}" ]]; then
@@ -27,6 +32,26 @@ function contains() {
     fi
   done
 }
+
+## @function: contains(...list)
+##
+## @description: filters duplicated items in the list
+##
+## @return: a filtered list with every item existing only once in it
+function filterDuplicates() {
+  local list=(${@})
+  local filteredList=()
+
+  for item in ${list[@]} ; do
+      [[ $(contains "${item}" ${filteredList[@]}) ]] && continue
+#      echo "adding item: ${item}"
+
+      filteredList+=(${item})
+  done
+
+  echo "${filteredList[@]}"
+}
+
 
 function setDefaultAndroidHome() {
   if [[ "${ANDROID_HOME}" ]]; then

@@ -138,6 +138,11 @@ function cleanModule() {
   logDebug "${module} - Cleaning..."
   clearFolder "${outputDir}"
   clearFolder "${outputTestDir}"
+
+  if [[ -e "../${backendModule}" ]] && [[ $(contains "${module}" "${projectLibraries[@]}") ]]; then
+    local backendDependencyPath="../${backendModule}/.dependencies/${module}"
+    deleteDir "${backendDependencyPath}"
+  fi
 }
 
 function buildModule() {
@@ -155,7 +160,7 @@ function buildModule() {
   if [[ -e "../${backendModule}" ]] && [[ $(contains "${module}" "${projectLibraries[@]}") ]]; then
     local backendDependencyPath="../${backendModule}/.dependencies/${module}"
     createDir "${backendDependencyPath}"
-    cp -r "${outputDir}"/* "${backendDependencyPath}/"
+    cp -rf "${outputDir}"/* "${backendDependencyPath}/"
   fi
 
 }
@@ -238,8 +243,10 @@ function linkDependenciesImpl() {
     logVerbose "Updating dependency version to ${modulePackageName} => ${moduleVersion}"
 
     #        replaceAllInFile "\"${escapedModuleName}\": \".*\"" "\"${escapedModuleName}\": \"~${moduleVersion}\"" package.json
+#    echo sed -i '' -E "s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" package.json
+
     if [[ $(isMacOS) ]]; then
-      sed -i '' "s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" package.json
+      sed -i '' -E "s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" package.json
     else
       sed -i "s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" package.json
     fi
@@ -383,20 +390,6 @@ function mapModule() {
   modulesVersion+=("${version}")
 }
 
-function cloneThunderstormModules() {
-  local module
-  for module in "${thunderstormLibraries[@]}"; do
-    logInfo " * Cloning Submodule : ${module}"
-    if [[ ! -e "${module}" ]]; then
-      git clone "git@github.com:nu-art-js/${module}.git"
-    else
-      _pushd "${module}"
-      git pull
-      _popd
-    fi
-  done
-}
-
 function mergeFromFork() {
   local repoUrl=$(gitGetRepoUrl)
   [[ "${repoUrl}" == "${boilerplateRepo}" ]] && throwError "HAHAHAHA.... You need to be careful... this is not a fork..." 2
@@ -409,19 +402,6 @@ function mergeFromFork() {
   throwError "Need to resolve conflicts...."
 
   git submodule update dev-tools
-}
-
-function pushNuArt() {
-  for module in "${thunderstormLibraries[@]}"; do
-    [[ ! -e "${module}" ]] && throwError "In order to promote a version ALL nu-art dependencies MUST be present!!!" 2
-  done
-
-  for module in "${thunderstormLibraries[@]}"; do
-    _pushd "${module}"
-    gitPullRepo
-    gitNoConflictsAddCommitPush "${module}" "$(gitGetCurrentBranch)" "${pushNuArtMessage}"
-    _popd
-  done
 }
 
 function deriveVersionType() {
@@ -445,7 +425,7 @@ function deriveVersionType() {
 
 function promoteNuArt() {
   local versionFile="version-nu-art.json"
-  local promotionType="$(deriveVersionType "${promoteNuArtVersion}")"
+  local promotionType="$(deriveVersionType "${promoteThunderstormVersion}")"
   local versionName="$(getVersionName "${versionFile}")"
   nuArtVersion="$(promoteVersion "${versionName}" "${promotionType}")"
 
@@ -670,20 +650,6 @@ if (("${#libsToRun[@]}" > 0)); then
   modules=(${libsToRun[@]})
 fi
 
-if [[ "${mergeOriginRepo}" ]]; then
-  logInfo
-  bannerInfo "Merge Origin"
-  mergeFromFork
-  logInfo "Merged from origin boilerplate... DONE"
-  exit 0
-fi
-
-if [[ "${cloneThunderstorm}" ]]; then
-  logInfo
-  bannerInfo "Cloning Thunderstorm sources"
-  cloneThunderstormModules
-fi
-
 mapExistingLibraries
 mapModulesVersions
 printVersions
@@ -819,14 +785,9 @@ fi
 
 # OTHER
 
-if [[ "${pushNuArtMessage}" ]]; then
-  bannerInfo "pushNuArtMessage"
-  pushNuArt
-fi
-
-if [[ "${promoteNuArtVersion}" ]]; then
+if [[ "${promoteThunderstormVersion}" ]]; then
   logInfo
-  bannerInfo "promoteNuArtVersion"
+  bannerInfo "promoteThunderstormVersion"
 
   gitAssertOrigin "${boilerplateRepo}"
   promoteNuArt

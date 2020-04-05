@@ -1,9 +1,8 @@
 /*
- * This file is a part of nu-art projects development tools,
- * it has a set of bash and gradle scripts, and the default
- * settings for Android Studio and IntelliJ.
+ * Permissions management system, define access level for each of
+ * your server apis, and restrict users by giving them access levels
  *
- * Copyright (C) 2017  Adam van der Kruk aka TacB0sS
+ * Copyright (C) 2020 Adam van der Kruk aka TacB0sS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

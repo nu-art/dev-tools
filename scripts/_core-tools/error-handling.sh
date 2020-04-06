@@ -22,6 +22,7 @@
 ERROR_OUTPUT_FILE=
 function setErrorOutputFile() {
   ERROR_OUTPUT_FILE=${1}
+  deleteFile "${ERROR_OUTPUT_FILE}"
 }
 
 function throwError() {
@@ -94,7 +95,6 @@ function throwErrorImpl() {
     done
   }
 
-  [[ "${ERROR_OUTPUT_FILE}" ]] && [[ -e "${ERROR_OUTPUT_FILE}" ]] && deleteFile "${ERROR_OUTPUT_FILE}"
   logException
   logException "  ERROR: ${errorMessage}"
   printStacktrace

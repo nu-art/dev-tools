@@ -19,6 +19,11 @@
 
 #!/bin/bash
 
+ERROR_OUTPUT_FILE=
+function setErrorOutputFile() {
+  ERROR_OUTPUT_FILE=${1}
+}
+
 function throwError() {
   ERROR_CODE=$?
 
@@ -61,6 +66,11 @@ function throwErrorImpl() {
     fixSource "${file}"
   }
 
+  function logException() {
+    logError "${1}"
+    [[ "${ERROR_OUTPUT_FILE}" ]] && echo "${1}" >> ${ERROR_OUTPUT_FILE}
+  }
+
   function printStacktrace() {
     local length=0
     for ((arg = 2; arg < ${#FUNCNAME[@]}; arg += 1)); do
@@ -79,15 +89,18 @@ function throwErrorImpl() {
       local lineNumber="[${BASH_LINENO[${arg} - 1]}]"
       lineNumber=$(printf "%6s" "${lineNumber}")
 
-      logError "    ${sourceFile} ${lineNumber} ${FUNCNAME[${arg}]}"
+      logException "    ${sourceFile} ${lineNumber} ${FUNCNAME[${arg}]}"
+
     done
   }
 
-  logError
-  logError "  ERROR: ${errorMessage}"
+  [[ "${ERROR_OUTPUT_FILE}" ]] && [[ -e "${ERROR_OUTPUT_FILE}" ]] && deleteFile "${ERROR_OUTPUT_FILE}"
+  logException
+  logException "  ERROR: ${errorMessage}"
   printStacktrace
-  logError
-  logError "Exiting with Error code: ${errorCode}"
-  echo
+  logException
+  logException "Exiting with Error code: ${errorCode}"
+  logException
+
   exit ${errorCode}
 }

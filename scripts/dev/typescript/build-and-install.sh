@@ -4,9 +4,7 @@ source ./dev-tools/scripts/git/_core.sh
 source ./dev-tools/scripts/firebase/core.sh
 source ./dev-tools/scripts/node/_source.sh
 
-# shellcheck source=~/.bash_profile
-# shellcheck disable=SC1090
-#[[ -e "${HOME}/.bash_profile" ]] && source "${HOME}/.bash_profile"
+setErrorOutputFile "$(pwd)/error_message.txt"
 
 # shellcheck source=./modules.sh
 source "${BASH_SOURCE%/*}/modules.sh"
@@ -21,6 +19,7 @@ source "${BASH_SOURCE%/*}/help.sh"
 [[ -e ".scripts/signature.sh" ]] && source .scripts/signature.sh
 
 [[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh
+
 enforceBashVersion 4.4
 
 appVersion=

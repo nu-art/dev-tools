@@ -79,15 +79,15 @@ log() {
 
     local color=${LOG_COLORS[${level}]}
 
-    [[ "${override}" == "true" ]] && _override="n"
+    [[ "${override}" ]] && _override="n"
 
-    (( ${level} < ${logLevel}  )) && return
+    (( level < logLevel  )) && return
 
 #    For Debug
 #    echo "echo -e${_override} \"${color}${logMessage}${NoColor}\"\\r"
     startTimer "log-tools"
-    local duration=`calcDuration "rootTimer"`
-    logDate="(${duration}) "`date +"%Y-%m-%d_%H:%M:%S"`
+    local duration=$(calcDuration "rootTimer")
+    logDate="(${duration}) "$(date +"%Y-%m-%d_%H:%M:%S")
     logMessage=${logMessage//$'\n'/'\n'${NoColor}${logDate} ${color}}
     echo -e${_override} "${logDate}  ${color}${logMessage}${NoColor}"\\r
 }

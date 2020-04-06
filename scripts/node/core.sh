@@ -51,7 +51,8 @@ function installAndUseNvmIfNeeded() {
   if [[ ! $(assertNVM) ]] && [[ "v$(cat .nvmrc | head -1)" != "$(nvm current)" ]]; then
 
     # shellcheck disable=SC2076
-    [[ ! "$(nvm ls | grep "v$(cat .nvmrc | head -1)") | head -1" =~ "v$(cat .nvmrc | head -1)" ]] && echo "nvm install" && nvm install
+#    [[ ! "$(nvm ls | grep "v$(cat .nvmrc | head -1)") | head -1" =~ "v$(cat .nvmrc | head -1)" ]] && echo "nvm install" && nvm install
+    echo "nvm install" && nvm install
     nvm use --delete-prefix "v$(cat .nvmrc | head -1)" --silent
     echo "nvm use" && nvm use
   fi

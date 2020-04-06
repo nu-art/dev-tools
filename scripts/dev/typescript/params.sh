@@ -107,7 +107,7 @@ function extractParams() {
       ;;
 
     "--setup" | "-s")
-      #Will run 'npm install' iqqqn all project packages
+      #Will run 'npm install' in all project packages
       #Will perform --link
       setup=true
       linkDependencies=true

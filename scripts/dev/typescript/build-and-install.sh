@@ -719,6 +719,7 @@ if [[ "${checkCircularImports}" ]]; then
 fi
 
 if [[ "${runTests}" ]] && [[ "${testServiceAccount}" ]]; then
+  export GOOGLE_APPLICATION_CREDENTIALS="${testServiceAccount}"
   logInfo
   bannerInfo "Test"
   executeOnModules testModule

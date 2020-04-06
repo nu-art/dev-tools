@@ -9,7 +9,7 @@ source "${BASH_SOURCE%/*}/modules.sh"
 
 const_BoilerplateFirebaseProject=nu-art-thunderstorm
 const_BoilerplateLocation=us-central1
-const_LogFolder="$(pwd)/.fork"
+const_LogFolder="$(pwd)/.trash/fork"
 const_Timestamp=$(date +%Y-%m-%d--%H-%M-%S)
 
 repoUrl=git@github.com:nu-art-js/thunderclone.git

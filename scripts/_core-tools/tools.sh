@@ -240,7 +240,7 @@ function replaceStringInFiles() {
   local replaceWith="${replaceWith//\//\\/}"
 
   #    echo sed -i '' -E "s/${matchPattern}/${replaceWith}/g" ${file}
-  for file in ${files[@]}; do
+  for file in "${files[@]}"; do
     echo "${file}"
     if [[ $(isMacOS) ]]; then
       sed -i '' -E "s/${matchPattern}/${replaceWith}/g" "${file}"

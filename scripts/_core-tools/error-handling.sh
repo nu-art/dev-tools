@@ -18,6 +18,7 @@
 #  limitations under the License.
 
 #!/bin/bash
+__RunninrPWD="$(pwd)"
 
 ERROR_OUTPUT_FILE=
 function setErrorOutputFile() {
@@ -54,11 +55,13 @@ function throwWarning() {
 function throwErrorImpl() {
   local errorMessage=${1}
   local errorCode=${2}
-  local _pwd=$(pwd)
+  local _pwd="${__RunninrPWD}/"
 
   function fixSource() {
     local file=$(echo "${1}" | sed -E "s/(.*)\/[a-zA-Z_-]+\/\.\.\/(.*)/\1\/\2/")
-    file=$(echo "${1}" | sed -E "s/${_pwd//\//\\/}/./")
+
+    local escapedPWD="${_pwd//\//\\/}"
+    file="$(echo "${1}" | sed -E "s/${escapedPWD}//")"
     if [[ "${file}" == "${1}" ]]; then
       echo "${file}"
       return
@@ -69,32 +72,32 @@ function throwErrorImpl() {
 
   function logException() {
     logError "${1}"
-    [[ "${ERROR_OUTPUT_FILE}" ]] && echo "${1}" >> ${ERROR_OUTPUT_FILE}
+    [[ "${ERROR_OUTPUT_FILE}" ]] && echo "${1}" >> "${ERROR_OUTPUT_FILE}"
   }
 
   function printStacktrace() {
-    local length=0
+    local sourceFiles=()
     for ((arg = 2; arg < ${#FUNCNAME[@]}; arg += 1)); do
-      local sourceFile=$(fixSource "${BASH_SOURCE[${arg}]}")
-      if ((${#sourceFile} > length)); then
-        length=${#sourceFile}
-      fi
+      sourceFiles+=("$(fixSource "${BASH_SOURCE[${arg}]}")")
     done
 
-    logError "  pwd: ${_pwd}"
-    logError "  Stack:"
+    local length="$(getMaxLength "${sourceFiles[@]}")"
+
+    logException "  Stack:"
     for ((arg = 2; arg < ${#FUNCNAME[@]}; arg += 1)); do
-      local sourceFile=$(fixSource "${BASH_SOURCE[${arg}]}")
-      sourceFile=$(printf "%${length}s" "${sourceFile}")
+      local _lineNumber="[${BASH_LINENO[${arg} - 1]}]"
+      local _sourceFile="${sourceFiles[((arg - 2))]}"
 
-      local lineNumber="[${BASH_LINENO[${arg} - 1]}]"
-      lineNumber=$(printf "%6s" "${lineNumber}")
+      local sourceFile=$(printf "%s" "${_sourceFile}")
+      local lineNumber=$(printf "%$((6 + length - ${#sourceFile}))s" "${_lineNumber}")
 
-      logException "    ${sourceFile} ${lineNumber} ${FUNCNAME[${arg}]}"
-
+      logException "    ./${sourceFile} ${lineNumber} ${FUNCNAME[${arg}]}"
     done
   }
 
+  logException
+  logException "        pwd: ${__RunninrPWD}"
+  logException "  error pwd: $(pwd)"
   logException
   logException "  ERROR: ${errorMessage}"
   printStacktrace

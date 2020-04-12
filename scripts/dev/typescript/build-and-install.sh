@@ -463,15 +463,17 @@ function promoteThunderstorm() {
     esac
   }
 
-  gitAssertOrigin "${boilerplateRepo}"
-  assertRepoAndSubmodulesAreClean
-  logInfo "Promoting thunderstorm packages: ${versionName} => ${thunderstormVersion}"
 
   local versionFile="version-thunderstorm.json"
   local promotionType="$(deriveVersionType "${promoteThunderstormVersion}")"
   local versionName="$(getVersionName "${versionFile}")"
   thunderstormVersion="$(promoteVersion "${versionName}" "${promotionType}")"
+
+  logInfo "Promoting thunderstorm packages: ${versionName} => ${thunderstormVersion}"
+
   setVersionName "${thunderstormVersion}" "${versionFile}"
+  gitAssertOrigin "${boilerplateRepo}"
+  assertRepoAndSubmodulesAreClean
 }
 
 function pushThunderstormLibs() {

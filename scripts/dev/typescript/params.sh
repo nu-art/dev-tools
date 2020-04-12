@@ -2,9 +2,6 @@
 
 debug=
 
-dirtyLib=
-cleanDirt=
-
 purge=
 clean=
 
@@ -43,7 +40,7 @@ outputTestDir=dist-test
 tsLogLevel=${LOG_LEVEL__INFO}
 libsToRun=()
 
-params=(ThunderstormHome printEnv buildThunderstorm readOnly purge clean setup newVersion linkDependencies install build runTests testServiceAccount lint checkCircularImports cleanDirt launchBackend launchFrontend envType promoteThunderstormVersion promoteAppVersion deployBackend deployFrontend version publish)
+params=(ThunderstormHome printEnv buildThunderstorm readOnly purge clean setup newVersion linkDependencies install build runTests testServiceAccount lint checkCircularImports launchBackend launchFrontend envType promoteThunderstormVersion promoteAppVersion deployBackend deployFrontend version publish)
 
 function extractParams() {
   for paramValue in "${@}"; do
@@ -196,23 +193,27 @@ function extractParams() {
       #        ==== LAUNCH ====
     "--launch" | "-la")
       #Will launch both frontend & backend
+
       launchBackend=true
       launchFrontend=true
       ;;
 
     "--launch-backend" | "-lb")
       #Will launch ONLY backend
+
       launchBackend=true
       ;;
 
     "--launch-frontend" | "-lf")
       #Will launch ONLY frontend
+
       launchFrontend=true
       ;;
 
       #        ==== DEPLOY ====
     "--deploy" | "-d")
       #Will compile, build, lint and deploy both frontend & backend
+
       deployBackend=true
       deployFrontend=true
       lint=true
@@ -220,12 +221,14 @@ function extractParams() {
 
     "--deploy-backend" | "-db")
       #Will compile, build, lint and deploy ONLY the backend
+
       deployBackend=true
       lint=true
       ;;
 
     "--deploy-frontend" | "-df")
       #Will compile, build, lint and deploy ONLY the frontend
+
       deployFrontend=true
       lint=true
       ;;
@@ -243,6 +246,7 @@ function extractParams() {
     "--set-version="* | "-sv="*)
       #Set application version before deploy
       #PARAM=x.y.z
+
       newAppVersion=$(regexParam "--set-version|-sv" "${paramValue}")
       linkDependencies=true
       build=true
@@ -253,28 +257,33 @@ function extractParams() {
     "--log="*)
       #Set the script log level
       #PARAM=[verbose | debug | info | warning | error]
+
       local _logLevelKey=$(regexParam "--log" "${paramValue}")
       local logLevelKey=LOG_LEVEL__${_logLevelKey^^}
       tsLogLevel=${!logLevelKey}
       [[ ! ${tsLogLevel} ]] && tsLogLevel=${LOG_LEVEL__INFO}
       ;;
 
-    "--publish")
-      #IGNORE: will publish thunderstorm
+    "--publish="*)
+      #IGNORE: Will publish thunderstorm && promote thunderstorm version
+      #PARAM=[patch | minor | major]
 
+      promoteThunderstormVersion=$(regexParam "--version-nu-art|-vn" "${paramValue}")
+      linkDependencies=true
       clean=true
       build=true
       publish=true
       lint=true
       ;;
 
-    "--version-nu-art="* | "-vn="*)
-      #IGNORE: will promote thunderstorm version
-      #PARAM=[patch | minor | major]
+    "--publish")
+      #IGNORE: Will publish thunderstorm && promote thunderstorm version to patch
 
-      promoteThunderstormVersion=$(regexParam "--version-nu-art|-vn" "${paramValue}")
+      promoteThunderstormVersion=patch
       linkDependencies=true
+      clean=true
       build=true
+      publish=true
       lint=true
       ;;
 

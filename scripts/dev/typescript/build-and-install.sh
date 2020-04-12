@@ -5,6 +5,7 @@ source ./dev-tools/scripts/firebase/core.sh
 source ./dev-tools/scripts/node/_source.sh
 
 setErrorOutputFile "$(pwd)/error_message.txt"
+BuildFile__watch="$(pwd)/.trash/build/watch.txt"
 
 # shellcheck source=./modules.sh
 source "${BASH_SOURCE%/*}/modules.sh"
@@ -23,7 +24,7 @@ source "${BASH_SOURCE%/*}/help.sh"
 enforceBashVersion 4.4
 
 appVersion=
-nuArtVersion=
+thunderstormVersion=
 modules=()
 
 #################
@@ -31,6 +32,22 @@ modules=()
 #  DECLARATION  #
 #               #
 #################
+
+function mapModule() {
+  function getModulePackageName() {
+    local packageName=$(cat package.json | grep '"name":' | head -1 | sed -E "s/.*\"name\".*\"(.*)\",?/\1/")
+    echo "${packageName}"
+  }
+
+  function getModuleVersion() {
+    local version=$(cat package.json | grep '"version":' | head -1 | sed -E "s/.*\"version\".*\"(.*)\",?/\1/")
+    echo "${version}"
+  }
+  local packageName=$(getModulePackageName)
+  local version=$(getModuleVersion)
+  modulesPackageName+=("${packageName}")
+  modulesVersion+=("${version}")
+}
 
 function assertNVM() {
   [[ ! $(isFunction nvm) ]] && throwError "NVM Does not exist.. Script should have installed it.. let's figure this out"
@@ -53,7 +70,7 @@ function signatureThunderstorm() {
 
 function printVersions() {
   logVerbose
-  logVerbose "Nu-Art version: ${nuArtVersion}"
+  logVerbose "Thunderstorm version: ${thunderstormVersion}"
   logVerbose "App version: ${appVersion}"
   logVerbose
 
@@ -73,7 +90,7 @@ function printVersions() {
 function mapModulesVersions() {
   modulesPackageName=()
   modulesVersion=()
-  [[ ! "${nuArtVersion}" ]] && [[ -e "version-nu-art.json" ]] && nuArtVersion=$(getVersionName "version-nu-art.json")
+  [[ ! "${thunderstormVersion}" ]] && [[ -e "version-thunderstorm.json" ]] && thunderstormVersion=$(getVersionName "version-thunderstorm.json")
 
   [[ "${newAppVersion}" ]] && appVersion=${newAppVersion}
 
@@ -94,42 +111,75 @@ function mapExistingLibraries() {
   local module
   for module in "${modules[@]}"; do
     [[ ! -e "${module}" ]] && continue
-    [[ ! $(shouldUseModule "${module}") ]] && continue
     _modules+=("${module}")
   done
   modules=("${_modules[@]}")
+}
+
+# Lifecycle
+function executeOnModules() {
+  local toExecute=${1}
+
+  local i
+  for ((i = 0; i < ${#modules[@]}; i += 1)); do
+    local module="${modules[${i}]}"
+    local packageName="${modulesPackageName[${i}]}"
+    local version="${modulesVersion[${i}]}"
+    [[ ! -e "./${module}" ]] && continue
+
+    _pushd "${module}"
+    ${toExecute} "${module}" "${packageName}" "${version}"
+    _popd
+  done
+}
+
+function setEnvironment() {
+  function copyConfigFile() {
+    local filePattern=${1}
+    local targetFile=${2}
+
+    local envs=(${@:3})
+
+    for env in ${envs[@]}; do
+      local envConfigFile=${filePattern//ENV_TYPE/${env}}
+      [[ ! -e "${envConfigFile}" ]] && continue
+
+      logDebug "Setting ${targetFile} from env: ${env}"
+      cp "${envConfigFile}" "${targetFile}"
+      return 0
+    done
+
+    throwError "Could not find a match for target file: ${targetFile} in envs: ${envs[@]}" 2
+  }
+
+  logInfo "Setting envType: ${envType}"
+  [[ "${fallbackEnv}" ]] && logWarning " -- Fallback env: ${fallbackEnv}"
+
+  copyConfigFile "./.config/firebase-ENV_TYPE.json" "firebase.json" "${envType}" "${fallbackEnv}"
+  copyConfigFile "./.config/.firebaserc-ENV_TYPE" ".firebaserc" "${envType}" "${fallbackEnv}"
+  if [[ -e "${backendModule}" ]]; then
+    logDebug "Setting backend env: ${envType}"
+    _pushd "${backendModule}"
+    copyConfigFile "./.config/config-ENV_TYPE.ts" "./src/main/config.ts" "${envType}" "${fallbackEnv}"
+    _popd
+  fi
+
+  if [[ -e "${frontendModule}" ]]; then
+    logDebug "Setting frontend env: ${envType}"
+    _pushd "${frontendModule}"
+    copyConfigFile "./.config/config-ENV_TYPE.ts" "./src/main/config.ts" "${envType}" "${fallbackEnv}"
+    _popd > /dev/null
+  fi
+
+  local firebaseProject="$(getJsonValueForKey .firebaserc default)"
+  verifyFirebaseProjectIsAccessible "${firebaseProject}"
+  firebase use "${firebaseProject}"
 }
 
 function purgeModule() {
   logInfo "Purge module: ${1}"
   deleteDir node_modules
   [[ -e "package-lock.json" ]] && rm package-lock.json
-}
-
-function usingBackend() {
-  if [[ ! "${deployBackend}" ]] && [[ ! "${launchBackend}" ]]; then
-    echo
-    return
-  fi
-
-  echo true
-}
-
-function usingFrontend() {
-  if [[ ! "${deployFrontend}" ]] && [[ ! "${launchFrontend}" ]]; then
-    echo
-    return
-  fi
-
-  echo true
-}
-
-function shouldUseModule() {
-  [[ $(usingFrontend) ]] && [[ ! $(usingBackend) ]] && [[ "${module}" == "${backendModule}" ]] && return
-
-  [[ $(usingBackend) ]] && [[ ! $(usingFrontend) ]] && [[ "${module}" == "${frontendModule}" ]] && return
-
-  echo true
 }
 
 function cleanModule() {
@@ -144,64 +194,64 @@ function cleanModule() {
   fi
 }
 
-function buildModule() {
+function setupModule() {
   local module=${1}
 
-  [[ "${cleanDirt}" ]] && [[ ! -e ".dirty" ]] && return
+  function backupPackageJson() {
+    cp package.json _package.json
+    throwError "Error backing up package.json in module: ${1}"
+  }
 
-  logInfo "${module} - Compiling..."
-  npm run build
-  throwError "Error compiling:  ${module}"
+  function restorePackageJson() {
+    trap 'restorePackageJson' SIGINT
+    rm package.json
+    throwError "Error restoring package.json in module: ${1}"
 
-  cp package.json "${outputDir}"/
-  deleteFile .dirty
+    mv _package.json package.json
+    throwError "Error restoring package.json in module: ${1}"
+    trap - SIGINT
+  }
 
-  if [[ -e "../${backendModule}" ]] && [[ $(contains "${module}" "${projectLibraries[@]}") ]]; then
-    local backendDependencyPath="../${backendModule}/.dependencies/${module}"
-    createDir "${backendDependencyPath}"
-    cp -rf "${outputDir}"/* "${backendDependencyPath}/"
+  function cleanPackageJson() {
+    local i
+    for ((i = 0; i < ${#modules[@]}; i += 1)); do
+      local dependencyModule=${modules[${i}]}
+      local dependencyPackageName="${modulesPackageName[${i}]}"
+
+      [[ "${module}" == "${dependencyModule}" ]] && break
+      [[ ! -e "../${dependencyModule}" ]] && continue
+
+      local escapedModuleName=${dependencyPackageName/\//\\/}
+
+      if [[ $(isMacOS) ]]; then
+        sed -i '' "/${escapedModuleName}/d" package.json
+      else
+        sed -i "/${escapedModuleName}/d" package.json
+      fi
+    done
+  }
+
+  backupPackageJson "${module}"
+  cleanPackageJson
+
+  if [[ "${install}" ]]; then
+    trap 'restorePackageJson' SIGINT
+    deleteDir node_modules/@thunderstorm
+    deleteFile package-lock.json
+    logInfo
+    logInfo "Installing ${module}"
+    logInfo
+    npm install
+    throwError "Error installing module"
+    trap - SIGINT
   fi
 
-}
-
-function testModule() {
-  local module=${1}
-
-  [[ ! -e "tsconfig-test.json" ]] && return 0
-
-  logInfo "${module} - Running tests..."
-
-  deleteDir "${outputTestDir}"
-  tsc -p tsconfig-test.json --outDir "${outputTestDir}"
-  throwError "Error while compiling tests in:  ${module}"
-
-  tslint --project tsconfig-test.json
-  throwError "Error while linting tests in:  ${module}"
-
-  node "${outputTestDir}/test/test" "--service-account=${testServiceAccount}"
-  throwError "Error while running tests in:  ${module}"
-}
-
-function setVersionImpl() {
-  local module=${1}
-
-  logVerbose
-  logVerbose "Sorting package json file: ${module}"
-  sort-package-json
-  [[ -f tsconfig.json ]] && sort-json tsconfig.json --ignore-case
-  [[ -f tsconfig-test.json ]] && sort-json tsconfig-test.json --ignore-case
-
-  copyFileToFolder package.json "${outputDir}"/
-  logDebug "Linking dependencies sources to: ${module}"
-  if [[ $(contains "${module}" "${thunderstormLibraries[@]}") ]] && [[ "${nuArtVersion}" ]]; then
-    logDebug "Setting version '${nuArtVersion}' to module: ${module}"
-    setVersionName "${nuArtVersion}"
+  if [[ "${module}" == "${frontendModule}" ]] && [[ ! -e "./.config/ssl/server-key.pem" ]]; then
+    createDir "./.config/ssl"
+    bash ../dev-tools/scripts/utils/generate-ssl-cert.sh --output=./.config/ssl
   fi
 
-  if [[ $(contains "${module}" "${projectModules[@]}") ]]; then
-    logDebug "Setting version '${appVersion}' to module: ${module}"
-    setVersionName "${appVersion}"
-  fi
+  restorePackageJson "${module}"
 }
 
 function linkDependenciesImpl() {
@@ -290,145 +340,111 @@ function linkThunderstormImpl() {
   done
 }
 
-function backupPackageJson() {
-  cp package.json _package.json
-  throwError "Error backing up package.json in module: ${1}"
-}
-
-function restorePackageJson() {
-  rm package.json
-  throwError "Error restoring package.json in module: ${1}"
-
-  mv _package.json package.json
-  throwError "Error restoring package.json in module: ${1}"
-}
-
-function setupModule() {
+function compileModule() {
   local module=${1}
 
-  function cleanPackageJson() {
-    local i
-    for ((i = 0; i < ${#modules[@]}; i += 1)); do
-      local dependencyModule=${modules[${i}]}
-      local dependencyPackageName="${modulesPackageName[${i}]}"
+  logInfo "${module} - Compiling..."
+  if [[ $(contains "${module}" ${projectLibraries[@]}) ]]; then
+    if [[ "${compileWatch}" ]]; then
+      tsc-watch -b -f --onSuccess "bash ../relaunch-backend.sh" &
+      echo "${module} $!" >> "${BuildFile__watch}"
+    else
+      tsc -b -f
+    fi
+  else
+    npm run build
+  fi
+  # tsc -b -f   ALL Libs
+  # tsc-watch -b -f --onSuccess "bash ../hack-backend.sh"    LISTEN ONLY LIBS
 
-      [[ "${module}" == "${dependencyModule}" ]] && break
-      [[ ! -e "../${dependencyModule}" ]] && continue
+  # webpack-build ONLY FRONTEND
+  # tsc -b -f   ONLY BACKEND
 
-      local escapedModuleName=${dependencyPackageName/\//\\/}
+  throwError "Error compiling:  ${module}"
 
-      if [[ $(isMacOS) ]]; then
-        sed -i '' "/${escapedModuleName}/d" package.json
-      else
-        sed -i "/${escapedModuleName}/d" package.json
-      fi
-    done
+  cp package.json "${outputDir}"/
+  deleteFile .dirty
+
+  if [[ -e "../${backendModule}" ]] && [[ $(contains "${module}" "${projectLibraries[@]}") ]]; then
+    local backendDependencyPath="../${backendModule}/.dependencies/${module}"
+    createDir "${backendDependencyPath}"
+    cp -rf "${outputDir}"/* "${backendDependencyPath}/"
+  fi
+
+  logVerbose
+  logVerbose "Sorting *.json files: ${module}"
+  sort-package-json
+  [[ -f tsconfig.json ]] && sort-json tsconfig.json --ignore-case
+  [[ -f tsconfig-test.json ]] && sort-json tsconfig-test.json --ignore-case
+
+  if [[ $(contains "${module}" "${thunderstormLibraries[@]}") ]] && [[ "${thunderstormVersion}" ]]; then
+    logDebug "Setting version '${thunderstormVersion}' to module: ${module}"
+    setVersionName "${thunderstormVersion}"
+  fi
+
+  if [[ $(contains "${module}" "${projectModules[@]}") ]]; then
+    logDebug "Setting version '${appVersion}' to module: ${module}"
+    setVersionName "${appVersion}"
+  fi
+
+  copyFileToFolder package.json "${outputDir}"/
+}
+
+function lintModule() {
+  local module=${1}
+
+  logInfo "${module} - linting..."
+  tslint --project tsconfig.json
+  throwError "Error while linting:  ${module}"
+}
+
+function testModule() {
+  local module=${1}
+
+  [[ ! -e "tsconfig-test.json" ]] && return 0
+
+  logInfo "${module} - Running tests..."
+
+  deleteDir "${outputTestDir}"
+  tsc -p tsconfig-test.json --outDir "${outputTestDir}"
+  throwError "Error while compiling tests in:  ${module}"
+
+  copyFileToFolder package.json "${outputTestDir}/test"
+  throwError "Error while compiling tests in:  ${module}"
+
+  tslint --project tsconfig-test.json
+  throwError "Error while linting tests in:  ${module}"
+
+  node "${outputTestDir}/test/test" "--service-account=${testServiceAccount}"
+  throwError "Error while running tests in:  ${module}"
+}
+
+function promoteThunderstorm() {
+  function deriveVersionType() {
+    local _version=${1}
+    case "${_version}" in
+    "patch" | "minor" | "major")
+      echo "${_version}"
+      return
+      ;;
+
+    "p")
+      echo "patch"
+      return
+      ;;
+
+    *)
+      throwError "Bad version type: ${_version}" 2
+      ;;
+    esac
   }
 
-  backupPackageJson "${module}"
-  cleanPackageJson
-
-  if [[ "${install}" ]]; then
-    trap 'restorePackageJson' SIGINT
-    deleteDir node_modules/@nu-art
-    deleteFile package-lock.json
-    logInfo
-    logInfo "Installing ${module}"
-    logInfo
-    npm install
-    throwError "Error installing module"
-
-    #            npm audit fix
-    #            throwError "Error fixing vulnerabilities"
-    trap - SIGINT
-  fi
-
-  if [[ "${module}" == "${frontendModule}" ]] && [[ ! -e "./.config/ssl/server-key.pem" ]]; then
-    createDir "./.config/ssl"
-    bash ../dev-tools/scripts/utils/generate-ssl-cert.sh --output=./.config/ssl
-  fi
-
-  restorePackageJson "${module}"
-}
-
-function executeOnModules() {
-  local toExecute=${1}
-  local async=${2}
-
-  local i
-  for ((i = 0; i < ${#modules[@]}; i += 1)); do
-    local module="${modules[${i}]}"
-    local packageName="${modulesPackageName[${i}]}"
-    local version="${modulesVersion[${i}]}"
-    [[ ! -e "./${module}" ]] && continue
-
-    _pushd "${module}"
-    if [[ "${async}" == "true" ]]; then
-      ${toExecute} "${module}" "${packageName}" "${version}" &
-    else
-      ${toExecute} "${module}" "${packageName}" "${version}"
-    fi
-    _popd
-  done
-}
-
-function getModulePackageName() {
-  local packageName=$(cat package.json | grep '"name":' | head -1 | sed -E "s/.*\"name\".*\"(.*)\",?/\1/")
-  echo "${packageName}"
-}
-
-function getModuleVersion() {
-  local version=$(cat package.json | grep '"version":' | head -1 | sed -E "s/.*\"version\".*\"(.*)\",?/\1/")
-  echo "${version}"
-}
-
-function mapModule() {
-  local packageName=$(getModulePackageName)
-  local version=$(getModuleVersion)
-  modulesPackageName+=("${packageName}")
-  modulesVersion+=("${version}")
-}
-
-function mergeFromFork() {
-  local repoUrl=$(gitGetRepoUrl)
-  [[ "${repoUrl}" == "${boilerplateRepo}" ]] && throwError "HAHAHAHA.... You need to be careful... this is not a fork..." 2
-
-  logInfo "Making sure repo is clean..."
-  gitAssertRepoClean
-  git remote add public "${boilerplateRepo}"
-  git fetch public
-  git merge public/master
-  throwError "Need to resolve conflicts...."
-
-  git submodule update dev-tools
-}
-
-function deriveVersionType() {
-  local _version=${1}
-  case "${_version}" in
-  "patch" | "minor" | "major")
-    echo "${_version}"
-    return
-    ;;
-
-  "p")
-    echo "patch"
-    return
-    ;;
-
-  *)
-    throwError "Bad version type: ${_version}" 2
-    ;;
-  esac
-}
-
-function promoteNuArt() {
-  local versionFile="version-nu-art.json"
+  local versionFile="version-thunderstorm.json"
   local promotionType="$(deriveVersionType "${promoteThunderstormVersion}")"
   local versionName="$(getVersionName "${versionFile}")"
-  nuArtVersion="$(promoteVersion "${versionName}" "${promotionType}")"
+  thunderstormVersion="$(promoteVersion "${versionName}" "${promotionType}")"
 
-  logInfo "Promoting Nu-Art: ${versionName} => ${nuArtVersion}"
+  logInfo "Promoting thunderstorm: ${versionName} => ${thunderstormVersion}"
 
   logDebug "Asserting main repo readiness to promote a version..."
   gitAssertBranch master
@@ -438,7 +454,7 @@ function promoteNuArt() {
   logInfo "Main Repo is ready for version promotion"
 
   for module in "${thunderstormLibraries[@]}"; do
-    [[ ! -e "${module}" ]] && throwError "In order to promote a version ALL nu-art dependencies MUST be present!!!" 2
+    [[ ! -e "${module}" ]] && throwError "In order to promote a version ALL thunderstorm dependencies MUST be present!!!" 2
 
     _pushd "${module}"
     gitAssertBranch master
@@ -446,27 +462,28 @@ function promoteNuArt() {
     gitFetchRepo
     gitAssertNoCommitsToPull
 
-    [[ $(gitAssertTagExists "${nuArtVersion}") ]] && throwError "Tag already exists: v${nuArtVersion}" 2
+    [[ $(gitAssertTagExists "${thunderstormVersion}") ]] && throwError "Tag already exists: v${thunderstormVersion}" 2
     _popd
   done
 
   logInfo "Submodules are ready for version promotion"
-  logInfo "Promoting Libs: ${versionName} => ${nuArtVersion}"
-  setVersionName "${nuArtVersion}" "${versionFile}"
-  executeOnModules setVersionImpl
+  logInfo "Promoting Libs: ${versionName} => ${thunderstormVersion}"
+  setVersionName "${thunderstormVersion}" "${versionFile}"
+}
 
+function pushThunderstormLibs() {
   for module in "${thunderstormLibraries[@]}"; do
     _pushd "${module}"
-    gitNoConflictsAddCommitPush "${module}" "$(gitGetCurrentBranch)" "Promoted to: v${nuArtVersion}"
+    gitNoConflictsAddCommitPush "${module}" "$(gitGetCurrentBranch)" "Promoted to: v${thunderstormVersion}"
 
-    gitTag "v${nuArtVersion}" "Promoted to: v${nuArtVersion}"
+    gitTag "v${thunderstormVersion}" "Promoted to: v${thunderstormVersion}"
     gitPushTags
     throwError "Error pushing promotion tag"
     _popd
   done
 
-  gitNoConflictsAddCommitPush "${module}" "$(gitGetCurrentBranch)" "Promoted infra version to: v${nuArtVersion}"
-  gitTag "libs-v${nuArtVersion}" "Promoted libs to: v${nuArtVersion}"
+  gitNoConflictsAddCommitPush "${module}" "$(gitGetCurrentBranch)" "Promoted infra version to: v${thunderstormVersion}"
+  gitTag "libs-v${thunderstormVersion}" "Promoted libs to: v${thunderstormVersion}"
   gitPushTags
   throwError "Error pushing promotion tag"
 }
@@ -487,14 +504,13 @@ function promoteApps() {
   logInfo "Promoting Apps: ${versionName} => ${appVersion}"
 
   setVersionName "${appVersion}" "${versionFile}"
-  executeOnModules setVersionImpl
 
   gitTag "v${appVersion}" "Promoted apps to: v${appVersion}"
   gitPushTags
   throwError "Error pushing promotion tag"
 }
 
-function publishNuArt() {
+function publishThunderstorm() {
   for module in "${thunderstormLibraries[@]}"; do
     _pushd "${module}/${outputDir}"
 
@@ -507,81 +523,6 @@ function publishNuArt() {
   done
 }
 
-function setEnvironment() {
-  logInfo "Setting envType: ${envType}"
-  [[ "${fallbackEnv}" ]] && logWarning " -- Fallback env: ${fallbackEnv}"
-
-  copyConfigFile "./.config/firebase-ENV_TYPE.json" "firebase.json" "${envType}" "${fallbackEnv}"
-  copyConfigFile "./.config/.firebaserc-ENV_TYPE" ".firebaserc" "${envType}" "${fallbackEnv}"
-  if [[ -e "${backendModule}" ]]; then
-    logDebug "Setting backend env: ${envType}"
-    _pushd "${backendModule}"
-    copyConfigFile "./.config/config-ENV_TYPE.ts" "./src/main/config.ts" "${envType}" "${fallbackEnv}"
-    _popd
-  fi
-
-  if [[ -e "${frontendModule}" ]]; then
-    logDebug "Setting frontend env: ${envType}"
-    _pushd "${frontendModule}"
-    copyConfigFile "./.config/config-ENV_TYPE.ts" "./src/main/config.ts" "${envType}" "${fallbackEnv}"
-    _popd > /dev/null
-  fi
-
-  local firebaseProject="$(getJsonValueForKey .firebaserc default)"
-  verifyFirebaseProjectIsAccessible "${firebaseProject}"
-  firebase use "${firebaseProject}"
-}
-
-function copyConfigFile() {
-  local filePattern=${1}
-  local targetFile=${2}
-
-  local envs=(${@:3})
-
-  for env in ${envs[@]}; do
-    local envConfigFile=${filePattern//ENV_TYPE/${env}}
-    [[ ! -e "${envConfigFile}" ]] && continue
-
-    logDebug "Setting ${targetFile} from env: ${env}"
-    cp "${envConfigFile}" "${targetFile}"
-    return 0
-  done
-
-  throwError "Could not find a match for target file: ${targetFile} in envs: ${envs[@]}" 2
-}
-
-function compileOnCodeChanges() {
-  logDebug "Stop all fswatch listeners..."
-  killAllProcess fswatch
-
-  pids=()
-  local sourceDirs=()
-  for module in ${modules[@]}; do
-    [[ ! -e "./${module}" ]] && continue
-    sourceDirs+=("${module}/src")
-
-    logInfo "Dirt watcher on: ${module}/src => bash build-and-install.sh --flag-dirty=${module}"
-    fswatch -o -0 "${module}/src" | xargs -0 -n1 -I{} bash build-and-install.sh --flag-dirty="${module}" &
-    pids+=($!)
-  done
-
-  logInfo "Cleaning team on: ${sourceDirs[@]} => bash build-and-install.sh --clean-dirt"
-  fswatch -o -0 ${sourceDirs[@]} | xargs -0 -n1 -I{} bash build-and-install.sh --clean-dirt &
-  pids+=($!)
-
-  for pid in "${pids[@]}"; do
-    wait "${pid}"
-  done
-}
-
-function lintModule() {
-  local module=${1}
-
-  logInfo "${module} - linting..."
-  tslint --project tsconfig.json
-  throwError "Error while linting:  ${module}"
-}
-
 function checkImportsModule() {
   local module=${1}
 
@@ -590,30 +531,10 @@ function checkImportsModule() {
   throwError "Error found circular imports:  ${module}"
 }
 
-#################
-#               #
-#    PREPARE    #
-#               #
-#################
+function lifecycleModule() {
+  local module=${1}
 
-# Handle recursive sync execution
-if [[ ! "${1}" =~ "dirt" ]]; then
-  signature
-  printCommand "$@"
-fi
-
-if [[ "${dirtyLib}" ]]; then
-  touch "${dirtyLib}/.dirty"
-  logInfo "flagged ${dirtyLib} as dirty... waiting for cleaning team"
-  exit 0
-fi
-
-if [[ "${cleanDirt}" ]]; then
-  logDebug "Cleaning team is ready, stalling 3 sec for dirt to pile up..."
-  sleep 3s
-else
-  printDebugParams "${debug}" "${params[@]}"
-fi
+}
 
 #################
 #               #
@@ -653,28 +574,29 @@ mapExistingLibraries
 mapModulesVersions
 printVersions
 
+installAndUseNvmIfNeeded
+executeOnModules lifecycleModule
+
 # BUILD
+if [[ "${envType}" ]]; then
+  logInfo
+  bannerInfo "Set Environment"
+  setEnvironment
+fi
+
 if [[ "${purge}" ]]; then
   logInfo
   bannerInfo "Purge"
   executeOnModules purgeModule
 fi
 
-installAndUseNvmIfNeeded
-
 if [[ "${setup}" ]]; then
   logInfo
   bannerInfo "Setup"
 
   logInfo "Setting up global packages..."
-  npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest sort-json@latest nodemon@latest
+  npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest sort-json@latest tsc-watch@latest
   executeOnModules setupModule
-fi
-
-if [[ "${envType}" ]]; then
-  logInfo
-  bannerInfo "Set Environment"
-  setEnvironment
 fi
 
 if [[ "${linkDependencies}" ]]; then
@@ -700,8 +622,7 @@ if [[ "${build}" ]]; then
   logInfo
   bannerInfo "Compile"
 
-  executeOnModules setVersionImpl
-  executeOnModules buildModule
+  executeOnModules compileModule
   logInfo "Project Compiled!!"
 fi
 
@@ -711,12 +632,6 @@ if [[ "${lint}" ]]; then
   executeOnModules lintModule
 fi
 
-if [[ "${checkCircularImports}" ]]; then
-  logInfo
-  bannerInfo "Checking Circular Imports"
-  executeOnModules checkImportsModule
-fi
-
 if [[ "${runTests}" ]] && [[ "${testServiceAccount}" ]]; then
   export GOOGLE_APPLICATION_CREDENTIALS="${testServiceAccount}"
   logInfo
@@ -724,13 +639,13 @@ if [[ "${runTests}" ]] && [[ "${testServiceAccount}" ]]; then
   executeOnModules testModule
 fi
 
-# PRE-Launch and deploy
-
-if [[ "${newAppVersion}" ]]; then
+if [[ "${checkCircularImports}" ]]; then
   logInfo
-  bannerInfo "Promote App"
-  promoteApps
+  bannerInfo "Checking Circular Imports"
+  executeOnModules checkImportsModule
 fi
+
+# PRE-Launch and deploy
 
 if [[ "${launchBackend}" ]]; then
   logInfo
@@ -759,8 +674,13 @@ if [[ "${launchFrontend}" ]]; then
 fi
 
 # Deploy
-
 if [[ "${deployBackend}" ]] || [[ "${deployFrontend}" ]]; then
+  if [[ "${newAppVersion}" ]]; then
+    logInfo
+    bannerInfo "Promote App"
+    promoteApps
+  fi
+
   logInfo
   bannerInfo "deployBackend || deployFrontend"
 
@@ -785,26 +705,14 @@ fi
 
 # OTHER
 
-if [[ "${promoteThunderstormVersion}" ]]; then
-  logInfo
-  bannerInfo "promoteThunderstormVersion"
-
-  gitAssertOrigin "${boilerplateRepo}"
-  promoteNuArt
-fi
-
 if [[ "${publish}" ]]; then
   logInfo
   bannerInfo "Publish"
 
   gitAssertOrigin "${boilerplateRepo}"
-  publishNuArt
+  promoteThunderstorm
+  publishThunderstorm
+  pushThunderstormLibs
   executeOnModules setupModule
   gitNoConflictsAddCommitPush "${module}" "$(gitGetCurrentBranch)" "built with new dependencies version"
-fi
-
-if [[ "${listen}" ]]; then
-  bannerInfo "listen"
-
-  compileOnCodeChanges
 fi

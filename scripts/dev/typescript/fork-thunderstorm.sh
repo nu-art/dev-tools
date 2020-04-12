@@ -199,7 +199,7 @@ function forkThunderstorm() {
 }
 
 function cleanUpForkedRepo() {
-  deleteFile ./version-nu-art.json
+  deleteFile ./version-thunderstorm.json
   if [[ "${withSources}" == "n" ]]; then
     for module in ${thunderstormLibraries[@]}; do
       deleteFolder ./${module}

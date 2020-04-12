@@ -420,6 +420,30 @@ function testModule() {
 }
 
 function promoteThunderstorm() {
+
+  function assertRepoIsClean() {
+    gitAssertBranch master
+    gitAssertRepoClean
+    gitFetchRepo
+    gitAssertNoCommitsToPull
+  }
+
+  function assertRepoAndSubmodulesAreClean() {
+    logDebug "Asserting main repo readiness to promote a version..."
+    assertRepoIsClean
+    logInfo "Main Repo is ready for version promotion"
+
+    for module in "${thunderstormLibraries[@]}"; do
+      [[ ! -e "${module}" ]] && throwError "In order to promote a version ALL thunderstorm packages MUST be present!!!" 2
+
+      _pushd "${module}"
+      assertRepoIsClean
+      [[ $(gitAssertTagExists "${thunderstormVersion}") ]] && throwError "Tag already exists: v${thunderstormVersion}" 2
+      _popd
+    done
+    logInfo "Submodules are ready for version promotion"
+  }
+
   function deriveVersionType() {
     local _version=${1}
     case "${_version}" in
@@ -439,35 +463,14 @@ function promoteThunderstorm() {
     esac
   }
 
+  gitAssertOrigin "${boilerplateRepo}"
+  assertRepoAndSubmodulesAreClean
+  logInfo "Promoting thunderstorm packages: ${versionName} => ${thunderstormVersion}"
+
   local versionFile="version-thunderstorm.json"
   local promotionType="$(deriveVersionType "${promoteThunderstormVersion}")"
   local versionName="$(getVersionName "${versionFile}")"
   thunderstormVersion="$(promoteVersion "${versionName}" "${promotionType}")"
-
-  logInfo "Promoting thunderstorm: ${versionName} => ${thunderstormVersion}"
-
-  logDebug "Asserting main repo readiness to promote a version..."
-  gitAssertBranch master
-  gitAssertRepoClean
-  gitFetchRepo
-  gitAssertNoCommitsToPull
-  logInfo "Main Repo is ready for version promotion"
-
-  for module in "${thunderstormLibraries[@]}"; do
-    [[ ! -e "${module}" ]] && throwError "In order to promote a version ALL thunderstorm dependencies MUST be present!!!" 2
-
-    _pushd "${module}"
-    gitAssertBranch master
-    gitAssertRepoClean
-    gitFetchRepo
-    gitAssertNoCommitsToPull
-
-    [[ $(gitAssertTagExists "${thunderstormVersion}") ]] && throwError "Tag already exists: v${thunderstormVersion}" 2
-    _popd
-  done
-
-  logInfo "Submodules are ready for version promotion"
-  logInfo "Promoting Libs: ${versionName} => ${thunderstormVersion}"
   setVersionName "${thunderstormVersion}" "${versionFile}"
 }
 
@@ -578,6 +581,12 @@ installAndUseNvmIfNeeded
 executeOnModules lifecycleModule
 
 # BUILD
+if [[ "${publish}" ]]; then
+  logInfo
+  bannerInfo "Promote Thunderstorm"
+  promoteThunderstorm
+fi
+
 if [[ "${envType}" ]]; then
   logInfo
   bannerInfo "Set Environment"
@@ -709,8 +718,6 @@ if [[ "${publish}" ]]; then
   logInfo
   bannerInfo "Publish"
 
-  gitAssertOrigin "${boilerplateRepo}"
-  promoteThunderstorm
   publishThunderstorm
   pushThunderstormLibs
   executeOnModules setupModule

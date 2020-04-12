@@ -438,7 +438,6 @@ function promoteThunderstorm() {
 
       _pushd "${module}"
       assertRepoIsClean
-      [[ $(gitAssertTagExists "${thunderstormVersion}") ]] && throwError "Tag already exists: v${thunderstormVersion}" 2
       _popd
     done
     logInfo "Submodules are ready for version promotion"
@@ -471,9 +470,12 @@ function promoteThunderstorm() {
 
   logInfo "Promoting thunderstorm packages: ${versionName} => ${thunderstormVersion}"
 
-  setVersionName "${thunderstormVersion}" "${versionFile}"
   gitAssertOrigin "${boilerplateRepo}"
   assertRepoAndSubmodulesAreClean
+
+  setVersionName "${thunderstormVersion}" "${versionFile}"
+  [[ $(gitAssertTagExists "${thunderstormVersion}") ]] && throwError "Tag already exists: v${thunderstormVersion}" 2
+
 }
 
 function pushThunderstormLibs() {

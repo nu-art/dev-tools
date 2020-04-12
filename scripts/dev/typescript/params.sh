@@ -268,7 +268,7 @@ function extractParams() {
       #IGNORE: Will publish thunderstorm && promote thunderstorm version
       #PARAM=[patch | minor | major]
 
-      promoteThunderstormVersion=$(regexParam "--version-nu-art|-vn" "${paramValue}")
+      promoteThunderstormVersion=$(regexParam "--publish" "${paramValue}")
       linkDependencies=true
       clean=true
       build=true

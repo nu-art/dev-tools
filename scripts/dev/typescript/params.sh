@@ -70,10 +70,11 @@ function extractParams() {
       #        ==== CLEAN ====
     "--purge" | "-p")
       #Will delete the node_modules folder in all project packages
-      #Will perform --clean
+      #Will perform --clean --setup
 
       purge=true
       clean=true
+      setup=true
       ;;
 
     "--clean" | "-c")

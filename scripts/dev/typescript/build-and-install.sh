@@ -350,9 +350,11 @@ function compileModule() {
       echo "${module} $!" >> "${BuildFile__watch}"
     else
       tsc -b -f
+      throwError "Error compiling:  ${module}"
     fi
   else
     npm run build
+    throwError "Error compiling:  ${module}"
   fi
   # tsc -b -f   ALL Libs
   # tsc-watch -b -f --onSuccess "bash ../hack-backend.sh"    LISTEN ONLY LIBS
@@ -461,7 +463,6 @@ function promoteThunderstorm() {
       ;;
     esac
   }
-
 
   local versionFile="version-thunderstorm.json"
   local promotionType="$(deriveVersionType "${promoteThunderstormVersion}")"

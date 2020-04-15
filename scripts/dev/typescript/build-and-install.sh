@@ -350,11 +350,9 @@ function compileModule() {
       echo "${module} $!" >> "${BuildFile__watch}"
     else
       tsc -b -f
-      throwError "Error compiling:  ${module}"
     fi
   else
     npm run build
-    throwError "Error compiling:  ${module}"
   fi
   # tsc -b -f   ALL Libs
   # tsc-watch -b -f --onSuccess "bash ../hack-backend.sh"    LISTEN ONLY LIBS
@@ -362,7 +360,7 @@ function compileModule() {
   # webpack-build ONLY FRONTEND
   # tsc -b -f   ONLY BACKEND
 
-  throwError "Error compiling:  ${module}"
+  throwWarning "Error compiling:  ${module}"
 
   cp package.json "${outputDir}"/
   deleteFile .dirty

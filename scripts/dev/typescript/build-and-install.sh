@@ -422,7 +422,7 @@ function testModule() {
 function promoteThunderstorm() {
 
   function assertRepoIsClean() {
-    gitAssertBranch master
+    gitAssertBranch master staging
     gitAssertRepoClean
     gitFetchRepo
     gitAssertNoCommitsToPull

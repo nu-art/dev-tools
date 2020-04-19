@@ -31,135 +31,135 @@ LOG_PREFIX=("-V-" "-D-" "-I-" "-W-" "-E-")
 CONST_Debug=
 
 function setLogLevel() {
-    case ${1} in
-        0|1|2|3|4)
-            logLevel=${1}
-        ;;
+  case ${1} in
+  0 | 1 | 2 | 3 | 4)
+    logLevel=${1}
+    ;;
 
-        *)
-            logError "Wrong log level"
-            exit;
-        ;;
-    esac
+  *)
+    logError "Wrong log level"
+    exit
+    ;;
+  esac
 }
 
 setSummaryFile() {
-    summaryFile="${1}"
-    echo "#!/bin/bash" > "${summaryFile}"
-    echo "echo " >> "${summaryFile}"
-    echo "echo " >> "${summaryFile}"
-    echo "echo -e \"${BCyan} ----------------   ___ _   _ __  __ __  __   _   _____   __  ---------------- ${NoColor}\"" >>"${summaryFile}"
-    echo "echo -e \"${BCyan} ----------------  / __| | | |  \/  |  \/  | /_\ | _ \ \ / /  ---------------- ${NoColor}\"" >>"${summaryFile}"
-    echo "echo -e \"${BCyan} ----------------  \__ \ |_| | |\/| | |\/| |/ _ \|   /\ V /   ---------------- ${NoColor}\"" >>"${summaryFile}"
-    echo "echo -e \"${BCyan} ----------------  |___/\___/|_|  |_|_|  |_/_/ \_\_|_\ |_|    ---------------- ${NoColor}\"" >>"${summaryFile}"
-    echo "echo -e \"${BCyan} ----------------                                             ---------------- ${NoColor}\"" >>"${summaryFile}"
-    echo "echo " >>"${summaryFile}"
+  summaryFile="${1}"
+  echo "#!/bin/bash" > "${summaryFile}"
+  echo "echo " >> "${summaryFile}"
+  echo "echo " >> "${summaryFile}"
+  echo "echo -e \"${BCyan} ----------------   ___ _   _ __  __ __  __   _   _____   __  ---------------- ${NoColor}\"" >> "${summaryFile}"
+  echo "echo -e \"${BCyan} ----------------  / __| | | |  \/  |  \/  | /_\ | _ \ \ / /  ---------------- ${NoColor}\"" >> "${summaryFile}"
+  echo "echo -e \"${BCyan} ----------------  \__ \ |_| | |\/| | |\/| |/ _ \|   /\ V /   ---------------- ${NoColor}\"" >> "${summaryFile}"
+  echo "echo -e \"${BCyan} ----------------  |___/\___/|_|  |_|_|  |_/_/ \_\_|_\ |_|    ---------------- ${NoColor}\"" >> "${summaryFile}"
+  echo "echo -e \"${BCyan} ----------------                                             ---------------- ${NoColor}\"" >> "${summaryFile}"
+  echo "echo " >> "${summaryFile}"
 
 }
 
 setLogFile() {
-    setLogLevel "${1}"
-    local relativePathToLogFolder=${2}
-    local logFilePrefix=${3}
+  setLogLevel "${1}"
+  local relativePathToLogFolder=${2}
+  local logFilePrefix=${3}
 
-    local logsFolder="$(pwd)/${relativePathToLogFolder}"
-    local dateTimeFormatted=`date +%Y-%m-%d--%H-%M-%S`
+  local logsFolder="$(pwd)/${relativePathToLogFolder}"
+  local dateTimeFormatted=$(date +%Y-%m-%d--%H-%M-%S)
 
-    [[ ! -d "${logsFolder}" ]] && mkdir -p "${logsFolder}"
+  [[ ! -d "${logsFolder}" ]] && mkdir -p "${logsFolder}"
 
-    logFile="${logsFolder}/${logFilePrefix}-log-${dateTimeFormatted}.txt"
-    echo > "${logFile}"
+  logFile="${logsFolder}/${logFilePrefix}-log-${dateTimeFormatted}.txt"
+  echo > "${logFile}"
 }
 
 log() {
-    local level=$1
-    local logMessage=$2
-    local override=$3
-    local _override
+  local level=$1
+  local logMessage=$2
+  local override=$3
+  local _override
 
-    local color=${LOG_COLORS[${level}]}
+  local color=${LOG_COLORS[${level}]}
 
-    [[ "${override}" ]] && _override="n"
+  [[ "${override}" ]] && _override="n"
 
-    (( level < logLevel  )) && return
+  ((level < logLevel)) && return
 
-#    For Debug
-#    echo "echo -e${_override} \"${color}${logMessage}${NoColor}\"\\r"
-    startTimer "log-tools"
-    local duration=$(calcDuration "rootTimer")
-    logDate="(${duration}) "$(date +"%Y-%m-%d_%H:%M:%S")
-    logMessage=${logMessage//$'\n'/'\n'${NoColor}${logDate} ${color}}
-    echo -e${_override} "${logDate}  ${color}${logMessage}${NoColor}"\\r
+  #    For Debug
+  #    echo "echo -e${_override} \"${color}${logMessage}${NoColor}\"\\r"
+  startTimer "log-tools"
+  local duration=$(calcDuration "rootTimer")
+  logDate="(${duration}) "$(date +"%Y-%m-%d_%H:%M:%S")
+  logMessage=${logMessage//$'\n'/'\n'${NoColor}${logDate} ${color}}
+  echo -e${_override} "${logDate}  ${color}${logMessage}${NoColor}"\\r
 }
 
 logVerbose() {
-    log 0 "${1}" "${2}"
+  log 0 "${1}" "${2}"
 }
 
 logDebug() {
-    log 1 "${1}" "${2}"
+  log 1 "${1}" "${2}"
 }
 
 logInfo() {
-    log 2 "${1}" "${2}"
+  log 2 "${1}" "${2}"
 }
 
 logWarning() {
-    log 3 "${1}" "${2}"
+  log 3 "${1}" "${2}"
 }
 
 logError() {
-    log 4 "${1}" "${2}"
+  log 4 "${1}" "${2}"
 }
 
-
-
 bannerVerbose() {
-    banner 0 "${1}"
+  banner 0 "${1}" "${2}"
 }
 
 bannerDebug() {
-    banner 1 "${1}"
+  banner 1 "${1}" "${2}"
 }
 
 bannerInfo() {
-    banner 2 "${1}"
+  banner 2 "${1}" "${2}"
 }
 
 bannerWarning() {
-    banner 3 "${1}"
+  banner 3 "${1}" "${2}"
 }
 
 bannerError() {
-    banner 4 "${1}"
+  banner 4 "${1}" "${2}"
 }
 
 banner() {
-    local level=$1
-    local logMessage=$2
+  local level=$1
+  local logMessage=$2
+  local color=$3
+  local nocolor=${LOG_COLORS[${level}]}
 
-    local add=$(echo "$logMessage" | sed 's/./-/g')
-    log ${level} "+---$add---+"
-    log ${level} "|   ${logMessage}   |"
-    log ${level} "+---$add---+"
+  local add="$(echo "$logMessage" | sed -E 's/./-/g')"
+  log ${level} "+---$add---+"
+  log ${level} "|   ${color}${logMessage}${nocolor}   |"
+  log ${level} "+---$add---+"
 }
 
 function _logVerbose() {
-    [[ "${CONST_Debug}" ]] && >&2 logVerbose "$@"
+  [[ "${CONST_Debug}" ]] && logVerbose >&2 "$@"
 }
 
 function _logDebug() {
-    [[ "${CONST_Debug}" ]] && >&2 logDebug "$@"
+  [[ "${CONST_Debug}" ]] && logDebug >&2 "$@"
 }
 
 function _logInfo() {
-    [[ "${CONST_Debug}" ]] && >&2 logInfo "$@"
+  [[ "${CONST_Debug}" ]] && logInfo >&2 "$@"
 }
 
 function _logWarning() {
-    [[ "${CONST_Debug}" ]] && >&2 logWarning "$@"
+  [[ "${CONST_Debug}" ]] && logWarning >&2 "$@"
 }
 
 function _logError() {
-    [[ "${CONST_Debug}" ]] && >&2 logError "$@"
+  [[ "${CONST_Debug}" ]] && logError >&2 "$@"
 }

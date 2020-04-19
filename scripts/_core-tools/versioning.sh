@@ -80,7 +80,7 @@ function promoteVersion() {
     version[${arg}]=
   done
 
-  echo "$(joinArray "." ${version[@]})"
+  echo "$(string_join "." ${version[@]})"
 }
 
 function getVersionFileName() {

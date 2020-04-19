@@ -47,13 +47,13 @@ function extractParams() {
     case "${paramValue}" in
     #        ==== General ====
     "--help" | "-h")
-      #This help menu
+      #￿￿￿￿DOC: This help menu
 
-      printHelp
+      printHelp "${BASH_SOURCE%/*}/params.sh"
       ;;
 
     "--print-env")
-      #Will print the current versions of the important tools
+      #DOC: Will print the current versions of the important tools
 
       printEnv=true
       build=
@@ -62,15 +62,15 @@ function extractParams() {
       ;;
 
     "--debug")
-      #Will print the parameters the script is running with
+      #DOC: Will print the parameters the script is running with
 
       debug=true
       ;;
 
       #        ==== CLEAN ====
     "--purge" | "-p")
-      #Will delete the node_modules folder in all project packages
-      #Will perform --clean --setup
+      #DOC: Will delete the node_modules folder in all project packages
+      #DOC: Will perform --clean --setup
 
       purge=true
       clean=true
@@ -78,14 +78,14 @@ function extractParams() {
       ;;
 
     "--clean" | "-c")
-      #Will delete the output(dist) & test output(dist-test) folders in all project packages
+      #DOC: Will delete the output(dist) & test output(dist-test) folders in all project packages
 
       clean=true
       ;;
 
       #        ==== BUILD ====
     "--use-package="* | "-up="*)
-      #Would ONLY run the script in the context of the specified project packages
+      #DOC: Would ONLY run the script in the context of the specified project packages
       #PARAM=project-package-folder
 
       local lib=$(regexParam "--use-package|-up" "${paramValue}")
@@ -93,49 +93,49 @@ function extractParams() {
       ;;
 
     "--set-env="* | "-se="*)
-      #Will set the .config-\${envType}.json as the current .config.json and prepare it as base 64 for local usage
+      #DOC: Will set the .config-${environment}.json as the current .config.json and prepare it as base 64 for local usage
       #PARAM=environment
       envType=$(regexParam "--set-env|-se" "${paramValue}")
       ;;
 
     "--fallback-env="* | "-fe="*)
-      #When setting env some of the files might be missing and would fallback to the provided env
+      #DOC: When setting env some of the files might be missing and would fallback to the provided env
       #PARAM=environment
       fallbackEnv=$(regexParam "--fallback-env|-fe" "${paramValue}")
       ;;
 
     "--setup" | "-s")
-      #Will run 'npm install' in all project packages
-      #Will perform --link
+      #DOC: Will run 'npm install' in all project packages
+      #DOC: Will perform --link
       setup=true
       linkDependencies=true
       ;;
 
     "--link" | "-l")
-      #Would link dependencies between project packages
+      #DOC: Would link dependencies between project packages
 
       linkDependencies=true
       ;;
 
     "--link-only" | "-lo")
-      #Would ONLY link dependencies between project packages
+      #DOC: Would ONLY link dependencies between project packages
       linkDependencies=true
       build=
       ;;
 
     "--no-build" | "-nb")
-      #Skip the build step
+      #DOC: Skip the build step
       build=
       ;;
 
     "--no-thunderstorm" | "-nts")
-      #Completely ignore Thunderstorm infra whether it exists or not in the project
+      #DOC: Completely ignore Thunderstorm infra whether it exists or not in the project
       buildThunderstorm=
       ThunderstormHome=
       ;;
 
     "--thunderstorm-home="* | "-th="*)
-      #Will link the output folder of the libraries of thunderstorm that exists under the give path
+      #DOC: Will link the output folder of the libraries of thunderstorm that exists under the give path
       #PARAM=path-to-thunderstorm-folder
 
       linkDependencies=true
@@ -145,19 +145,19 @@ function extractParams() {
       ;;
 
     "--lint")
-      #Run lint on all the project packages
+      #DOC: Run lint on all the project packages
       lint=true
       ;;
 
     "--output-dir="* | "-od="*)
-      #Set the output dir name/path (default: dist)
+      #DOC: Set the output dir name/path (default: dist)
       #PARAM=path-to-output-folder
 
       outputDir=$(regexParam "--output-dir|-od" "${paramValue}")
       ;;
 
     "--check-imports" | "-ci")
-      #Will check for circular import in files...
+      #DOC: Will check for circular import in files...
       checkCircularImports=true
       ;;
 
@@ -169,7 +169,7 @@ function extractParams() {
 
       #        ==== TEST ====
     "--test" | "-t")
-      #Run the tests in all the project packages
+      #DOC: Run the tests in all the project packages
       #NOTE: Running this way expecting the "testServiceAccount" variable to be defined gloabally
 
       [[ ! "${testServiceAccount}" ]] && throwError "MUST specify the path to the testServiceAccount in the .scripts/modules.sh in your project"
@@ -177,7 +177,7 @@ function extractParams() {
       ;;
 
     "--test="* | "-t="*)
-      #Run the tests in all the project packages
+      #DOC: Run the tests in all the project packages
       #PARAM=path-to-firebase-service-account
 
       testServiceAccount=$(regexParam "--test|-t" "${paramValue}")
@@ -185,7 +185,7 @@ function extractParams() {
       ;;
 
     "--output-test-dir="* | "-otd="*)
-      #Set the tests output dir name/path (default: dist-test)
+      #DOC: Set the tests output dir name/path (default: dist-test)
       #PARAM=path-to-tests-output-folder
 
       outputTestDir=$(regexParam "--output-test-dir|-otd" "${paramValue}")
@@ -193,27 +193,27 @@ function extractParams() {
 
       #        ==== LAUNCH ====
     "--launch" | "-la")
-      #Will launch both frontend & backend
+      #DOC: Will launch both frontend & backend
 
       launchBackend=true
       launchFrontend=true
       ;;
 
     "--launch-backend" | "-lb")
-      #Will launch ONLY backend
+      #DOC: Will launch ONLY backend
 
       launchBackend=true
       ;;
 
     "--launch-frontend" | "-lf")
-      #Will launch ONLY frontend
+      #DOC: Will launch ONLY frontend
 
       launchFrontend=true
       ;;
 
       #        ==== DEPLOY ====
     "--deploy" | "-d")
-      #Will compile, build, lint and deploy both frontend & backend
+      #DOC: Will compile, build, lint and deploy both frontend & backend
 
       deployBackend=true
       deployFrontend=true
@@ -221,31 +221,21 @@ function extractParams() {
       ;;
 
     "--deploy-backend" | "-db")
-      #Will compile, build, lint and deploy ONLY the backend
+      #DOC: Will compile, build, lint and deploy ONLY the backend
 
       deployBackend=true
       lint=true
       ;;
 
     "--deploy-frontend" | "-df")
-      #Will compile, build, lint and deploy ONLY the frontend
+      #DOC: Will compile, build, lint and deploy ONLY the frontend
 
       deployFrontend=true
       lint=true
       ;;
 
-    "--quick-deploy" | "-qd")
-      #WARNING: Use only if you REALLY understand the lifecycle of the project and script!!
-      #Will deploy both frontend & backend, without any other lifecycle action
-
-      lint=
-      build=
-      install=
-      linkDependencies=
-      ;;
-
     "--set-version="* | "-sv="*)
-      #Set application version before deploy
+      #DOC: Set application version before deploy
       #PARAM=x.y.z
 
       newAppVersion=$(regexParam "--set-version|-sv" "${paramValue}")
@@ -256,31 +246,38 @@ function extractParams() {
 
       #        ==== OTHER ====
     "--log="*)
-      #Set the script log level
+      #DOC: Set the script log level
       #PARAM=[verbose | debug | info | warning | error]
+      #DEFAULT_PARAM=info
 
       local _logLevelKey=$(regexParam "--log" "${paramValue}")
       local logLevelKey=LOG_LEVEL__${_logLevelKey^^}
       tsLogLevel=${!logLevelKey}
       [[ ! ${tsLogLevel} ]] && tsLogLevel=${LOG_LEVEL__INFO}
+
       ;;
 
-    "--publish="*)
-      #IGNORE: Will publish thunderstorm && promote thunderstorm version
+    "--quick-deploy" | "-qd")
+      #DOC: Will deploy both frontend & backend, without any other lifecycle action
+      #WARNING: Use only if you REALLY understand the lifecycle of the project and script!!
+
+      lint=
+      build=
+      install=
+      linkDependencies=
+      ;;
+
+    "--publish="* | "--publish")
+      #DOC: Will publish thunderstorm && promote thunderstorm version
       #PARAM=[patch | minor | major]
+      #DEFAULT_PARAM=patch
+      #WARNING: ONLY used for publishing Thunderstorm!!
 
-      promoteThunderstormVersion=$(regexParam "--publish" "${paramValue}")
-      linkDependencies=true
-      clean=true
-      build=true
-      publish=true
-      lint=true
-      ;;
-
-    "--publish")
-      #IGNORE: Will publish thunderstorm && promote thunderstorm version to patch
-
-      promoteThunderstormVersion=patch
+      if [[ "${paramValue}" == "--publish" ]]; then
+        promoteThunderstormVersion=patch
+      else
+        promoteThunderstormVersion=$(regexParam "--publish" "${paramValue}")
+      fi
       linkDependencies=true
       clean=true
       build=true

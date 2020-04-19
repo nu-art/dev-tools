@@ -30,4 +30,6 @@ source ${DIR}/error-handling.sh
 source ${DIR}/cli-params.sh
 source ${DIR}/folder-filters.sh
 source ${DIR}/file-tools.sh
+source ${DIR}/string-tools.sh
+source ${DIR}/number-tools.sh
 source ${DIR}/versioning.sh

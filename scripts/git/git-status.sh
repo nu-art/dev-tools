@@ -24,7 +24,7 @@ source ${BASH_SOURCE%/*}/_core.sh
 runningDir=`getRunningDir`
 projectsToIgnore=("dev-tools")
 scope="changed"
-grepFilter="HEAD detached|Processing|Your branch|modified|On branch|\^"
+grepFilter="HEAD detached|you are still merging|Processing|Your branch|modified|On branch|\^"
 
 params=(scope grepFilter)
 

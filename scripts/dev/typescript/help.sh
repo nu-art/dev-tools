@@ -1,132 +1,120 @@
 #!/bin/bash
 
-#cat params.sh | grep -E "#|^ *\".*\)$"
+function printAndIterateLineByLine() {
+  local input="${1}"
+  local processor="${2}"
+  local tempFile=temp.txt
+  echo "${input}" > "${tempFile}"
+
+  while IFS='' read -r line || [[ -n "$line" ]]; do
+    ${processor} "${line}"
+  done < "${tempFile}"
+
+  rm "${tempFile}"
+}
+
 function printHelp() {
-  local pc="${BBlue}"
-  local group="${BCyan}"
-  local param="${BPurple}"
-  local err="${BRed}"
-  local dc="${Green}"
-  local dcb="${BGreen}"
-  local noColor="${NoColor}"
+  signatureThunderstorm
 
-  logVerbose " ==== ${group}General:${noColor} ===="
-  logVerbose
-  logVerbose "   ${pc}--help | -h${noColor}"
-  logVerbose "        ${dc}This Menu${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--print-env${noColor}"
-  logVerbose "        ${dc}Will print the current versions of the important tools${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--use-thunderstorm-sources${noColor}"
-  logVerbose "        ${dc}Will clone thunderstorm libraries${noColor}"
-  logVerbose
-  logVerbose
+  local COLOR_PARAM="${BBlue}"
+  local COLOR_GROUP="${BCyan}"
+  local COLOR_OPTION="${Purple}"
+  local COLOR_OPTION_DEFAULT="${BPurple}"
+  local COLOR_WARNING="${Yellow}"
+  local COLOR_WARNING_BOLD="${BYellow}"
+  local COLOR_DESCRIPTION_DEFAULT="${BGreen}"
+  local COLOR_DESCRIPTION="${Green}"
+  local COLOR_NONE="${COLOR_NONE}"
 
-  logVerbose " ==== ${group}CLEAN:${noColor} ===="
-  logVerbose
-  logVerbose "   ${pc}--purge${noColor}"
-  logVerbose "        ${dc}Will delete the node_modules folder in all project packages${noColor}"
-  logVerbose "        ${dc}Will perform --clean${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--clean${noColor}"
-  logVerbose "        ${dc}Will delete the output(dist) & test output(dist-test) folders in all project packages${noColor}"
-  logVerbose
-  logVerbose
+  local warnings=()
+  local documents=()
+  local params=
+  local defaultOption=
+  local options=
 
-  logVerbose " ==== ${group}BUILD:${noColor} ===="
-  logVerbose
-  logVerbose "   ${pc}--setup${noColor}"
-  logVerbose "        ${dc}Will run 'npm install' in all project packages${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--link | -l${noColor}"
-  logVerbose "        ${dc}Would link dependencies between project packages${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--link-only | -lo${noColor}"
-  logVerbose "        ${dc}Would ONLY link dependencies between project packages${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--no-build | -nb${noColor}"
-  logVerbose "        ${dc}Skip the build step${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--no-thunderstorm | -nts${noColor}"
-  logVerbose "        ${dc}Completely ignore Thunderstorm infra whether it exists or not in the project${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--lint${noColor}"
-  logVerbose "        ${dc}Run lint on all the project packages${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--rebuild-on-change | -roc${noColor}"
-  logVerbose "        ${dc}listen and rebuild on changes in project packages${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--thunderstorm-home=<${param}path-to-thunderstorm${pc}> | -th=<${param}path-to-thunderstorm${pc}>${noColor}"
-  logVerbose "        ${dc}Will link the output folder of the libraries of thunderstorm that exists under the give path${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--use-package=<${param}package-folder${pc}> | -up=<${param}package-folder${pc}>${noColor}"
-  logVerbose "        ${dc}Would ONLY run the script in the context of the specified project packages${noColor}"
-  logVerbose
-  logVerbose
+  function processLine() {
+    local line="${1}"
+    case "${line}" in
+    *#*"===="*)
+      local title=$(echo "${line}" | sed -E "s/.*==== (.*) ====/\1/")
+      [[ ! "${title}" ]] && throwError "Bad line format for title: \"${line}\"" 2
+      logVerbose
+      bannerVerbose "${title}:" ${COLOR_GROUP}
+      ;;
 
-  logVerbose " ==== ${group}TEST:${noColor} ===="
-  logVerbose
-  logVerbose "   ${pc}--test | -t${noColor}"
-  logVerbose "        ${dc}Run tests in all modules${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--test=<${param}path-to-test-service-account${pc}> | -t=<${param}path-to-test-service-account${pc}>${noColor}"
-  logVerbose "        ${dc}Will run the tests with the service account file provided${noColor}"
-  logVerbose
-  logVerbose
+    *#*"DOC:"*)
+      local _document="$(echo "${line}" | sed -E "s/.*DOC: (.*)$/\1/")"
+      [[ ! "${_document}" ]] && throwError "Bad line format for documentation: \"${line}\"" 2
+      documents+=("${_document}")
+      ;;
 
-  logVerbose " ==== ${group}LAUNCH:${noColor} ===="
-  logVerbose
-  logVerbose "   ${pc}--launch${noColor}"
-  logVerbose "        ${dc}Will launch both frontend & backend${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--launch-frontend${noColor}"
-  logVerbose "        ${dc}Will launch ONLY frontend${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--launch-backend${noColor}"
-  logVerbose "        ${dc}Will launch ONLY backend${noColor}"
-  logVerbose
-  logVerbose
+    *#*"WARNING:"*)
+      local _warning="$(echo "${line}" | sed -E "s/.*WARNING: (.*)$/\1/")"
+      [[ ! "${_warning}" ]] && throwError "Bad line format for warning: \"${line}\"" 2
+      warnings+=("${_warning}")
+      ;;
 
-  logVerbose " ==== ${group}DEPLOY:${noColor} ===="
-  logVerbose
-  logVerbose "   ${pc}--deploy${noColor}"
-  logVerbose "        ${dc}Will deploy both frontend & backend${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--deploy-frontend${noColor}"
-  logVerbose "        ${dc}Will deploy ONLY frontend${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--deploy-backend${noColor}"
-  logVerbose "        ${dc}Will deploy ONLY backend${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--set-env=<${param}envType${pc}> | -se=<${param}envType${pc}>${noColor}"
-  logVerbose "        ${dc}Will set the .config-\${envType}.json as the current .config.json and prepare it as base 64 for local usage${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--fallback-env=<${param}envType${pc}> | -fe=<${param}envType${pc}>${noColor}"
-  logVerbose "        ${dc}when setting env some of the files might be missing and would fallback to the provided env${noColor}"
-  logVerbose
-  logVerbose
+    *#*"DEFAULT_PARAM="*)
+      defaultOption=$(echo "${line}" | sed -E "s/.*DEFAULT_PARAM=(.*)$/\1/")
+      ;;
 
-  logVerbose " ==== ${group}PUBLISH:${noColor} ===="
-  logVerbose
-  logVerbose "   ${pc}--version-nu-art=< ${param}major${noColor} | ${param}minor${noColor} | ${param}patch${noColor} >${noColor}"
-  logVerbose "        ${dc}Promote nu-art dependencies version${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--version-app=< ${param}major${noColor} | ${param}minor${noColor} | ${param}patch${noColor} >${noColor}"
-  logVerbose "        ${dc}Promote app dependencies version${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--publish${noColor}"
-  logVerbose "        ${dc}Publish artifacts to npm${noColor}"
-  logVerbose
+    *#*"PARAM="*)
+      local __options=$(echo "${line}" | sed -E "s/.*PARAM=(.*)$/\1/")
+      [[ ! "${__options}" ]] && throwError "Bad line format for param: \"${line}\"" 2
+      local _options="$(echo "${__options}" | sed -E "s/.*\[(.*)\].*/\1/")"
+      options=(${_options// | / })
+      ;;
 
-  logVerbose " ==== ${group}SUPER:${noColor} ===="
-  logVerbose
-  logVerbose "   ${pc}--merge-origin"
-  logVerbose "        ${dc}Pull and merge from the forked repo${noColor}"
-  logVerbose
-  logVerbose "   ${pc}--use-thunderstorm-sources${noColor}"
-  logVerbose "        ${dc}Add thunderstorm dependencies sources${noColor}"
-  logVerbose
+    *"   \""*"\""*")"*)
+      #  "--launch-frontend" | "-lf")
+      local tempParams="$(echo "${line}" | sed -E 's/.*   "([a-z-]*=?)"\*? \| "([a-z-]*=?)"\*?\).*/\1 \2/')"
 
+      [[ "${line}" == "${tempParams}" ]] && tempParams="$(echo "${line}" | sed -E 's/.*   "([a-z-]*=?)"\*?\)$/\1/')"
+      [[ "${line}" == "${tempParams}" ]] && throwError "Bad line format for parameters: '${line}'" 2
+
+      params=(${tempParams})
+      ;;
+
+    *)
+      [[ ! ${params} ]] && return
+
+      for ((i = 0; i < ${#options[@]}; i++)); do
+        [[ "${options[${i}]}" != "${defaultOption}" ]] && continue
+        options[${i}]="${COLOR_OPTION_DEFAULT}${options[${i}]}"
+      done
+
+      local optionsAsString=$(string_join " ${COLOR_SEPARATOR}|${COLOR_OPTION} " "${options[@]}")
+      for ((i = 0; i < ${#params[@]}; i++)); do
+        [[ ! $(string_endsWith "${params[${i}]}" "=") ]] && continue
+        params[${i}]="${params[${i}]}\"${COLOR_OPTION}${optionsAsString}${COLOR_PARAM}\""
+      done
+
+      logVerbose "   ${COLOR_PARAM}$(string_join " ${COLOR_SEPARATOR}|${COLOR_PARAM} " "${params[@]}")${COLOR_NONE}"
+      for warning in "${warnings[@]}"; do
+        logVerbose "        ${COLOR_WARNING_BOLD}WARNING: ${COLOR_WARNING}${warning}${COLOR_NONE}"
+      done
+
+      for document in "${documents[@]}"; do
+        logVerbose "        ${COLOR_DESCRIPTION}${document}${COLOR_NONE}"
+      done
+
+      [[ "${defaultOption}" ]] && logVerbose "        ${COLOR_DESCRIPTION_DEFAULT}DEFAULT: ${COLOR_DESCRIPTION}${defaultOption}${COLOR_NONE}"
+
+      params=
+      documents=()
+      warnings=()
+      options=
+      defaultOption=
+      logVerbose
+
+      ;;
+    esac
+  }
+
+  local paramsFile="${1}"
+  [[ ! -e "${paramsFile}" ]] && throwError "File doesn't exists: ${paramsFile}" 2
+
+  local output="$(cat "${paramsFile}")"
+  printAndIterateLineByLine "${output}" processLine
   exit 0
 }

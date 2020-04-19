@@ -1,0 +1,100 @@
+#
+#  This file is a part of nu-art projects development tools,
+#  it has a set of bash and gradle scripts, and the default
+#  settings for Android Studio and IntelliJ.
+#
+#     Copyright (C) 2017  Adam van der Kruk aka TacB0sS
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#          You may obtain a copy of the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+#!/bin/bash
+
+## @function: string_endsWith(string, expected)
+##
+## @description: Check if a string ends with the expected
+##
+## @return: true if ends with the expected string, null otherwise
+function string_endsWith() {
+  local string="${1}"
+  local expected="${2}"
+  [[ "${string: -${#expected}}" == "${expected}" ]] && echo "true"
+}
+
+## @function: string_startsWith(string, expected)
+##
+## @description: Check if a string starts with the expected
+##
+## @return: true if starts with the expected string, null otherwise
+function string_startsWith() {
+  local string="${1}"
+  local expected="${2}"
+  [[ "${string: -${#expected}}" == "${expected}" ]] && echo "true"
+}
+
+##   == WIP ==
+## @function: string_match(string, ...regexps)
+##
+## @description: Check if a string matches all given regexps
+##
+## @return: The found matches
+function string_match() {
+  local string="${1}"
+  local regexps=("${@:2}")
+  local matches=()
+  for regexp in ${regexps[@]}; do
+    while [[ "${string}" =~ $regexp ]]; do
+      matches+=("${BASH_REMATCH[1]}")
+      string=$(echo "${string}" | sed -E "s/${BASH_REMATCH[1]}//g")
+    done
+  done
+
+  echo "${matches[@]}"
+}
+
+## @function: string_replace(match, replaceWith, string)
+##
+## @description: Replaces all occurences of a substring in a given string matching a regexp
+##
+## @return: The new edited string
+function string_replaceAll() {
+  string_replace "$1" "$2" "$3" g
+}
+
+## @function: string_replace(match, replaceWith, string, flags?)
+##
+## @description: Replaces a substring in a given string matching a regexp
+##
+## @return: The new edited string
+function string_replace() {
+  local match="${1}"
+  local replaceWith="${2}"
+  local string="${3}"
+  local flags="${4}"
+
+  echo "${string}" | sed -E "s/${match}/${replaceWith}/${flags}"
+}
+
+## @function: string_join(delimiter, ...strings)
+##
+## @description: Joins all string elements with the given delimiter
+##
+## @return: The new composed string
+function string_join() {
+  local delimiter="${1}"
+  local output="${2}"
+  for param in ${@:3}; do
+    output="${output}${delimiter}${param}"
+  done
+
+  echo "${output}"
+}

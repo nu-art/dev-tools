@@ -42,16 +42,15 @@ function filterDuplicates() {
   local list=(${@})
   local filteredList=()
 
-  for item in ${list[@]} ; do
-      [[ $(contains "${item}" ${filteredList[@]}) ]] && continue
-#      echo "adding item: ${item}"
+  for item in ${list[@]}; do
+    [[ $(contains "${item}" ${filteredList[@]}) ]] && continue
+    #      echo "adding item: ${item}"
 
-      filteredList+=(${item})
+    filteredList+=(${item})
   done
 
   echo "${filteredList[@]}"
 }
-
 
 function setDefaultAndroidHome() {
   if [[ "${ANDROID_HOME}" ]]; then
@@ -181,19 +180,10 @@ function choiceWaitForInput() {
   while (("${response}" < 0 || "${response}" >= ${#options[@]})); do
     # shellcheck disable=SC2162
     read -n 1 -p "" response
-    response=$(isNumeric "${response}" "-1")
+    response=$(number_assertNumeric "${response}" "-1")
   done
 
   echo "${options[${response}]}"
-}
-
-function isNumeric() {
-  if [[ ! "${1}" =~ ^[+-]?[0-9]+([.][0-9]+)?$ ]]; then
-    echo "${2}"
-    return
-  fi
-
-  echo "${1}"
 }
 
 function killProcess() {
@@ -267,31 +257,6 @@ function replaceInFile() {
   fi
 }
 
-function replaceAllInText() {
-  replaceInText "$1" "$2" "$3" g
-}
-
-function replaceInText() {
-  local matchPattern="${1}"
-  local replaceWith="${2}"
-  local text="${3}"
-  local flags="${4}"
-
-  # shellcheck disable=SC2005
-  echo "$(echo "${text}" | sed -E "s/${matchPattern}/${replaceWith}/${flags}")"
-}
-
-function indent() {
-  sed "s/^/${1}/"
-}
-
-function joinArray() {
-  local delimiter=${1}
-  local IFS="${delimiter}"
-  shift
-  echo "$*"
-}
-
 function isFunction() {
   local functionName=${1}
   [[ $(type -t "${functionName}") == 'function' ]] && echo "function"
@@ -317,20 +282,6 @@ function setVariable() {
   eval "${var}='${value}'"
 }
 
-function match() {
-  local content="${1}"
-  local regexps=("${@:2}")
-  local matches=()
-  for regexp in ${regexps[@]}; do
-    while [[ "${content}" =~ $regexp ]]; do
-      matches+=("${BASH_REMATCH[1]}")
-      content=$(echo "${content}" | sed -E "s/${BASH_REMATCH[1]}//g")
-    done
-  done
-
-  echo "${matches[@]}"
-}
-
 function getMaxLength() {
   local length=${#1}
   for item in "$@"; do
@@ -351,11 +302,6 @@ function getMinLength() {
   echo "${length}"
 }
 
-function random() {
-  local numberOfVariations=$1
-  local number=$((1 + (RANDOM * RANDOM * RANDOM) % numberOfVariations))
-  echo "${number}"
-}
 #K=("adam" "asdas asda s" "sdsds" asdasdasd asdasdas asdasdaas dasd asasdasdasdadasdasasd we)
 #getMinLength "${K[@]}"
 #generateRandomNumber 8

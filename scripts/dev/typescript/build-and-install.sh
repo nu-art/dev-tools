@@ -13,9 +13,6 @@ source "${BASH_SOURCE%/*}/modules.sh"
 # shellcheck source=./params.sh
 source "${BASH_SOURCE%/*}/params.sh"
 
-# shellcheck source=./help.sh
-source "${BASH_SOURCE%/*}/help.sh"
-
 [[ -e ".scripts/setup.sh" ]] && source .scripts/setup.sh
 [[ -e ".scripts/signature.sh" ]] && source .scripts/signature.sh
 

@@ -18,7 +18,7 @@
 #  limitations under the License.
 
 #!/bin/bash
-DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 source ${DIR}/colors.sh
 source ${DIR}/logger.sh
@@ -33,3 +33,4 @@ source ${DIR}/file-tools.sh
 source ${DIR}/string-tools.sh
 source ${DIR}/number-tools.sh
 source ${DIR}/versioning.sh
+source ${DIR}/help-tools.sh

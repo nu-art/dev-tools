@@ -285,8 +285,6 @@ function extractParams() {
       lint=true
       ;;
 
-      #        ==== ERRORS & DEPRECATION ====
-
     *)
       logWarning "UNKNOWN PARAM: ${paramValue}"
       ;;

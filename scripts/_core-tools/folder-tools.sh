@@ -105,7 +105,7 @@ listFoldersImpl() {
     add=true
     for ((arg = 1; arg <= $#; arg += 1)); do
       local result=$(${!arg} "${folderName}")
-      if [[ "${result}" == "false" ]]; then
+      if [[ ! "${result}" ]]; then
         add=
         break
       fi

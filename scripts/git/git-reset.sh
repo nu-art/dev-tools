@@ -71,13 +71,13 @@ processSubmodule() {
     logVerbose
     bannerDebug "Processing: ${mainModule}"
 
-    gitResetHard ${origin} ${branchName}
+    gitResetHard ${origin} "${branchName}"
     local submodules=($(getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"))
     logInfo "submodules: ${submodules[@]}"
     for submodule in "${submodules[@]}"; do
-        cd ${submodule}
+        _cd "${submodule}"
             processSubmodule "${mainModule}/${submodule}"
-        cd ..
+        _cd..
     done
 }
 

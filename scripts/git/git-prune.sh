@@ -24,18 +24,18 @@ source ${BASH_SOURCE%/*}/_core.sh
 projectsToIgnore=("dev-tools")
 runningDir=`getRunningDir`
 
-function processFolder() {
+processFolder() {
     git remote prune origin
 }
 
 signature "prune repos"
 printCommand "$@"
 
-function execute() {
+execute() {
     git remote prune origin
 }
 
-function processSubmodule() {
+processSubmodule() {
     local mainModule=${1}
     logVerbose
     bannerDebug "Processing: ${mainModule}"

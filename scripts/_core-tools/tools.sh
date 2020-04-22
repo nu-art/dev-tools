@@ -19,40 +19,7 @@
 
 #!/bin/bash
 
-## @function: contains(item, ...list)
-##
-## @description: Check if an item is in a list
-##
-## @return: true if contained, null otherwise
-function contains() {
-  for i in "${@:2}"; do
-    if [[ "${i}" == "${1}" ]]; then
-      echo "true"
-      return
-    fi
-  done
-}
-
-## @function: contains(...list)
-##
-## @description: filters duplicated items in the list
-##
-## @return: a filtered list with every item existing only once in it
-function filterDuplicates() {
-  local list=(${@})
-  local filteredList=()
-
-  for item in ${list[@]}; do
-    [[ $(contains "${item}" ${filteredList[@]}) ]] && continue
-    #      echo "adding item: ${item}"
-
-    filteredList+=(${item})
-  done
-
-  echo "${filteredList[@]}"
-}
-
-function setDefaultAndroidHome() {
+setDefaultAndroidHome() {
   if [[ "${ANDROID_HOME}" ]]; then
     return
   fi
@@ -72,7 +39,7 @@ function setDefaultAndroidHome() {
   fi
 }
 
-function execute() {
+execute() {
   local command=$1
   local message=$2
   local ignoreError=$3
@@ -88,7 +55,7 @@ function execute() {
   fi
 
   local errorCode=
-  ${command}
+  eval "${command}"
   errorCode=$?
 
   if [[ "${ignoreError}" == "true" ]]; then
@@ -99,7 +66,7 @@ function execute() {
   return ${errorCode}
 }
 
-function yesOrNoQuestion() {
+yesOrNoQuestion() {
   local message=${1}
   local toExecuteYes=${2}
   local toExecuteNo=${3}
@@ -125,7 +92,7 @@ function yesOrNoQuestion() {
   esac
 }
 
-function yesOrNoQuestion_new() {
+yesOrNoQuestion_new() {
   local var=${1}
   local message=${2}
   local defaultOption=${3}
@@ -159,7 +126,7 @@ function yesOrNoQuestion_new() {
   deleteTerminalLine
 }
 
-function choicePrintOptions() {
+choicePrintOptions() {
   local message=${1}
   local options=("${@}")
   options=("${options[@]:1}")
@@ -173,7 +140,7 @@ function choicePrintOptions() {
   logVerbose
 }
 
-function choiceWaitForInput() {
+choiceWaitForInput() {
   local options=("${@}")
 
   response=-1
@@ -186,7 +153,7 @@ function choiceWaitForInput() {
   echo "${options[${response}]}"
 }
 
-function killProcess() {
+killProcess() {
   local processName=${1}
   local killMethod=${2} || 15
 
@@ -197,7 +164,7 @@ function killProcess() {
   fi
 }
 
-function killAllProcess() {
+killAllProcess() {
   local processName=${1}
   local killMethod=${2} || 15
 
@@ -208,12 +175,12 @@ function killAllProcess() {
   fi
 }
 
-function isMacOS() {
+isMacOS() {
   if [[ "$(uname -v)" =~ "Darwin" ]]; then echo "true"; else echo; fi
 }
 
 # To reconsider
-function replaceStringInFiles() {
+replaceStringInFiles() {
   local rootFolder=${1}
   local matchPattern=${2}
   local replaceWith="${3}"
@@ -240,11 +207,11 @@ function replaceStringInFiles() {
   done
 }
 
-function replaceAllInFile() {
+replaceAllInFile() {
   replaceInFile "$1" "$2" "$3" g
 }
 
-function replaceInFile() {
+replaceInFile() {
   local matchPattern="${1}"
   local replaceWith="${2}"
   local file="${3}"
@@ -257,13 +224,13 @@ function replaceInFile() {
   fi
 }
 
-function isFunction() {
+isFunction() {
   local functionName=${1}
   [[ $(type -t "${functionName}") == 'function' ]] && echo "function"
 }
 
 # shellcheck disable=SC2120
-function deleteTerminalLine() {
+deleteTerminalLine() {
   local count=${1:-1}
   for ((arg = 0; arg < count; arg += 1)); do
     tput cuu1 tput el
@@ -276,13 +243,13 @@ function deleteTerminalLine() {
   done
 }
 
-function setVariable() {
+setVariable() {
   local var=${1}
   local value=${2}
   eval "${var}='${value}'"
 }
 
-function getMaxLength() {
+getMaxLength() {
   local length=${#1}
   for item in "$@"; do
     local itemLength=${#item}
@@ -292,7 +259,7 @@ function getMaxLength() {
   echo "${length}"
 }
 
-function getMinLength() {
+getMinLength() {
   local length=${#1}
   for item in "$@"; do
     local itemLength=${#item}

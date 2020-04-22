@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-function _cloud1() {
+_cloud1() {
   echo -e "   _
  (\`  ).
 (      ).
@@ -11,7 +11,7 @@ function _cloud1() {
 
 }
 
-function _cloud2() {
+_cloud2() {
     echo -e "    .--
    (   )
   (   .  )
@@ -19,14 +19,14 @@ function _cloud2() {
 \`- __.'"
 }
 
-function _cloud3() {
+_cloud3() {
     echo -e "   __   _
  _(  )_( )_
 (_   _    _)
   (_) (__)"
 }
 
-function _cloud4() {
+_cloud4() {
     echo -e "     _
  .:(\`  )\`.
 :(   .    )

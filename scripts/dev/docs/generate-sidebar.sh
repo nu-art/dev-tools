@@ -2,23 +2,23 @@
 
 source ../dev-tools/scripts/_core-tools/_source.sh
 
-function getFolders() {
+getFolders() {
     local folders=($(ls -l1 -d */ ))
     echo "${folders[@]}"
 }
 
-function getMDFiles() {
+getMDFiles() {
     local files=($(ls -l1 *.md 2>/dev/null))
     echo "${files[@]}"
 }
 
-function createSidebar() {
+createSidebar() {
     local allFileFullPaths=()
     local allFileNames=()
 
     local output="[Home](Home)\n"
     local counter=1
-    function append() {
+    append() {
         local toAppend=${1}
         output="${output}${toAppend}\n"
     }
@@ -63,7 +63,7 @@ function createSidebar() {
                 continue
             fi
 
-            if [[ $(contains "${link}.md" "${allFileNames[@]}") ]]; then
+            if [[ $(array_contains "${link}.md" "${allFileNames[@]}") ]]; then
                 continue
             fi
 

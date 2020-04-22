@@ -19,25 +19,39 @@
 
 #!/bin/bash
 
-declare -A timerMap
-
-startTimer() {
-    local key=${1}
-    timerMap[$key]=$SECONDS
+## @function: array_contains(item, ...list)
+##
+## @description: Check if an item is in a list
+##
+## @return: true if contained, null otherwise
+array_contains() {
+  for i in "${@:2}"; do
+    if [[ "${i}" == "${1}" ]]; then
+      echo "true"
+      return
+    fi
+  done
 }
 
-calcDuration() {
-    local key=${1}
-    local startedTimestamp=${timerMap[$key]}
-    if [[ ! "${startedTimestamp}" ]]; then startedTimestamp=0; fi
+## @function: array_filterDuplicates(...list)
+##
+## @description: filters duplicated items in the list
+##
+## @return: a filtered list with every item existing only once in it
+array_filterDuplicates() {
+  local list=(${@})
+  local filteredList=()
 
-    local duration=$(( $SECONDS - ${startedTimestamp} ))
-    local seconds=$(($duration % 60))
-    if [[ "$seconds" -lt 10 ]]; then seconds="0$seconds"; fi
+  for item in ${list[@]}; do
+    [[ $(array_contains "${item}" ${filteredList[@]}) ]] && continue
+    #      echo "adding item: ${item}"
 
-    local min=$(($duration / 60))
-    if [[ "$min" -eq 0 ]]; then min=00; elif [[ "$min" -lt 10 ]]; then min="0$min"; else min="$min"; fi
-    echo ${min}:${seconds}
+    filteredList+=(${item})
+  done
+
+  echo "${filteredList[@]}"
 }
 
-startTimer "rootTimer"
+isArray() {
+  [[ "$(declare -p variable_name)" =~ "declare -a" ]] && echo true
+}

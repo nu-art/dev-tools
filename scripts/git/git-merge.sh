@@ -21,74 +21,74 @@
 
 source ${BASH_SOURCE%/*}/_core.sh
 
-runningDir=`getRunningDir`
+runningDir=$(getRunningDir)
 projectsToIgnore=("dev-tools")
 params=(fromBranch toBranch)
 scope="conflict"
 
-function extractParams() {
-    for paramValue in "${@}"; do
-        case "${paramValue}" in
-            "--from="*)
-                fromBranch=`regexParam "--from" "${paramValue}"`
-            ;;
+extractParams() {
+  for paramValue in "${@}"; do
+    case "${paramValue}" in
+    "--from="*)
+      fromBranch=$(regexParam "--from" "${paramValue}")
+      ;;
 
-            "--to="*)
-                toBranch=`regexParam "--to" "${paramValue}"`
-            ;;
+    "--to="*)
+      toBranch=$(regexParam "--to" "${paramValue}")
+      ;;
 
-            "--to-this")
-                toBranch=`gitGetCurrentBranch`
-            ;;
+    "--to-this")
+      toBranch=$(gitGetCurrentBranch)
+      ;;
 
-            "--project" | "-p")
-                scope="project"
-            ;;
+    "--project" | "-p")
+      scope="project"
+      ;;
 
-            "--all" | "-a")
-                scope="all"
-            ;;
+    "--all" | "-a")
+      scope="all"
+      ;;
 
-            "--external" | "-e")
-                scope="external"
-            ;;
+    "--external" | "-e")
+      scope="external"
+      ;;
 
-            "--debug")
-                debug="true"
-            ;;
-        esac
-    done
+    "--debug")
+      debug="true"
+      ;;
+    esac
+  done
 }
 
-function printUsage() {
-    logVerbose
-    logVerbose "   USAGE:"
-    logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${fromBranch} ${toBranch}"
-    logVerbose
-    exit 0
+printUsage() {
+  logVerbose
+  logVerbose "   USAGE:"
+  logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${fromBranch} ${toBranch}"
+  logVerbose
+  exit 0
 }
 
-function verifyRequirement() {
-    local missingParamColor=${BRed}
-    local existingParamColor=${BBlue}
+verifyRequirement() {
+  local missingParamColor=${BRed}
+  local existingParamColor=${BBlue}
 
-    missingData=
-    if [[ ! "${fromBranch}" ]]; then
-        fromBranch="${missingParamColor}Branch-to-be-merged-from"
-        missingData=true
-    fi
+  missingData=
+  if [[ ! "${fromBranch}" ]]; then
+    fromBranch="${missingParamColor}Branch-to-be-merged-from"
+    missingData=true
+  fi
 
-    if [[ ! "${toBranch}" ]]; then
-        toBranch="${missingParamColor}branch-name${NoColor} OR ${missingParamColor}--to-this${NoColor}"
-        missingData=true
-    fi
+  if [[ ! "${toBranch}" ]]; then
+    toBranch="${missingParamColor}branch-name${NoColor} OR ${missingParamColor}--to-this${NoColor}"
+    missingData=true
+  fi
 
-    if [[ "${missingData}" ]]; then
-        fromBranch=" --from=${existingParamColor}${fromBranch}${NoColor}"
-        toBranch=" --to=${existingParamColor}${toBranch}${NoColor}"
+  if [[ "${missingData}" ]]; then
+    fromBranch=" --from=${existingParamColor}${fromBranch}${NoColor}"
+    toBranch=" --to=${existingParamColor}${toBranch}${NoColor}"
 
-        printUsage
-    fi
+    printUsage
+  fi
 }
 
 extractParams "$@"
@@ -98,38 +98,31 @@ signature
 printCommand "$@"
 printDebugParams ${debug} "${params[@]}"
 
+execute() {
+  currentBranch=$(gitGetCurrentBranch)
+  if [[ "${currentBranch}" != "${toBranch}" ]]; then
+    logWarning "Will not merge... expected branch: ${toBranch} but found: ${currentBranch}"
+    return
+  fi
 
-function execute() {
-    currentBranch=`gitGetCurrentBranch`
-    if [[  "${currentBranch}" != "${toBranch}" ]]; then
-        logWarning "Will not merge... expected branch: ${toBranch} but found: ${currentBranch}"
-        return
-    fi
-
-    gitMerge ${fromBranch}
+  gitMerge ${fromBranch}
 }
 
-function processSubmodule() {
-    local mainModule=${1}
-    bannerDebug "${mainModule}"
+processSubmodule() {
+  local mainModule=${1}
+  bannerDebug "${mainModule}"
 
-    execute
+  execute
 
-    local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
-#    echo
-#    echo "conflictingSubmodules: ${submodules[@]}"
+  local submodules=($(getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"))
 
-    for submodule in "${submodules[@]}"; do
-        cd ${submodule}
-            processSubmodule "${mainModule}/${submodule}"
-        cd ..
-    done
+  for submodule in "${submodules[@]}"; do
+    _cd "${submodule}"
+    processSubmodule "${mainModule}/${submodule}"
+    _cd..
+  done
 
-    local submodules=(`getAllChangedSubmodules "${projectsToIgnore[@]}"`)
-#    echo
-#    echo "changedSubmodules: ${submodules[@]}"
-    gitUpdateSubmodules "${submodules[@]}"
+  local submodules=($(getAllChangedSubmodules "${projectsToIgnore[@]}"))
 }
-
 
 processSubmodule "${runningDir}"

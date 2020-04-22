@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "lib": [
+      "es5",
+      "es6",
+      "es7"
+    ],
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "noUnusedLocals": true,
+    "module": "commonjs",
+    "sourceMap": true,
+    "strict": true,
+    "target": "es5"
+  }
+}

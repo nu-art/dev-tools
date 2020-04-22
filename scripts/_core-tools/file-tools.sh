@@ -19,75 +19,14 @@
 
 #!/bin/bash
 
-function getRunningDir() {
-  echo "${PWD##*/}"
-}
-
-function copyFileToFolder() {
-  local origin="${1}"
-  local target="${2}"
-
-  [[ ! -e "${target}" ]] && createDir "${target}"
-
-  cp "${origin}" "${target}"
-  execute "cp ${origin} ${target}" "Copying file: ${origin} => ${target}"
-}
-
-function createDir() {
-  local pathToDir="${1}"
-  [[ -e "${pathToDir}" ]] || [[ -d "${pathToDir}" ]] || [[ -L "${pathToDir}" ]] && return
-
-  execute "mkdir -p ${pathToDir}" "Creating folder: ${pathToDir}"
-}
-
-function deleteFile() {
+deleteFile() {
   local pathToFile=${1}
   [[ ! -e "${pathToFile}" ]] && return
 
   execute "rm ${pathToFile}" "Deleting file: ${pathToFile}"
 }
 
-function deleteFolder() {
-  deleteDir $@
-}
-
-function deleteDir() {
-  local pathToDir="${1}"
-  [[ ! -e "${pathToDir}" ]] && [[ ! -d "${pathToDir}" ]] && [[ ! -L "${pathToDir}" ]] && return
-
-  execute "rm -rf ${pathToDir}" "Deleting folder: ${pathToDir}"
-}
-
-function _cd() {
-  local pathToDir=${1}
-  [[ -z "${pathToDir}" ]] && throwWarning "path is empty" 2
-  cd "${pathToDir}" > /dev/null 2>&1 || throwWarning "$(pwd)/${pathToDir} folder does not exists" 2
-}
-
-function _cd..() {
-  cd ..
-}
-
-function _pushd() {
-  local pathToDir=${1}
-  [[ -z "${pathToDir}" ]] && throwWarning "path is empty" 2
-  pushd "${pathToDir}" > /dev/null 2>&1 || throwWarning "$(pwd)/${pathToDir} folder does not exists" 2
-}
-
-function _popd() {
-  popd > /dev/null 2>&1 || throwWarning "folder does not exists" 2
-}
-
-function clearFolder() {
-  local pathToDir=${1}
-  [[ ! -e "${pathToDir}" ]] && return
-
-  _pushd "${pathToDir}"
-  execute "rm -rf *" "Deleting folder content: ${pathToDir}"
-  _popd
-}
-
-function renameFiles() {
+renameFiles() {
   local rootFolder=${1}
   local matchPattern=${2}
   local replaceWith=${3}
@@ -98,3 +37,4 @@ function renameFiles() {
     mv "${file}" "${newFile}"
   done
 }
+

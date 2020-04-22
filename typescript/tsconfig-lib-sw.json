@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig-lib-ts.json",
+  "compilerOptions": {
+    "lib": [
+      "es5",
+      "es6",
+      "es7",
+      "webworker"
+    ]
+  }
+}

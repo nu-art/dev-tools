@@ -19,7 +19,7 @@ allGood=n
 firebaseProject=$(firebase use | head -1)
 firebaseProjectLocation=us-central1
 
-function signatureThunderstorm() {
+signatureThunderstorm() {
   clear
   logVerbose "${Gray} -------     _____ _                     _                    _                              ------- ${NoColor}"
   logVerbose "${Gray} -------    |_   _| |__  _   _ _ __   __| | ___ _ __      ___| |_ ___  _ __ _ __ ___    ${Gray}   ------- ${NoColor}"
@@ -30,7 +30,7 @@ function signatureThunderstorm() {
   logVerbose
 }
 
-function sayGoodbye() {
+sayGoodbye() {
   clear
   logVerbose "${Gray}     __   _             __   _            __   _        __   _                 ${NoColor}"
   logVerbose "${Gray}   _(  )_( )_         _(  )_( )_        _(  )_( )_    _(  )_( )_  ${Gray}   ------- ${NoColor}"
@@ -41,7 +41,7 @@ function sayGoodbye() {
   logVerbose
 }
 
-function promptUserForInput() {
+promptUserForInput() {
   local var=${1}
   local message=${2}
   local defaultValue=${3}
@@ -64,7 +64,7 @@ function promptUserForInput() {
   fi
 }
 
-function verifyRepoExists() {
+verifyRepoExists() {
   local repoUrl=${1}
 
   logDebug "Verifying access to repo ${repoUrl}"
@@ -80,7 +80,7 @@ function verifyRepoExists() {
   return 0
 }
 
-function promptForRepoUrl() {
+promptForRepoUrl() {
   promptUserForInput repoUrl "Please enter the repo url to fork into:" ${repoUrl}
   verifyRepoExists ${repoUrl}
 
@@ -97,7 +97,7 @@ function promptForRepoUrl() {
   logInfo
 }
 
-function promptForFirebaseProject() {
+promptForFirebaseProject() {
   promptUserForInput firebaseProject "Please enter the Firebase Project you will be using:" ${firebaseProject}
   verifyFirebaseProjectIsAccessible ${firebaseProject}
   local status=$?
@@ -116,18 +116,18 @@ function promptForFirebaseProject() {
   logInfo
 }
 
-function promptForFirebaseProjectLocationRepo() {
+promptForFirebaseProjectLocationRepo() {
   promptUserForInput projectLocation "Please enter the Firebase Project LOCATION assigned to your project" ${firebaseProjectLocation}
   logInfo
 }
 
-function installNpmPackages() {
+installNpmPackages() {
   logInfo "Verify required npm packages are installed gloabally"
   npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest sort-json@latest nodemon@latest
   logInfo
 }
 
-#function verifyLocalPathExists() {
+#verifyLocalPathExists() {
 #    local localPath=${1}
 #    if [[ -d "${localPath}" ]]; then
 #        return 0
@@ -137,7 +137,7 @@ function installNpmPackages() {
 #    return $?
 #}
 
-function promptForLocalPathForFork() {
+promptForLocalPathForFork() {
   promptUserForInput localPath "Please enter the path to fork the project to:" ${localPath}
   local deleteLocalFolder=y
   if [[ -e "${localPath}" ]]; then
@@ -157,11 +157,11 @@ function promptForLocalPathForFork() {
   logInfo
 }
 
-function promptForWithOrWithoutSources() {
+promptForWithOrWithoutSources() {
   yesOrNoQuestion_new withSources "Do you want to fork with the thunderstorm sources: [y/N]" ${withSources}
 }
 
-function promptUserForConfirmation() {
+promptUserForConfirmation() {
   local userInput=""
   userInput="${userInput}\n    Git fork repository url: ${repoUrl}"
   userInput="${userInput}\n    Local folder for project: ${localPath}"
@@ -180,7 +180,7 @@ function promptUserForConfirmation() {
 
 }
 
-function uploadDefaultConfigToFirebase() {
+uploadDefaultConfigToFirebase() {
   logInfo "Setting boilerplate example config to your project"
   local backupFile="${const_LogFolder}/${firebaseProject}_backup_${const_Timestamp}.json"
 
@@ -191,14 +191,14 @@ function uploadDefaultConfigToFirebase() {
   firebase database:set -y / .stuff/initial-config.json
 }
 
-function forkThunderstorm() {
+forkThunderstorm() {
   local forkingOutput="${const_LogFolder}/${firebaseProject}_forking_${const_Timestamp}.log.txt"
   logInfo "Forking Thunderstorm boilerplate into...  ${repoUrl}"
   bash ./dev-tools/scripts/git/git-fork.sh --to=${repoUrl} --output=${localPath} > ${forkingOutput}
   throwError "Error while forking Thunderstorm... logs can be found here: ${forkingOutput}"
 }
 
-function cleanUpForkedRepo() {
+cleanUpForkedRepo() {
   deleteFile ./version-thunderstorm.json
   if [[ "${withSources}" == "n" ]]; then
     for module in ${thunderstormLibraries[@]}; do
@@ -207,43 +207,43 @@ function cleanUpForkedRepo() {
   fi
 }
 
-function replaceBoilerplateNamesWithNewForkedNames() {
+replaceBoilerplateNamesWithNewForkedNames() {
   replaceStringInFiles . ${const_BoilerplateFirebaseProject} "${firebaseProject}" "dev-tools"
   replaceStringInFiles . ${const_BoilerplateLocation} "${firebaseProjectLocation}" "dev-tools"
 }
 
-function prepareForkedProjectEnvironment() {
+prepareForkedProjectEnvironment() {
   local output="${const_LogFolder}/${firebaseProject}_prepare_${const_Timestamp}.log.txt"
   logInfo "Preparing project env..."
   bash build-and-install.sh -se=dev -nb > ${output}
   throwError "Error while Preparing forked Thunderstorm... logs can be found here: ${output}"
 }
 
-function pushPreparedProjectToRepo() {
+pushPreparedProjectToRepo() {
   gitCommit "Forked project is prepared!"
   gitPush
 }
 
-function setupForkedProject() {
+setupForkedProject() {
   local output="${const_LogFolder}/${firebaseProject}_setup_${const_Timestamp}.log.txt"
   logInfo "Running initial setup of forked repo..."
   bash build-and-install.sh -se=dev --setup > ${output}
   throwError "Error while setting up forked Thunderstorm... logs can be found here: ${output}"
 }
 
-function launchForkedProject() {
+launchForkedProject() {
   local output="${const_LogFolder}/${firebaseProject}_launch_${const_Timestamp}.log.txt"
   logInfo "Launching forked project..."
   bash ./build-and-install.sh -lf -lb > ${output}
   throwError "Error while launching forked Thunderstorm... logs can be found here: ${output}"
 }
 
-function promptUserToLaunchDeployOrExit() {
+promptUserToLaunchDeployOrExit() {
   logInfo "To LAUNCH your forked project run: bash build-and-install.sh -lf -lb"
   logInfo "To DEPLOY your forked project run: bash build-and-install.sh -se=staging -df -db"
 }
 
-function sayHello() {
+sayHello() {
   signatureThunderstorm
   logInfo "Let's fork thunderstorm...."
   logInfo
@@ -257,7 +257,7 @@ function sayHello() {
   sleep 5s
 }
 
-function start() {
+start() {
   sayHello
 
   installNpmPackages

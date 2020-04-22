@@ -30,7 +30,7 @@ LOG_PREFIX=("-V-" "-D-" "-I-" "-W-" "-E-")
 
 CONST_Debug=
 
-function setLogLevel() {
+setLogLevel() {
   case ${1} in
   0 | 1 | 2 | 3 | 4)
     logLevel=${1}
@@ -144,22 +144,22 @@ banner() {
   log ${level} "+---$add---+"
 }
 
-function _logVerbose() {
+_logVerbose() {
   [[ "${CONST_Debug}" ]] && logVerbose >&2 "$@"
 }
 
-function _logDebug() {
+_logDebug() {
   [[ "${CONST_Debug}" ]] && logDebug >&2 "$@"
 }
 
-function _logInfo() {
+_logInfo() {
   [[ "${CONST_Debug}" ]] && logInfo >&2 "$@"
 }
 
-function _logWarning() {
+_logWarning() {
   [[ "${CONST_Debug}" ]] && logWarning >&2 "$@"
 }
 
-function _logError() {
+_logError() {
   [[ "${CONST_Debug}" ]] && logError >&2 "$@"
 }

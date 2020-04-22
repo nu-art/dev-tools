@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function verifyNpmPackageInstalledGlobally() {
+verifyNpmPackageInstalledGlobally() {
   local package=${1}
   local minVersion=${2}
   local foundVersion="$(getNpmPackageVersion "${package}")"
@@ -14,17 +14,17 @@ function verifyNpmPackageInstalledGlobally() {
   return 1
 }
 
-function assertNodePackageInstalled() {
+assertNodePackageInstalled() {
   local package=${1}
   verifyNpmPackageInstalledGlobally "${package}"
 }
 
-function printNpmPackageVersion() {
+printNpmPackageVersion() {
   local package=${1}
   logInfo "${package}: $(getNpmPackageVersion "${package}")"
 }
 
-function getNpmPackageVersion() {
+getNpmPackageVersion() {
   local package=${1}
 
   zevel=$(npm list -g "${package}" | grep "${package}" 2>&1)
@@ -37,7 +37,7 @@ function getNpmPackageVersion() {
   return 0
 }
 
-function installAndUseNvmIfNeeded() {
+installAndUseNvmIfNeeded() {
   NVM_DIR="$HOME/.nvm"
   if [[ ! -d "${NVM_DIR}" ]]; then
     logInfo

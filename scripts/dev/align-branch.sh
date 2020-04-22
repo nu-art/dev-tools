@@ -5,7 +5,7 @@ force=
 
 source ${BASH_SOURCE%/*}/../git/_core.sh
 
-function extractParams() {
+extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--branch="*)
@@ -31,7 +31,7 @@ function extractParams() {
     done
 }
 
-function printUsage() {
+printUsage() {
     logVerbose
     logVerbose "   USAGE:"
     logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${branchName}"
@@ -39,7 +39,7 @@ function printUsage() {
     exit 0
 }
 
-function verifyRequirement() {
+verifyRequirement() {
     missingData=
     if [[ ! "${branchName}" ]]; then
         branchName="--branch=${paramColor}branch-name${NoColor}"

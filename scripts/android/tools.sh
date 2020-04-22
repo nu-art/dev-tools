@@ -19,7 +19,7 @@
 
 #!/bin/bash
 
-function waitForDevice() {
+waitForDevice() {
     local deviceId=${1}
     local wait=
     if [[ ! ${2} ]]; then

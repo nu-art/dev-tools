@@ -23,7 +23,7 @@ source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
 
 GIT_TAG="GIT:"
 
-function gitCheckoutBranch() {
+gitCheckoutBranch() {
     local branchName=${1}
     local isForced=${2}
 
@@ -49,7 +49,7 @@ function gitCheckoutBranch() {
     return "${ErrorCode}"
 }
 
-function gitGetRepoUrl(){
+gitGetRepoUrl(){
     if [[ `isMacOS` ]]; then
         echo `git remote -v | grep push | perl -pe 's/origin\s//' | perl -pe 's/\s\(push\)//'`
     else
@@ -57,35 +57,35 @@ function gitGetRepoUrl(){
     fi
 }
 
-function getGitRepoName() {
+getGitRepoName() {
     echo `git remote -v | head -1 | perl -pe "s/.*:(.*?)(:?.git| ).*/\1/"`
 }
 
-function gitAddAll() {
+gitAddAll() {
     logInfo "${GIT_TAG} git add all"
     git add .
     return $?
 }
 
-function gitAdd() {
+gitAdd() {
     local toAdd="${1}"
     logInfo "${GIT_TAG} git add ${toAdd}"
     git add "${toAdd}"
 }
 
-function gitSaveStash() {
+gitSaveStash() {
     local stashName=${1}
     logInfo "${GIT_TAG} Stashing changes with message: ${stashName}"
     local result=`git stash save "${stashName}"`
     throwError "Error stashing changes"
 }
 
-function gitStashPop() {
+gitStashPop() {
     logInfo "${GIT_TAG} Popping last stash"
     git stash pop
 }
 
-function gitPullRepo() {
+gitPullRepo() {
     local silent=${1}
     local currentBranch=`gitGetCurrentBranch`
     if [[ ! "${currentBranch}" ]]; then
@@ -102,18 +102,18 @@ function gitPullRepo() {
     git pull ${silent}
 }
 
-function gitFetchRepo() {
+gitFetchRepo() {
     git fetch
 }
 
-function gitRemoveSubmoduleFromCache() {
+gitRemoveSubmoduleFromCache() {
     local pathToFile=${1}
     logInfo "${GIT_TAG} Removing file from git: ${pathToFile}"
     git rm -rf --cache "${pathToFile}"
     throwError "Removing submodule `getRunningDir` from cache"
 }
 
-function gitCloneRepoByUrl() {
+gitCloneRepoByUrl() {
     local repoUrl=${1}
     local recursive=${recursive}
     logInfo "${GIT_TAG} Cloning repo from url: ${repoUrl}"
@@ -122,25 +122,25 @@ function gitCloneRepoByUrl() {
 }
 
 
-function gitClearStash(){
+gitClearStash(){
     logInfo "${GIT_TAG} Clearing stash"
     git stash clear
 }
 
-function gitCommit() {
+gitCommit() {
     local message=$1
     logInfo "${GIT_TAG} Commit with message: ${message}"
     git commit -am "${message}"
     return $?
 }
 
-function gitMerge() {
+gitMerge() {
     local branch=origin/${1}
     logInfo "${GIT_TAG} Merging from ${branch}"
     git merge ${branch}
 }
 
-function gitTag() {
+gitTag() {
     local tag=$1
     local message=$2
     logInfo "${GIT_TAG} Creating tag \"${tag}\" with message: ${message}"
@@ -148,7 +148,7 @@ function gitTag() {
     throwError "Setting Tag"
 }
 
-function gitPush() {
+gitPush() {
     logInfo "${GIT_TAG} Pushing to origin..."
     local branchName=${1}
     local output=`git push`
@@ -160,26 +160,26 @@ function gitPush() {
     throwError "Pushing to ${branchName}" ${ErrorCode}
 }
 
-function gitPushTags() {
+gitPushTags() {
     logInfo "${GIT_TAG} Pushing with tags to origin..."
     git push --tags
     throwError "Pushing with tags"
 }
 
-function gitResetHard() {
+gitResetHard() {
     local origin=$([[ "${1}" == "true" ]] && echo "origin/")
     local branch=$([[ "${2}" ]] && echo "${2}" || echo `gitGetCurrentBranch`)
     git reset --hard ${origin}${branch}
 }
 
-function gitUpdateSubmodules() {
+gitUpdateSubmodules() {
     local submodules=(${@})
     logInfo "${GIT_TAG} Updating Submodules: ${submodules[@]}"
     git submodule update --init ${submodules[@]}
     throwError "Updating submodules"
 }
 
-function gitCommitAndTagAndPush() {
+gitCommitAndTagAndPush() {
     local tag=$1
     local message=$2
 
@@ -191,7 +191,7 @@ function gitCommitAndTagAndPush() {
 
 
 
-function gitHasRepoChanged() {
+gitHasRepoChanged() {
     local status=`git status | grep "Changes not staged for commit"`
     if [[ "${status}" =~ "Changes not staged for commit" ]]; then
         echo "true"
@@ -200,7 +200,7 @@ function gitHasRepoChanged() {
     fi
 }
 
-function gitListSubmodules() {
+gitListSubmodules() {
     local submodule
     local submodules=()
 
@@ -228,17 +228,17 @@ function gitListSubmodules() {
     echo "${submodules[@]}"
 }
 
-function gitGetCurrentBranch() {
+gitGetCurrentBranch() {
     local onBranch=`git status | grep "On branch" | sed -E "s/On branch //"`
     echo "${onBranch}"
 }
 
-function getAllChangedSubmodules() {
+getAllChangedSubmodules() {
     local ALL_REPOS=(`git status | grep -e "modified: .*(" | sed -E "s/.*modified: (.*)\(.*/\1/"`)
     local repos=()
     local toIgnore=(${1})
     for projectName in "${ALL_REPOS[@]}"; do
-        if [[ `contains ${projectName} "${toIgnore[@]}"` ]]; then
+        if [[ `array_contains ${projectName} "${toIgnore[@]}"` ]]; then
             continue
         fi
 
@@ -248,12 +248,12 @@ function getAllChangedSubmodules() {
     echo "${repos[@]}"
 }
 
-function getAllConflictingSubmodules() {
+getAllConflictingSubmodules() {
     local ALL_REPOS=(`git status | grep -E "both modified: .*" | sed -E "s/.*both modified: (.*)/\1/"`)
     local repos=()
     local toIgnore=(${1})
     for projectName in "${ALL_REPOS[@]}"; do
-        if [[ `contains ${projectName} "${toIgnore[@]}"` ]]; then
+        if [[ `array_contains ${projectName} "${toIgnore[@]}"` ]]; then
             continue
         fi
 
@@ -267,14 +267,14 @@ function getAllConflictingSubmodules() {
     echo "${repos[@]}"
 }
 
-function getAllNoneProjectSubmodules() {
+getAllNoneProjectSubmodules() {
     local ALL_REPOS=(`listGitFolders`)
     local repos=()
     local toIgnore=(${1})
     toIgnore+=(`gitListSubmodules`)
 
     for projectName in "${ALL_REPOS[@]}"; do
-        if [[ `contains ${projectName} "${toIgnore[@]}"` ]]; then
+        if [[ `array_contains ${projectName} "${toIgnore[@]}"` ]]; then
             continue
         fi
 
@@ -284,27 +284,27 @@ function getAllNoneProjectSubmodules() {
     echo "${repos[@]}"
 }
 
-function hasUntrackedFiles() {
+hasUntrackedFiles() {
     if [[ `git status | grep "Untracked files:"` ]]; then echo true; else echo; fi
 }
 
-function hasConflicts() {
+hasConflicts() {
     if [[ `git diff --check --diff-filter=m` ]] || [[ `git status | grep "Unmerged files:"` ]]; then echo true; else echo; fi
 }
 
-function hasChanged() {
+hasChanged() {
     if [[ `git status | grep -E "Changes to be committed:|Changes not staged for commit:"` ]]; then echo true; else echo; fi
 }
 
-function hasCommits() {
+hasCommits() {
     if [[ `git status | grep "Your branch is ahead"` ]]; then echo true; else echo; fi
 }
 
-function hasCommitsToPull() {
+hasCommitsToPull() {
     if [[ `git status | grep "Your branch is behind"` ]]; then echo true; else echo; fi
 }
 
-function gitAssertOrigin() {
+gitAssertOrigin() {
     local expectedOrigin=${1}
     local currentOrigin=`gitGetRepoUrl`
     if [[ "${currentOrigin}" != "${expectedOrigin}" ]]; then
@@ -312,35 +312,35 @@ function gitAssertOrigin() {
     fi
 }
 
-function gitAssertTagExists() {
+gitAssertTagExists() {
     local version=${1}
     echo `git tag -l | grep ${version}`
 }
 
-function gitAssertNoCommitsToPull() {
+gitAssertNoCommitsToPull() {
     if [[ `hasCommitsToPull` ]]; then
         throwError "Repo is not up to date... you got to pull it baby..." 2
     fi
 }
 
-function gitAssertRepoClean() {
+gitAssertRepoClean() {
     if [[ `hasConflicts` ]] || [[ `hasUntrackedFiles` ]] || [[ `hasChanged` ]]; then
         throwError "Repo has changes... Repo MUST be clean" 2
     fi
 }
 
-function gitAssertBranch() {
+gitAssertBranch() {
     local assertionBranches=(${@})
 
     local branch=`gitGetCurrentBranch`
-    if [[ `contains ${branch} "${assertionBranches[@]}"` ]]; then
+    if [[ `array_contains ${branch} "${assertionBranches[@]}"` ]]; then
         return
     fi
 
     throwError "In order to promote a app version you MUST be on one of the branches: ${assertionBranches[@]}!!!\n  found: branch ${branch} in `getRunningDir`" 2
 }
 
-function gitNoConflictsAddCommitPush() {
+gitNoConflictsAddCommitPush() {
     local submoduleName=${1}
     local branchName=${2}
     local commitMessage=${3}
@@ -370,7 +370,7 @@ function gitNoConflictsAddCommitPush() {
     fi
 
 }
-function getSubmodulesByScope() {
+getSubmodulesByScope() {
     local submodules=
     local toIgnore=${2}
 

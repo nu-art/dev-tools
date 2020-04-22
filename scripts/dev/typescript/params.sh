@@ -42,7 +42,7 @@ libsToRun=()
 
 params=(ThunderstormHome printEnv buildThunderstorm readOnly purge clean setup newVersion linkDependencies install build runTests testServiceAccount lint checkCircularImports launchBackend launchFrontend envType promoteThunderstormVersion promoteAppVersion deployBackend deployFrontend version publish)
 
-function extractParams() {
+extractParams() {
   for paramValue in "${@}"; do
     case "${paramValue}" in
     #        ==== General ====

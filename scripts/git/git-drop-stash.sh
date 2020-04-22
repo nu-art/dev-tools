@@ -21,7 +21,7 @@
 
 source ${BASH_SOURCE%/*}/_core.sh
 
-function processFolder() {
+processFolder() {
     git stash drop
 }
 

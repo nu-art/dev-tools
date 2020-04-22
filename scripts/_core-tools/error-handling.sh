@@ -21,12 +21,12 @@
 __RunninrPWD="$(pwd)"
 
 ERROR_OUTPUT_FILE=
-function setErrorOutputFile() {
+setErrorOutputFile() {
   ERROR_OUTPUT_FILE=${1}
   deleteFile "${ERROR_OUTPUT_FILE}"
 }
 
-function throwError() {
+throwError() {
   ERROR_CODE=$?
 
   local errorMessage=${1}
@@ -39,7 +39,7 @@ function throwError() {
   throwErrorImpl "${errorMessage}" ${errorCode}
 }
 
-function throwWarning() {
+throwWarning() {
   ERROR_CODE=$?
 
   local errorMessage=${1}
@@ -52,12 +52,12 @@ function throwWarning() {
   throwErrorImpl "${errorMessage}" ${errorCode}
 }
 
-function throwErrorImpl() {
+throwErrorImpl() {
   local errorMessage=${1}
   local errorCode=${2}
   local _pwd="${__RunninrPWD}/"
 
-  function fixSource() {
+  fixSource() {
     local file=$(echo "${1}" | sed -E "s/(.*)\/[a-zA-Z_-]+\/\.\.\/(.*)/\1\/\2/")
 
     local escapedPWD="${_pwd//\//\\/}"
@@ -70,12 +70,12 @@ function throwErrorImpl() {
     fixSource "${file}"
   }
 
-  function logException() {
+  logException() {
     logError "${1}"
     [[ "${ERROR_OUTPUT_FILE}" ]] && echo "${1}" >> "${ERROR_OUTPUT_FILE}"
   }
 
-  function printStacktrace() {
+  printStacktrace() {
     local sourceFiles=()
     for ((arg = 2; arg < ${#FUNCNAME[@]}; arg += 1)); do
       sourceFiles+=("$(fixSource "${BASH_SOURCE[${arg}]}")")

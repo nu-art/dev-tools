@@ -19,7 +19,7 @@
 
 #!/bin/bash
 
-function getFolderId {
+getFolderId {
     local folderName="$1"
 
     folderId=`gdrive list --name-width 0 --no-header --query "mimeType='application/vnd.google-apps.folder'andname='${folderName}'"`
@@ -30,7 +30,7 @@ function getFolderId {
 	echo "${folderId}"
 }
 
-function getFileId {
+getFileId {
     local fileName="$1"
 
     local fileId=`gdrive list --name-width 0 --no-header --query "name='${fileName}'"`
@@ -41,7 +41,7 @@ function getFileId {
 	echo "${fileId}"
 }
 
-function upload {
+upload {
     local fileName="$1"
     local parentFolder="$2"
 

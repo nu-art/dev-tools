@@ -25,7 +25,7 @@ runningDir=`getRunningDir`
 fromRepo=`gitGetRepoUrl`
 params=(debug toRepo fromRepo output)
 
-function extractParams() {
+extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--from="*)
@@ -47,7 +47,7 @@ function extractParams() {
     done
 }
 
-function printUsage() {
+printUsage() {
     logVerbose
     logVerbose "   USAGE:"
     logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${fromRepo} ${toRepo} ${output}"
@@ -55,7 +55,7 @@ function printUsage() {
     exit 0
 }
 
-function verifyRequirement() {
+verifyRequirement() {
     local missingParamColor=${BRed}
     local existingParamColor=${BBlue}
 

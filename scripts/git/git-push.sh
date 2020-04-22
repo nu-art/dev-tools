@@ -26,7 +26,7 @@ projectsToIgnore=("dev-tools")
 params=(branchName scope commitMessage noPointers projectsToIgnore noPush)
 scope="changed"
 
-function extractParams() {
+extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
 
@@ -87,7 +87,7 @@ function extractParams() {
     done
 }
 
-function printUsage() {
+printUsage() {
     logVerbose
     logVerbose "   USAGE:"
     logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${branchName} ${commitMessage}"
@@ -95,7 +95,7 @@ function printUsage() {
     exit 0
 }
 
-function verifyRequirement() {
+verifyRequirement() {
     local missingParamColor=${BRed}
     local existingParamColor=${BBlue}
 
@@ -125,7 +125,7 @@ signature
 printCommand "$@"
 printDebugParams ${debug} "${params[@]}"
 
-function processSubmodule() {
+processSubmodule() {
     local submoduleName=${1}
     logVerbose
     bannerDebug "${submoduleName}"

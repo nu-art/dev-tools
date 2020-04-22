@@ -20,7 +20,7 @@
 #!/bin/bash
 artifactsIds=()
 
-function installAndroidPackages() {
+installAndroidPackages() {
   echo
   logInfo "------------------------------------------------------------------------------------------------"
   logInfo "-----------------------------       Installing Packages...        ------------------------------"
@@ -42,7 +42,7 @@ function installAndroidPackages() {
   logInfo "------------------------------------------------------------------------------------------------"
 }
 
-function removeTrailingChar() {
+removeTrailingChar() {
   local charValueToRemove=${1}
   local string=${2}
   local lastCharValue=$(printf "%d\n" \'${string:$i-1:1})
@@ -53,16 +53,16 @@ function removeTrailingChar() {
   fi
 }
 
-function addId() {
+addId() {
   local idToAdd=$1
   if [[ ${artifactsIds[@]} =~ ${idToAdd} ]]; then
-    echo already contains id: ${idToAdd}
+    echo already array_contains id: ${idToAdd}
   else
     artifactsIds+="${idToAdd} "
   fi
 }
 
-function addConstantVersions() {
+addConstantVersions() {
   local sdkVersion=$(cat gradle.properties | grep "COMPILE_SDK=.*" | sed -E 's/COMPILE_SDK=//g')
   if [[ "${sdkVersion}" ]]; then
     sdkVersion=$(removeTrailingChar 13 ${sdkVersion})
@@ -76,25 +76,25 @@ function addConstantVersions() {
   fi
 }
 
-function addSDKVersion() {
+addSDKVersion() {
   local sdkVersion=$(cat build.gradle | grep "compileSdkVersion .*" | sed -E 's/compileSdkVersion| //g')
   sdkVersion=$(removeTrailingChar 13 ${sdkVersion})
   addId "platforms;android-${sdkVersion} "
 }
 
-function addBuildToolVersion() {
+addBuildToolVersion() {
   local buildTool=$(cat build.gradle | grep "buildToolsVersion \".*\"" | sed -E 's/buildToolsVersion| |"//g')
   buildTool=$(removeTrailingChar 13 ${buildTool})
   addId "build-tools;${buildTool} "
 }
 
-function addRepositories() {
+addRepositories() {
   artifactsIds+="extras;google;google_play_services "
   artifactsIds+="extras;android;m2repository "
   artifactsIds+="extras;google;m2repository "
 }
 
-function installArtifacts() {
+installArtifacts() {
   for artifactsId in ${artifactsIds[@]}; do
     echo "---${artifactsId}---"
     echo "y" | ${ANDROID_HOME}/tools/bin/sdkmanager "${artifactsId}"

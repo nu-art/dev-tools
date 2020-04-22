@@ -30,13 +30,13 @@ modules=()
 #               #
 #################
 
-function mapModule() {
-  function getModulePackageName() {
+mapModule() {
+  getModulePackageName() {
     local packageName=$(cat package.json | grep '"name":' | head -1 | sed -E "s/.*\"name\".*\"(.*)\",?/\1/")
     echo "${packageName}"
   }
 
-  function getModuleVersion() {
+  getModuleVersion() {
     local version=$(cat package.json | grep '"version":' | head -1 | sed -E "s/.*\"version\".*\"(.*)\",?/\1/")
     echo "${version}"
   }
@@ -46,14 +46,14 @@ function mapModule() {
   modulesVersion+=("${version}")
 }
 
-function assertNVM() {
+assertNVM() {
   [[ ! $(isFunction nvm) ]] && throwError "NVM Does not exist.. Script should have installed it.. let's figure this out"
   [[ -s ".nvmrc" ]] && return 0
 
   return 1
 }
 
-function printVersions() {
+printVersions() {
   logVerbose
   logVerbose "Thunderstorm version: ${thunderstormVersion}"
   logVerbose "App version: ${appVersion}"
@@ -72,7 +72,7 @@ function printVersions() {
   done
 }
 
-function mapModulesVersions() {
+mapModulesVersions() {
   modulesPackageName=()
   modulesVersion=()
   [[ ! "${thunderstormVersion}" ]] && [[ -e "version-thunderstorm.json" ]] && thunderstormVersion=$(getVersionName "version-thunderstorm.json")
@@ -91,7 +91,7 @@ function mapModulesVersions() {
   executeOnModules mapModule
 }
 
-function mapExistingLibraries() {
+mapExistingLibraries() {
   _modules=()
   local module
   for module in "${modules[@]}"; do
@@ -102,7 +102,7 @@ function mapExistingLibraries() {
 }
 
 # Lifecycle
-function executeOnModules() {
+executeOnModules() {
   local toExecute=${1}
 
   local i
@@ -118,8 +118,8 @@ function executeOnModules() {
   done
 }
 
-function setEnvironment() {
-  function copyConfigFile() {
+setEnvironment() {
+  copyConfigFile() {
     local filePattern=${1}
     local targetFile=${2}
 
@@ -161,33 +161,33 @@ function setEnvironment() {
   firebase use "${firebaseProject}"
 }
 
-function purgeModule() {
+purgeModule() {
   logInfo "Purge module: ${1}"
   deleteDir node_modules
   [[ -e "package-lock.json" ]] && rm package-lock.json
 }
 
-function cleanModule() {
+cleanModule() {
   logVerbose
   logDebug "${module} - Cleaning..."
   clearFolder "${outputDir}"
   clearFolder "${outputTestDir}"
 
-  if [[ -e "../${backendModule}" ]] && [[ $(contains "${module}" "${projectLibraries[@]}") ]]; then
+  if [[ -e "../${backendModule}" ]] && [[ $(array_contains "${module}" "${projectLibraries[@]}") ]]; then
     local backendDependencyPath="../${backendModule}/.dependencies/${module}"
     deleteDir "${backendDependencyPath}"
   fi
 }
 
-function setupModule() {
+setupModule() {
   local module=${1}
 
-  function backupPackageJson() {
+  backupPackageJson() {
     cp package.json _package.json
     throwError "Error backing up package.json in module: ${1}"
   }
 
-  function restorePackageJson() {
+  restorePackageJson() {
     trap 'restorePackageJson' SIGINT
     rm package.json
     throwError "Error restoring package.json in module: ${1}"
@@ -197,7 +197,7 @@ function setupModule() {
     trap - SIGINT
   }
 
-  function cleanPackageJson() {
+  cleanPackageJson() {
     local i
     for ((i = 0; i < ${#modules[@]}; i += 1)); do
       local dependencyModule=${modules[${i}]}
@@ -239,7 +239,7 @@ function setupModule() {
   restorePackageJson "${module}"
 }
 
-function linkDependenciesImpl() {
+linkDependenciesImpl() {
   local module=${1}
 
   local BACKTO=$(pwd)
@@ -251,7 +251,7 @@ function linkDependenciesImpl() {
   for ((i = 0; i < ${#modules[@]}; i += 1)); do
     [[ "${module}" == "${modules[${i}]}" ]] && break
 
-    [[ $(contains "${modules[${i}]}" "${projectModules[@]}") ]] && break
+    [[ $(array_contains "${modules[${i}]}" "${projectModules[@]}") ]] && break
 
     local modulePackageName="${modulesPackageName[${i}]}"
     [[ ! "$(cat package.json | grep "${modulePackageName}")" ]] && continue
@@ -289,7 +289,7 @@ function linkDependenciesImpl() {
 }
 
 # for now this is duplicate for the sake of fast dev... need to combine the above and this one
-function linkThunderstormImpl() {
+linkThunderstormImpl() {
   local module=${1}
 
   [[ ! "${internalThunderstormRefs}" ]] && internalThunderstormRefs=(${thunderstormLibraries[@]})
@@ -305,7 +305,7 @@ function linkThunderstormImpl() {
   for ((i = 0; i < ${#internalThunderstormRefs[@]}; i += 1)); do
     [[ "${module}" == "${internalThunderstormRefs[${i}]}" ]] && break
 
-    [[ $(contains "${internalThunderstormRefs[${i}]}" "${projectModules[@]}") ]] && break
+    [[ $(array_contains "${internalThunderstormRefs[${i}]}" "${projectModules[@]}") ]] && break
 
     local modulePackageName="${modulesPackageName[${i}]}"
     [[ ! "$(cat package.json | grep "${modulePackageName}")" ]] && continue
@@ -325,32 +325,37 @@ function linkThunderstormImpl() {
   done
 }
 
-function compileModule() {
+compileModule() {
   local module=${1}
 
   logInfo "${module} - Compiling..."
-  if [[ $(contains "${module}" ${projectLibraries[@]}) ]]; then
-    if [[ "${compileWatch}" ]]; then
-      tsc-watch -b -f --onSuccess "bash ../relaunch-backend.sh" &
-      echo "${module} $!" >> "${BuildFile__watch}"
-    else
-      tsc -b -f
-    fi
+  if [[ $(array_contains "${module}" ${projectLibraries[@]}) ]]; then
+    _cd src
+    local folders=($(listFolders))
+    _cd..
+    for folder in "${folders[@]}"; do
+      [[ "${folder}" == "test" ]] && continue
+
+      if [[ "${compileWatch}" ]]; then
+        tsc-watch -p ./src/main/tsconfig.json --outDir "${outputDir}" --onSuccess "bash ../relaunch-backend.sh" &
+        echo "${module} ${folder} $!" >> "${BuildFile__watch}"
+      else
+
+        tsc -p "./src/${folder}/tsconfig.json" --outDir "${outputDir}"
+        # figure out the rest of the dirs...
+      fi
+
+    done
   else
     npm run build
   fi
-  # tsc -b -f   ALL Libs
-  # tsc-watch -b -f --onSuccess "bash ../hack-backend.sh"    LISTEN ONLY LIBS
-
-  # webpack-build ONLY FRONTEND
-  # tsc -b -f   ONLY BACKEND
 
   throwWarning "Error compiling:  ${module}"
 
   cp package.json "${outputDir}"/
   deleteFile .dirty
 
-  if [[ -e "../${backendModule}" ]] && [[ $(contains "${module}" "${projectLibraries[@]}") ]]; then
+  if [[ -e "../${backendModule}" ]] && [[ $(array_contains "${module}" "${projectLibraries[@]}") ]]; then
     local backendDependencyPath="../${backendModule}/.dependencies/${module}"
     createDir "${backendDependencyPath}"
     cp -rf "${outputDir}"/* "${backendDependencyPath}/"
@@ -362,12 +367,12 @@ function compileModule() {
   [[ -f tsconfig.json ]] && sort-json tsconfig.json --ignore-case
   [[ -f tsconfig-test.json ]] && sort-json tsconfig-test.json --ignore-case
 
-  if [[ $(contains "${module}" "${thunderstormLibraries[@]}") ]] && [[ "${thunderstormVersion}" ]]; then
+  if [[ $(array_contains "${module}" "${thunderstormLibraries[@]}") ]] && [[ "${thunderstormVersion}" ]]; then
     logDebug "Setting version '${thunderstormVersion}' to module: ${module}"
     setVersionName "${thunderstormVersion}"
   fi
 
-  if [[ $(contains "${module}" "${projectModules[@]}") ]]; then
+  if [[ $(array_contains "${module}" "${projectModules[@]}") ]]; then
     logDebug "Setting version '${appVersion}' to module: ${module}"
     setVersionName "${appVersion}"
   fi
@@ -375,7 +380,7 @@ function compileModule() {
   copyFileToFolder package.json "${outputDir}"/
 }
 
-function lintModule() {
+lintModule() {
   local module=${1}
 
   logInfo "${module} - linting..."
@@ -383,37 +388,38 @@ function lintModule() {
   throwError "Error while linting:  ${module}"
 }
 
-function testModule() {
+testModule() {
   local module=${1}
 
-  [[ ! -e "tsconfig-test.json" ]] && return 0
+  [[ ! -e "./src/test/tsconfig.json" ]] && return 0
 
-  logInfo "${module} - Running tests..."
-
+  logInfo "${module} - Compinling tests..."
   deleteDir "${outputTestDir}"
-  tsc -p tsconfig-test.json --outDir "${outputTestDir}"
+  tsc -p ./src/test/tsconfig.json --outDir "${outputTestDir}"
   throwError "Error while compiling tests in:  ${module}"
 
   copyFileToFolder package.json "${outputTestDir}/test"
   throwError "Error while compiling tests in:  ${module}"
 
+  logInfo "${module} - Linting tests..."
   tslint --project tsconfig-test.json
   throwError "Error while linting tests in:  ${module}"
 
+  logInfo "${module} - Running tests..."
   node "${outputTestDir}/test/test" "--service-account=${testServiceAccount}"
   throwError "Error while running tests in:  ${module}"
 }
 
-function promoteThunderstorm() {
+promoteThunderstorm() {
 
-  function assertRepoIsClean() {
+  assertRepoIsClean() {
     gitAssertBranch master staging
     gitAssertRepoClean
     gitFetchRepo
     gitAssertNoCommitsToPull
   }
 
-  function assertRepoAndSubmodulesAreClean() {
+  assertRepoAndSubmodulesAreClean() {
     logDebug "Asserting main repo readiness to promote a version..."
     assertRepoIsClean
     logInfo "Main Repo is ready for version promotion"
@@ -428,7 +434,7 @@ function promoteThunderstorm() {
     logInfo "Submodules are ready for version promotion"
   }
 
-  function deriveVersionType() {
+  deriveVersionType() {
     local _version=${1}
     case "${_version}" in
     "patch" | "minor" | "major")
@@ -462,7 +468,7 @@ function promoteThunderstorm() {
 
 }
 
-function pushThunderstormLibs() {
+pushThunderstormLibs() {
   for module in "${thunderstormLibraries[@]}"; do
     _pushd "${module}"
     gitNoConflictsAddCommitPush "${module}" "$(gitGetCurrentBranch)" "Promoted to: v${thunderstormVersion}"
@@ -479,7 +485,7 @@ function pushThunderstormLibs() {
   throwError "Error pushing promotion tag"
 }
 
-function promoteApps() {
+promoteApps() {
   [[ ! "${newAppVersion}" ]] && throwError "MUST specify a new version for the apps... use --set-version=x.y.z" 2
 
   appVersion=${newAppVersion}
@@ -501,7 +507,7 @@ function promoteApps() {
   throwError "Error pushing promotion tag"
 }
 
-function publishThunderstorm() {
+publishThunderstorm() {
   for module in "${thunderstormLibraries[@]}"; do
     _pushd "${module}/${outputDir}"
 
@@ -514,7 +520,7 @@ function publishThunderstorm() {
   done
 }
 
-function checkImportsModule() {
+checkImportsModule() {
   local module=${1}
 
   logInfo "${module} - Checking imports..."
@@ -522,7 +528,7 @@ function checkImportsModule() {
   throwError "Error found circular imports:  ${module}"
 }
 
-function lifecycleModule() {
+lifecycleModule() {
   local module=${1}
 
 }
@@ -555,7 +561,7 @@ if (("${#modules[@]}" == 0)); then
   [[ "${buildThunderstorm}" ]] && modules+=(${thunderstormLibraries[@]})
   modules+=(${projectLibraries[@]})
   modules+=(${projectModules[@]})
-  modules=($(filterDuplicates "${modules[@]}"))
+  modules=($(array_filterDuplicates "${modules[@]}"))
 fi
 
 if (("${#libsToRun[@]}" > 0)); then

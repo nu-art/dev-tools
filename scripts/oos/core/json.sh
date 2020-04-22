@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function jsonSerialize() {
+jsonSerialize() {
     local instance=${1}
     local members=(${@:2})
     local instanceClass=`${instance}.__class`
@@ -13,7 +13,7 @@ function jsonSerialize() {
     for (( i = 0; i < ${#members[@]}; ++i )); do
         local member=${members[i]}
 
-        [[ ! `contains ${member} ${classMembers[@]}` ]] && throwError "Cannot serialize a property that is not defined in class: ${instanceClass}" 3
+        [[ ! `array_contains ${member} ${classMembers[@]}` ]] && throwError "Cannot serialize a property that is not defined in class: ${instanceClass}" 3
 
         local value=`${instance}.${member}`
         [[ ! ${value} ]] && continue

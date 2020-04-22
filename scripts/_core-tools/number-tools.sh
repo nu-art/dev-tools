@@ -23,10 +23,10 @@
 ##
 ## @description:
 ##    Asserts that the given "number" is numeric, other wise return the defaultValue.
-##    If no default value is provided, this function will throw an error NaN...
+##    If no default value is provided, this will throw an error NaN...
 ##
 ## @return: The numeric value give, or the default value if provided
-function number_assertNumeric() {
+number_assertNumeric() {
   local number="${1}"
   local defaultValue="${2}"
 
@@ -47,7 +47,7 @@ function number_assertNumeric() {
 ##    Generate a random number between 0 - ${seed}
 ##
 ## @return: The generated random number
-function number_random() {
+number_random() {
   local seed=$(number_assertNumeric "${1}" 100)
   echo "$((1 + (RANDOM * RANDOM * RANDOM) % seed))"
 }

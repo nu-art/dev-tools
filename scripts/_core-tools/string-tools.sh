@@ -24,7 +24,7 @@
 ## @description: Check if a string ends with the expected
 ##
 ## @return: true if ends with the expected string, null otherwise
-function string_endsWith() {
+string_endsWith() {
   local string="${1}"
   local expected="${2}"
   [[ "${string: -${#expected}}" == "${expected}" ]] && echo "true"
@@ -35,7 +35,7 @@ function string_endsWith() {
 ## @description: Check if a string starts with the expected
 ##
 ## @return: true if starts with the expected string, null otherwise
-function string_startsWith() {
+string_startsWith() {
   local string="${1}"
   local expected="${2}"
   [[ "${string: -${#expected}}" == "${expected}" ]] && echo "true"
@@ -47,7 +47,7 @@ function string_startsWith() {
 ## @description: Check if a string matches all given regexps
 ##
 ## @return: The found matches
-function string_match() {
+string_match() {
   local string="${1}"
   local regexps=("${@:2}")
   local matches=()
@@ -66,7 +66,7 @@ function string_match() {
 ## @description: Replaces all occurences of a substring in a given string matching a regexp
 ##
 ## @return: The new edited string
-function string_replaceAll() {
+string_replaceAll() {
   string_replace "$1" "$2" "$3" g
 }
 
@@ -75,7 +75,7 @@ function string_replaceAll() {
 ## @description: Replaces a substring in a given string matching a regexp
 ##
 ## @return: The new edited string
-function string_replace() {
+string_replace() {
   local match="${1}"
   local replaceWith="${2}"
   local string="${3}"
@@ -89,7 +89,7 @@ function string_replace() {
 ## @description: Joins all string elements with the given delimiter
 ##
 ## @return: The new composed string
-function string_join() {
+string_join() {
   local delimiter="${1}"
   local output="${2}"
   for param in ${@:3}; do

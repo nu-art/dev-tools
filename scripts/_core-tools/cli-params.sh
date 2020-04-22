@@ -19,25 +19,25 @@
 
 #!/bin/bash
 
-function regexParam() {
+regexParam() {
   local value=$(echo "${2}" | sed -E "s/(${1})=(.*)/\2/")
   echo "${value}"
 }
 
-function removePrefix() {
+removePrefix() {
   echo "${1}"
 }
 
-function makeItSo() {
+makeItSo() {
   echo "true"
 }
 
-function getBashVersion() {
+getBashVersion() {
   # shellcheck disable=SC2005
   echo "$(bash --version | grep version | head -1 | sed -E "s/.* version (.*)\(.*\(.*/\1/")"
 }
 
-function installBash() {
+installBash() {
   logInfo "Installing bash... this can take some time"
   brew install bash 2> error
   local output=$(cat error)
@@ -51,7 +51,7 @@ function installBash() {
   fi
 }
 
-function enforceBashVersion() {
+enforceBashVersion() {
   local _minVersion=${1}
   local _bashVersion=$(getBashVersion)
 
@@ -62,14 +62,14 @@ function enforceBashVersion() {
   yesOrNoQuestion "Would you like to install latest 'bash' version [y/n]:" "installBash && logInfo \"Please re-run command..\" && exit 0 " "logError \"Terminating process...\" && exit 2"
 }
 
-function printDebugParams() {
+printDebugParams() {
   local debug=${1}
   [[ ! "${debug}" ]] && return
 
   local params=("${@}")
   params=("${params[@]}")
 
-  function printParam() {
+  printParam() {
     if [[ ! "${2}" ]]; then
       return
     fi
@@ -93,7 +93,7 @@ function printDebugParams() {
   sleep 3s
 }
 
-function printCommand() {
+printCommand() {
   local params=("${@}")
   local command=" "
   command="${command}${NoColor}"

@@ -26,7 +26,7 @@ setDefaultAndroidHome
 paramColor=${BBlue}
 valueColor=${BGreen}
 
-function printUsage {
+printUsage {
     local errorMessage=${1}
 
     local packageNameParam="${paramColor}--packageName=${NoColor}"
@@ -93,7 +93,7 @@ outputTestFolder=
 
 params=(appName packageName launcherClass buildType flavor projectName projectFolder printDependencies outputFolder pathToApk outputTestFolder javaTests pathToTestApk apkPattern deviceIdParam testMode uninstall clearData forceStop clean build noBuild noInstall noLaunch waitForDevice)
 
-function extractParams() {
+extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--launcher-class="*)
@@ -231,7 +231,7 @@ signature
 printCommand "$@"
 extractParams "$@"
 
-function verifyHasDevices() {
+verifyHasDevices() {
     local message=${1}
 
     if [[ "${#deviceIds[@]}" == "0" ]]; then
@@ -272,7 +272,7 @@ DeviceRegexp_UsbDevice="[0-9a-zA-Z\-]+"
 DeviceRegexp_NetworkDevice="[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\:[0-9]{2,5}"
 
 
-function resolveDeviceId() {
+resolveDeviceId() {
     if [[ ! "${deviceIdParam}" ]] || [[ "${deviceIdParam}" == "ALL" ]] || [[ "${deviceIdParam}" == "all" ]]; then
         deviceIds=(`adb devices | grep -E "^${DeviceRegexp_UsbDevice}\s+?device$" | sed -E "s/(${DeviceRegexp_UsbDevice}).*/\1/"`)
         local networkDevices=(`adb devices | grep -E "^${DeviceRegexp_NetworkDevice}.*$"  | sed -E "s/(${DeviceRegexp_NetworkDevice}).*/\1/"`)
@@ -294,7 +294,7 @@ function resolveDeviceId() {
 #                                                                 #
 ###################################################################
 
-function runOnAllDevices() {
+runOnAllDevices() {
     local toExecute=${1}
     resolveDeviceId
     verifyHasDevices "Cannot call ${toExecute} without any device"
@@ -304,12 +304,12 @@ function runOnAllDevices() {
     done
 }
 
-function uninstallFromDevice() {
+uninstallFromDevice() {
     local deviceId=${1}
     execute "${adbCommand} -s ${deviceId} uninstall ${packageName}" "Uninstalling '${appName}':"
 }
 
-function uninstallImpl() {
+uninstallImpl() {
     if [[ ! "${uninstall}" ]]; then
           return
     fi
@@ -318,7 +318,7 @@ function uninstallImpl() {
 }
 
 
-function buildImpl() {
+buildImpl() {
     if [[ "${noBuild}" ]]; then
           return
     fi
@@ -333,25 +333,25 @@ function buildImpl() {
     throwError "Build error..."
 }
 
-function javaTestsImpl() {
+javaTestsImpl() {
     if [[ "${javaTests}" ]]; then
         execute "bash gradlew test -i" "testing '${appName}'..."
         throwError "Test error..."
     fi
 }
 
-function deleteApksImpl() {
+deleteApksImpl() {
     if [[ "${deleteApks}" ]]; then
         execute "rm -rf ${outputFolder}" "deleting output folder:"
     fi
 }
 
-function clearDataFromDevice() {
+clearDataFromDevice() {
     local deviceId=${1}
     execute "${adbCommand} -s ${deviceId} shell pm clear ${packageName}" "Clearing data for '${appName}':"
 }
 
-function clearDataImpl() {
+clearDataImpl() {
     if [[ ! "${clearData}" ]]; then
           return
     fi
@@ -359,12 +359,12 @@ function clearDataImpl() {
     runOnAllDevices "clearDataFromDevice"
 }
 
-function forceStopOnDevice() {
+forceStopOnDevice() {
     local deviceId=${1}
     execute "${adbCommand} -s ${deviceId} shell am force-stop ${packageName}" "Force stopping Remote-Screen app..."
 }
 
-function forceStopImpl() {
+forceStopImpl() {
     if [[ ! "${forceStop}" ]]; then
         return
     fi
@@ -372,7 +372,7 @@ function forceStopImpl() {
     runOnAllDevices "forceStopOnDevice"
 }
 
-function retry() {
+retry() {
     local output=${1}
     local installCommand=${2}
     local uninstallCommand=${3}
@@ -403,8 +403,8 @@ function retry() {
 
 
 
-function installImpl() {
-    function installAppOnDevice() {
+installImpl() {
+    installAppOnDevice() {
         local deviceId=${1}
         waitForDevice ${deviceId}
         local targetApkName="${appName}-app.apk"
@@ -440,8 +440,8 @@ function installImpl() {
     runOnAllDevices "installAppOnDevice"
 }
 
-function installTestImpl() {
-    function installTestAppOnDevice() {
+installTestImpl() {
+    installTestAppOnDevice() {
         local deviceId=${1}
         waitForDevice ${deviceId}
         execute "${adbCommand} -s ${deviceId} install -r -d ${testFlag}${pathToTestApk}" "Installing '${appName}' tests:" true 2> ${errorFileName}
@@ -475,12 +475,12 @@ function installTestImpl() {
     runOnAllDevices "installTestAppOnDevice"
 }
 
-function launchImpl() {
+launchImpl() {
     if [[ "${noLaunch}" ]]; then
         return
     fi
 
-    function launchOnDevice() {
+    launchOnDevice() {
         local deviceId=${1}
         execute "${adbCommand} -s ${deviceId} shell am start -n ${packageName}/${launcherClass} -a android.intent.action.MAIN -c android.intent.category.LAUNCHER" "Launching '${appName}':"
     }
@@ -488,7 +488,7 @@ function launchImpl() {
     runOnAllDevices "launchOnDevice"
 }
 
-function runTestsImpl() {
+runTestsImpl() {
     if [[ ! "${testMode}" ]]; then
         return
     fi
@@ -497,7 +497,7 @@ function runTestsImpl() {
         return
     fi
 
-    function runTestsOnDevice() {
+    runTestsOnDevice() {
         local deviceId=${1}
         execute "${adbCommand} -s ${deviceId} shell am instrument -w -r -e debug false -e ${testsToRun} ${packageName}.test/android.support.test.runner.AndroidJUnitRunner" "Running test '${appName}':"
     }
@@ -505,7 +505,7 @@ function runTestsImpl() {
     runOnAllDevices "runTestsOnDevice"
 }
 
-function dependenciesImpl() {
+dependenciesImpl() {
     if [[ ! "${printDependencies}" ]]; then
         return
     fi

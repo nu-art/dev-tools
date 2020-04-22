@@ -20,7 +20,7 @@
 #!/usr/bin/env bash
 
 printedSignature=
-function signature() {
+signature() {
     local scriptName=${1}
     if [[ ! "${scriptName}" ]]; then
         scriptName=`echo "${0}" | sed -E "s/.*\/(.*)\.sh/\1/"`
@@ -41,7 +41,7 @@ function signature() {
     echo -e " ${NoColor}"
 }
 
-function printSig1() {
+printSig1() {
     echo -e "MMP\"\"MM\"\"YMM            \`7MM\"\"\"Yp,                     .M\"\"\"bgd ";
     echo -e "P'   MM   \`7              MM    Yb                    ,MI    \"Y ";
     echo -e "     MM   ,6\"Yb.  ,p6\"bo  MM    dP  ,pP\"\"Yq.  ,pP\"Ybd \`MMb.     ";
@@ -51,7 +51,7 @@ function printSig1() {
     echo -e "   .JMML.\`Moo9^Yo.YMbmd'.JMMmmmd9   \`Ybmmd9'  M9mmmP' P\"Ybmmd\"";
 }
 
-function printSig2() {
+printSig2() {
     echo -e ",--------.             ,-----.    ,--.          ,---.   ";
     echo -e "'--.  .--',--,--. ,---.|  |) /_  /    \  ,---. '   .-'  ";
     echo -e "   |  |  ' ,-.  || .--'|  .-.  \|  ()  |(  .-' \`.  \`-.  ";

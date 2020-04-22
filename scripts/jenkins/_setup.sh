@@ -20,7 +20,7 @@
 #!/bin/bash
 source ${BASH_SOURCE%/*}/../android/_source.sh
 
-function executeCommand() {
+executeCommand() {
     local command=${1}
     local message=${2}
     if [[ ! "${message}" ]]; then message="Running: ${1}"; fi
@@ -37,7 +37,7 @@ javaUrl=
 
 params=(setupSwap setupJenkins setupJava javaUrl setupNodeAndNpm)
 
-function extractParams() {
+extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--java-url="*)

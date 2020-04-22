@@ -25,7 +25,7 @@ paramColor=${BRed}
 projectsToIgnore=("dev-tools")
 params=(githubUsername fromBranch toBranch)
 
-function extractParams() {
+extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--github-username="*)
@@ -51,7 +51,7 @@ function extractParams() {
     done
 }
 
-function printUsage() {
+printUsage() {
     logVerbose
     logVerbose "   USAGE:"
     logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${fromBranch} ${toBranch}"
@@ -59,7 +59,7 @@ function printUsage() {
     exit 0
 }
 
-function verifyRequirement() {
+verifyRequirement() {
     local missingParamColor=${BRed}
     local existingParamColor=${BBlue}
 
@@ -91,7 +91,7 @@ fi
 
 summary=""
 
-function processFolder() {
+processFolder() {
     local submoduleName=${1}
     local currentBranch=`gitGetCurrentBranch`
     if [[ "${currentBranch}" != "${fromBranch}" ]]; then

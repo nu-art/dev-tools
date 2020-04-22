@@ -19,7 +19,7 @@
 
 #!/bin/bash
 
-function checkMinVersion() {
+checkMinVersion() {
   local _version=${1}
   local _minVersion=${2}
 
@@ -43,7 +43,7 @@ function checkMinVersion() {
   done
 }
 
-function promoteVersion() {
+promoteVersion() {
   local _version=${1}
   local promotion=${2}
   local version=(${_version//./ })
@@ -83,7 +83,7 @@ function promoteVersion() {
   echo "$(string_join "." ${version[@]})"
 }
 
-function getVersionFileName() {
+getVersionFileName() {
   local versionFile=${1}
 
   if [[ ! "${versionFile}" ]]; then
@@ -101,17 +101,17 @@ function getVersionFileName() {
   echo "${versionFile}"
 }
 
-function getVersionName() {
+getVersionName() {
   local versionFile=$(getVersionFileName "${1}")
   getJsonValueForKey "${versionFile}" "version"
 }
 
-function getPackageName() {
+getPackageName() {
   local versionFile=$(getVersionFileName "${1}")
   getJsonValueForKey "${versionFile}" "name"
 }
 
-function setVersionName() {
+setVersionName() {
   local newVersionName=${1}
   local versionFile=$(getVersionFileName "${2}")
 
@@ -122,7 +122,7 @@ function setVersionName() {
   fi
 }
 
-function getJsonValueForKey() {
+getJsonValueForKey() {
   local fileName=${1}
   local key=${2}
 
@@ -130,7 +130,7 @@ function getJsonValueForKey() {
   echo "${value}"
 }
 
-function setJsonValueForKey() {
+setJsonValueForKey() {
   local jsonFile=${1}
   local key=${2}
   local value=${3}

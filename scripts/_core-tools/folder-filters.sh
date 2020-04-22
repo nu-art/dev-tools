@@ -18,131 +18,36 @@
 #  limitations under the License.
 
 #!/bin/bash
-
 allFolders() {
   echo true
 }
 
 allGitFolders() {
-  if [[ -e "${1}/.git" ]]; then
-    echo true
-    return
-  fi
-
-  echo false
+  local module=${1}
+  [[ ! -e "${module}/.git" ]] && return
+  echo true
 }
 
 gitFolders() {
   local module=${1}
-  if [[ "${module}" == "dev-tools" ]]; then
-    echo false
-    return
-  fi
-
-  if [[ -e "${module}/.git" ]]; then
-    echo true
-    return
-  fi
-
-  echo false
+  [[ "${module}" == "dev-tools" ]] && return
+  [[ ! -e "${module}/.git" ]] && return
+  echo true
 }
 
 moduleFolder() {
   # shellcheck disable=SC2076
-  if [[ "$(cat "${1}/build.gradle" | grep com.android.application)" =~ "com.android.application" ]]; then
-    echo false
-    return
-  fi
-
+  [[ "$(cat "${1}/build.gradle" | grep com.android.application)" =~ "com.android.application" ]] && echo
   echo true
 }
 
 androidAppsFolder() {
   # shellcheck disable=SC2076
-  if [[ "$(cat "${1}/build.gradle" | grep com.android.application)" =~ "com.android.application" ]]; then
-    echo true
-    return
-  fi
-
-  echo false
+  [[ ! "$(cat "${1}/build.gradle" | grep com.android.application)" =~ "com.android.application" ]] && return
+  echo true
 }
 
 allGradleFolders() {
-  if [[ -e "${1}/build.gradle" ]] && [[ ! -e "${1}/settings.gradle" ]]; then
-    echo true
-    return
-  fi
-
-  echo false
-}
-
-listFoldersImpl() {
-  # shellcheck disable=SC2035
-  # listing only folders!!
-  local folders=($(echo */))
-
-  for folderName in "${folders[@]}"; do
-    local add=false
-
-    folderName="${folderName:0:-1}"
-    add=true
-    for ((arg = 1; arg <= $#; arg += 1)); do
-      local result=$(${!arg} "${folderName}")
-      if [[ "${result}" == "false" ]]; then
-        add=
-        break
-      fi
-    done
-
-    if [[ "${add}" ]]; then
-      directories+=(${folderName})
-    fi
-
-  done
-  echo "${directories[@]}"
-}
-
-listFolders() {
-  listFoldersImpl allFolders
-}
-
-listGitFolders() {
-  listFoldersImpl gitFolders
-}
-
-listAllGitFolders() {
-  listFoldersImpl allGitFolders
-}
-
-listAllGradleFolders() {
-  listFoldersImpl allGradleFolders
-}
-
-listGradleGitFolders() {
-  listFoldersImpl allGradleFolders allGitFolders
-}
-
-listGradleGitModulesFolders() {
-  listFoldersImpl allGradleFolders allGitFolders moduleFolder
-}
-
-listGradleAndroidAppsFolders() {
-  listFoldersImpl allGradleFolders allGitFolders androidAppsFolder
-}
-
-iterateOverFolders() {
-  local folderFilter=${1}
-  local toExecute=${2}
-
-  local directoriesAsString=$(${folderFilter})
-  local directories=(${directoriesAsString//,/ })
-
-  for folderName in "${directories[@]}"; do
-    bannerDebug "Processing: ${folderName}"
-    _pushd "${folderName}"
-    ${toExecute} "${folderName}"
-    _popd
-    logVerbose "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-  done
-
+  [[ ! -e "${1}/build.gradle" ]] || [[ -e "${1}/settings.gradle" ]] && return
+  echo true
 }

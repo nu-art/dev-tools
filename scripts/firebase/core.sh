@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function verifyFirebaseProjectIsAccessible() {
+verifyFirebaseProjectIsAccessible() {
   local firebaseProject=${1}
 
   logDebug "Verifying You are logged in to firebase tools...'"

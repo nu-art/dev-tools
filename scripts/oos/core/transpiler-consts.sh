@@ -5,7 +5,7 @@ OOS_TranspileConst_Name=__Name__
 
 
 OOS_TranspileConst_PrimitiveMemberWithGetterAndSetter="local ${OOS_TranspileConst_ClassName}_${OOS_TranspileConst_Name}=
-    function ${OOS_TranspileConst_ClassName}.${OOS_TranspileConst_Name}() {
+    ${OOS_TranspileConst_ClassName}.${OOS_TranspileConst_Name}() {
         if [[ \"\$1\" == \"=\" ]]; then
             ${OOS_TranspileConst_ClassName}_${OOS_TranspileConst_Name}=\"\$2\"
         else

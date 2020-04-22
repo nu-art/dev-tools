@@ -30,7 +30,7 @@ scope="project"
 params=(scope branchName tag)
 pids=()
 
-function extractParams() {
+extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--tag="*)
@@ -64,7 +64,7 @@ function extractParams() {
     done
 }
 
-function verifyRequirement() {
+verifyRequirement() {
     missingData=false
     if [[ ! "${tagName}" ]] || [[ "${tagName}" == "master" ]]; then
         tagName=
@@ -91,7 +91,7 @@ verifyRequirement
 signature "Delete tag or branch"
 printCommand "$@"
 
-function execute() {
+execute() {
     if [[ "${tagName}" ]]; then
         if [[ "${deleteOrigin}" ]]; then
             git push origin :${tagName}
@@ -108,7 +108,7 @@ function execute() {
 }
 
 
-function processSubmodule() {
+processSubmodule() {
     local mainModule=${1}
     logVerbose
     bannerDebug "Processing: ${mainModule}"

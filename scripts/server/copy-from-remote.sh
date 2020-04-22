@@ -19,7 +19,7 @@
 
 #!/bin/bash
 
-function copyFromRemoteServer() {
+copyFromRemoteServer() {
     local pathToPrivateKey=${1}
     local remoteServer=${2}
     local fromPath=${3}

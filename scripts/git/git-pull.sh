@@ -31,7 +31,7 @@ mainRepoBranch=`gitGetCurrentBranch`
 
 params=(stashName scope force mainRepoBranch)
 
-function extractParams() {
+extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--stash-name="*)
@@ -72,7 +72,7 @@ signature "Pull repo"
 printCommand "$@"
 printDebugParams ${debug} "${params[@]}"
 
-function execute() {
+execute() {
     local submoduleBranch=`gitGetCurrentBranch`
     runningDir=`getRunningDir`
 
@@ -80,7 +80,7 @@ function execute() {
         cd .. > /dev/null
             local submodules=(`getSubmodulesByScope "project" "${projectsToIgnore[@]}"`)
             # Make sure that the submodule is a part of the project before updating its pointer
-            if [[ `contains ${runningDir} "${submodules[@]}"` ]]; then
+            if [[ `array_contains ${runningDir} "${submodules[@]}"` ]]; then
                 git submodule update --init ${runningDir}
             else
                 cd - > /dev/null
@@ -102,7 +102,7 @@ function execute() {
         fi
     fi
 
-    function popStash() {
+    popStash() {
         if [[ "${needToPop}" ]]; then
             trap 'popStash' SIGINT
                 if [[ -e ".git/index.lock" ]]; then
@@ -125,7 +125,7 @@ function execute() {
     logInfo "${dirName} - Pulled"
 }
 
-function processSubmodule() {
+processSubmodule() {
     local mainModule=${1}
     local submodules=(`getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"`)
     getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"

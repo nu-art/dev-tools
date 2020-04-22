@@ -19,7 +19,7 @@
 
 #!/bin/bash
 
-function prepare() {
+prepare() {
     local branch=${1}
     git checkout ${branch}
     git submodule update
@@ -30,7 +30,7 @@ function prepare() {
     cd ..
 }
 
-function build() {
+build() {
 	logInfo
   	logInfo "------------------------------------------------------------------------------------------------"
   	logInfo "-----------------------------------       Building...        -----------------------------------"
@@ -58,7 +58,7 @@ function build() {
   	logInfo "------------------------------------------------------------------------------------------------"
 }
 
-function updateRepository() {
+updateRepository() {
 	logInfo
   	logInfo "------------------------------------------------------------------------------------------------"
   	logInfo "------------------------------       Update Repositories...        -----------------------------"
@@ -102,7 +102,7 @@ function updateRepository() {
   	logInfo "------------------------------------------------------------------------------------------------"
 }
 
-function buildDeployPush() {
+buildDeployPush() {
     local modules=$(listGradleGitModulesFolders)
     local tasks=uploadArchives
 

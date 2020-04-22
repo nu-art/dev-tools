@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function printAndIterateLineByLine() {
+printAndIterateLineByLine() {
   local input="${1}"
   local processor="${2}"
   local tempFile=temp.txt
@@ -13,7 +13,7 @@ function printAndIterateLineByLine() {
   rm "${tempFile}"
 }
 
-function printHelp() {
+printHelp() {
   signatureThunderstorm
 
   local COLOR_PARAM="${BBlue}"
@@ -32,7 +32,7 @@ function printHelp() {
   local defaultOption=
   local options=
 
-  function processLine() {
+  processLine() {
     local line="${1}"
     case "${line}" in
     *#*"===="*)

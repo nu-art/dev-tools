@@ -28,7 +28,7 @@ grepFilter="HEAD detached|you are still merging|Processing|Your branch|modified|
 
 params=(scope grepFilter)
 
-function extractParams() {
+extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--project" | "-p")
@@ -60,7 +60,7 @@ signature "Status repo"
 printCommand "$@"
 printDebugParams ${debug} "${params[@]}"
 
-function execute() {
+execute() {
     if [[ ! "${grepFilter}" ]]; then
         git status
     else
@@ -69,7 +69,7 @@ function execute() {
 }
 
 
-function processSubmodule() {
+processSubmodule() {
     local mainModule=${1}
     logVerbose
     bannerDebug "Processing: ${mainModule}"

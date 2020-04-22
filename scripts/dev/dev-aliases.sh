@@ -12,11 +12,11 @@ alias deploy-staging='bash build-and-install.sh -se=staging --setup -df -db'
 alias deploy-prod='bash build-and-install.sh -se=prod --setup -df -db'
 
 # Git Scripts
-function gitcommitpush() {
+gitcommitpush() {
         git add . && git commit -am "$1" && git push
 }
 
-function updateSubmoduleToLatest() {
+updateSubmoduleToLatest() {
         local repo=$1
         local branch=${2-master}
 

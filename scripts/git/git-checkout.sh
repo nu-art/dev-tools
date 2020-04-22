@@ -29,7 +29,7 @@ scope="changed"
 
 params=(scope branchName force grepFilter)
 
-function extractParams() {
+extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--force")
@@ -59,7 +59,7 @@ function extractParams() {
     done
 }
 
-function printUsage() {
+printUsage() {
     logVerbose
     logVerbose "   USAGE:"
     logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} --branch=${branchName}"
@@ -67,7 +67,7 @@ function printUsage() {
     exit 0
 }
 
-function verifyRequirement() {
+verifyRequirement() {
     missingData=
     if [[ ! "${branchName}" ]]; then
         branchName="${paramColor}branch-name${NoColor}"
@@ -88,16 +88,16 @@ printCommand "$@"
 printDebugParams ${debug} "${params[@]}"
 
 
-function execute() {
+execute() {
     gitCheckoutBranch ${branchName} ${force}
     return $?
 }
 
-function forceError() {
+forceError() {
     return $1
 }
 
-function processSubmodule() {
+processSubmodule() {
     local mainModule=${1}
     logVerbose
     bannerDebug "Processing: ${mainModule}"

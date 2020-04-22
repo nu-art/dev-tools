@@ -25,7 +25,7 @@ ratio=`bc -l <<< "scale=3; ${targetWidth}/${targetHeight}"`
 echo "Target dimension: w=${targetWidth} h=${targetHeight} R=${ratio}"
 mkdir output
 
-function listFilesImpl() {
+listFilesImpl() {
     ls -lf > list.txt
     local files=()
     local filesName
@@ -48,7 +48,7 @@ function listFilesImpl() {
     echo "${files[@]}"
 }
 
-function scaleImageTo() {
+scaleImageTo() {
     local fileName=${1}
 
     echo "Processing image: ${fileName}"

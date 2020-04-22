@@ -23,15 +23,15 @@ source "${DIR}/_tests.sh"
 
 var=true
 
-function return0() {
+return0() {
     return 0
 }
 
-function return1() {
+return1() {
     return 1
 }
 
-function return2() {
+return2() {
     return 2
 }
 

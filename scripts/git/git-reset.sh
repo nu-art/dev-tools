@@ -26,7 +26,7 @@ runningDir=`getRunningDir`
 
 params=(origin scope branchName)
 
-function extractParams() {
+extractParams() {
     for paramValue in "${@}"; do
         case "${paramValue}" in
             "--branch="*)
@@ -66,7 +66,7 @@ signature "Reset hard repo"
 printCommand "$@"
 printDebugParams ${debug} "${params[@]}"
 
-function processSubmodule() {
+processSubmodule() {
     local mainModule=${1}
     logVerbose
     bannerDebug "Processing: ${mainModule}"

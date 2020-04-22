@@ -20,11 +20,12 @@
 #!/bin/bash
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source "${DIR}/../_core-tools/_source.sh"
+CONST_Debug=TRUE
 
 totalSuccess=0
 totalErrors=0
 
-function assertValue() {
+assertValue() {
     local expected=${1}
     local actual=${2}
 
@@ -33,11 +34,11 @@ function assertValue() {
     [[ ${result} == "1" ]] && logWarning "expected: ${expected} ... but got ${actual}"
 }
 
-function assert() {
+assert() {
     local expected=${1}
     local actual=${2}
 
-    if [[ "${expected}" == ${actual} ]]; then
+    if [[ "${expected}" == "${actual}" ]]; then
         ((totalSuccess++))
         return 0
     else
@@ -46,19 +47,19 @@ function assert() {
     fi
 }
 
-function assertCommand() {
+assertCommand() {
     local expected=${1}
     local toEval=${2}
-    local actual=`${toEval}`
+    local actual=$(${toEval})
     local label=${3}
 
     assert "${expected}" "${actual}"
     result=$?
-    [[ ${result} == "1" ]] && logWarning "${toEval} => ${actual} ... expected: ${expected}"
+    [[ ${result} == "1" ]] && logWarning "${label} ${toEval} => ${actual} ... expected: ${expected}"
     [[ ${result} == "0" ]] && logVerbose "${toEval} => ${actual}"
 }
 
-function printSummary() {
+printSummary() {
     logInfo "Success: ${totalSuccess}"
     (( totalErrors > 0 )) && logError "Errors: ${totalErrors}"
 }

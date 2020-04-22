@@ -5,7 +5,7 @@ source ./clouds/clouds.sh
 
 addTranspilerClassPath `pwd`/../graphics
 
-function run() {
+run() {
     new Canvas2D canvas
     new Drawable2D cloud1
     new Drawable2D cloud2
@@ -37,8 +37,8 @@ function run() {
     canvas.draw
 }
 
-function runEngine() {
-    function createEngine() {
+runEngine() {
+    createEngine() {
         new Engine2DS engine
         new Canvas2DS canvas
         canvas.width = 100
@@ -46,7 +46,7 @@ function runEngine() {
         engine.canvas = canvas
     }
 
-    function createCloud() {
+    createCloud() {
         local name=${1}
         local image=${2}
         local startFrame=${3}

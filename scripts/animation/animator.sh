@@ -19,7 +19,7 @@
 
 
 
-function _cloud1() {
+_cloud1() {
   cloud1="   _
  (\`  ).
 (      ).
@@ -29,7 +29,7 @@ function _cloud1() {
 
 }
 
-function _cloud2() {
+_cloud2() {
     cloud2="OS    .--
 OS   (   )
 OS  (   .  )
@@ -40,7 +40,7 @@ OS\`- __.'  "
 _cloud1
 _cloud2
 
-function animate() {
+animate() {
     local item=${1}
     local x=${2}
     local y=${3}

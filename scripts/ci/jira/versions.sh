@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function jiraCreateNewVersion() {
+jiraCreateNewVersion() {
     local projectId=${1}
     local version=${2}
     local description=${3}

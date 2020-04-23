@@ -53,6 +53,13 @@ assertNVM() {
   return 1
 }
 
+printDependencyTree() {
+  local module=${1}
+  logDebug "${module} - Printing dependency tree..."
+  createDir "../.trash/dependencies"
+  npm list > "../.trash/dependencies/${module}.txt"
+}
+
 printVersions() {
   logVerbose
   logVerbose "Thunderstorm version: ${thunderstormVersion}"
@@ -221,7 +228,7 @@ setupModule() {
 
   if [[ "${install}" ]]; then
     trap 'restorePackageJson' SIGINT
-    deleteDir node_modules/@thunderstorm
+    deleteDir node_modules/@nu-art
     deleteFile package-lock.json
     logInfo
     logInfo "Installing ${module}"
@@ -355,15 +362,15 @@ compileModule() {
       else
 
         tsc -p "./src/${folder}/tsconfig.json" --outDir "${outputDir}"
+        throwWarning "Error compiling:  ${module}/${folder}"
         # figure out the rest of the dirs...
       fi
 
     done
   else
     npm run build
+    throwWarning "Error compiling:  ${module}"
   fi
-
-  throwWarning "Error compiling:  ${module}"
 
   cp package.json "${outputDir}"/
   deleteFile .dirty
@@ -577,6 +584,11 @@ printVersions
 
 installAndUseNvmIfNeeded
 executeOnModules lifecycleModule
+
+if [[ "${printDependencies}" ]]; then
+  executeOnModules printDependencyTree
+  exit 0
+fi
 
 # BUILD
 if [[ "${publish}" ]]; then

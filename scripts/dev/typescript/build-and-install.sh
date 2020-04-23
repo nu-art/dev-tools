@@ -685,7 +685,6 @@ if [[ "${publish}" ]]; then
 
   publishThunderstorm
   pushThunderstormLibs
-  executeOnModules setupModule
   gitNoConflictsAddCommitPush "${module}" "$(gitGetCurrentBranch)" "built with new dependencies version"
 fi
 

@@ -677,6 +677,18 @@ if [[ "${launchFrontend}" ]]; then
   _popd
 fi
 
+# OTHER
+
+if [[ "${publish}" ]]; then
+  logInfo
+  bannerInfo "Publish"
+
+  publishThunderstorm
+  pushThunderstormLibs
+  executeOnModules setupModule
+  gitNoConflictsAddCommitPush "${module}" "$(gitGetCurrentBranch)" "built with new dependencies version"
+fi
+
 # Deploy
 if [[ "${deployBackend}" ]] || [[ "${deployFrontend}" ]]; then
   if [[ "${newAppVersion}" ]]; then
@@ -705,16 +717,4 @@ if [[ "${deployBackend}" ]] || [[ "${deployFrontend}" ]]; then
     firebase deploy --only hosting
     throwWarning "Error while deploying hosting"
   fi
-fi
-
-# OTHER
-
-if [[ "${publish}" ]]; then
-  logInfo
-  bannerInfo "Publish"
-
-  publishThunderstorm
-  pushThunderstormLibs
-  executeOnModules setupModule
-  gitNoConflictsAddCommitPush "${module}" "$(gitGetCurrentBranch)" "built with new dependencies version"
 fi

@@ -22,8 +22,10 @@ bash ./dev-tools/scripts/git/git-reset.sh -a
 bash ./dev-tools/scripts/git/git-checkout.sh --branch=${branch} --all
 bash ./dev-tools/scripts/git/git-pull.sh -a -f
 
-bash build-and-install.sh --debug -s -c -se=prod "--publish=${promoteVersion}" --test=/etc/test-account.json --log=verbose
-throwError "Error while publishing artifacts to NPM"
+[[ "${publish}" ]] && publish="--publish=${promoteVersion}"
+[[ "${deploy}" ]] && deploy=(-df -db)
+bash build-and-install.sh --debug -s -c -se=prod --test=/etc/test-account.json --log=verbose "${publish}" ${deploy[@]}
+throwError "Error while publishing artifacts to NPM and deploying project"
 
 newVersionName=$(getVersionName version-thunderstorm.json)
 echo newVersionName="${newVersionName}" > ../build.properties

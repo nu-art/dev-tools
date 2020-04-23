@@ -247,6 +247,14 @@ linkDependenciesImpl() {
   mapModulesVersions
   _cd "${BACKTO}"
 
+  if [[ $(array_contains "${module}" "${thunderstormLibraries[@]}") ]] && [[ "${thunderstormVersion}" ]]; then
+    logDebug "Setting version '${thunderstormVersion}' to module: ${module}"
+    setVersionName "${thunderstormVersion}"
+  elif [[ $(array_contains "${module}" "${projectModules[@]}") ]]; then
+    logDebug "Setting version '${appVersion}' to module: ${module}"
+    setVersionName "${appVersion}"
+  fi
+
   local i
   for ((i = 0; i < ${#modules[@]}; i += 1)); do
     [[ "${module}" == "${modules[${i}]}" ]] && break
@@ -293,6 +301,11 @@ linkThunderstormImpl() {
   local module=${1}
 
   [[ ! "${internalThunderstormRefs}" ]] && internalThunderstormRefs=(${thunderstormLibraries[@]})
+
+  if [[ $(array_contains "${module}" "${projectModules[@]}") ]]; then
+    logDebug "Setting version '${appVersion}' to module: ${module}"
+    setVersionName "${appVersion}"
+  fi
 
   local temp=(${modules[@]})
   modules=(${internalThunderstormRefs[@]})
@@ -366,16 +379,6 @@ compileModule() {
   sort-package-json
   [[ -f tsconfig.json ]] && sort-json tsconfig.json --ignore-case
   [[ -f tsconfig-test.json ]] && sort-json tsconfig-test.json --ignore-case
-
-  if [[ $(array_contains "${module}" "${thunderstormLibraries[@]}") ]] && [[ "${thunderstormVersion}" ]]; then
-    logDebug "Setting version '${thunderstormVersion}' to module: ${module}"
-    setVersionName "${thunderstormVersion}"
-  fi
-
-  if [[ $(array_contains "${module}" "${projectModules[@]}") ]]; then
-    logDebug "Setting version '${appVersion}' to module: ${module}"
-    setVersionName "${appVersion}"
-  fi
 
   copyFileToFolder package.json "${outputDir}"/
 }

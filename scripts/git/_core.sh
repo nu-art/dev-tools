@@ -162,8 +162,9 @@ gitMerge() {
 gitTag() {
   local tag=$1
   local message=$2
+
   logInfo "${GIT_TAG} Creating tag \"${tag}\" with message: ${message}"
-  git tag -a ${tag} -am "${message}"
+  git tag -a "${tag}" -am "${message}" ${@:3}
   throwError "Setting Tag"
 }
 
@@ -187,7 +188,7 @@ gitPushTags() {
 
 gitResetHard() {
   local origin=$([[ "${1}" == "true" ]] && echo "origin/")
-  local branch=$([[ "${2}" ]] && echo "${2}" || gitGetCurrentBranch)
+  local branch=${2:-$(gitGetCurrentBranch)}
   git reset --hard "${origin}${branch}"
 }
 

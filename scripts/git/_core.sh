@@ -49,6 +49,26 @@ gitCheckoutBranch() {
   return "${ErrorCode}"
 }
 
+git_verifyRepoExists() {
+  local repoUrl=${1}
+
+  logDebug "Verifying access to repo ${repoUrl}"
+  local output=$(git ls-remote "${repoUrl}" 2>&1)
+  [[ "${output}" =~ "Please make sure you have the correct access rights" ]] && return 2
+  [[ "${output}" =~ "ERROR: Repository not found" ]] && return 1
+  return 0
+}
+
+git_assertRepoAccess() {
+  local repoUrl=${1}
+
+  git_verifyRepoExists ${1}
+  local status=$?
+
+  [[ "${status}" == "2" ]] && throwError "Missing write permissions to repo: ${repoUrl}" 2
+  [[ "${status}" != "0" ]] && throwError "Count not find repo: ${repoUrl}" 2
+}
+
 gitGetRepoUrl() {
   if [[ $(isMacOS) ]]; then
     git remote -v | grep push | perl -pe 's/origin\s//' | perl -pe 's/\s\(push\)//'

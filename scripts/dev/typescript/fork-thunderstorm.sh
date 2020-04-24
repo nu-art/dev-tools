@@ -64,25 +64,10 @@ promptUserForInput() {
   fi
 }
 
-verifyRepoExists() {
-  local repoUrl=${1}
-
-  logDebug "Verifying access to repo ${repoUrl}"
-  local output=$(git ls-remote ${repoUrl} 2>&1)
-  if [[ "${output}" =~ "Please make sure you have the correct access rights" ]]; then
-    return 2
-  fi
-
-  if [[ "${output}" =~ "ERROR: Repository not found" ]]; then
-    return 1
-  fi
-
-  return 0
-}
 
 promptForRepoUrl() {
   promptUserForInput repoUrl "Please enter the repo url to fork into:" ${repoUrl}
-  verifyRepoExists ${repoUrl}
+  git_verifyRepoExists ${repoUrl}
 
   local status=$?
   if [[ "${status}" == "2" ]]; then

@@ -343,6 +343,7 @@ gitAssertNoCommitsToPull() {
 
 gitAssertRepoClean() {
   if [[ $(hasConflicts) ]] || [[ $(hasUntrackedFiles) ]] || [[ $(hasChanged) ]]; then
+    bash ./dev-tools/scripts/git/git-status.sh -a
     throwError "Repo has changes... Repo MUST be clean" 2
   fi
 }

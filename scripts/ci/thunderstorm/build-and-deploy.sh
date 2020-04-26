@@ -31,6 +31,6 @@ throwError "Error while publishing artifacts to NPM and deploying project"
 newVersionName=$(getVersionName version-thunderstorm.json)
 echo newVersionName="${newVersionName}" > ../build.properties
 
-errorMessage="$(cat ${projectName}/error_message.txt)"
-echo errorMessage="${errorMessage}" >> ../build.properties
+errorMessage=$(cat ${projectName}/error_message.txt)
+echo errorMessage=${errorMessage} >> ../build.properties
 _cd..

@@ -227,20 +227,12 @@ gitListSubmodules() {
   fi
 
   while IFS='' read -r line || [[ -n "$line" ]]; do
-    if [[ "${line}" =~ "submodule" ]]; then
-      submodule=$(echo ${line} | sed -E 's/\[submodule "(.*)"\]/\1/')
+    [[ ! "${line}" =~ "submodule" ]] && continue
+    submodule=$(echo ${line} | sed -E 's/\[submodule "(.*)"\]/\1/')
+    [[ ! "${submodule}" ]] && logError "Error extracting submodule name from line: ${line}" && exit 2
+    [[ "${submodule}" == "dev-tools" ]] && continue
 
-      if [[ ! "${submodule}" ]]; then
-        logError "Error extracting submodule name from line: ${line}"
-        exit 1
-      fi
-
-      if [[ "${submodule}" == "dev-tools" ]]; then
-        continue
-      fi
-
-      submodules[${#submodules[*]}]="${submodule}"
-    fi
+    submodules[${#submodules[*]}]="${submodule}"
   done < .gitmodules
 
   echo "${submodules[@]}"
@@ -256,9 +248,7 @@ getAllChangedSubmodules() {
   local repos=()
   local toIgnore=(${1})
   for projectName in "${ALL_REPOS[@]}"; do
-    if [[ $(array_contains ${projectName} "${toIgnore[@]}") ]]; then
-      continue
-    fi
+    [[ $(array_contains "${projectName}" "${toIgnore[@]}") ]] && continue
 
     repos+=(${projectName})
   done
@@ -271,14 +261,8 @@ getAllConflictingSubmodules() {
   local repos=()
   local toIgnore=(${1})
   for projectName in "${ALL_REPOS[@]}"; do
-    if [[ $(array_contains ${projectName} "${toIgnore[@]}") ]]; then
-      continue
-    fi
-
-    if [[ ! -e "${projectName}/.git" ]]; then
-      continue
-    fi
-
+    [[ $(array_contains "${projectName}" "${toIgnore[@]}") ]] && continue
+    [[ ! -e "${projectName}/.git" ]] && continue
     repos+=(${projectName})
   done
 
@@ -292,10 +276,7 @@ getAllNoneProjectSubmodules() {
   toIgnore+=($(gitListSubmodules))
 
   for projectName in "${ALL_REPOS[@]}"; do
-    if [[ $(array_contains ${projectName} "${toIgnore[@]}") ]]; then
-      continue
-    fi
-
+    [[ $(array_contains "${projectName}" "${toIgnore[@]}") ]] && continue
     repos+=(${projectName})
   done
 
@@ -303,7 +284,7 @@ getAllNoneProjectSubmodules() {
 }
 
 hasUntrackedFiles() {
-  if [[ $(git status | grep "Untracked files:") ]]; then echo true; else echo; fi
+  [[ $(git status | grep "Untracked files:") ]] && echo true
 }
 
 hasConflicts() {
@@ -315,11 +296,11 @@ hasChanged() {
 }
 
 hasCommits() {
-  if [[ $(git status | grep "Your branch is ahead") ]]; then echo true; else echo; fi
+  [[ $(git status | grep "Your branch is ahead") ]] && echo true
 }
 
 hasCommitsToPull() {
-  if [[ $(git status | grep "Your branch is behind") ]]; then echo true; else echo; fi
+  [[ $(git status | grep "Your branch is behind") ]] && echo true
 }
 
 gitAssertOrigin() {
@@ -332,7 +313,7 @@ gitAssertOrigin() {
 
 gitAssertTagExists() {
   local version=${1}
-  echo $(git tag -l | grep ${version})
+  git tag -l | grep ${version}
 }
 
 gitAssertNoCommitsToPull() {

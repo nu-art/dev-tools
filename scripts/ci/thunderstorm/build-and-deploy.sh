@@ -19,7 +19,6 @@ fi
 
 _cd "${folderName}"
 bash ./dev-tools/scripts/git/git-reset.sh -a
-git submodule update --init
 bash ./dev-tools/scripts/git/git-checkout.sh --branch=${branch} --all
 bash ./dev-tools/scripts/git/git-pull.sh -a -f
 

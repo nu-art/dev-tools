@@ -394,8 +394,16 @@ lintModule() {
   local module=${1}
 
   logInfo "${module} - linting..."
-  tslint --project tsconfig.json
-  throwError "Error while linting:  ${module}"
+  _cd src
+  local folders=($(listFolders))
+  _cd..
+
+  for folder in "${folders[@]}"; do
+    [[ "${folder}" == "test" ]] && continue
+
+    tslint --project "./src/${folder}/tsconfig.json"
+    throwError "Error while linting:  ${module}/${folder}"
+  done
 }
 
 testModule() {

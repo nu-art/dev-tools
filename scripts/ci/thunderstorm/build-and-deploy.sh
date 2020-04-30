@@ -11,9 +11,6 @@ else
   _cd "${folderName}"
   git pull
   throwError "Error pulling repo"
-
-  git submodule update --init
-  throwError "Error updating submodules"
   _cd..
 fi
 

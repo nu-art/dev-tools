@@ -9,8 +9,9 @@ versionPromotion=
 
 deploy=
 publish=
+environment=
 
-params=(debug branch gitUrl folderName versionPromotion deploy publish)
+params=(debug branch gitUrl folderName environment versionPromotion deploy publish)
 
 extractParams() {
   for paramValue in "${@}"; do
@@ -54,6 +55,12 @@ extractParams() {
       deploy=true
       ;;
 
+    "--env=" | "-e=")
+      #￿￿￿￿DOC: Which environment to build the project
+
+      environment=$(regexParam "--env|-e" "${paramValue}")
+      ;;
+
     *)
       logWarning "UNKNOWN PARAM: ${paramValue}"
       ;;
@@ -64,5 +71,6 @@ extractParams() {
   [[ ! "${gitUrl}" ]] && throwError "Mandatory param is missing: gitUrl" 2
   [[ ! "${folderName}" ]] && throwError "Mandatory param is missing: folderName" 2
   [[ ! "${versionPromotion}" ]] && throwError "Mandatory param is missing: versionPromotion" 2
+  [[ ! "${environment}" ]] && throwError "Mandatory param is missing: environment" 2
 
 }

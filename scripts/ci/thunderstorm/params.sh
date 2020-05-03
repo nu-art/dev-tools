@@ -55,7 +55,7 @@ extractParams() {
       deploy=true
       ;;
 
-    "--env=" | "-e=")
+    "--env="* | "-e="*)
       #￿￿￿￿DOC: Which environment to build the project
 
       environment=$(regexParam "--env|-e" "${paramValue}")

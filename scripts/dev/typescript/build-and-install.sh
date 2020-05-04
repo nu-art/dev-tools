@@ -248,7 +248,8 @@ setupModule() {
 
 linkDependenciesImpl() {
   local module=${1}
-  cp package.json "${outputDir}/"
+  createDir "${outputDir}"
+  cp package.json "${outputDir}"/
 
   if [[ $(array_contains "${module}" "${thunderstormLibraries[@]}") ]] && [[ "${thunderstormVersion}" ]]; then
     logDebug "Setting version '${thunderstormVersion}' to module: ${module}"

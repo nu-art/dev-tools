@@ -110,7 +110,9 @@ mapExistingLibraries() {
 # Lifecycle
 executeOnModules() {
   local toExecute=${1}
-
+  local _modules=(${@:2})
+  ((${#_modules[@]} == 0)) && _modules=(${modules[@]})
+  echo "${toExecute} - modules: ${_modules[@]}"
   local i
   for ((i = 0; i < ${#modules[@]}; i += 1)); do
     local module="${modules[${i}]}"
@@ -248,6 +250,7 @@ setupModule() {
 
 linkDependenciesImpl() {
   local module=${1}
+
   logVerbose
   logVerbose "Sorting *.json files: ${module}"
   sort-package-json
@@ -597,6 +600,12 @@ if [[ "${setup}" ]]; then
   executeOnModules setupModule
 fi
 
+if [[ "${clean}" ]]; then
+  logInfo
+  bannerInfo "Clean"
+  executeOnModules cleanModule
+fi
+
 if [[ "${linkDependencies}" ]]; then
   logInfo
   bannerInfo "Linking Dependencies"
@@ -606,14 +615,7 @@ if [[ "${linkDependencies}" ]]; then
     executeOnModules linkDependenciesImpl
   fi
 
-  mapModulesVersions
   printVersions
-fi
-
-if [[ "${clean}" ]]; then
-  logInfo
-  bannerInfo "Clean"
-  executeOnModules cleanModule
 fi
 
 if [[ "${build}" ]]; then

@@ -8,7 +8,6 @@ clean=
 setup=
 readOnly=true
 build=true
-install=true
 listen=
 linkDependencies=true
 linkThunderstorm=
@@ -265,7 +264,6 @@ extractParams() {
 
       lint=
       build=
-      install=
       linkDependencies=
       ;;
 

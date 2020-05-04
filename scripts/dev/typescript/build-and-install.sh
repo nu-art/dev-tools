@@ -225,33 +225,30 @@ setupModule() {
   backupPackageJson "${module}"
   cleanPackageJson
 
-  if [[ "${install}" ]]; then
-    trap 'restorePackageJson' SIGINT
-    deleteDir node_modules/@nu-art
-    deleteFile package-lock.json
-    logInfo
-    logInfo "Installing ${module}"
-    logInfo
-    npm install
-    throwError "Error installing module"
-    trap - SIGINT
-  fi
+  trap 'restorePackageJson' SIGINT
+
+  deleteDir node_modules/@nu-art
+  deleteFile package-lock.json
+  logInfo
+  logInfo "Installing ${module}"
+  logInfo
+
+  npm install
+  throwError "Error installing module"
 
   if [[ "${module}" == "${frontendModule}" ]] && [[ ! -e "./.config/ssl/server-key.pem" ]]; then
     createDir "./.config/ssl"
     bash ../dev-tools/scripts/utils/generate-ssl-cert.sh --output=./.config/ssl
   fi
 
+  trap - SIGINT
+
   restorePackageJson "${module}"
 }
 
 linkDependenciesImpl() {
   local module=${1}
-
-  local BACKTO=$(pwd)
-  _cd..
-  mapModulesVersions
-  _cd "${BACKTO}"
+  cp package.json "${outputDir}"/
 
   if [[ $(array_contains "${module}" "${thunderstormLibraries[@]}") ]] && [[ "${thunderstormVersion}" ]]; then
     logDebug "Setting version '${thunderstormVersion}' to module: ${module}"
@@ -375,18 +372,14 @@ compileModule() {
       else
 
         tsc -p "./src/${folder}/tsconfig.json" --outDir "${outputDir}"
-        throwWarning "Error compiling:  ${module}/${folder}"
+        throwWarning "Error compiling: ${module}/${folder}"
         # figure out the rest of the dirs...
       fi
-
     done
   else
     npm run build
-    throwWarning "Error compiling:  ${module}"
+    throwWarning "Error compiling: ${module}"
   fi
-
-  cp package.json "${outputDir}"/
-  deleteFile .dirty
 
   if [[ -e "../${backendModule}" ]] && [[ $(array_contains "${module}" "${projectLibraries[@]}") ]]; then
     local backendDependencyPath="../${backendModule}/.dependencies/${module}"

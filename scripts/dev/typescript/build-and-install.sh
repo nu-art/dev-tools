@@ -534,7 +534,6 @@ publishThunderstorm() {
     _pushd "${module}/${outputDir}"
 
     logInfo "publishing module: ${module}"
-    copyFileToFolder ../package.json .
     npm publish --access public
     throwError "Error publishing module: ${module}"
 

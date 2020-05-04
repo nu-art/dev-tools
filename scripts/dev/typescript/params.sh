@@ -30,10 +30,7 @@ newAppVersion=
 printEnv=
 printDependencies=
 
-buildThunderstorm=true
-
 modulesPackageName=()
-modulesVersion=()
 
 outputDir=dist
 outputTestDir=dist-test
@@ -41,7 +38,7 @@ outputTestDir=dist-test
 tsLogLevel=${LOG_LEVEL__INFO}
 libsToRun=()
 
-params=(ThunderstormHome printEnv printDependencies buildThunderstorm readOnly purge clean setup newVersion linkDependencies install build runTests testServiceAccount lint checkCircularImports launchBackend launchFrontend envType promoteThunderstormVersion promoteAppVersion deployBackend deployFrontend version publish)
+params=(ThunderstormHome printEnv printDependencies readOnly purge clean setup newVersion linkDependencies install build runTests testServiceAccount lint checkCircularImports launchBackend launchFrontend envType promoteThunderstormVersion promoteAppVersion deployBackend deployFrontend version publish)
 
 extractParams() {
   for paramValue in "${@}"; do
@@ -61,10 +58,15 @@ extractParams() {
     "--print-env")
       #DOC: Will print the current versions of the important tools
 
-      printEnv=true
-      build=
-      linkThunderstorm=
-      linkDependencies=
+      printNpmPackageVersion typescript
+      printNpmPackageVersion tslint
+      printNpmPackageVersion firebase-tools
+      printNpmPackageVersion sort-package-json
+
+      logDebug "node version: $(node -v)"
+      logDebug "npm version: $(npm -v)"
+      logDebug "bash version: $(getBashVersion)"
+      exit 0
       ;;
 
     "--debug")
@@ -132,12 +134,6 @@ extractParams() {
     "--no-build" | "-nb")
       #DOC: Skip the build step
       build=
-      ;;
-
-    "--no-thunderstorm" | "-nts")
-      #DOC: Completely ignore Thunderstorm infra whether it exists or not in the project
-      buildThunderstorm=
-      ThunderstormHome=
       ;;
 
     "--thunderstorm-home="* | "-th="*)

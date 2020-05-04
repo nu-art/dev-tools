@@ -36,14 +36,8 @@ mapModule() {
     echo "${packageName}"
   }
 
-  getModuleVersion() {
-    local version=$(cat package.json | grep '"version":' | head -1 | sed -E "s/.*\"version\".*\"(.*)\",?/\1/")
-    echo "${version}"
-  }
   local packageName=$(getModulePackageName)
-  local version=$(getModuleVersion)
   modulesPackageName+=("${packageName}")
-  modulesVersion+=("${version}")
 }
 
 assertNVM() {
@@ -66,22 +60,20 @@ printVersions() {
   logVerbose "App version: ${appVersion}"
   logVerbose
 
-  local format="%-$(($(getMaxLength "${modules[@]}") + 2))s %-$(($(getMaxLength "${modulesPackageName[@]}") + 2))s  %s\n"
+  local format="%-$(($(getMaxLength "${modules[@]}") + 2))s %-$(($(getMaxLength "${modulesPackageName[@]}") + 2))s\n"
   # shellcheck disable=SC2059
-  logDebug "$(printf "       ${format}\n" "Folder" "Package" "Version")"
+  logDebug "$(printf "       ${format}\n" "Folder" "Package")"
 
   for ((i = 0; i < ${#modules[@]}; i += 1)); do
     local module="${modules[${i}]}"
     local packageName="${modulesPackageName[${i}]}"
-    local version="${modulesVersion[${i}]}"
     # shellcheck disable=SC2059
-    logVerbose "$(printf "Found: ${format}\n" "${module}" "${packageName}" "v${version}")"
+    logVerbose "$(printf "Found: ${format}\n" "${module}" "${packageName}")"
   done
 }
 
 mapModulesVersions() {
   modulesPackageName=()
-  modulesVersion=()
   [[ ! "${thunderstormVersion}" ]] && [[ -e "version-thunderstorm.json" ]] && thunderstormVersion=$(getVersionName "version-thunderstorm.json")
 
   [[ "${newAppVersion}" ]] && appVersion=${newAppVersion}
@@ -99,13 +91,20 @@ mapModulesVersions() {
 }
 
 mapExistingLibraries() {
-  _modules=()
+  local _modules=
+  if (("${#libsToRun[@]}" > 0)); then
+    _modules=(${libsToRun[@]})
+  else
+    _modules+=(${projectLibraries[@]})
+    _modules+=(${projectModules[@]})
+    _modules=($(array_filterDuplicates "${_modules[@]}"))
+  fi
+
   local module
-  for module in "${modules[@]}"; do
+  for module in "${_modules[@]}"; do
     [[ ! -e "${module}" ]] && continue
-    _modules+=("${module}")
+    modules+=("${module}")
   done
-  modules=("${_modules[@]}")
 }
 
 # Lifecycle
@@ -116,11 +115,10 @@ executeOnModules() {
   for ((i = 0; i < ${#modules[@]}; i += 1)); do
     local module="${modules[${i}]}"
     local packageName="${modulesPackageName[${i}]}"
-    local version="${modulesVersion[${i}]}"
     [[ ! -e "./${module}" ]] && continue
 
     _pushd "${module}"
-    ${toExecute} "${module}" "${packageName}" "${version}"
+    ${toExecute} "${module}" "${packageName}"
     _popd
   done
 }
@@ -180,6 +178,7 @@ cleanModule() {
   clearFolder "${outputDir}"
   clearFolder "${outputTestDir}"
 
+  # the second condition can create issues if a lib is added as a projectModule..
   if [[ -e "../${backendModule}" ]] && [[ $(array_contains "${module}" "${projectLibraries[@]}") ]]; then
     local backendDependencyPath="../${backendModule}/.dependencies/${module}"
     deleteDir "${backendDependencyPath}"
@@ -256,24 +255,30 @@ linkDependenciesImpl() {
 
   if [[ $(array_contains "${module}" "${thunderstormLibraries[@]}") ]] && [[ "${thunderstormVersion}" ]]; then
     logDebug "Setting version '${thunderstormVersion}' to module: ${module}"
-    setVersionName "${thunderstormVersion}"
+    setVersionName "${thunderstormVersion}" "${outputDir}/package.json"
+
+    #duplicate code cause this is anyway not a good solution.. need to think about this further!!
+  elif [[ $(array_contains "${module}" "${projectLibraries[@]}") ]]; then
+    logDebug "Setting version '${appVersion}' to module: ${module}"
+    setVersionName "${appVersion}" "${outputDir}/package.json"
   elif [[ $(array_contains "${module}" "${projectModules[@]}") ]]; then
     logDebug "Setting version '${appVersion}' to module: ${module}"
-    setVersionName "${appVersion}"
+    setVersionName "${appVersion}" "${outputDir}/package.json"
   fi
 
   local i
   for ((i = 0; i < ${#modules[@]}; i += 1)); do
-    [[ "${module}" == "${modules[${i}]}" ]] && break
+    local libModule=${modules[${i}]}
+    [[ "${module}" == "${libModule}" ]] && break
 
-    [[ $(array_contains "${modules[${i}]}" "${projectModules[@]}") ]] && break
+    [[ $(array_contains "${libModule}" "${projectModules[@]}") ]] && break
 
     local modulePackageName="${modulesPackageName[${i}]}"
     [[ ! "$(cat package.json | grep "${modulePackageName}")" ]] && continue
 
-    logDebug "Linking ${modules[${i}]} (${modulePackageName}) => ${module}"
+    logDebug "Linking ${libModule} (${modulePackageName}) => ${module}"
     local target="$(pwd)/node_modules/${modulePackageName}"
-    local origin="$(pwd)/../${modules[${i}]}/${outputDir}"
+    local origin="$(pwd)/../${libModule}/${outputDir}"
 
     createDir "${target}"
 
@@ -284,8 +289,16 @@ linkDependenciesImpl() {
     ln -s "${origin}" "${target}"
     throwError "Error symlink dependency: ${modulePackageName}"
 
-    local moduleVersion="${modulesVersion[${i}]}"
-    [[ ! "${moduleVersion}" ]] && continue
+    if [[ $(array_contains "${libModule}" "${thunderstormLibraries[@]}") ]] && [[ "${thunderstormVersion}" ]]; then
+      local moduleVersion="${thunderstormVersion}"
+      #duplicate code cause this is anyway not a good solution.. need to think about this further!!
+    elif [[ $(array_contains "${libModule}" "${projectLibraries[@]}") ]]; then
+      local moduleVersion="${appVersion}"
+    elif [[ $(array_contains "${libModule}" "${projectModules[@]}") ]]; then
+      local moduleVersion="${appVersion}"
+    fi
+
+    [[ ! "${moduleVersion}" ]] && throwError "Could not resolve version for module: ${libModule}"
 
     local escapedModuleName=${modulePackageName/\//\\/}
     moduleVersion=$(string_replace "([0-9]+\\.[0-9]+\\.)[0-9]+" "\10" "${moduleVersion}")
@@ -295,9 +308,9 @@ linkDependenciesImpl() {
     #    echo sed -i '' -E "s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" package.json
 
     if [[ $(isMacOS) ]]; then
-      sed -i '' -E "s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" package.json
+      sed -i '' -E "s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" "${outputDir}/package.json"
     else
-      sed -i "s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" package.json
+      sed -i "s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" "${outputDir}/package.json"
     fi
     throwError "Error updating version of dependency in package.json"
   done
@@ -546,11 +559,6 @@ checkImportsModule() {
   throwError "Error found circular imports:  ${module}"
 }
 
-lifecycleModule() {
-  local module=${1}
-
-}
-
 #################
 #               #
 #   EXECUTION   #
@@ -560,38 +568,13 @@ lifecycleModule() {
 signature
 extractParams "$@"
 printDebugParams "${debug}" "${params[@]}"
-
 setLogLevel ${tsLogLevel}
-
-if [[ "${printEnv}" ]]; then
-  printNpmPackageVersion typescript
-  printNpmPackageVersion tslint
-  printNpmPackageVersion firebase-tools
-  printNpmPackageVersion sort-package-json
-
-  logDebug "node version: $(node -v)"
-  logDebug "npm version: $(npm -v)"
-  logDebug "bash version: $(getBashVersion)"
-  exit 0
-fi
-
-if (("${#modules[@]}" == 0)); then
-  [[ "${buildThunderstorm}" ]] && modules+=(${thunderstormLibraries[@]})
-  modules+=(${projectLibraries[@]})
-  modules+=(${projectModules[@]})
-  modules=($(array_filterDuplicates "${modules[@]}"))
-fi
-
-if (("${#libsToRun[@]}" > 0)); then
-  modules=(${libsToRun[@]})
-fi
-
 mapExistingLibraries
+
 mapModulesVersions
 printVersions
 
 installAndUseNvmIfNeeded
-executeOnModules lifecycleModule
 
 if [[ "${printDependencies}" ]]; then
   executeOnModules printDependencyTree

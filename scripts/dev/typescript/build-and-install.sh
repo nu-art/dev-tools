@@ -248,8 +248,13 @@ setupModule() {
 
 linkDependenciesImpl() {
   local module=${1}
-  createDir "${outputDir}"
-  cp package.json "${outputDir}"/
+  logVerbose
+  logVerbose "Sorting *.json files: ${module}"
+  sort-package-json
+  [[ -f tsconfig.json ]] && sort-json tsconfig.json --ignore-case
+  [[ -f tsconfig-test.json ]] && sort-json tsconfig-test.json --ignore-case
+
+  copyFileToFolder package.json "${outputDir}"/
 
   if [[ $(array_contains "${module}" "${thunderstormLibraries[@]}") ]] && [[ "${thunderstormVersion}" ]]; then
     logDebug "Setting version '${thunderstormVersion}' to module: ${module}"
@@ -387,14 +392,6 @@ compileModule() {
     createDir "${backendDependencyPath}"
     cp -rf "${outputDir}"/* "${backendDependencyPath}/"
   fi
-
-  logVerbose
-  logVerbose "Sorting *.json files: ${module}"
-  sort-package-json
-  [[ -f tsconfig.json ]] && sort-json tsconfig.json --ignore-case
-  [[ -f tsconfig-test.json ]] && sort-json tsconfig-test.json --ignore-case
-
-  copyFileToFolder package.json "${outputDir}"/
 }
 
 lintModule() {

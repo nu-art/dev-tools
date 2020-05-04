@@ -210,12 +210,10 @@ gitCommitAndTagAndPush() {
 }
 
 gitHasRepoChanged() {
-  local status=$(git status | grep "Changes not staged for commit")
-  if [[ "${status}" =~ "Changes not staged for commit" ]]; then
-    echo "true"
-  else
-    echo "false"
-  fi
+  local status="$(git status)"
+  [[ "${status}" =~ "Changes to be committed" ]] && echo "true"
+  [[ "${status}" =~ "you are still merging" ]] && echo "true"
+  echo "false"
 }
 
 gitListSubmodules() {
@@ -292,7 +290,7 @@ hasConflicts() {
 }
 
 hasChanged() {
-  if [[ $(git status | grep -E "Changes to be committed:|Changes not staged for commit:") ]]; then echo true; else echo; fi
+  if [[ $(git status | grep -E "Changes to be committed:|Changes not staged for commit:|you are still merging") ]]; then echo true; else echo; fi
 }
 
 hasCommits() {

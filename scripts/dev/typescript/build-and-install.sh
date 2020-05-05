@@ -308,7 +308,7 @@ linkDependenciesImpl() {
     logVerbose "Updating dependency version to ${modulePackageName} => ${moduleVersion}"
 
     #        replaceAllInFile "\"${escapedModuleName}\": \".*\"" "\"${escapedModuleName}\": \"~${moduleVersion}\"" package.json
-#    echo sed -i '' -E \'"s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g"\' "${module}/${outputDir}/package.json"
+    #    echo sed -i '' -E \'"s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g"\' "${module}/${outputDir}/package.json"
     if [[ $(isMacOS) ]]; then
       sed -i '' -E "s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" "${outputDir}/package.json"
     else
@@ -403,8 +403,12 @@ lintModule() {
 
   for folder in "${folders[@]}"; do
     [[ "${folder}" == "test" ]] && continue
+    if [[ $(array_contains "${module}" ${projectLibraries[@]}) ]]; then
+      tslint --project "./src/${folder}/tsconfig.json"
+    else
+      npm run lint
+    fi
 
-    tslint --project "./src/${folder}/tsconfig.json"
     throwError "Error while linting:  ${module}/${folder}"
   done
 }

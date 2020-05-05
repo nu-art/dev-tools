@@ -308,11 +308,11 @@ linkDependenciesImpl() {
     logVerbose "Updating dependency version to ${modulePackageName} => ${moduleVersion}"
 
     #        replaceAllInFile "\"${escapedModuleName}\": \".*\"" "\"${escapedModuleName}\": \"~${moduleVersion}\"" package.json
-    echo sed -i '' -E \'"s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g"\' "${module}/${outputDir}/package.json"
+#    echo sed -i '' -E \'"s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g"\' "${module}/${outputDir}/package.json"
     if [[ $(isMacOS) ]]; then
       sed -i '' -E "s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" "${outputDir}/package.json"
     else
-      sed -i "s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" "${outputDir}/package.json"
+      sed -i -E "s/\"${escapedModuleName}\": \".[0-9]+\\.[0-9]+\\.[0-9]+\"/\"${escapedModuleName}\": \"~${moduleVersion}\"/g" "${outputDir}/package.json"
     fi
     throwError "Error updating version of dependency in package.json"
   done

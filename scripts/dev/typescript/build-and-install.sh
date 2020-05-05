@@ -23,6 +23,7 @@ enforceBashVersion 4.4
 appVersion=
 thunderstormVersion=
 modules=()
+compilerFlags=()
 
 #################
 #               #
@@ -362,7 +363,6 @@ linkThunderstormImpl() {
 
 compileModule() {
   local module=${1}
-
   logInfo "${module} - Compiling..."
   if [[ $(array_contains "${module}" ${projectLibraries[@]}) ]]; then
     _cd src
@@ -372,11 +372,10 @@ compileModule() {
       [[ "${folder}" == "test" ]] && continue
 
       if [[ "${compileWatch}" ]]; then
-        tsc-watch -p ./src/main/tsconfig.json --outDir "${outputDir}" --onSuccess "bash ../relaunch-backend.sh" &
+        tsc-watch -p ./src/main/tsconfig.json --outDir "${outputDir}" ${compilerFlags[@]} --onSuccess "bash ../relaunch-backend.sh" &
         echo "${module} ${folder} $!" >> "${BuildFile__watch}"
       else
-
-        tsc -p "./src/${folder}/tsconfig.json" --outDir "${outputDir}"
+        tsc -p "./src/${folder}/tsconfig.json" --outDir "${outputDir}" ${compilerFlags[@]}
         throwWarning "Error compiling: ${module}/${folder}"
         # figure out the rest of the dirs...
       fi
@@ -582,6 +581,8 @@ if [[ "${publish}" ]]; then
 fi
 
 if [[ "${envType}" ]]; then
+  [[ "${envType}" ]] && [[ "${envType}" != "dev" ]] && compilerFlags+=(--sourceMap false)
+
   logInfo
   bannerInfo "Set Environment"
   setEnvironment

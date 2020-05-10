@@ -417,7 +417,7 @@ testModule() {
 
   [[ ! -e "./src/test/tsconfig.json" ]] && return 0
 
-  logInfo "${module} - Compinling tests..."
+  logInfo "${module} - Compiling tests..."
   deleteDir "${outputTestDir}"
   tsc -p ./src/test/tsconfig.json --outDir "${outputTestDir}"
   throwError "Error while compiling tests in:  ${module}"
@@ -426,7 +426,7 @@ testModule() {
   throwError "Error while compiling tests in:  ${module}"
 
   logInfo "${module} - Linting tests..."
-  tslint --project tsconfig-test.json
+  tslint --project ./src/test/tsconfig.json
   throwError "Error while linting tests in:  ${module}"
 
   logInfo "${module} - Running tests..."

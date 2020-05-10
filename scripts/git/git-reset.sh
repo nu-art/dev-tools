@@ -72,6 +72,8 @@ processSubmodule() {
     bannerDebug "Processing: ${mainModule}"
 
     gitResetHard ${origin} "${branchName}"
+    git clean -f
+
     local submodules=($(getSubmodulesByScope ${scope} "${projectsToIgnore[@]}"))
     logInfo "submodules: ${submodules[@]}"
     for submodule in "${submodules[@]}"; do

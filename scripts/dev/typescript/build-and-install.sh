@@ -437,25 +437,11 @@ testModule() {
 promoteThunderstorm() {
 
   assertRepoIsClean() {
+    logDebug "Asserting main repo readiness to promote a version..."
     gitAssertBranch master staging
     gitAssertRepoClean
     gitFetchRepo
     gitAssertNoCommitsToPull
-  }
-
-  assertRepoAndSubmodulesAreClean() {
-    logDebug "Asserting main repo readiness to promote a version..."
-    assertRepoIsClean
-    logInfo "Main Repo is ready for version promotion"
-
-    for module in "${thunderstormLibraries[@]}"; do
-      [[ ! -e "${module}" ]] && throwError "In order to promote a version ALL thunderstorm packages MUST be present!!!" 2
-
-      _pushd "${module}"
-      assertRepoIsClean
-      _popd
-    done
-    logInfo "Submodules are ready for version promotion"
   }
 
   deriveVersionType() {
@@ -485,28 +471,11 @@ promoteThunderstorm() {
   logInfo "Promoting thunderstorm packages: ${versionName} => ${thunderstormVersion}"
 
   gitAssertOrigin "${boilerplateRepo}"
-  assertRepoAndSubmodulesAreClean
+  assertRepoIsClean
 
   setVersionName "${thunderstormVersion}" "${versionFile}"
   [[ $(gitAssertTagExists "${thunderstormVersion}") ]] && throwError "Tag already exists: v${thunderstormVersion}" 2
 
-}
-
-pushThunderstormLibs() {
-  for module in "${thunderstormLibraries[@]}"; do
-    _pushd "${module}"
-    gitNoConflictsAddCommitPush "${module}" "$(gitGetCurrentBranch)" "Promoted to: v${thunderstormVersion}"
-
-    gitTag "v${thunderstormVersion}" "Promoted to: v${thunderstormVersion}"
-    gitPushTags
-    throwError "Error pushing promotion tag"
-    _popd
-  done
-
-  gitNoConflictsAddCommitPush "${module}" "$(gitGetCurrentBranch)" "Promoted infra version to: v${thunderstormVersion}"
-  gitTag "libs-v${thunderstormVersion}" "Promoted libs to: v${thunderstormVersion}"
-  gitPushTags
-  throwError "Error pushing promotion tag"
 }
 
 promoteApps() {
@@ -541,6 +510,8 @@ publishThunderstorm() {
 
     _popd
   done
+
+  gitNoConflictsAddCommitPush "Thunderstorm" "$(gitGetCurrentBranch)" "built with new dependencies version"
 }
 
 checkImportsModule() {
@@ -683,8 +654,6 @@ if [[ "${publish}" ]]; then
   bannerInfo "Publish"
 
   publishThunderstorm
-  pushThunderstormLibs
-  gitNoConflictsAddCommitPush "${module}" "$(gitGetCurrentBranch)" "built with new dependencies version"
 fi
 
 # Deploy

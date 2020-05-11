@@ -7,20 +7,30 @@ backendModule=app-backend
 
 allowedBranchesForPromotion=(master staging)
 
-thunderstormLibraries=(
-  ts-common
-  testelot
-  neural
-  firebase
-  thunderstorm
-  db-api-generator
-  storm
-  live-docs
-  user-account
-  permissions
-  push-pub-sub
-  bug-report
-)
+resolveThunderstormLibs() {
+  local _thunderstormLibraries=(
+    ts-common
+    testelot
+    neural
+    firebase
+    thunderstorm
+    db-api-generator
+    storm
+    live-docs
+    user-account
+    permissions
+    push-pub-sub
+    bug-report
+  )
+
+  thunderstormLibraries=()
+  for lib in "${_thunderstormLibraries[@]}"; do
+    [[ -e "${lib}" ]] && continue
+    thunderstormLibraries+=("${lib}")
+  done
+}
+
+resolveThunderstormLibs
 
 projectLibraries=(
   ${thunderstormLibraries[@]}

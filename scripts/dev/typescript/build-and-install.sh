@@ -502,6 +502,11 @@ promoteApps() {
 
 publishThunderstorm() {
   for module in "${thunderstormLibraries[@]}"; do
+    if [[ ! -e "${module}/${outputDir}" ]]; then
+      logWarning "WILL NOT PUBLISH ${module}.. NOT OUTPUT DIR"
+      continue
+    fi
+
     _pushd "${module}/${outputDir}"
 
     logInfo "publishing module: ${module}"

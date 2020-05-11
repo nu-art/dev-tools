@@ -25,7 +25,7 @@ resolveThunderstormLibs() {
 
   thunderstormLibraries=()
   for lib in "${_thunderstormLibraries[@]}"; do
-    [[ -e "${lib}" ]] && continue
+    [[ ! -e "${lib}" ]] && continue
     thunderstormLibraries+=("${lib}")
   done
 }

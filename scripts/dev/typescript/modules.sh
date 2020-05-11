@@ -7,7 +7,27 @@ backendModule=app-backend
 
 allowedBranchesForPromotion=(master staging)
 
-projectModules=(app-backend app-frontend)
-projectLibraries=(app-shared)
+thunderstormLibraries=(
+  ts-common
+  testelot
+  neural
+  firebase
+  thunderstorm
+  db-api-generator
+  storm
+  live-docs
+  user-account
+  permissions
+  push-pub-sub
+  bug-report
+)
 
-thunderstormLibraries=()
+projectLibraries=(
+  ${thunderstormLibraries[@]}
+  app-shared
+)
+
+projectModules=(
+  app-backend
+  app-frontend
+)

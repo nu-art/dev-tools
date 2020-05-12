@@ -36,7 +36,7 @@ outputTestDir=dist-test
 tsLogLevel=${LOG_LEVEL__INFO}
 libsToRun=()
 
-params=(ThunderstormHome printEnv printDependencies purge clean setup newVersion linkDependencies install build runTests testServiceAccount lint checkCircularImports launchBackend launchFrontend envType promoteThunderstormVersion promoteAppVersion deployBackend deployFrontend version publish)
+params=(libsToRun[@] ThunderstormHome printEnv printDependencies purge clean setup newVersion linkDependencies install build runTests testServiceAccount lint checkCircularImports launchBackend launchFrontend envType promoteThunderstormVersion promoteAppVersion deployBackend deployFrontend version publish)
 
 extractParams() {
   for paramValue in "${@}"; do
@@ -50,6 +50,7 @@ extractParams() {
 
     "--dependencies-tree" | "-dt")
       #DOC: Will print the projects packages dependencie tree into the .trash folder
+
       printDependencies=true
       ;;
 

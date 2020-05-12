@@ -83,9 +83,9 @@ printDebugParams() {
   printParam "bashVersion" "${bashVersion}"
 
   for param in "${params[@]}"; do
-    local value=("${!param}")
-    # shellcheck disable=SC2128
-    printParam "${param}" "${value}"
+    local _param="${!param}"
+    local value=("${_param[@]}")
+    printParam "${param}" "${value[@]}"
   done
   logDebug "--"
   logInfo "----------- DEBUG -----------"

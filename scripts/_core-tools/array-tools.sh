@@ -52,6 +52,6 @@ array_filterDuplicates() {
   echo "${filteredList[@]}"
 }
 
-isArray() {
+array_isArray() {
   [[ "$(declare -p variable_name)" =~ "declare -a" ]] && echo true
 }

@@ -372,10 +372,10 @@ compileModule() {
       [[ "${folder}" == "test" ]] && continue
 
       if [[ "${compileWatch}" ]]; then
-        tsc-watch -p ./src/main/tsconfig.json --outDir "${outputDir}" ${compilerFlags[@]} --onSuccess "bash ../relaunch-backend.sh" &
+        tsc-watch -p ./src/main/tsconfig.json --outDir --rootDir . "${outputDir}" ${compilerFlags[@]} --onSuccess "bash ../relaunch-backend.sh" &
         echo "${module} ${folder} $!" >> "${BuildFile__watch}"
       else
-        tsc -p "./src/${folder}/tsconfig.json" --outDir "${outputDir}" ${compilerFlags[@]}
+        tsc -p "./src/${folder}/tsconfig.json" --rootDir . --outDir "${outputDir}" ${compilerFlags[@]}
         throwWarning "Error compiling: ${module}/${folder}"
         # figure out the rest of the dirs...
       fi

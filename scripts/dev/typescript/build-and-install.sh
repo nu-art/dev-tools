@@ -575,7 +575,7 @@ if [[ "${setup}" ]]; then
   bannerInfo "Setup"
 
   logInfo "Setting up global packages..."
-  npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest sort-json@latest tsc-watch@latest
+  npm i -g typescript@~3.8.0 eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest sort-json@latest tsc-watch@latest
   executeOnModules setupModule
 fi
 

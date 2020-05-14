@@ -550,42 +550,51 @@ if [[ "${printDependencies}" ]]; then
 fi
 
 # BUILD
-if [[ "${publish}" ]]; then
+_publishStart() {
+  [[ ! "${publish}" ]] && return
+
   logInfo
   bannerInfo "Promote Thunderstorm"
   promoteThunderstorm
-fi
+}
 
-if [[ "${envType}" ]]; then
+_setEnv() {
+  [[ ! "${envType}" ]] && return
   [[ "${envType}" ]] && [[ "${envType}" != "dev" ]] && compilerFlags+=(--sourceMap false)
 
   logInfo
   bannerInfo "Set Environment"
   setEnvironment
-fi
+}
 
-if [[ "${purge}" ]]; then
+_purge() {
+  [[ ! "${purge}" ]] && return
+
   logInfo
   bannerInfo "Purge"
   executeOnModules purgeModule
-fi
+}
 
-if [[ "${setup}" ]]; then
+_setup() {
+  [[ ! "${setup}" ]] && return
+
   logInfo
   bannerInfo "Setup"
-
   logInfo "Setting up global packages..."
+
   npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest sort-json@latest tsc-watch@latest
   executeOnModules setupModule
-fi
-
-if [[ "${clean}" ]]; then
+}
+_clean() {
+  [[ ! "${clean}" ]] && return
   logInfo
   bannerInfo "Clean"
   executeOnModules cleanModule
-fi
+}
 
-if [[ "${linkDependencies}" ]]; then
+_linkDependencies() {
+  [[ ! "${linkDependencies}" ]] && return
+
   logInfo
   bannerInfo "Linking Dependencies"
   if [[ "${ThunderstormHome}" ]] && [[ "${linkThunderstorm}" ]]; then
@@ -595,28 +604,33 @@ if [[ "${linkDependencies}" ]]; then
   fi
 
   printVersions
-fi
+}
 
-if [[ "${build}" ]]; then
+_build() {
+  [[ ! "${build}" ]] && return
   logInfo
   bannerInfo "Compile"
 
   executeOnModules compileModule
   logInfo "Project Compiled!!"
-fi
+}
 
-if [[ "${lint}" ]]; then
+_lint() {
+  [[ ! "${lint}" ]] && return
   logInfo
   bannerInfo "Lint"
   executeOnModules lintModule
-fi
+}
 
-if [[ "${runTests}" ]] && [[ "${testServiceAccount}" ]]; then
+_tests() {
+  [[ ! "${runTests}" ]] && return
+  [[ ! "${testServiceAccount}" ]] && return
+
   export GOOGLE_APPLICATION_CREDENTIALS="${testServiceAccount}"
   logInfo
   bannerInfo "Test"
   executeOnModules testModule
-fi
+}
 
 if [[ "${checkCircularImports}" ]]; then
   logInfo
@@ -626,7 +640,8 @@ fi
 
 # PRE-Launch and deploy
 
-if [[ "${launchBackend}" ]]; then
+_launchBackend() {
+  [[ ! "${launchBackend}" ]] && return
   logInfo
   bannerInfo "Launch Backend"
 
@@ -637,9 +652,9 @@ if [[ "${launchBackend}" ]]; then
     npm run launch
   fi
   _popd
-fi
-
-if [[ "${launchFrontend}" ]]; then
+}
+_launchFrontend() {
+  [[ ! "${launchFrontend}" ]] && return
   logInfo
   bannerInfo "Launch Frontend"
 
@@ -650,19 +665,19 @@ if [[ "${launchFrontend}" ]]; then
     npm run launch
   fi
   _popd
-fi
+}
 
 # OTHER
-
-if [[ "${publish}" ]]; then
+_publishEnd() {
+  [[ ! "${publish}" ]] && return
   logInfo
   bannerInfo "Publish"
 
   publishThunderstorm
-fi
+}
 
-# Deploy
-if [[ "${deployBackend}" ]] || [[ "${deployFrontend}" ]]; then
+_deploy() {
+  [[ ! "${deployBackend}" ]] && [[ ! "${deployFrontend}" ]] && return
   if [[ "${newAppVersion}" ]]; then
     logInfo
     bannerInfo "Promote App"
@@ -689,4 +704,18 @@ if [[ "${deployBackend}" ]] || [[ "${deployFrontend}" ]]; then
     firebase deploy --only hosting
     throwWarning "Error while deploying hosting"
   fi
-fi
+}
+
+_publishStart
+_setEnv
+_purge
+_setup
+_clean
+_linkDependencies
+_build
+_lint
+_tests
+_launchBackend
+_launchFrontend
+_publishEnd
+_deploy

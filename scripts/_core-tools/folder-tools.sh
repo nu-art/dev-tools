@@ -19,7 +19,11 @@
 
 #!/bin/bash
 getRunningDir() {
-  echo "${PWD##*/}"
+  "${PWD##*/}"
+}
+
+folder_getRunningPath() {
+  cd "$(dirname "${BASH_SOURCE[${1:-1}]}")" && pwd
 }
 
 copyFileToFolder() {
@@ -46,7 +50,7 @@ createFolder() {
 }
 
 clearDir() {
-  cleadFolder $@
+  clearFolder $@
 }
 
 clearFolder() {

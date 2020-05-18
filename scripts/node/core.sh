@@ -56,3 +56,18 @@ installAndUseNvmIfNeeded() {
     echo "nvm use" && nvm use
   fi
 }
+
+assertNVM() {
+  [[ ! $(isFunction nvm) ]] && throwError "NVM Does not exist.. Script should have installed it.. let's figure this out"
+  [[ -s ".nvmrc" ]] && return 0
+
+  return 1
+}
+
+printNodePackadeTree() {
+  local module=getRunningDir
+  local output=${1}
+  logDebug "${module} - Printing dependency tree..."
+  createDir "${output}"
+  npm list > "${output}/${module}.txt"
+}

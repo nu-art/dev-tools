@@ -61,16 +61,16 @@ string_match() {
   echo "${matches[@]}"
 }
 
-## @function: string_replace(match, replaceWith, string)
+## @function: string_replace(match, replaceWith, string, delimiter?)
 ##
 ## @description: Replaces all occurences of a substring in a given string matching a regexp
 ##
 ## @return: The new edited string
 string_replaceAll() {
-  string_replace "$1" "$2" "$3" g
+  string_replace "$1" "$2" "$3" g "${4}"
 }
 
-## @function: string_replace(match, replaceWith, string, flags?)
+## @function: string_replace(match, replaceWith, string, flags?, delimiter?)
 ##
 ## @description: Replaces a substring in a given string matching a regexp
 ##
@@ -80,8 +80,9 @@ string_replace() {
   local replaceWith="${2}"
   local string="${3}"
   local flags="${4}"
+  local delimiter="${5:-/}"
 
-  echo "${string}" | sed -E "s/${match}/${replaceWith}/${flags}"
+  echo "${string}" | sed -E "s${delimiter}${match}${delimiter}${replaceWith}${delimiter}${flags}"
 }
 
 ## @function: string_join(delimiter, ...strings)
@@ -97,4 +98,14 @@ string_join() {
   done
 
   echo "${output}"
+}
+
+string_generateHex() {
+  local length="${1}"
+  local hex=""
+  for (( i = 0; i < length; i++ )); do
+      hex="${hex}$(printf "%x" "$(number_random 16)")"
+  done
+
+  echo "${hex}"
 }

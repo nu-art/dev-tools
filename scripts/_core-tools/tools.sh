@@ -19,6 +19,15 @@
 
 #!/bin/bash
 
+saveAndSource() {
+  local data="${1}"
+  local file="${2}"
+  echo -e "${data}" > "${file}"
+
+  # shellcheck disable=SC1090
+  source "${file}"
+}
+
 setDefaultAndroidHome() {
   if [[ "${ANDROID_HOME}" ]]; then
     return
@@ -205,23 +214,6 @@ replaceStringInFiles() {
       sed -i -E "s/${matchPattern}/${replaceWith}/g" "${file}"
     fi
   done
-}
-
-replaceAllInFile() {
-  replaceInFile "$1" "$2" "$3" g
-}
-
-replaceInFile() {
-  local matchPattern="${1}"
-  local replaceWith="${2}"
-  local file="${3}"
-  local flags="${4}"
-
-  if [[ $(isMacOS) ]]; then
-    sed -i '' -E "s/${matchPattern}/${replaceWith}/${flags}" "${file}"
-  else
-    sed -i -E "s/${matchPattern}/${replaceWith}/${flags}" "${file}"
-  fi
 }
 
 isFunction() {

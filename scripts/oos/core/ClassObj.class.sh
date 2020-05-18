@@ -2,6 +2,8 @@
 
 ClassObj() {
 
+    declare parents
+    declare class
     declare rawClass
     declare members
     declare staticMembers

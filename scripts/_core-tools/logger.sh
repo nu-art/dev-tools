@@ -29,6 +29,16 @@ LOG_COLORS=("${NoColor}" "${BBlue}" "${BGreen}" "${BYellow}" "${BRed}")
 LOG_PREFIX=("-V-" "-D-" "-I-" "-W-" "-E-")
 
 CONST_Debug=
+CONST_DebugFile=
+
+setDebugLogFile() {
+  CONST_DebugFile=${1}
+  CONST_Debug=true
+  deleteFile "${CONST_DebugFile}"
+}
+setDebugLog() {
+  CONST_Debug=${1}
+}
 
 setLogLevel() {
   case ${1} in
@@ -145,21 +155,27 @@ banner() {
 }
 
 _logVerbose() {
-  [[ "${CONST_Debug}" ]] && logVerbose >&2 "$@"
+  _log logVerbose "${@}"
 }
 
 _logDebug() {
-  [[ "${CONST_Debug}" ]] && logDebug >&2 "$@"
+  _log logDebug "${@}"
 }
 
 _logInfo() {
-  [[ "${CONST_Debug}" ]] && logInfo >&2 "$@"
+  _log logInfo "${@}"
 }
 
 _logWarning() {
-  [[ "${CONST_Debug}" ]] && logWarning >&2 "$@"
+  _log logWarning "${@}"
 }
 
 _logError() {
-  [[ "${CONST_Debug}" ]] && logError >&2 "$@"
+  _log logError "${@}"
+}
+
+_log() {
+  [[ ! "${CONST_Debug}" ]] && return
+  [[ "${CONST_DebugFile}" ]] && ${1} >&2 "- DEBUG - ${@:2}" >> "${CONST_DebugFile}" && return
+  ${1} >&2 "- DEBUG - ${@:2}"
 }

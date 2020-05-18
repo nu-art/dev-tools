@@ -1,6 +1,8 @@
 #!/bin/bash
-
-source ../core/transpiler.sh
+source ${BASH_SOURCE%/*}/../../_core-tools/_source.sh
+source ${BASH_SOURCE%/*}/../core/transpiler.sh
+setTranspilerOutput ${BASH_SOURCE%/*}
+addTranspilerClassPath ${BASH_SOURCE%/*}
 new LogEntry logEntry1
 #new LogEntry logEntry2
 #new LogEntry logEntry3

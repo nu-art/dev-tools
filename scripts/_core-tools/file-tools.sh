@@ -38,3 +38,30 @@ renameFiles() {
   done
 }
 
+## @function: file_replaceAll(match, replaceWith, file, delimiter?)
+##
+## @description: Replaces all substrings matching the provided regexp in the given file
+##
+## @return: void
+file_replaceAll() {
+  file_replace "$1" "$2" "$3" g "${4}"
+}
+
+## @function: file_replace(match, replaceWith, file, flags?, delimiter?)
+##
+## @description: Replaces the first substring matching the provided regexp in the given file
+##
+## @return: void
+file_replace() {
+  local matchPattern="${1}"
+  local replaceWith="${2}"
+  local file="${3}"
+  local flags="${4}"
+  local delimiter="${5:-/}"
+
+  if [[ $(isMacOS) ]]; then
+    sed -i '' -E "s${delimiter}${matchPattern}${delimiter}${replaceWith}${delimiter}${flags}" "${file}"
+  else
+    sed -i -E "s${delimiter}${matchPattern}${delimiter}${replaceWith}${delimiter}${flags}" "${file}"
+  fi
+}

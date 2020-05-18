@@ -41,13 +41,6 @@ mapModule() {
   modulesPackageName+=("${packageName}")
 }
 
-assertNVM() {
-  [[ ! $(isFunction nvm) ]] && throwError "NVM Does not exist.. Script should have installed it.. let's figure this out"
-  [[ -s ".nvmrc" ]] && return 0
-
-  return 1
-}
-
 printDependencyTree() {
   local module=${1}
   logDebug "${module} - Printing dependency tree..."

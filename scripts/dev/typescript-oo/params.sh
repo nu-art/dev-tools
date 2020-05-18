@@ -33,7 +33,8 @@ modulesPackageName=()
 outputDir=dist
 outputTestDir=dist-test
 
-tsLogLevel=${LOG_LEVEL__INFO}
+tsLogLevel=${LOG_LEVEL__VERBOSE}
+#tsLogLevel=${LOG_LEVEL__INFO}
 libsToRun=()
 
 params=(libsToRun[@] ThunderstormHome printEnv printDependencies purge clean setup newVersion linkDependencies install build runTests testServiceAccount lint checkCircularImports launchBackend launchFrontend envType promoteThunderstormVersion promoteAppVersion deployBackend deployFrontend version publish)
@@ -204,12 +205,14 @@ extractParams() {
       #DOC: Will launch ONLY backend
 
       launchBackend=true
+      launchFrontend=
       ;;
 
     "--launch-frontend" | "-lf")
       #DOC: Will launch ONLY frontend
 
       launchFrontend=true
+      launchBackend=
       ;;
 
       #        ==== DEPLOY ====
@@ -274,10 +277,19 @@ extractParams() {
       #WARNING: ONLY used for publishing Thunderstorm!!
 
       if [[ "${paramValue}" == "--publish" ]]; then
-        promoteThunderstormVersion="patch"
+        promoteThunderstormVersion=patch
       else
         promoteThunderstormVersion=$(regexParam "--publish" "${paramValue}")
       fi
+
+      case "${promoteThunderstormVersion}" in
+        "patch" | "minor" | "major") ;;
+
+        *)
+          throwError "Bad version type: ${promoteThunderstormVersion}" 2
+          ;;
+
+      esac
 
       linkDependencies=true
       clean=true

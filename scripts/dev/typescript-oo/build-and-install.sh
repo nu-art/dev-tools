@@ -60,7 +60,7 @@ buildWorkspace() {
 
   local libraries=()
   local active=()
-  for lib in ${libsToRun[@]}; do
+  for lib in ${activeLibs[@]}; do
     active+=($(string_replaceAll "-" "_" "${lib}"))
   done
 
@@ -84,15 +84,9 @@ buildWorkspace() {
     done
   }
 
-  if [[ "${ThunderstormHome}" ]]; then
-    _pushd "${ThunderstormHome}"
-  fi
-
+  [[ "${ThunderstormHome}" ]] && [[ "${ts_linkThunderstorm}" ]] && _pushd "${ThunderstormHome}"
   createPackages NodePackage "$(workspace.thunderstormVersion)" ${thunderstormLibraries[@]}
-
-  if [[ "${ThunderstormHome}" ]]; then
-    _popd
-  fi
+  [[ "${ThunderstormHome}" ]] && [[ "${ts_linkThunderstorm}" ]] && _popd
 
   createPackages NodePackage "$(workspace.appVersion)" ${projectLibraries[@]}
   createPackages FrontendPackage "$(workspace.appVersion)" "${frontendModule}"

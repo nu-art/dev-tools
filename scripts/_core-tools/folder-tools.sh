@@ -19,7 +19,7 @@
 
 #!/bin/bash
 getRunningDir() {
-  "${PWD##*/}"
+  echo "${PWD##*/}"
 }
 
 folder_getRunningPath() {

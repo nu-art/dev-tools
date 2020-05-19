@@ -65,7 +65,7 @@ assertNVM() {
 }
 
 printNodePackadeTree() {
-  local module=getRunningDir
+  local module=$(getRunningDir)
   local output=${1}
   logDebug "${module} - Printing dependency tree..."
   createDir "${output}"

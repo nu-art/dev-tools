@@ -62,6 +62,8 @@ params=(
 )
 
 extractParams() {
+  printCommand "$@"
+
   for paramValue in "${@}"; do
     case "${paramValue}" in
     #        ==== General ====
@@ -329,4 +331,6 @@ extractParams() {
       ;;
     esac
   done
+
+  printDebugParams "${ts_debug}" "${params[@]}"
 }

@@ -4,7 +4,6 @@ source ./dev-tools/scripts/git/_core.sh
 source ./dev-tools/scripts/firebase/core.sh
 source ./dev-tools/scripts/node/_source.sh
 source ./dev-tools/scripts/oos/core/transpiler.sh
-printCommand "$@"
 
 setErrorOutputFile "$(pwd)/error_message.txt"
 
@@ -25,7 +24,6 @@ enforceBashVersion 4.4
 
 #signature
 extractParams "$@"
-printDebugParams "${debug}" "${params[@]}"
 setLogLevel "${ts_LogLevel}"
 installAndUseNvmIfNeeded
 

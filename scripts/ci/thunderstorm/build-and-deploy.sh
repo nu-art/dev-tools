@@ -21,7 +21,7 @@ bash ./dev-tools/scripts/git/git-pull.sh -a -f
 
 [[ "${publish}" ]] && publish="--publish=${promoteVersion}"
 [[ "${deploy}" ]] && echo "${deploy}" && deploy=(-df -db)
-bash build-and-install.sh --debug -s -c "-se=${environment}" --test=/etc/test-account.json --log=verbose "${publish}" ${deploy[@]}
+bash build-and-install.sh old --debug -s -c "-se=${environment}" --test=/etc/test-account.json --log=verbose "${publish}" ${deploy[@]}
 throwError "Error while publishing artifacts to NPM and deploying project"
 
 newVersionName=$(getVersionName version-thunderstorm.json)

@@ -15,12 +15,8 @@ ts_test=
 ts_publish=
 
 checkCircularImports=
-launchBackend=
-launchFrontend=
 
 envType=
-deployBackend=
-deployFrontend=
 
 promoteThunderstormVersion=
 promoteAppVersion=
@@ -30,6 +26,8 @@ printEnv=
 outputDir=dist
 outputTestDir=dist-test
 
+ts_launch=()
+ts_deploy=()
 activeLibs=()
 ts_LogLevel=${LOG_LEVEL__INFO}
 
@@ -48,12 +46,13 @@ params=(
   ts_linkThunderstorm
   ts_lint
   ts_test
-  ts_launch
   ts_publish
-  checkCircularImports
-  deployBackend
-  deployFrontend
+
+  "ts_launch[@]"
+  "ts_deploy[@]"
   "activeLibs[@]"
+
+  checkCircularImports
   newVersion
   promoteThunderstormVersion
   version
@@ -96,11 +95,11 @@ extractParams() {
       #        ==== CLEAN ====
     "--purge" | "-p")
       #DOC: Will delete the node_modules folder in all project packages
-      #DOC: Will perform --clean --setup
+      #DOC: Will perform --clean --install
 
       ts_purge=true
       ts_clean=true
-      ts_setup=true
+      ts_install=true
       ;;
 
     "--clean" | "-c")
@@ -131,13 +130,19 @@ extractParams() {
       ;;
 
     "--setup" | "-s")
+      #WARNING: --setup is deprecated... use --install or -i
+      exit 2
+      ;;
+
+    "--install" | "-i")
       #DOC: Will run 'npm install' in all project packages
       #DOC: Will perform --link
-      ts_setup=true
+
+      ts_install=true
       ts_link=true
       ;;
 
-    "--link" | "-l")
+    "--link" | "-ln")
       #DOC: Would link dependencies between project packages
 
       ts_link=true
@@ -145,6 +150,7 @@ extractParams() {
 
     "--link-only" | "-lo")
       #DOC: Would ONLY link dependencies between project packages
+
       ts_link=true
       ts_compile=
       ;;
@@ -212,48 +218,40 @@ extractParams() {
       outputTestDir=$(regexParam "--output-test-dir|-otd" "${paramValue}")
       ;;
 
-      #        ==== LAUNCH ====
-    "--launch" | "-la")
-      #DOC: Will launch both frontend & backend
-
-      launchBackend=true
-      launchFrontend=true
-      ;;
-
-    "--launch-backend" | "-lb")
-      #DOC: Will launch ONLY backend
-
-      launchBackend=true
-      launchFrontend=
+      #        ==== Apps ====
+    "--launch="* | "-l="*)
+      #DOC: It will add the provided App to the launch list
+      ts_launch+=($(regexParam "--launch|-l" "${paramValue}"))
       ;;
 
     "--launch-frontend" | "-lf")
-      #DOC: Will launch ONLY frontend
-
-      launchFrontend=true
-      launchBackend=
+      #DOC: Will add the app-frontend to the launch list
+      ts_launch+=(app-frontend)
       ;;
 
-      #        ==== DEPLOY ====
-    "--deploy" | "-d")
-      #DOC: Will compile, build, lint and deploy both frontend & backend
+    "--launch-backend" | "-lb")
+      #DOC: Will add the app-backend to the launch list
+      ts_launch+=(app-backend)
+      ;;
 
-      deployBackend=true
-      deployFrontend=true
+    "--deploy=" | "-d="*)
+      #DOC: Will add the provided App to the deploy list
+
+      ts_deploy+=($(regexParam "--deploy|-d" "${paramValue}"))
       ts_lint=true
       ;;
 
     "--deploy-backend" | "-db")
-      #DOC: Will compile, build, lint and deploy ONLY the backend
+      #DOC: Will add the app-backend to the deploy list
 
-      deployBackend=true
+      ts_deploy+=(app-backend)
       ts_lint=true
       ;;
 
     "--deploy-frontend" | "-df")
-      #DOC: Will compile, build, lint and deploy ONLY the frontend
+      #DOC: Will add the app-frontend to the deploy list
 
-      deployFrontend=true
+      ts_deploy+=(app-frontend)
       ts_lint=true
       ;;
 
@@ -333,4 +331,5 @@ extractParams() {
   done
 
   printDebugParams "${ts_debug}" "${params[@]}"
+  setLogLevel "${ts_LogLevel}"
 }

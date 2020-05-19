@@ -6,8 +6,11 @@ Workspace() {
   declare thunderstormVersion
   declare appVersion
 
-  declare -a libraries
+  declare -a tsLibs
+  declare -a projectLibs
   declare -a active
+  declare -a apps
+  declare -a allLibs
 
   _prepare() {
     [[ -e "${CONST_TS_VER_JSON}" ]] && thunderstormVersion=$(getVersionName "${CONST_TS_VER_JSON}")
@@ -21,13 +24,27 @@ Workspace() {
     appVersion=$(string_join "." ${splitVersion[@]})
   }
 
-  Workspace_active.forEach() {
+  Workspace.active.forEach() {
+    this.forEach "${1}" "${active[*]}" ${@:2}
+  }
+
+  Workspace.apps.forEach() {
+    this.forEach "${1}" "${apps[*]}" ${@:2}
+  }
+
+  Workspace.tsLibs.forEach() {
+    this.forEach "${1}" "${tsLibs[*]}" ${@:2}
+  }
+
+  _forEach() {
     local command=${1}
     [[ ! "${command}" ]] && throwError "No command spcified" 2
-    for projectLib in ${active[@]}; do
-      _pushd "$("${projectLib}.folderName")"
-      "${projectLib}.${command}" ${@:2}
-      throwError "Error executing command: ${projectLib}.${command} ${@:2}"
+    local items=(${2})
+
+    for item in ${items[@]}; do
+      _pushd "$("${item}.folderName")"
+      "${item}.${command}" ${@:3}
+      throwError "Error executing command: ${item}.${command} ${@:2}"
       _popd
     done
   }
@@ -142,6 +159,7 @@ Workspace() {
   _test() {
     [[ ! "${ts_test}" ]] && return
     [[ ! "${testServiceAccount}" ]] && throwError "MUST specify path to a test service account" 2
+    [[ ! -e "${testServiceAccount}" ]] && throwError "Sevice account cannot be resolved from path: ${testServiceAccount}" 2
 
     export GOOGLE_APPLICATION_CREDENTIALS="${testServiceAccount}"
     logInfo
@@ -149,21 +167,31 @@ Workspace() {
     this.active.forEach test
   }
 
+  _launch() {
+    ((${#ts_launch[@]} == 0)) && return
+
+    logInfo
+    bannerInfo "Launch"
+
+    this.apps.forEach launch
+  }
+
   _deploy() {
-    [[ ! "${envType}" ]] && throwError "MUST set env while deploying!!" 2
+    ((${#ts_deploy[@]} == 0)) && return
 
     logInfo
     bannerInfo "Deploy"
 
-    firebaseProject=$(getJsonValueForKey .firebaserc "default")
-    logInfo "Using firebase project: ${firebaseProject}"
+    [[ ! "${envType}" ]] && throwError "MUST set env while deploying!!" 2
+
+    this.apps.forEach deploy
   }
 
   _publish() {
     [[ ! "${ts_publish}" ]] && return
 
-    this.active.forEach canPublish
-    this.active.forEach publish
+    this.tsLibs.forEach canPublish
+    this.tsLibs.forEach publish
     #    gitNoConflictsAddCommitPush "Thunderstorm" "$(gitGetCurrentBranch)" "published version v${thunderstormVersion}"
   }
 

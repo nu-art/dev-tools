@@ -24,17 +24,16 @@ enforceBashVersion 4.4
 
 #signature
 extractParams "$@"
-setLogLevel "${ts_LogLevel}"
-installAndUseNvmIfNeeded
 
 CONST_RunningFolder="$(folder_getRunningPath 1)"
-
 #setTranspilerOutput "${CONST_RunningFolder}"
 setTranspilerOutput ".trash/bai"
 addTranspilerClassPath "${CONST_RunningFolder}/classes"
 
 buildWorkspace() {
-  local thunderstormLibraries=(
+  installAndUseNvmIfNeeded
+
+  local tsLibs=(
     ts-common
     testelot
     neural
@@ -49,18 +48,24 @@ buildWorkspace() {
     bug-report
   )
 
-  local projectLibraries=(
+  local projectLibs=(
     app-shared
+  )
+
+  local apps=(
+    app-frontend
+    app-backend
   )
 
   new Workspace workspace
   workspace.prepare
 
-  local libraries=()
-  local active=()
-  for lib in ${activeLibs[@]}; do
-    active+=($(string_replaceAll "-" "_" "${lib}"))
-  done
+  local _tsLibs=()
+  local _projectLibs=()
+  local _apps=()
+
+  local _activeLibs=()
+  local _allLibs=()
 
   createPackages() {
     local className="${1}"
@@ -78,22 +83,33 @@ buildWorkspace() {
       "${ref}".outputDir = "${outputDir}"
       "${ref}".outputTestDir = "${outputTestDir}"
       "${ref}".version = "${version}"
-      libraries+=(${ref})
+
+      [[ "$(array_contains "${lib}" ${tsLibs[@]})" ]] && _tsLibs+=(${ref})
+      [[ "$(array_contains "${lib}" ${projectLibs[@]})" ]] && _projectLibs+=(${ref})
+      [[ "$(array_contains "${lib}" ${apps[@]})" ]] && _apps+=(${ref})
+
+      [[ "$(array_contains "${lib}" ${activeLibs[@]})" ]] && _activeLibs+=(${ref})
+      _allLibs+=(${ref})
     done
   }
 
   [[ "${ThunderstormHome}" ]] && [[ "${ts_linkThunderstorm}" ]] && _pushd "${ThunderstormHome}"
-  createPackages NodePackage "$(workspace.thunderstormVersion)" ${thunderstormLibraries[@]}
+  createPackages NodePackage "$(workspace.thunderstormVersion)" ${tsLibs[@]}
   [[ "${ThunderstormHome}" ]] && [[ "${ts_linkThunderstorm}" ]] && _popd
 
-  createPackages NodePackage "$(workspace.appVersion)" ${projectLibraries[@]}
+  createPackages NodePackage "$(workspace.appVersion)" ${projectLibs[@]}
   createPackages FrontendPackage "$(workspace.appVersion)" "${frontendModule}"
   createPackages BackendPackage "$(workspace.appVersion)" "${backendModule}"
 
-  ((${#active[@]} == 0)) && active=(${libraries[@]})
+  ((${#_activeLibs[@]} == 0)) && _activeLibs=(${_allLibs[@]})
 
-  workspace.libraries = "${libraries[@]}"
-  workspace.active = "${active[@]}"
+  workspace.tsLibs = "${_tsLibs[@]}"
+  workspace.projectLibs = "${_projectLibs[@]}"
+  workspace.active = "${_activeLibs[@]}"
+  workspace.apps = "${_apps[@]}"
+  workspace.allLibs = "${_allLibs[@]}"
+
+#  workspace.toLog
 
   workspace.purge
   workspace.clean
@@ -103,7 +119,10 @@ buildWorkspace() {
   workspace.lint
   workspace.test
 
-  workspace.toLog
+  workspace.publish
+  workspace.launch
+  workspace.deploy
+
 }
 
 buildWorkspace

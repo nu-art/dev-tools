@@ -4,7 +4,7 @@ FrontendPackage() {
   extends class NodePackage
 
   _deploy() {
-    [[ ! "$(array_include "${folderName}" "${ts_deploy[@]}")" ]] && return
+    [[ ! "$(array_contains "${folderName}" "${ts_deploy[@]}")" ]] && return
 
     firebase deploy --only hosting
     throwWarning "Error while deploying hosting"
@@ -27,7 +27,7 @@ FrontendPackage() {
   }
 
   _launch() {
-    [[ ! "$(array_include "${folderName}" "${ts_launch[@]}")" ]] && return
+    [[ ! "$(array_contains "${folderName}" "${ts_launch[@]}")" ]] && return
     npm run launch
   }
 

@@ -4,7 +4,7 @@ BackendPackage() {
   extends class NodePackage
 
   _deploy() {
-    [[ ! "$(array_include "${folderName}" "${ts_deploy[@]}")" ]] && return
+    [[ ! "$(array_contains "${folderName}" "${ts_deploy[@]}")" ]] && return
 
     firebase deploy --only functions
     throwWarning "Error while deploying functions"
@@ -27,7 +27,7 @@ BackendPackage() {
   }
 
   _launch() {
-    [[ ! "$(array_include "${folderName}" "${ts_launch[@]}")" ]] && return
+    [[ ! "$(array_contains "${folderName}" "${ts_launch[@]}")" ]] && return
     npm run launch
   }
 

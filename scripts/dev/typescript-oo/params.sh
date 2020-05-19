@@ -1,19 +1,20 @@
 #!/bin/bash
 
-debug=
+ts_debug=
 
-purge=
-clean=
+ts_dependencies=
+ts_purge=
+ts_clean=
+ts_install=
+ts_compile=true
+ts_watch=
+ts_link=
+ts_linkThunderstorm=
+ts_lint=
+ts_test=
+ts_publish=
 
-setup=
-build=true
-listen=
-linkDependencies=true
-linkThunderstorm=
-lint=
 checkCircularImports=
-runTests=
-
 launchBackend=
 launchFrontend=
 
@@ -23,21 +24,42 @@ deployFrontend=
 
 promoteThunderstormVersion=
 promoteAppVersion=
-publish=
 newAppVersion=
 printEnv=
-printDependencies=
-
-modulesPackageName=()
 
 outputDir=dist
 outputTestDir=dist-test
 
-tsLogLevel=${LOG_LEVEL__VERBOSE}
-#tsLogLevel=${LOG_LEVEL__INFO}
-libsToRun=()
+activeLibs=()
+ts_LogLevel=${LOG_LEVEL__INFO}
 
-params=(libsToRun[@] ThunderstormHome printEnv printDependencies purge clean setup newVersion linkDependencies install build runTests testServiceAccount lint checkCircularImports launchBackend launchFrontend envType promoteThunderstormVersion promoteAppVersion deployBackend deployFrontend version publish)
+params=(
+  envType
+  ThunderstormHome
+  printEnv
+  testServiceAccount
+  ts_dependencies
+  ts_purge
+  ts_clean
+  ts_install
+  ts_compile
+  ts_watch
+  ts_link
+  ts_linkThunderstorm
+  ts_lint
+  ts_test
+  ts_launch
+  ts_publish
+  checkCircularImports
+  deployBackend
+  deployFrontend
+  "activeLibs[@]"
+  newVersion
+  promoteThunderstormVersion
+  version
+  promoteAppVersion
+
+)
 
 extractParams() {
   for paramValue in "${@}"; do
@@ -52,7 +74,7 @@ extractParams() {
     "--dependencies-tree" | "-dt")
       #DOC: Will print the projects packages dependencie tree into the .trash folder
 
-      printDependencies=true
+      ts_dependencies=true
       ;;
 
     "--print-env")
@@ -69,26 +91,20 @@ extractParams() {
       exit 0
       ;;
 
-    "--debug")
-      #DOC: Will print the parameters the script is running with
-
-      debug=true
-      ;;
-
       #        ==== CLEAN ====
     "--purge" | "-p")
       #DOC: Will delete the node_modules folder in all project packages
       #DOC: Will perform --clean --setup
 
-      purge=true
-      clean=true
-      setup=true
+      ts_purge=true
+      ts_clean=true
+      ts_setup=true
       ;;
 
     "--clean" | "-c")
       #DOC: Will delete the output(dist) & test output(dist-test) folders in all project packages
 
-      clean=true
+      ts_clean=true
       ;;
 
       #        ==== BUILD ====
@@ -97,7 +113,7 @@ extractParams() {
       #PARAM=project-package-folder
 
       local lib=$(regexParam "--use-package|-up" "${paramValue}")
-      libsToRun+=("${lib}")
+      activeLibs+=("${lib}")
       ;;
 
     "--set-env="* | "-se="*)
@@ -115,40 +131,41 @@ extractParams() {
     "--setup" | "-s")
       #DOC: Will run 'npm install' in all project packages
       #DOC: Will perform --link
-      setup=true
-      linkDependencies=true
+      ts_setup=true
+      ts_link=true
       ;;
 
     "--link" | "-l")
       #DOC: Would link dependencies between project packages
 
-      linkDependencies=true
+      ts_link=true
       ;;
 
     "--link-only" | "-lo")
       #DOC: Would ONLY link dependencies between project packages
-      linkDependencies=true
-      build=
+      ts_link=true
+      ts_compile=
       ;;
 
     "--no-build" | "-nb")
       #DOC: Skip the build step
-      build=
+      ts_compile=
       ;;
 
     "--thunderstorm-home="* | "-th="*)
       #DOC: Will link the output folder of the libraries of thunderstorm that exists under the give path
       #PARAM=path-to-thunderstorm-folder
 
-      linkDependencies=true
-      linkThunderstorm=true
+      ts_link=true
+      ts_linkThunderstorm=true
+
       local temp=$(regexParam "--thunderstorm-home|-th" "${paramValue}")
       [[ "${temp}" ]] && ThunderstormHome="${temp}"
       ;;
 
     "--lint")
       #DOC: Run lint on all the project packages
-      lint=true
+      ts_lint=true
       ;;
 
     "--output-dir="* | "-od="*)
@@ -165,8 +182,8 @@ extractParams() {
 
     "--rebuild-on-change" | "-roc")
       # FUTURE: will build and listen for changes in the libraries
-      listen=true
-      build=
+      ts_watch=true
+      ts_compile=true
       ;;
 
       #        ==== TEST ====
@@ -175,7 +192,7 @@ extractParams() {
       #NOTE: Running this way expecting the "testServiceAccount" variable to be defined gloabally
 
       [[ ! "${testServiceAccount}" ]] && throwError "MUST specify the path to the testServiceAccount in the .scripts/modules.sh in your project"
-      runTests=true
+      ts_test=true
       ;;
 
     "--test="* | "-t="*)
@@ -183,7 +200,7 @@ extractParams() {
       #PARAM=path-to-firebase-service-account
 
       testServiceAccount=$(regexParam "--test|-t" "${paramValue}")
-      runTests=true
+      ts_test=true
       ;;
 
     "--output-test-dir="* | "-otd="*)
@@ -221,21 +238,21 @@ extractParams() {
 
       deployBackend=true
       deployFrontend=true
-      lint=true
+      ts_lint=true
       ;;
 
     "--deploy-backend" | "-db")
       #DOC: Will compile, build, lint and deploy ONLY the backend
 
       deployBackend=true
-      lint=true
+      ts_lint=true
       ;;
 
     "--deploy-frontend" | "-df")
       #DOC: Will compile, build, lint and deploy ONLY the frontend
 
       deployFrontend=true
-      lint=true
+      ts_lint=true
       ;;
 
     "--set-version="* | "-sv="*)
@@ -243,12 +260,21 @@ extractParams() {
       #PARAM=x.y.z
 
       newAppVersion=$(regexParam "--set-version|-sv" "${paramValue}")
-      linkDependencies=true
-      build=true
-      lint=true
+      ts_link=true
+      ts_compile=true
+      ts_lint=true
       ;;
 
       #        ==== OTHER ====
+
+    "--debug")
+      #DOC: Will print the parameters the script is running with
+      setDebugLog true
+      ts_LogLevel=${LOG_LEVEL__DEBUG}
+
+      ts_debug=true
+      ;;
+
     "--log="*)
       #DOC: Set the script log level
       #PARAM=[verbose | debug | info | warning | error]
@@ -256,8 +282,8 @@ extractParams() {
 
       local _logLevelKey=$(regexParam "--log" "${paramValue}")
       local logLevelKey=LOG_LEVEL__${_logLevelKey^^}
-      tsLogLevel=${!logLevelKey}
-      [[ ! ${tsLogLevel} ]] && tsLogLevel=${LOG_LEVEL__INFO}
+      ts_LogLevel=${!logLevelKey}
+      [[ ! ${ts_LogLevel} ]] && ts_LogLevel=${LOG_LEVEL__INFO}
 
       ;;
 
@@ -265,9 +291,9 @@ extractParams() {
       #DOC: Will deploy both frontend & backend, without any other lifecycle action
       #WARNING: Use only if you REALLY understand the lifecycle of the project and script!!
 
-      lint=
-      build=
-      linkDependencies=
+      ts_lint=
+      ts_compile=
+      ts_link=
       ;;
 
     "--publish="* | "--publish")
@@ -283,19 +309,19 @@ extractParams() {
       fi
 
       case "${promoteThunderstormVersion}" in
-        "patch" | "minor" | "major") ;;
+      "patch" | "minor" | "major") ;;
 
-        *)
-          throwError "Bad version type: ${promoteThunderstormVersion}" 2
-          ;;
+      *)
+        throwError "Bad version type: ${promoteThunderstormVersion}" 2
+        ;;
 
       esac
 
-      linkDependencies=true
-      clean=true
-      build=true
-      publish=true
-      lint=true
+      ts_link=true
+      ts_clean=true
+      ts_compile=true
+      ts_publish=true
+      ts_lint=true
       ;;
 
     *)

@@ -2,6 +2,7 @@
 
 NodePackage() {
 
+  declare path
   declare folderName
   declare packageName
   declare version
@@ -76,33 +77,33 @@ NodePackage() {
   }
 
   _link() {
-    local lib=${1}
-    local version=(${2})
-    local libPackageName="$("${lib}.packageName")"
+    local lib=
+    createFolder "${outputDir}"
+    copyFileToFolder package.json "${outputDir}"
 
-    for lib in ${libs[@]}; do
+    for lib in ${@}; do
       [[ "${lib}" == "${_this}" ]] && break
-      logDebug "link ${lib} in ${folderName}"
-
-      logWarning "packageName: ${packageName}"
+      local libPackageName="$("${lib}.packageName")"
 
       [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
-
+      local libFolderName="$("${lib}.folderName")"
+      local libVersion="$("${lib}.version")"
       logDebug "Linking ${lib} (${libPackageName}) => ${folderName}"
       local target="$(pwd)/node_modules/${libPackageName}"
-      local origin="$(pwd)/../${lib}/${outputDir}"
+      local origin="${path}/${libFolderName}/${outputDir}"
 
+      createDir "${target}"
       deleteDir "${target}"
       logVerbose "ln -s ${origin} ${target}"
       ln -s "${origin}" "${target}"
       throwError "Error symlink dependency: ${libPackageName}"
 
-      local moduleVersion="$(string_replace "([0-9]+\\.[0-9]+\\.)[0-9]+" "\10" "${version}")"
+      local moduleVersion="$(string_replace "([0-9]+\\.[0-9]+\\.)[0-9]+" "\10" "${libVersion}")"
       logVerbose "Updating dependency version to ${libPackageName} => ${moduleVersion}"
-
 
       file_replaceAll "\"${libPackageName}\": \".0\\.0\\.1\"" "\"${libPackageName}\": \"~${moduleVersion}\"" "${outputDir}/package.json" "%"
       throwError "Error updating version of dependency in package.json"
+
     done
   }
 
@@ -112,7 +113,10 @@ NodePackage() {
     [[ ! "${outputTestDir}" ]] && throwError "No test output directory specified" 2
     [[ ! "${outputDir}" ]] && throwError "No output directory specified" 2
 
+    createFolder "${outputDir}"
     clearFolder "${outputDir}"
+
+    createFolder "${outputTestDir}"
     clearFolder "${outputTestDir}"
   }
 
@@ -202,6 +206,3 @@ NodePackage() {
     logDebug "${folderName}: ${packageName}"
   }
 }
-
-
-

@@ -7,6 +7,7 @@ Workspace() {
   declare appVersion
 
   declare -a libraries
+  declare -a active
 
   _prepare() {
     [[ -e "${CONST_TS_VER_JSON}" ]] && thunderstormVersion=$(getVersionName "${CONST_TS_VER_JSON}")
@@ -20,35 +21,26 @@ Workspace() {
     appVersion=$(string_join "." ${splitVersion[@]})
   }
 
-  Workspace_libraries.forEach() {
+  Workspace_active.forEach() {
     local command=${1}
     [[ ! "${command}" ]] && throwError "No command spcified" 2
-    for projectLib in ${libraries[@]}; do
+    for projectLib in ${active[@]}; do
       _pushd "$("${projectLib}.folderName")"
       "${projectLib}.${command}" ${@:2}
-      _popd
-    done
-  }
-
-  Workspace_appLibraries.forEach() {
-    local command=${1}
-    [[ ! "${command}" ]] && throwError "No command spcified" 2
-    for projectLib in ${appLibraries[@]}; do
-      _pushd "$("${projectLib}.folderName")"
-      "${projectLib}.${command}" ${@:2}
+      throwError "Error executing command: ${projectLib}.${command} ${@:2}"
       _popd
     done
   }
 
   _printDependencyTree() {
-    [[ ! "${printDependencies}" ]] && return
+    [[ ! "${ts_dependencies}" ]] && return
 
-    this.libraries.forEach printDependencyTree
+    this.active.forEach printDependencyTree
     exit 0
   }
 
   _prepareToPublish() {
-    [[ ! "${publish}" ]] && return
+    [[ ! "${ts_publish}" ]] && return
 
     assertRepoIsClean() {
       logDebug "Asserting main repo readiness to promote a version..."
@@ -77,7 +69,7 @@ Workspace() {
     copyConfigFile "./.config/firebase-ENV_TYPE.json" "firebase.json" "${envType}" "${fallbackEnv}"
     copyConfigFile "./.config/.firebaserc-ENV_TYPE" ".firebaserc" "${envType}" "${fallbackEnv}"
 
-    this.libraries.forEach setEnvironment
+    this.active.forEach setEnvironment
   }
 
   _assertNoCyclicImport() {
@@ -86,20 +78,20 @@ Workspace() {
     logInfo
     bannerInfo "Cyclic Imports"
 
-    this.libraries.forEach assertNoCyclicImport
+    this.active.forEach assertNoCyclicImport
   }
 
   _purge() {
-    [[ ! "${purge}" ]] && return
+    [[ ! "${ts_purge}" ]] && return
 
     logInfo
     bannerInfo "Purge"
 
-    this.libraries.forEach purge
+    this.active.forEach purge
   }
 
   _clean() {
-    [[ ! "${clean}" ]] && return
+    [[ ! "${ts_clean}" ]] && return
 
     logInfo
     bannerInfo "Clean"
@@ -107,11 +99,11 @@ Workspace() {
     # the second condition can create issues if a lib is added as a projectModule..
     # TODO: Figure this out... in which context should this run??
 
-    this.libraries.forEach clean
+    this.active.forEach clean
   }
 
   _install() {
-    [[ ! "${setup}" ]] && return
+    [[ ! "${ts_install}" ]] && return
 
     #    logInfo "Installing global packages..."
     #    npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest sort-json@latest tsc-watch@latest
@@ -119,40 +111,42 @@ Workspace() {
     logInfo
     bannerInfo "Install"
 
-    this.libraries.forEach install ${libraries[@]}
+    this.active.forEach install ${libraries[@]}
   }
 
   _link() {
+    [[ ! "${ts_link}" ]] && return
+
     logInfo
     bannerInfo "Link"
 
-    this.libraries.forEach link "${thunderstormVersion}" ${libraries[@]}
+    this.active.forEach link ${libraries[@]}
   }
 
   _compile() {
-    [[ ! "${build}" ]] && return
+    [[ ! "${ts_compile}" ]] && return
     logInfo
     bannerInfo "Compile"
 
-    this.libraries.forEach compile
+    this.active.forEach compile
   }
 
   _lint() {
-    [[ ! "${lint}" ]] && return
+    [[ ! "${ts_lint}" ]] && return
     logInfo
     bannerInfo "Lint"
 
-    this.libraries.forEach lint
+    this.active.forEach lint
   }
 
   _test() {
-    [[ ! "${runTests}" ]] && return
-    [[ ! "${testServiceAccount}" ]] && return
+    [[ ! "${ts_test}" ]] && return
+    [[ ! "${testServiceAccount}" ]] && throwError "MUST specify path to a test service account" 2
 
     export GOOGLE_APPLICATION_CREDENTIALS="${testServiceAccount}"
     logInfo
     bannerInfo "Test"
-    this.libraries.forEach test
+    this.active.forEach test
   }
 
   _deploy() {
@@ -166,10 +160,10 @@ Workspace() {
   }
 
   _publish() {
-    [[ ! "${publish}" ]] && return
+    [[ ! "${ts_publish}" ]] && return
 
-    this.libraries.forEach canPublish
-    this.libraries.forEach publish
+    this.active.forEach canPublish
+    this.active.forEach publish
     #    gitNoConflictsAddCommitPush "Thunderstorm" "$(gitGetCurrentBranch)" "published version v${thunderstormVersion}"
   }
 
@@ -179,7 +173,6 @@ Workspace() {
     logVerbose "App version: ${appVersion}"
     logVerbose
 
-    this.libraries.forEach toLog
+    this.active.forEach toLog
   }
-
 }

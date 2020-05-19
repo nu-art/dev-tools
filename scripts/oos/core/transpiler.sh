@@ -1,7 +1,7 @@
 #!/bin/bash
 source ${BASH_SOURCE%/*}/transpiler-consts.sh
 
-GLOBAL_TranspilerPaths=()
+GLOBAL_TranspilerPaths=("${BASH_SOURCE%/*}")
 
 setTranspilerOutput() {
   local output=${1}
@@ -9,28 +9,26 @@ setTranspilerOutput() {
   [[ ! -e "${output}" ]] && mkdir "${output}"
 
   GLOBAL_TranspilerOutput="${output}/output"
-  createDir "${GLOBAL_TranspilerOutput}"
+  createDir "${GLOBAL_TranspilerOutput}" > /dev/null
 
   GLOBAL_TranspilerOutputClasses="${GLOBAL_TranspilerOutput}/classes"
   GLOBAL_TranspilerOutputTemplate="${GLOBAL_TranspilerOutput}/template"
   GLOBAL_TranspilerOutputInstances="${GLOBAL_TranspilerOutput}/instances"
 
-  createDir "${GLOBAL_TranspilerOutputClasses}"
-  clearDir "${GLOBAL_TranspilerOutputClasses}"
+  createDir "${GLOBAL_TranspilerOutputClasses}" > /dev/null
+  clearDir "${GLOBAL_TranspilerOutputClasses}" > /dev/null
 
-  createDir "${GLOBAL_TranspilerOutputTemplate}"
-  clearDir "${GLOBAL_TranspilerOutputClasses}"
+  createDir "${GLOBAL_TranspilerOutputTemplate}" > /dev/null
+  clearDir "${GLOBAL_TranspilerOutputClasses}" > /dev/null
 
-  createDir "${GLOBAL_TranspilerOutputInstances}"
-  clearDir "${GLOBAL_TranspilerOutputInstances}"
+  createDir "${GLOBAL_TranspilerOutputInstances}" > /dev/null
+  clearDir "${GLOBAL_TranspilerOutputInstances}" > /dev/null
 }
 
 addTranspilerClassPath() {
   _logVerbose "Adding classpath: ${1}"
   GLOBAL_TranspilerPaths[${#GLOBAL_TranspilerPaths[@]}]=${1}
 }
-
-addTranspilerClassPath "${BASH_SOURCE%/*}"
 
 new() {
   [[ ! "${GLOBAL_TranspilerOutput}" ]] && setTranspilerOutput "$(pwd)"
@@ -68,8 +66,7 @@ new() {
 }
 
 transpile_AppendParentClasses() {
-  local childClass=${1}
-  local class=${2}
+  local class=${1}
 
   transpile_parentClass() {
     local parentClass=${1}
@@ -147,7 +144,7 @@ loadClass() {
   [[ ! "${class}" =~ "${className}()" ]] && throwError "Could not find constructor matching class name '${className}' in class file: ${pathToClassFile}" 3
 
   parents=($(transpile_GetParentsClasses "${class}"))
-  class="$(transpile_AppendParentClasses "${className}" "${class}")"
+  class="$(transpile_AppendParentClasses "${class}")"
   echo -e "${class}" > "${GLOBAL_TranspilerOutputTemplate}/${className}.class.sh"
 
   class="$(echo -e "${class}" | sed -E "s/_this/${className}___this/g")"
@@ -220,9 +217,9 @@ transpile_Class() {
       class=$(echo -e "${class}" | sed -E "s/\\$\{${member}([\[\}:])/\${${className}_${member}\1/g")
       class=$(echo -e "${class}" | sed -E "s/${member}(\+|\[.*])?=/${className}_${member}\1=/g")
       class=$(echo -e "${class}" | sed -E "s/this.${member}/${className}_${member}/g")
-      _logWarning "transpiling member: ${member}"
+      #      _logWarning "transpiling member: ${member}"
       if [[ "$(echo -e "${class}" | grep -E "declare -a ${member}")" ]]; then
-        _logWarning "transpiling array member: ${member}"
+        #        _logWarning "transpiling array member: ${member}"
         class=$(echo -e "${class}" | sed -E "s/declare -a ${member}$/$(transpile_ArrayMember "${className}" "${member}")/g")
       fi
       if [[ "$(echo -e "${class}" | grep -E "declare ${member}")" ]]; then

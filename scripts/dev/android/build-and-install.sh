@@ -26,7 +26,7 @@ setDefaultAndroidHome
 paramColor=${BBlue}
 valueColor=${BGreen}
 
-printUsage {
+printUsage() {
     local errorMessage=${1}
 
     local packageNameParam="${paramColor}--packageName=${NoColor}"

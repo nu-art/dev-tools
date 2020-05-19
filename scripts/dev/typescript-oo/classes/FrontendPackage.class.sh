@@ -4,13 +4,11 @@ FrontendPackage() {
   extends class NodePackage
 
   _deploy() {
+    [[ ! "$(array_include "${folderName}" "${ts_deploy[@]}")" ]] && return
+
     firebase deploy --only hosting
     throwWarning "Error while deploying hosting"
   }
-
-  #
-  #  -- extends AppPackage
-  #
 
   _setEnvironment() {
     #    TODO: iterate on all source folders
@@ -29,6 +27,7 @@ FrontendPackage() {
   }
 
   _launch() {
+    [[ ! "$(array_include "${folderName}" "${ts_launch[@]}")" ]] && return
     npm run launch
   }
 
@@ -38,52 +37,6 @@ FrontendPackage() {
       bash ../dev-tools/scripts/utils/generate-ssl-cert.sh --output=./.config/ssl
     fi
 
-    this.super.install
-  }
-
-  _super.install() {
-    local libs=(${@})
-
-    backupPackageJson() {
-      cp package.json _package.json
-      throwError "Error backing up package.json in module: ${1}"
-    }
-
-    restorePackageJson() {
-      trap 'restorePackageJson' SIGINT
-      rm package.json
-      throwError "Error restoring package.json in module: ${1}"
-
-      mv _package.json package.json
-      throwError "Error restoring package.json in module: ${1}"
-      trap - SIGINT
-    }
-
-    cleanPackageJson() {
-      local i
-      for ((i = 0; i < ${#libs[@]}; i += 1)); do
-        local lib=${libs[${i}]}
-        local libPackageName="$("${lib}.packageName")"
-
-        [[ "${lib}" == "${_this}" ]] && break
-        file_replace "^.*${libPackageName}.*$" "" package.json "" "%"
-      done
-    }
-
-    backupPackageJson "${folderName}"
-    cleanPackageJson
-
-    trap 'restorePackageJson' SIGINT
-
-    deleteDir node_modules/@nu-art
-    deleteFile package-lock.json
-    logInfo "Installing: ${folderName}"
-    logInfo
-
-    npm install
-    throwError "Error installing module"
-    trap - SIGINT
-
-    restorePackageJson "${folderName}"
+    this.NodePackage.install ${@}
   }
 }

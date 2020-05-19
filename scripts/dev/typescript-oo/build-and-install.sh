@@ -4,13 +4,7 @@ source ./dev-tools/scripts/git/_core.sh
 source ./dev-tools/scripts/firebase/core.sh
 source ./dev-tools/scripts/node/_source.sh
 source ./dev-tools/scripts/oos/core/transpiler.sh
-
-#setDebugLogFile ./.trash/debug-log.txt
-CONST_RunningFolder="$(folder_getRunningPath 1)"
-logInfo "${CONST_RunningFolder}"
-setDebugLog true
-setTranspilerOutput "${CONST_RunningFolder}"
-addTranspilerClassPath "${CONST_RunningFolder}/classes"
+printCommand "$@"
 
 setErrorOutputFile "$(pwd)/error_message.txt"
 
@@ -25,7 +19,6 @@ source "${BASH_SOURCE%/*}/params.sh"
 
 [[ -e ".scripts/setup.sh" ]] && source .scripts/setup.sh
 [[ -e ".scripts/signature.sh" ]] && source .scripts/signature.sh
-
 [[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh
 
 enforceBashVersion 4.4
@@ -33,23 +26,29 @@ enforceBashVersion 4.4
 #signature
 extractParams "$@"
 printDebugParams "${debug}" "${params[@]}"
-setLogLevel ${tsLogLevel}
+setLogLevel "${ts_LogLevel}"
 installAndUseNvmIfNeeded
+
+CONST_RunningFolder="$(folder_getRunningPath 1)"
+
+#setTranspilerOutput "${CONST_RunningFolder}"
+setTranspilerOutput ".trash/bai"
+addTranspilerClassPath "${CONST_RunningFolder}/classes"
 
 buildWorkspace() {
   local thunderstormLibraries=(
     ts-common
     testelot
-    #    neural
-    #    firebase
-    #    thunderstorm
-    #    db-api-generator
-    #    storm
-    #    live-docs
-    #    user-account
-    #    permissions
-    #    push-pub-sub
-    #    bug-report
+    neural
+    firebase
+    thunderstorm
+    db-api-generator
+    storm
+    live-docs
+    user-account
+    permissions
+    push-pub-sub
+    bug-report
   )
 
   local projectLibraries=(
@@ -60,6 +59,10 @@ buildWorkspace() {
   workspace.prepare
 
   local libraries=()
+  local active=()
+  for lib in ${libsToRun[@]}; do
+    active+=($(string_replaceAll "-" "_" "${lib}"))
+  done
 
   createPackages() {
     local className="${1}"
@@ -72,6 +75,7 @@ buildWorkspace() {
 
       new "${className}" "${ref}"
       "${ref}".folderName = "${lib}"
+      "${ref}".path = "$(pwd)"
       "${ref}".prepare
       "${ref}".outputDir = "${outputDir}"
       "${ref}".outputTestDir = "${outputTestDir}"
@@ -80,20 +84,32 @@ buildWorkspace() {
     done
   }
 
+  if [[ "${ThunderstormHome}" ]]; then
+    _pushd "${ThunderstormHome}"
+  fi
+
   createPackages NodePackage "$(workspace.thunderstormVersion)" ${thunderstormLibraries[@]}
+
+  if [[ "${ThunderstormHome}" ]]; then
+    _popd
+  fi
+
   createPackages NodePackage "$(workspace.appVersion)" ${projectLibraries[@]}
-  createPackages FrontendPackage "$(workspace.appVersion)" ${frontendModule}
-  createPackages BackendPackage "$(workspace.appVersion)" ${backendModule}
+  createPackages FrontendPackage "$(workspace.appVersion)" "${frontendModule}"
+  createPackages BackendPackage "$(workspace.appVersion)" "${backendModule}"
+
+  ((${#active[@]} == 0)) && active=(${libraries[@]})
 
   workspace.libraries = "${libraries[@]}"
+  workspace.active = "${active[@]}"
 
-  #  workspace.purge
+  workspace.purge
   workspace.clean
-  #  workspace.install
-  #  workspace.link
-  #  workspace.compile
-  #  workspace.lint
-  #  workspace.test
+  workspace.install
+  workspace.link
+  workspace.compile
+  workspace.lint
+  workspace.test
 
   workspace.toLog
 }

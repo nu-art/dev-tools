@@ -4,13 +4,11 @@ BackendPackage() {
   extends class NodePackage
 
   _deploy() {
+    [[ ! "$(array_include "${folderName}" "${ts_deploy[@]}")" ]] && return
+
     firebase deploy --only functions
     throwWarning "Error while deploying functions"
   }
-
-  #
-  #  -- extends AppPackage
-  #
 
   _setEnvironment() {
     #    TODO: iterate on all source folders
@@ -29,18 +27,12 @@ BackendPackage() {
   }
 
   _launch() {
+    [[ ! "$(array_include "${folderName}" "${ts_launch[@]}")" ]] && return
     npm run launch
   }
 
   _clean() {
-
-    local libs=(${@})
-    for lib in ${libs[@]}; do
-      [[ "${lib}" == "${_this}" ]] && break
-    #   local backendDependencyPath="../${backendModule}/.dependencies/${module}"
-    #   deleteDir "${backendDependencyPath}"
-    done
-
+    deleteDir ".dependencies"
     this.NodePackage.clean
   }
 }

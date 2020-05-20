@@ -98,6 +98,7 @@ extractParams() {
       ts_purge=true
       ts_clean=true
       ts_install=true
+      ts_link=true
       ;;
 
     "--clean" | "-c")

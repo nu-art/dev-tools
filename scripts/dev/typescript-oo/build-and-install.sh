@@ -74,6 +74,8 @@ buildWorkspace() {
     local ref
 
     for lib in ${libs[@]}; do
+      [[ ! -e "${lib}" ]] && continue
+
       ref=$(string_replaceAll "-" "_" "${lib}")
 
       new "${className}" "${ref}"

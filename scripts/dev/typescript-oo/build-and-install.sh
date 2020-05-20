@@ -75,6 +75,7 @@ buildWorkspace() {
 
     for lib in ${libs[@]}; do
       [[ ! -e "${lib}" ]] && continue
+      [[ ! -e "${lib}/package.json" ]] && continue
 
       ref=$(string_replaceAll "-" "_" "${lib}")
 

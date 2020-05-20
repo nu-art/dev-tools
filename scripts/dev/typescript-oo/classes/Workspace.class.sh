@@ -44,7 +44,7 @@ Workspace() {
     for item in ${items[@]}; do
       _pushd "$("${item}.folderName")"
       "${item}.${command}" ${@:3}
-      throwError "Error executing command: ${item}.${command} ${@:2}"
+      (( $? > 0 )) && throwError "Error executing command: ${item}.${command}"
       _popd
     done
   }
@@ -128,7 +128,7 @@ Workspace() {
     logInfo
     bannerInfo "Install"
 
-    this.active.forEach install ${libraries[@]}
+    this.active.forEach install ${allLibs[@]}
   }
 
   _link() {
@@ -137,7 +137,7 @@ Workspace() {
     logInfo
     bannerInfo "Link"
 
-    this.active.forEach link ${libraries[@]}
+    this.active.forEach link ${allLibs[@]}
   }
 
   _compile() {

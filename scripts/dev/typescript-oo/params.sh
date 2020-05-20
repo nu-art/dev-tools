@@ -47,11 +47,9 @@ params=(
   ts_lint
   ts_test
   ts_publish
-
   "ts_launch[@]"
   "ts_deploy[@]"
   "activeLibs[@]"
-
   checkCircularImports
   newVersion
   promoteThunderstormVersion
@@ -130,7 +128,8 @@ extractParams() {
       ;;
 
     "--setup" | "-s")
-      #WARNING: --setup is deprecated... use --install or -i
+      #WARNING: --setup / -s are deprecated... use --install or -i
+      logWarning "--setup / -s are deprecated... use --install or -i"
       exit 2
       ;;
 
@@ -270,9 +269,9 @@ extractParams() {
     "--debug")
       #DOC: Will print the parameters the script is running with
       setDebugLog true
-      ts_LogLevel=${LOG_LEVEL__DEBUG}
-
       ts_debug=true
+      ((ts_LogLevel > LOG_LEVEL__DEBUG)) && ts_LogLevel=${LOG_LEVEL__DEBUG}
+
       ;;
 
     "--log="*)

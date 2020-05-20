@@ -81,8 +81,12 @@ NodePackage() {
     createFolder "${outputDir}"
     copyFileToFolder package.json "${outputDir}"
 
+    logDebug "Setting version '${version}' to module: ${folderName}"
+    setVersionName "${version}" "${outputDir}/package.json"
+
     for lib in ${@}; do
       [[ "${lib}" == "${_this}" ]] && break
+      logWarning "libPackageName ${libPackageName}"
       local libPackageName="$("${lib}.packageName")"
 
       [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
@@ -105,6 +109,7 @@ NodePackage() {
       throwError "Error updating version of dependency in package.json"
 
     done
+    return 0
   }
 
   _clean() {

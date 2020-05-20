@@ -86,7 +86,6 @@ NodePackage() {
 
     for lib in ${@}; do
       [[ "${lib}" == "${_this}" ]] && break
-      logWarning "libPackageName ${libPackageName}"
       local libPackageName="$("${lib}.packageName")"
 
       [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue

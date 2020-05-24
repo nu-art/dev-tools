@@ -75,6 +75,22 @@ execute() {
   return ${errorCode}
 }
 
+executeCommand() {
+  local command=$1
+  local message=${2:-${command}}
+  local silence=$3
+
+  [[ ! "${silence}" ]] && logDebug "${message}"
+  [[ "${message}" != "${command}" ]] && logVerbose "  ${command}"
+
+  local errorCode=
+  eval "${command}"
+  errorCode=$?
+  throwError "${message}" ${errorCode}
+
+  return ${errorCode}
+}
+
 yesOrNoQuestion() {
   local message=${1}
   local toExecuteYes=${2}
@@ -214,6 +230,10 @@ replaceStringInFiles() {
       sed -i -E "s/${matchPattern}/${replaceWith}/g" "${file}"
     fi
   done
+}
+
+resolveCommand() {
+  command -v "${1}"
 }
 
 isFunction() {

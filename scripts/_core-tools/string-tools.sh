@@ -30,6 +30,19 @@ string_endsWith() {
   [[ "${string: -${#expected}}" == "${expected}" ]] && echo "true"
 }
 
+## @function: string_substring(string, fromIndex, length?)
+##
+## @description: Substring out of the given string from and to the provided indices
+##
+## @return: The substring between the given indices
+string_substring() {
+  local string="${1}"
+  local fromIndex=${2}
+  local length=${3}
+  [[ ! "${length}" ]] && length=$((${#string} - fromIndex))
+  echo "${string:${fromIndex}:${length}}"
+}
+
 ## @function: string_startsWith(string, expected)
 ##
 ## @description: Check if a string starts with the expected
@@ -103,8 +116,8 @@ string_join() {
 string_generateHex() {
   local length="${1}"
   local hex=""
-  for (( i = 0; i < length; i++ )); do
-      hex="${hex}$(printf "%x" "$(number_random 16)")"
+  for ((i = 0; i < length; i++)); do
+    hex="${hex}$(printf "%x" "$(number_random 16)")"
   done
 
   echo "${hex}"

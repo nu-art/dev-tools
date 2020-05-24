@@ -36,3 +36,4 @@ source ${DIR}/string-tools.sh
 source ${DIR}/number-tools.sh
 source ${DIR}/versioning.sh
 source ${DIR}/help-tools.sh
+source ${DIR}/debugger.sh

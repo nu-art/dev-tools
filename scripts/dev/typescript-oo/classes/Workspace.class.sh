@@ -14,14 +14,36 @@ Workspace() {
 
   _prepare() {
     [[ -e "${CONST_TS_VER_JSON}" ]] && thunderstormVersion=$(getVersionName "${CONST_TS_VER_JSON}")
-    [[ "${appVersion}" ]] && return
 
-    local tempVersion=$(getVersionName ${CONST_APP_VER_JSON})
-    local splitVersion=(${tempVersion//./ })
-    for ((arg = 0; arg < 3; arg += 1)); do
-      [[ ! "${splitVersion[${arg}]}" ]] && splitVersion[${arg}]=0
-    done
-    appVersion=$(string_join "." ${splitVersion[@]})
+    this.setAppsVersion
+  }
+
+  _setAppsVersion() {
+    if [[ ! "${appVersion}" ]]; then
+      local tempVersion=$(getVersionName ${CONST_APP_VER_JSON})
+      local splitVersion=(${tempVersion//./ })
+      for ((arg = 0; arg < 3; arg += 1)); do
+        [[ ! "${splitVersion[${arg}]}" ]] && splitVersion[${arg}]=0
+      done
+      appVersion=$(string_join "." ${splitVersion[@]})
+    fi
+
+    [[ "$(getVersionName "${CONST_APP_VER_JSON}")" == "${appVersion}" ]] && return
+
+    logDebug "Asserting repo readiness to promote a version..."
+    [[ $(gitAssertTagExists "v${appVersion}") ]] && throwError "Tag already exists: v${appVersion}" 2
+
+    gitAssertBranch "${allowedBranchesForPromotion[@]}"
+    gitFetchRepo
+    gitAssertRepoClean
+    gitAssertNoCommitsToPull
+
+    logInfo "Promoting Apps: $(getVersionName "${CONST_APP_VER_JSON}") => ${appVersion}"
+    setVersionName "${appVersion}" "${CONST_APP_VER_JSON}"
+
+    #    gitTag "v${appVersion}" "Promoted apps to: v${appVersion}"
+    #    gitPushTags
+    throwError "Error pushing promotion tag"
   }
 
   Workspace.active.forEach() {
@@ -44,7 +66,7 @@ Workspace() {
     for item in ${items[@]}; do
       _pushd "$("${item}.folderName")"
       "${item}.${command}" ${@:3}
-      (( $? > 0 )) && throwError "Error executing command: ${item}.${command}"
+      (($? > 0)) && throwError "Error executing command: ${item}.${command}"
       _popd
     done
   }
@@ -80,13 +102,15 @@ Workspace() {
     [[ "${fallbackEnv}" ]] && logWarning " -- Fallback env: ${fallbackEnv}"
 
     local firebaseProject="$(getJsonValueForKey .firebaserc default)"
+    $(resolveCommand firebase) login
+
     verifyFirebaseProjectIsAccessible "${firebaseProject}"
-    firebase use "${firebaseProject}"
+    $(resolveCommand firebase) use "${firebaseProject}"
 
     copyConfigFile "./.config/firebase-ENV_TYPE.json" "firebase.json" "${envType}" "${fallbackEnv}"
     copyConfigFile "./.config/.firebaserc-ENV_TYPE" ".firebaserc" "${envType}" "${fallbackEnv}"
 
-    this.active.forEach setEnvironment
+    this.apps.forEach setEnvironment
   }
 
   _assertNoCyclicImport() {

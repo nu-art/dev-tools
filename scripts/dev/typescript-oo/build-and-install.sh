@@ -1,5 +1,4 @@
 #!/bin/bash
-
 source ./dev-tools/scripts/git/_core.sh
 source ./dev-tools/scripts/firebase/core.sh
 source ./dev-tools/scripts/node/_source.sh
@@ -9,7 +8,6 @@ setErrorOutputFile "$(pwd)/error_message.txt"
 
 # shellcheck source=./common.sh
 source "${BASH_SOURCE%/*}/common.sh"
-
 # shellcheck source=./modules.sh
 source "${BASH_SOURCE%/*}/modules.sh"
 
@@ -31,7 +29,9 @@ setTranspilerOutput ".trash/bai"
 addTranspilerClassPath "${CONST_RunningFolder}/classes"
 
 buildWorkspace() {
+
   installAndUseNvmIfNeeded
+  storeFirebasePath
 
   local tsLibs=(
     ts-common
@@ -58,6 +58,7 @@ buildWorkspace() {
   )
 
   new Workspace workspace
+  workspace.appVersion = "${appVersion}"
   workspace.prepare
 
   local _tsLibs=()
@@ -112,7 +113,8 @@ buildWorkspace() {
   workspace.apps = "${_apps[@]}"
   workspace.allLibs = "${_allLibs[@]}"
 
-#  workspace.toLog
+  #  workspace.toLog
+  workspace.setEnvironment
 
   workspace.purge
   workspace.clean

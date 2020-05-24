@@ -5,9 +5,10 @@ BackendPackage() {
 
   _deploy() {
     [[ ! "$(array_contains "${folderName}" "${ts_deploy[@]}")" ]] && return
-
-    firebase deploy --only functions
-    throwWarning "Error while deploying functions"
+    logInfo "deploying ${folderName}"
+    #    ${CONST_Firebase} deploy --only functions
+    #    throwWarning "Error while deploying functions"
+    logInfo "deployed ${folderName}"
   }
 
   _setEnvironment() {
@@ -24,6 +25,17 @@ BackendPackage() {
   _lint() {
     npm run lint
     throwWarning "Error linting: ${module}"
+  }
+
+  _linkLib() {
+    local lib=${1}
+    local libFolderName="$("${lib}.folderName")"
+
+    local backendDependencyPath="./.dependencies/${libFolderName}"
+    createDir "${backendDependencyPath}"
+    cp -rf "../${libFolderName}/${outputDir}"/* "${backendDependencyPath}/"
+
+    this.NodePackage.linkLib "${lib}"
   }
 
   _launch() {

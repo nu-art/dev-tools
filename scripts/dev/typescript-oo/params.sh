@@ -238,28 +238,28 @@ extractParams() {
       #DOC: Will add the provided App to the deploy list
 
       ts_deploy+=($(regexParam "--deploy|-d" "${paramValue}"))
-      ts_lint=true
+      ts_link=true
       ;;
 
     "--deploy-backend" | "-db")
       #DOC: Will add the app-backend to the deploy list
 
       ts_deploy+=(app-backend)
-      ts_lint=true
+      ts_link=true
       ;;
 
     "--deploy-frontend" | "-df")
       #DOC: Will add the app-frontend to the deploy list
 
       ts_deploy+=(app-frontend)
-      ts_lint=true
+      ts_link=true
       ;;
 
     "--set-version="* | "-sv="*)
       #DOC: Set application version before deploy
       #PARAM=x.y.z
 
-      newAppVersion=$(regexParam "--set-version|-sv" "${paramValue}")
+      appVersion=$(regexParam "--set-version|-sv" "${paramValue}")
       ts_link=true
       ts_compile=true
       ts_lint=true
@@ -273,6 +273,11 @@ extractParams() {
       ts_debug=true
       ((ts_LogLevel > LOG_LEVEL__DEBUG)) && ts_LogLevel=${LOG_LEVEL__DEBUG}
 
+      ;;
+
+    "--debugger")
+      #DOC: Will stop at break points
+      enableDebugger
       ;;
 
     "--log="*)
@@ -293,7 +298,7 @@ extractParams() {
 
       ts_lint=
       ts_compile=
-      ts_link=
+      ts_test=
       ;;
 
     "--publish="* | "--publish")

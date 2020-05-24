@@ -89,26 +89,30 @@ NodePackage() {
       local libPackageName="$("${lib}.packageName")"
 
       [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
-      local libFolderName="$("${lib}.folderName")"
-      local libVersion="$("${lib}.version")"
-      logDebug "Linking ${lib} (${libPackageName}) => ${folderName}"
-      local target="$(pwd)/node_modules/${libPackageName}"
-      local origin="${path}/${libFolderName}/${outputDir}"
-
-      createDir "${target}"
-      deleteDir "${target}"
-      logVerbose "ln -s ${origin} ${target}"
-      ln -s "${origin}" "${target}"
-      throwError "Error symlink dependency: ${libPackageName}"
-
-      local moduleVersion="$(string_replace "([0-9]+\\.[0-9]+\\.)[0-9]+" "\10" "${libVersion}")"
-      logVerbose "Updating dependency version to ${libPackageName} => ${moduleVersion}"
-
-      file_replaceAll "\"${libPackageName}\": \".0\\.0\\.1\"" "\"${libPackageName}\": \"~${moduleVersion}\"" "${outputDir}/package.json" "%"
-      throwError "Error updating version of dependency in package.json"
-
+      this.linkLib "${lib}"
     done
     return 0
+  }
+
+  _linkLib() {
+    local lib=${1}
+    local libFolderName="$("${lib}.folderName")"
+    local libVersion="$("${lib}.version")"
+    logDebug "Linking ${lib} (${libPackageName}) => ${folderName}"
+    local target="$(pwd)/node_modules/${libPackageName}"
+    local origin="${path}/${libFolderName}/${outputDir}"
+
+    createDir "${target}"
+    deleteDir "${target}"
+    logVerbose "ln -s ${origin} ${target}"
+    ln -s "${origin}" "${target}"
+    throwError "Error symlink dependency: ${libPackageName}"
+
+    local moduleVersion="$(string_replace "([0-9]+\\.[0-9]+\\.)[0-9]+" "\10" "${libVersion}")"
+    logVerbose "Updating dependency version to ${libPackageName} => ${moduleVersion}"
+
+    file_replaceAll "\"${libPackageName}\": \".0\\.0\\.1\"" "\"${libPackageName}\": \"~${moduleVersion}\"" "${outputDir}/package.json" "%"
+    throwError "Error updating version of dependency in package.json"
   }
 
   _clean() {

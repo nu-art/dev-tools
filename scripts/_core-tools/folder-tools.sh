@@ -33,7 +33,7 @@ copyFileToFolder() {
   [[ ! -e "${target}" ]] && createDir "${target}"
 
   cp "${origin}" "${target}"
-  execute "cp \"${origin}\" \"${target}\"" "Copying file: ${origin} => ${target}"
+  execute "cp \"${origin}\" \"${target}\"" "Copying file: ${origin} => ${target}" "${2}"
 }
 
 createDir() {
@@ -46,7 +46,7 @@ createFolder() {
   [[ -e "${pathToDir}" ]] || [[ -d "${pathToDir}" ]] || [[ -L "${pathToDir}" ]] && return
   [[ -f "${pathToDir}" ]] && throwError "Path already exists as file: $(pwd)/${pathToDir}"
 
-  execute "mkdir -p \"${pathToDir}\"" "Creating folder: ${pathToDir}"
+  executeCommand "mkdir -p \"${pathToDir}\"" "Creating folder: ${pathToDir}" "${2}"
 }
 
 clearDir() {
@@ -60,7 +60,7 @@ clearFolder() {
   [[ -f "${pathToDir}" ]] && throwError "Path is as file: $(pwd)/${pathToDir}"
 
   _pushd "${pathToDir}"
-  execute "rm -rf *" "Deleting folder content: ${pathToDir}"
+  execute "rm -rf *" "Deleting folder content: ${pathToDir}" "${2}"
   _popd
 }
 
@@ -74,7 +74,7 @@ deleteDir() {
   [[ -f "${pathToDir}" ]] && throwError "Path is as file: $(pwd)/${pathToDir}"
   [[ ! -e "${pathToDir}" ]] && [[ ! -d "${pathToDir}" ]] && [[ ! -L "${pathToDir}" ]] && return
 
-  execute "rm -rf \"${pathToDir}\"" "Deleting folder: ${pathToDir}"
+  execute "rm -rf \"${pathToDir}\"" "Deleting folder: ${pathToDir}" "${2}"
 }
 
 _cd() {

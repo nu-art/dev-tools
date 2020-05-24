@@ -16,7 +16,7 @@ repoUrl=git@github.com:nu-art-js/thunderclone.git
 localPath=../thunderstorm-forked
 withSources=n
 allGood=n
-firebaseProject=$(firebase use | head -1)
+firebaseProject=$(${CONST_Firebase} use | head -1)
 firebaseProjectLocation=us-central1
 
 signatureThunderstorm() {

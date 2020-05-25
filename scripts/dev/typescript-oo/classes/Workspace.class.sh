@@ -27,6 +27,7 @@ Workspace() {
         [[ ! "${splitVersion[${arg}]}" ]] && splitVersion[${arg}]=0
       done
       appVersion=$(string_join "." ${splitVersion[@]})
+      return
     fi
 
     [[ "$(getVersionName "${CONST_APP_VER_JSON}")" == "${appVersion}" ]] && return

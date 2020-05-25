@@ -117,14 +117,14 @@ Workspace() {
     bannerInfo "Set Environment: ${envType}"
     [[ "${fallbackEnv}" ]] && logWarning " -- Fallback env: ${fallbackEnv}"
 
-    local firebaseProject="$(getJsonValueForKey .firebaserc default)"
     $(resolveCommand firebase) login
-
-    verifyFirebaseProjectIsAccessible "${firebaseProject}"
-    $(resolveCommand firebase) use "${firebaseProject}"
 
     copyConfigFile "./.config/firebase-ENV_TYPE.json" "firebase.json" "${envType}" "${fallbackEnv}"
     copyConfigFile "./.config/.firebaserc-ENV_TYPE" ".firebaserc" "${envType}" "${fallbackEnv}"
+
+    local firebaseProject="$(getJsonValueForKey .firebaserc default)"
+    verifyFirebaseProjectIsAccessible "${firebaseProject}"
+    $(resolveCommand firebase) use "${firebaseProject}"
 
     this.apps.forEach setEnvironment
   }

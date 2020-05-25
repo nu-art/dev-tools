@@ -37,10 +37,10 @@ Workspace() {
     [[ "${noGit}" ]] && return
     [[ $(gitAssertTagExists "v${appVersion}") ]] && throwError "Tag already exists: v${appVersion}" 2
 
-    gitAssertBranch "${allowedBranchesForPromotion[@]}"
-    gitFetchRepo
-    gitAssertRepoClean
-    gitAssertNoCommitsToPull
+#    gitAssertBranch "${allowedBranchesForPromotion[@]}"
+#    gitFetchRepo
+#    gitAssertRepoClean
+#    gitAssertNoCommitsToPull
   }
 
   _setThunderstormVersion() {

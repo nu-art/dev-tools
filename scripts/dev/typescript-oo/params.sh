@@ -234,6 +234,12 @@ extractParams() {
       ts_launch+=(app-backend)
       ;;
 
+    "-d")
+      ts_deploy+=(${backendApps[@]})
+      ts_deploy+=(${frontendApps[@]})
+      ts_link=true
+      ;;
+
     "--deploy=" | "-d="*)
       #DOC: Will add the provided App to the deploy list
 

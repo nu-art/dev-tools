@@ -156,8 +156,10 @@ extractParams() {
       ;;
 
     "--no-build" | "-nb")
-      #DOC: Skip the build step
+      #DOC: Skip the build and link steps
       ts_compile=
+      ts_link=
+
       ;;
 
     "--thunderstorm-home="* | "-th="*)
@@ -234,7 +236,7 @@ extractParams() {
       ts_launch+=(app-backend)
       ;;
 
-    "-d")
+    "--deploy" | "-d")
       ts_deploy+=(${backendApps[@]})
       ts_deploy+=(${frontendApps[@]})
       ts_link=true
@@ -276,6 +278,7 @@ extractParams() {
     "--no-git")
       noGit=true
       ;;
+
     "--debug")
       #DOC: Will print the parameters the script is running with
       setDebugLog true
@@ -322,14 +325,8 @@ extractParams() {
         promoteThunderstormVersion=$(regexParam "--publish" "${paramValue}")
       fi
 
-      case "${promoteThunderstormVersion}" in
-      "patch" | "minor" | "major") ;;
-
-      *)
-        throwError "Bad version type: ${promoteThunderstormVersion}" 2
-        ;;
-
-      esac
+      local p=${promoteThunderstormVersion}
+      [[ "${p}" != "patch" ]] && [[ "${p}" != "minor" ]] && [[ "${p}" != "major" ]] && throwError "Bad version type: ${promoteThunderstormVersion}" 2
 
       ts_link=true
       ts_clean=true

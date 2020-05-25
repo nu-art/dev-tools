@@ -33,30 +33,6 @@ buildWorkspace() {
   installAndUseNvmIfNeeded
   storeFirebasePath
 
-  local tsLibs=(
-    ts-common
-    testelot
-    neural
-    firebase
-    thunderstorm
-    db-api-generator
-    storm
-    live-docs
-    user-account
-    permissions
-    push-pub-sub
-    bug-report
-  )
-
-  local projectLibs=(
-    app-shared
-  )
-
-  local apps=(
-    app-frontend
-    app-backend
-  )
-
   new Workspace workspace
   workspace.appVersion = "${appVersion}"
   workspace.prepare
@@ -90,7 +66,7 @@ buildWorkspace() {
 
       [[ "$(array_contains "${lib}" ${tsLibs[@]})" ]] && _tsLibs+=(${ref})
       [[ "$(array_contains "${lib}" ${projectLibs[@]})" ]] && _projectLibs+=(${ref})
-      [[ "$(array_contains "${lib}" ${apps[@]})" ]] && _apps+=(${ref})
+      [[ "$(array_contains "${lib}" ${backendApps[@]} ${frontendApps[@]})" ]] && _apps+=(${ref})
 
       [[ "$(array_contains "${lib}" ${activeLibs[@]})" ]] && _activeLibs+=(${ref})
       _allLibs+=(${ref})
@@ -102,8 +78,8 @@ buildWorkspace() {
   [[ "${ThunderstormHome}" ]] && [[ "${ts_linkThunderstorm}" ]] && _popd
 
   createPackages NodePackage "$(workspace.appVersion)" ${projectLibs[@]}
-  createPackages FrontendPackage "$(workspace.appVersion)" "${frontendModule}"
-  createPackages BackendPackage "$(workspace.appVersion)" "${backendModule}"
+  createPackages FrontendPackage "$(workspace.appVersion)" "${frontendApps[@]}"
+  createPackages BackendPackage "$(workspace.appVersion)" "${backendApps[@]}"
 
   ((${#_activeLibs[@]} == 0)) && _activeLibs=(${_allLibs[@]})
 

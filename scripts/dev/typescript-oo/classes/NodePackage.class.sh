@@ -3,6 +3,7 @@
 NodePackage() {
 
   declare path
+  declare watch
   declare folderName
   declare packageName
   declare version
@@ -129,8 +130,6 @@ NodePackage() {
   }
 
   _compile() {
-    local watch=${1}
-
     _cd src
     local folders=($(listFolders))
     _cd..
@@ -148,12 +147,6 @@ NodePackage() {
         # figure out the rest of the dirs...
       fi
     done
-
-    if [[ -e "../${backendModule}" ]] && [[ $(array_contains "${module}" "${projectLibraries[@]}") ]]; then
-      local backendDependencyPath="../${backendModule}/.dependencies/${module}"
-      createDir "${backendDependencyPath}"
-      cp -rf "${outputDir}"/* "${backendDependencyPath}/"
-    fi
   }
 
   _lint() {
@@ -199,8 +192,8 @@ NodePackage() {
     _pushd "./${outputDir}"
 
     logInfo "Publishing: ${folderName}"
-    #    npm publish --access public
-    #    throwError "Error publishing: ${folderName}"
+    npm publish --access public
+    throwError "Error publishing: ${folderName}"
     _popd
   }
 

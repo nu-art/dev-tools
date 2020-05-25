@@ -267,6 +267,9 @@ extractParams() {
 
       #        ==== OTHER ====
 
+    "--no-git")
+      noGit=true
+      ;;
     "--debug")
       #DOC: Will print the parameters the script is running with
       setDebugLog true

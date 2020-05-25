@@ -40,16 +40,12 @@ breakpoint() {
   breakpointImpl() {
     # shellcheck disable=SC2034
     local var="CONST_DEBUGGER_VAR"
-    local label=${1}
-    local contextCommands=(${@:2})
-
+    local label="${1}"
     local wipCommand=""
 
     local historyCommands=()
     [[ -e "${CONST_DEBUGGER_COMMANDS_HISTORY}" ]] && readarray -t historyCommands < "${CONST_DEBUGGER_COMMANDS_HISTORY}"
     local historyIndex=$((${#historyCommands[@]} - 1))
-
-    local contextCommand="${contextCommands[0]}"
 
     if [[ "${label}" ]]; then
       logInfo "Breakpoint: ${label}"
@@ -57,7 +53,6 @@ breakpoint() {
     fi
 
     local input=
-    [[ ! "${input}" ]] && input="${contextCommand}"
     [[ ! "${input}" ]] && ((historyIndex >= 0)) && input="${historyCommands[${historyIndex}]}"
     [[ ! "${input}" ]] && input=""
 
@@ -168,6 +163,6 @@ breakpoint() {
   }
 
   trap 'echo "Releasing breakpoint" && return' SIGINT
-  breakpointImpl ${@}
+  breakpointImpl "${@}"
   trap - SIGINT
 }

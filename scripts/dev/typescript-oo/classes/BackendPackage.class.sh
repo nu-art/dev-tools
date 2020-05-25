@@ -6,8 +6,8 @@ BackendPackage() {
   _deploy() {
     [[ ! "$(array_contains "${folderName}" "${ts_deploy[@]}")" ]] && return
     logInfo "deploying ${folderName}"
-    #    ${CONST_Firebase} deploy --only functions
-    #    throwWarning "Error while deploying functions"
+    ${CONST_Firebase} deploy --only functions
+    throwWarning "Error while deploying functions"
     logInfo "deployed ${folderName}"
   }
 
@@ -20,22 +20,21 @@ BackendPackage() {
   _compile() {
     npm run build
     throwWarning "Error compiling: ${module}"
+
+    for lib in ${@}; do
+      [[ "${lib}" == "${_this}" ]] && break
+      local libFolderName="$("${lib}.folderName")"
+      local libPackageName="$("${lib}.packageName")"
+      [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
+      local backendDependencyPath="./.dependencies/${libFolderName}"
+      createDir "${backendDependencyPath}"
+      cp -rf "../${libFolderName}/${outputDir}"/* "${backendDependencyPath}/"
+    done
   }
 
   _lint() {
     npm run lint
     throwWarning "Error linting: ${module}"
-  }
-
-  _linkLib() {
-    local lib=${1}
-    local libFolderName="$("${lib}.folderName")"
-
-    local backendDependencyPath="./.dependencies/${libFolderName}"
-    createDir "${backendDependencyPath}"
-    cp -rf "../${libFolderName}/${outputDir}"/* "${backendDependencyPath}/"
-
-    this.NodePackage.linkLib "${lib}"
   }
 
   _launch() {
@@ -44,7 +43,7 @@ BackendPackage() {
   }
 
   _clean() {
-    deleteDir ".dependencies"
     this.NodePackage.clean
+    deleteDir ".dependencies"
   }
 }

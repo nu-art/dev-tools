@@ -16,6 +16,7 @@ Workspace() {
     [[ -e "${CONST_TS_VER_JSON}" ]] && thunderstormVersion=$(getVersionName "${CONST_TS_VER_JSON}")
 
     this.setAppsVersion
+    this.setThunderstormVersion
   }
 
   _setAppsVersion() {
@@ -29,21 +30,35 @@ Workspace() {
     fi
 
     [[ "$(getVersionName "${CONST_APP_VER_JSON}")" == "${appVersion}" ]] && return
+    logInfo "Promoting Apps: $(getVersionName "${CONST_APP_VER_JSON}") => ${appVersion}"
 
     logDebug "Asserting repo readiness to promote a version..."
+    [[ "${noGit}" ]] && return
     [[ $(gitAssertTagExists "v${appVersion}") ]] && throwError "Tag already exists: v${appVersion}" 2
 
     gitAssertBranch "${allowedBranchesForPromotion[@]}"
     gitFetchRepo
     gitAssertRepoClean
     gitAssertNoCommitsToPull
+  }
 
-    logInfo "Promoting Apps: $(getVersionName "${CONST_APP_VER_JSON}") => ${appVersion}"
-    setVersionName "${appVersion}" "${CONST_APP_VER_JSON}"
+  _setThunderstormVersion() {
+    [[ ! "${promoteThunderstormVersion}" ]] && return
 
-    #    gitTag "v${appVersion}" "Promoted apps to: v${appVersion}"
-    #    gitPushTags
-    throwError "Error pushing promotion tag"
+    local versionName="$(getVersionName "${CONST_TS_VER_JSON}")"
+    thunderstormVersion="$(promoteVersion "${versionName}" "${promoteThunderstormVersion}")"
+
+    logInfo "Promoting thunderstorm packages: ${versionName} => ${thunderstormVersion}"
+
+    logDebug "Asserting repo readiness to promote a version..."
+
+    [[ "${noGit}" ]] && return
+    [[ $(gitAssertTagExists "${thunderstormVersion}") ]] && throwError "Tag already exists: v${thunderstormVersion}" 2
+
+    gitAssertBranch "${allowedBranchesForPromotion[@]}"
+    gitFetchRepo
+    gitAssertRepoClean
+    gitAssertNoCommitsToPull
   }
 
   Workspace.active.forEach() {
@@ -137,17 +152,14 @@ Workspace() {
     logInfo
     bannerInfo "Clean"
 
-    # the second condition can create issues if a lib is added as a projectModule..
-    # TODO: Figure this out... in which context should this run??
-
     this.active.forEach clean
   }
 
   _install() {
     [[ ! "${ts_install}" ]] && return
 
-    #    logInfo "Installing global packages..."
-    #    npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest sort-json@latest tsc-watch@latest
+    logInfo "Installing global packages..."
+    npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest sort-json@latest tsc-watch@latest
 
     logInfo
     bannerInfo "Install"
@@ -169,7 +181,7 @@ Workspace() {
     logInfo
     bannerInfo "Compile"
 
-    this.active.forEach compile
+    this.active.forEach compile ${allLibs[@]}
   }
 
   _lint() {
@@ -209,14 +221,39 @@ Workspace() {
     [[ ! "${envType}" ]] && throwError "MUST set env while deploying!!" 2
 
     this.apps.forEach deploy
+
+    logInfo "Deployed Apps: $(getVersionName "${CONST_APP_VER_JSON}") => ${appVersion}"
+    setVersionName "${appVersion}" "${CONST_APP_VER_JSON}"
+
+    [[ "${noGit}" ]] && return
+
+    gitTag "v${appVersion}" "Promoted apps to: v${appVersion}"
+    gitPushTags
+    throwError "Error pushing promotion tag"
+
+    gitNoConflictsAddCommitPush "Thunderstorm" "$(gitGetCurrentBranch)" "published version v${thunderstormVersion}"
   }
 
   _publish() {
     [[ ! "${ts_publish}" ]] && return
 
+    logInfo
+    bannerInfo "Publish Thunderstorm"
+
     this.tsLibs.forEach canPublish
     this.tsLibs.forEach publish
-    #    gitNoConflictsAddCommitPush "Thunderstorm" "$(gitGetCurrentBranch)" "published version v${thunderstormVersion}"
+
+    local versionName="$(getVersionName "${CONST_TS_VER_JSON}")"
+    logInfo "Promoted thunderstorm packages: ${versionName} => ${thunderstormVersion}"
+    setVersionName "${thunderstormVersion}" "${CONST_TS_VER_JSON}"
+
+    [[ "${noGit}" ]] && return
+
+    gitTag "v${thunderstormVersion}" "Promoted thunderstorm to: v${thunderstormVersion}"
+    gitPushTags
+    throwError "Error pushing promotion tag"
+
+    gitNoConflictsAddCommitPush "Thunderstorm" "$(gitGetCurrentBranch)" "published version v${thunderstormVersion}"
   }
 
   _toLog() {

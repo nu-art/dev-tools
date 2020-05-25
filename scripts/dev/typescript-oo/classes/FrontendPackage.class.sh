@@ -6,8 +6,8 @@ FrontendPackage() {
   _deploy() {
     [[ ! "$(array_contains "${folderName}" "${ts_deploy[@]}")" ]] && return
     logInfo "deploying ${folderName}"
-    #    ${CONST_Firebase} deploy --only hosting
-    #    throwWarning "Error while deploying hosting"
+    ${CONST_Firebase} deploy --only hosting
+    throwWarning "Error while deploying hosting"
     logInfo "deployed ${folderName}"
 
   }

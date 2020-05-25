@@ -2,12 +2,12 @@
 
 boilerplateRepo="git@github.com:nu-art-js/thunderstorm-boilerplate.git"
 
-frontendModule=app-frontend
-backendModule=app-backend
+allowedBranchesForPromotion=(
+  master
+  staging
+)
 
-allowedBranchesForPromotion=(master staging)
-
-thunderstormLibraries=(
+tsLibs=(
   ts-common
   testelot
   neural
@@ -22,12 +22,14 @@ thunderstormLibraries=(
   bug-report
 )
 
-projectLibraries=(
-  ${thunderstormLibraries[@]}
+projectLibs=(
   app-shared
 )
 
-projectModules=(
+backendApps=(
   app-backend
+)
+
+frontendApps=(
   app-frontend
 )

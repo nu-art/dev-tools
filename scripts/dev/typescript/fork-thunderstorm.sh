@@ -7,37 +7,29 @@ source ./dev-tools/scripts/node/_source.sh
 source "${BASH_SOURCE%/*}/modules.sh"
 [[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh
 
-const_BoilerplateFirebaseProject=nu-art-thunderstorm
+installAndUseNvmIfNeeded
+storeFirebasePath
+
+const_BoilerplateFirebaseProject=thunderstorm-staging
 const_BoilerplateLocation=us-central1
 const_LogFolder="$(pwd)/.trash/fork"
 const_Timestamp=$(date +%Y-%m-%d--%H-%M-%S)
 
 repoUrl=git@github.com:nu-art-js/thunderclone.git
 localPath=../thunderstorm-forked
-withSources=n
 allGood=n
 firebaseProject=$(${CONST_Firebase} use | head -1)
+firebaseProject=thunderclone
 firebaseProjectLocation=us-central1
 
 signatureThunderstorm() {
   clear
-  logVerbose "${Gray} -------     _____ _                     _                    _                              ------- ${NoColor}"
-  logVerbose "${Gray} -------    |_   _| |__  _   _ _ __   __| | ___ _ __      ___| |_ ___  _ __ _ __ ___    ${Gray}   ------- ${NoColor}"
-  logVerbose "${Gray} -------      | | | '_ \| | | | '_ \ / _\` |/ _ \ '__|____/ __| __/ _ \| '__| '_ \` _ \   ${Gray}   ------- ${NoColor}"
-  logVerbose "${Gray} -------      | | | | | | |_| | | | | (_| |  __/ | |_____\__ \ || (_) | |  | | | | | |  ${Gray}   ------- ${NoColor}"
-  logVerbose "${Gray} -------      |_| |_| |_|\__,_|_| |_|\__,_|\___|_|       |___/\__\___/|_|  |_| |_| |_|  ${Gray}   ------- ${NoColor}"
-  logVerbose "${Gray} -------                                                                                ${Gray}   ------- ${NoColor}"
-  logVerbose
-}
-
-sayGoodbye() {
-  clear
-  logVerbose "${Gray}     __   _             __   _            __   _        __   _                 ${NoColor}"
-  logVerbose "${Gray}   _(  )_( )_         _(  )_( )_        _(  )_( )_    _(  )_( )_  ${Gray}   ------- ${NoColor}"
-  logVerbose "${Gray}  (_   _    _)       (_   _    _)      (_   _    _)  (_   _    _) ${Gray}   ------- ${NoColor}"
-  logVerbose "${Gray}    (_) (__)           (_) (__)          (_) (__)      (_) (__)   ${Gray}   ------- ${NoColor}"
-  logVerbose "${Gray}  ${Gray}   ------- ${NoColor}"
-  logVerbose "${Gray}  ${Gray}   ------- ${NoColor}"
+  logVerbose "${Gray} -------     _____ _                     _              _                            ------- ${NoColor}"
+  logVerbose "${Gray} -------    |_   _| |__  _   _ _ __   __| | ___ _ _____| |_ ___  _ __ _ __ ___    ${Gray}   ------- ${NoColor}"
+  logVerbose "${Gray} -------      | | | '_ \| | | | '_ \ / _\` |/ _ \ '__/__| __/ _ \| '__| '_ \` _ \   ${Gray}   ------- ${NoColor}"
+  logVerbose "${Gray} -------      | | | | | | |_| | | | | (_| |  __/ | \__ \ || (_) | |  | | | | | |  ${Gray}   ------- ${NoColor}"
+  logVerbose "${Gray} -------      |_| |_| |_|\__,_|_| |_|\__,_|\___|_| |___/\__\___/|_|  |_| |_| |_|  ${Gray}   ------- ${NoColor}"
+  logVerbose "${Gray} -------                                                                          ${Gray}   ------- ${NoColor}"
   logVerbose
 }
 
@@ -63,7 +55,6 @@ promptUserForInput() {
     eval "${var}='${defaultValue}'"
   fi
 }
-
 
 promptForRepoUrl() {
   promptUserForInput repoUrl "Please enter the repo url to fork into:" ${repoUrl}
@@ -142,17 +133,12 @@ promptForLocalPathForFork() {
   logInfo
 }
 
-promptForWithOrWithoutSources() {
-  yesOrNoQuestion_new withSources "Do you want to fork with the thunderstorm sources: [y/N]" ${withSources}
-}
-
 promptUserForConfirmation() {
   local userInput=""
   userInput="${userInput}\n    Git fork repository url: ${repoUrl}"
   userInput="${userInput}\n    Local folder for project: ${localPath}"
   userInput="${userInput}\n    Your firebase project name: ${firebaseProject}"
   userInput="${userInput}\n    Your firebase project location: ${firebaseProjectLocation}"
-  userInput="${userInput}\n    Keep Thunderstorm sources: ${withSources}"
 
   yesOrNoQuestion_new allGood "${userInput}\n\nAre all these details correct: [y/N]" ${allGood}
 
@@ -177,19 +163,11 @@ uploadDefaultConfigToFirebase() {
 }
 
 forkThunderstorm() {
+  createDir "${const_LogFolder}"
   local forkingOutput="${const_LogFolder}/${firebaseProject}_forking_${const_Timestamp}.log.txt"
   logInfo "Forking Thunderstorm boilerplate into...  ${repoUrl}"
-  bash ./dev-tools/scripts/git/git-fork.sh --to=${repoUrl} --output=${localPath} > ${forkingOutput}
+  bash ./dev-tools/scripts/git/git-fork.sh --to=${repoUrl} --output=${localPath} "> ${forkingOutput}"
   throwError "Error while forking Thunderstorm... logs can be found here: ${forkingOutput}"
-}
-
-cleanUpForkedRepo() {
-  deleteFile ./version-thunderstorm.json
-  if [[ "${withSources}" == "n" ]]; then
-    for module in ${thunderstormLibraries[@]}; do
-      deleteFolder ./${module}
-    done
-  fi
 }
 
 replaceBoilerplateNamesWithNewForkedNames() {
@@ -212,7 +190,7 @@ pushPreparedProjectToRepo() {
 setupForkedProject() {
   local output="${const_LogFolder}/${firebaseProject}_setup_${const_Timestamp}.log.txt"
   logInfo "Running initial setup of forked repo..."
-  bash build-and-install.sh -se=dev --setup > ${output}
+  bash build-and-install.sh -se=dev --install > ${output}
   throwError "Error while setting up forked Thunderstorm... logs can be found here: ${output}"
 }
 
@@ -250,24 +228,21 @@ start() {
   promptForFirebaseProject
   promptForFirebaseProjectLocationRepo
   promptForLocalPathForFork
-  promptForWithOrWithoutSources
 
   promptUserForConfirmation
 
   forkThunderstorm
   _cd "${localPath}"
-  cleanUpForkedRepo
   replaceBoilerplateNamesWithNewForkedNames
   prepareForkedProjectEnvironment
   pushPreparedProjectToRepo
   uploadDefaultConfigToFirebase
   setupForkedProject
-  promptUserToLaunchDeployOrExit
 
-  #    sayGoodbye
-  #    echo "Your forked repo url: ${repoUrl}"
-  #    echo "Your Firebase project: ${firebaseProject}"
-  #    echo "The Firebase project location: ${firebaseProjectLocation}"
+  promptUserToLaunchDeployOrExit
+  echo "Your forked repo url: ${repoUrl}"
+  echo "Your Firebase project: ${firebaseProject}"
+  echo "The Firebase project location: ${firebaseProjectLocation}"
 }
 
 installAndUseNvmIfNeeded

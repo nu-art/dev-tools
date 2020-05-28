@@ -202,8 +202,8 @@ launchForkedProject() {
 }
 
 promptUserToLaunchDeployOrExit() {
-  logInfo "To LAUNCH your forked project run: bash build-and-install.sh -lf -lb"
-  logInfo "To DEPLOY your forked project run: bash build-and-install.sh -se=staging -df -db"
+  logInfo "To LAUNCH your forked project run: bash build-and-install.sh --launch=app-frontend --launch=app-backendb"
+  logInfo "To DEPLOY your forked project run: bash build-and-install.sh --set-env=staging --deploy=app-frontend --deploy=app-backend"
 }
 
 sayHello() {

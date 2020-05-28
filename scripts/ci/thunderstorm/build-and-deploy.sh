@@ -1,4 +1,4 @@
-projectName="thunderstorm-boilerplate"
+projectName="thunderstorm"
 source ${BASH_SOURCE%/*}/../../_core-tools/_source.sh
 source ${BASH_SOURCE%/*}/params.sh
 

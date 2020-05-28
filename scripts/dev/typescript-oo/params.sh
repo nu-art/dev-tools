@@ -242,7 +242,7 @@ extractParams() {
       ts_link=true
       ;;
 
-    "--deploy=" | "-d="*)
+    "--deploy="* | "-d="*)
       #DOC: Will add the provided App to the deploy list
 
       ts_deploy+=($(regexParam "--deploy|-d" "${paramValue}"))

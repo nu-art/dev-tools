@@ -75,7 +75,6 @@ transpile_AppendParentClasses() {
     loadClass "${parentClass}"
 
     local parentRawClass="$("Class_${parentClass}.rawClass")"
-    parentRawClass="$(echo -e "${parentRawClass}" | sed '1,3d;$d;$d')"
 
     local childMethods=($(transpile_GetMethodsNames "${class}"))
     local parentMethods=($(transpile_GetMethodsNames "${parentRawClass}"))
@@ -84,13 +83,17 @@ transpile_AppendParentClasses() {
       parentRawClass="$(echo -e "${parentRawClass}" | sed -E "s/_${method}\(\)/_${parentClass}.${method}()/g")"
     done
 
-    parentRawClass="$(echo -e "${parentRawClass}" | sed -E 's:/:\\/:g')"
-    parentRawClass="$(echo -e "${parentRawClass}" | sed -E 's:&:\\&:g')"
-    parentRawClass="$(echo -e "${parentRawClass}" | sed -E 's:\(:\\(:g')"
-    parentRawClass="$(echo -e "${parentRawClass}" | sed -E 's:\\([1-9]):\\\\\1:g')"
-    parentRawClass="${parentRawClass//$'\n'/'\\n'}"
+    local extendsLine=$(echo -e "${class}" | grep -n "extends class ${parentClass}" | head -n 1 | cut -d: -f1)
+    local totalLines=$(echo -n "${class}" | grep -c '^')
 
-    class=$(echo -e "${class}" | sed -E "s/extends class ${parentClass}/${parentRawClass}/g")
+    _logError "extendsLine: ${extendsLine}"
+    _logError "parentBodyStart: ${parentBodyStart}"
+    _logError "parentBodyLines: ${parentBodyLines}"
+    _logError "parentBodyEnd: ${parentBodyEnd}"
+
+    local start="$(echo -e "${class}" | sed -n "1,$((extendsLine - 1))p")"
+    local end="$(echo -e "${class}" | sed -n "$((extendsLine + 1)),$((totalLines))p")"
+    class="${start}\n${parentRawClass}\n${end}"
     echo -e "${class}"
   }
 
@@ -169,6 +172,10 @@ loadClass() {
 
   #  _logWarning "parent: ${parents[*]}"
   "${fqn}"
+  local rawClassStart=$(echo -e "${rawClass}" | grep -n "${className}\(\)" | head -n 1 | cut -d: -f1)
+  local rawClassEnd=$(echo -e "${rawClass}" | grep -n "}" | tail -n 1 | cut -d: -f1)
+  rawClass=$(echo -e "${rawClass}" | sed -n "$((rawClassStart + 2)),$((rawClassEnd - 1))p")
+  #  breakpoint "rawClass after"
   "${fqn}.rawClass" = "${rawClass}"
   "${fqn}.class" = "${class}"
   "${fqn}.defaultValues" = "${defaultValues}"

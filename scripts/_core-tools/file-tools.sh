@@ -53,8 +53,8 @@ file_replaceAll() {
 ##
 ## @return: void
 file_replace() {
-  local matchPattern="${1}"
-  local replaceWith="${2}"
+  local matchPattern=${1}
+  local replaceWith=${2}
   local file="${3}"
   local flags="${4}"
   local delimiter="${5:-/}"

@@ -97,6 +97,7 @@ NodePackage() {
 
   _linkLib() {
     local lib=${1}
+    local libPackageName="$("${lib}.packageName")"
     local libFolderName="$("${lib}.folderName")"
     local libVersion="$("${lib}.version")"
     logDebug "Linking ${lib} (${libPackageName}) => ${folderName}"
@@ -112,7 +113,14 @@ NodePackage() {
     local moduleVersion="$(string_replace "([0-9]+\\.[0-9]+\\.)[0-9]+" "\10" "${libVersion}")"
     logVerbose "Updating dependency version to ${libPackageName} => ${moduleVersion}"
 
-    file_replaceAll "\"${libPackageName}\": \".0\\.0\\.1\"" "\"${libPackageName}\": \"~${moduleVersion}\"" "${outputDir}/package.json" "%"
+    logInfo "libPackageName: ${libPackageName}"
+    logInfo "moduleVersion: ${moduleVersion}"
+    logInfo "outputDir: ${outputDir}"
+    logInfo "pwd: $(pwd)"
+
+    local match="\"${libPackageName}\": \".0\\.0\\.1\""
+    local replacement="\"${libPackageName}\": \"~${moduleVersion}\""
+    file_replaceAll "${match}" "${replacement}" "${outputDir}/package.json" "%"
     throwError "Error updating version of dependency in package.json"
   }
 

@@ -6,10 +6,10 @@ BackendPackage() {
   _deploy() {
     [[ ! "$(array_contains "${folderName}" "${ts_deploy[@]}")" ]] && return
 
-    logInfo "Deploying ${folderName}"
+    logInfo "Deploying: ${folderName}"
     ${CONST_Firebase} deploy --only functions
     throwWarning "Error while deploying functions"
-    logInfo "Deployed ${folderName}"
+    logInfo "Deployed: ${folderName}"
   }
 
   _setEnvironment() {
@@ -19,7 +19,7 @@ BackendPackage() {
   }
 
   _compile() {
-    logInfo "Compiling ${folderName}"
+    logInfo "Compiling: ${folderName}"
 
     npm run build
     throwWarning "Error compiling: ${folderName}"
@@ -36,7 +36,7 @@ BackendPackage() {
   }
 
   _lint() {
-    logInfo "Linting ${folderName}"
+    logInfo "Linting: ${folderName}"
 
     npm run lint
     throwWarning "Error linting: ${folderName}"
@@ -45,7 +45,7 @@ BackendPackage() {
   _launch() {
     [[ ! "$(array_contains "${folderName}" "${ts_launch[@]}")" ]] && return
 
-    logInfo "Launching ${folderName}"
+    logInfo "Launching: ${folderName}"
     npm run launch
   }
 

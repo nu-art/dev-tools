@@ -1,7 +1,6 @@
 #!/bin/bash
 storeFirebasePath() {
   CONST_Firebase=$(resolveCommand firebase)
-  logError "${CONST_Firebase}"
 }
 
 verifyFirebaseProjectIsAccessible() {

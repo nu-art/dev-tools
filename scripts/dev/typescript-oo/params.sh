@@ -105,6 +105,7 @@ extractParams() {
       #DOC: Will delete the output(dist) & test output(dist-test) folders in all project packages
 
       ts_clean=true
+      ts_link=true
       ;;
 
       #        ==== BUILD ====

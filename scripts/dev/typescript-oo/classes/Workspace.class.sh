@@ -80,7 +80,7 @@ Workspace() {
     local items=(${2})
 
     for item in ${items[@]}; do
-      _pushd "$("${item}.folderName")"
+      _pushd "$("${item}.path")/$("${item}.folderName")"
       "${item}.${command}" ${@:3}
       (($? > 0)) && throwError "Error executing command: ${item}.${command}"
       _popd

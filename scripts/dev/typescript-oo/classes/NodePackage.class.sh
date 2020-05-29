@@ -100,9 +100,11 @@ NodePackage() {
     local libPackageName="$("${lib}.packageName")"
     local libFolderName="$("${lib}.folderName")"
     local libVersion="$("${lib}.version")"
+    local libPath="$("${lib}.path")"
+
     logDebug "Linking ${lib} (${libPackageName}) => ${folderName}"
     local target="$(pwd)/node_modules/${libPackageName}"
-    local origin="${path}/${libFolderName}/${outputDir}"
+    local origin="${libPath}/${libFolderName}/${outputDir}"
 
     createDir "${target}"
     deleteDir "${target}"

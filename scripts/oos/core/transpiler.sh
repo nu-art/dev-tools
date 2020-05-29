@@ -86,11 +86,6 @@ transpile_AppendParentClasses() {
     local extendsLine=$(echo -e "${class}" | grep -n "extends class ${parentClass}" | head -n 1 | cut -d: -f1)
     local totalLines=$(echo -n "${class}" | grep -c '^')
 
-    _logError "extendsLine: ${extendsLine}"
-    _logError "parentBodyStart: ${parentBodyStart}"
-    _logError "parentBodyLines: ${parentBodyLines}"
-    _logError "parentBodyEnd: ${parentBodyEnd}"
-
     local start="$(echo -e "${class}" | sed -n "1,$((extendsLine - 1))p")"
     local end="$(echo -e "${class}" | sed -n "$((extendsLine + 1)),$((totalLines))p")"
     class="${start}\n${parentRawClass}\n${end}"

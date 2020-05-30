@@ -65,3 +65,18 @@ file_replace() {
     sed -i -E "s${delimiter}${matchPattern}${delimiter}${replaceWith}${delimiter}${flags}" "${file}"
   fi
 }
+
+file_replaceLine() {
+  local toMatch=${1}
+  local replacement="${2}"
+  local file=${3}
+
+  local fileContent="$(cat "${file}")"
+  local matchedLine=$(echo -e "${fileContent}" | grep -n "${toMatch}" | head -n 1 | cut -d: -f1)
+  local totalLines=$(echo -n "${fileContent}" | grep -c '^')
+
+  local start="$(echo -e "${fileContent}" | sed -n "1,$((matchedLine - 1))p")"
+  local end="$(echo -e "${fileContent}" | sed -n "$((matchedLine + 1)),$((totalLines))p")"
+  fileContent="${start}\n${replacement}\n${end}"
+  echo -e "${fileContent}" > "${file}"
+}

@@ -38,6 +38,12 @@ BackendPackage() {
     done
   }
 
+  _generate() {
+    [[ ! "$(array_contains "${folderName}" "${ts_generate[@]}")" ]] && return
+
+    logInfo "Generating: ${folderName}"
+  }
+
   _lint() {
     logInfo "Linting: ${folderName}"
 

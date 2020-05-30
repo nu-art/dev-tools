@@ -257,6 +257,15 @@ Workspace() {
     gitNoConflictsAddCommitPush "Thunderstorm" "$(gitGetCurrentBranch)" "published version v${thunderstormVersion}"
   }
 
+  _generate() {
+    ((${#ts_generate[@]} == 0)) && return
+
+    logInfo
+    bannerInfo "Generate"
+
+    this.apps.forEach generate
+  }
+
   _toLog() {
     logVerbose
     logVerbose "Thunderstorm version: ${thunderstormVersion}"

@@ -26,6 +26,7 @@ printEnv=
 outputDir=dist
 outputTestDir=dist-test
 
+ts_generate=()
 ts_launch=()
 ts_deploy=()
 activeLibs=()
@@ -47,6 +48,7 @@ params=(
   ts_lint
   ts_test
   ts_publish
+  "ts_generate[@]"
   "ts_launch[@]"
   "ts_deploy[@]"
   "activeLibs[@]"
@@ -141,6 +143,20 @@ extractParams() {
 
       ts_install=true
       ts_link=true
+      ;;
+
+    "--generate" | "-g")
+      ts_generate+=(${backendApps[@]})
+      ts_generate+=(${frontendApps[@]})
+      ts_link=
+      ts_compile=
+      ;;
+
+    "--generate="* | "-g="*)
+      #DOC: Will generate sources in the apps if needed
+      ts_generate+=($(regexParam "--generate|-g" "${paramValue}"))
+      ts_link=
+      ts_compile=
       ;;
 
     "--link" | "-ln")

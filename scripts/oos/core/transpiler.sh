@@ -4,7 +4,7 @@ source ${BASH_SOURCE%/*}/transpiler-consts.sh
 GLOBAL_TranspilerPaths=("${BASH_SOURCE%/*}")
 
 setTranspilerOutput() {
-  local output=${1}
+  local output=
   if [[ "$(string_startsWith "${1}" "./")" ]]; then
     output="$(pwd)$(string_substring "${1}" 1)"
   elif [[ "$(string_startsWith "${1}" "/")" ]]; then

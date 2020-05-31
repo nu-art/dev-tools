@@ -1,5 +1,10 @@
 #!/bin/bash
 
+CONST_FrontendIconsPath="src/main/res/icons"
+CONST_FrontendIconsFile="icons.tsx"
+CONST_FrontendFontsPath="src/main/res/fonts"
+CONST_FrontendFontsFile="fonts.tsx"
+
 copyConfigFile() {
   local filePattern=${1}
   local targetFile=${2}

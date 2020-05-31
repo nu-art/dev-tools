@@ -58,9 +58,9 @@ FrontendPackage() {
 
   _generateSVG() {
     local _pwd=$(pwd)
-    [[ ! -e "src/main/res/images" ]] && return
+    [[ ! -e "${CONST_FrontendIconsPath}" ]] && logVerbose "Will not generate ${CONST_FrontendIconsFile}.. folder not found: ${CONST_FrontendIconsPath} " && return
 
-    _pushd "src/main/res/images"
+    _pushd "${CONST_FrontendIconsPath}"
     local files=($(ls | grep .*\.svg))
 
     local declaration=""
@@ -69,21 +69,21 @@ FrontendPackage() {
       local width=$(cat "${file}" | grep -E ' width="[0-9]+"' | sed -E 's/^.* width="([0-9]+)(px)?".*$/\1/')
       local height=$(cat "${file}" | grep -E ' height="[0-9]+"' | sed -E 's/^.* height="([0-9]+)(px)?".*$/\1/')
       local varName=$(echo "${file}" | sed -E 's/icon__(.*).svg/\1/')
-      declaration="${declaration}\\nconst ${varName}: IconData = {ratio: ${height} / ${width},  value: require('@res/images/${file}')};"
+      declaration="${declaration}\\nconst ${varName}: IconData = {ratio: ${height} / ${width},  value: require('@res/icons/${file}')};"
       usage="${usage}\\n\t${varName}: (color?: string, width?: number) => iconsRenderer(${varName}, color, width),"
     done
 
     deleteFile ../icons.tsx
-    copyFileToFolder "${_pwd}"/../dev-tools/scripts/dev/typescript-oo/templates/icons.tsx ../
-    file_replaceLine "ICONS_DECLARATION" "${declaration}" ../icons.tsx
-    file_replaceLine "ICONS_USAGE" "${usage}" ../icons.tsx
+    copyFileToFolder "${_pwd}/../dev-tools/scripts/dev/typescript-oo/templates/${CONST_FrontendIconsFile}" ../
+    file_replaceLine "ICONS_DECLARATION" "${declaration}" "../${CONST_FrontendIconsFile}"
+    file_replaceLine "ICONS_USAGE" "${usage}" "../${CONST_FrontendIconsFile}"
     _popd
   }
 
   _generateFonts() {
     local _pwd=$(pwd)
-    [[ ! -e "src/main/res/fonts" ]] && return
-    _pushd "src/main/res/fonts"
+    [[ ! -e "${CONST_FrontendFontsPath}" ]] && logVerbose "Will not generate ${CONST_FrontendFontsFile}.. folder not found: ${CONST_FrontendFontsPath} " && return
+    _pushd "${CONST_FrontendFontsPath}"
     local files=($(ls | grep .*\.ttf))
 
     local globals=""
@@ -100,11 +100,11 @@ FrontendPackage() {
       usage="${usage}\\n\t${varName}: (text: string, color?: string, size?: number) => fontRenderer(text, '${varName}', color, size),"
     done
 
-    deleteFile ../fonts.tsx
-    copyFileToFolder "${_pwd}"/../dev-tools/scripts/dev/typescript-oo/templates/fonts.tsx ../
-    file_replaceLine "FONTS_DECLARATION" "${declaration}" ../fonts.tsx
-    file_replaceLine "FONTS_GLOBAL" "${globals}" ../fonts.tsx
-    file_replaceLine "FONTS_USAGE" "${usage}" ../fonts.tsx
+    deleteFile "../${CONST_FrontendFontsFile}"
+    copyFileToFolder "${_pwd}/../dev-tools/scripts/dev/typescript-oo/templates/${CONST_FrontendFontsFile}" ../
+    file_replaceLine "FONTS_DECLARATION" "${declaration}" "../${CONST_FrontendFontsFile}"
+    file_replaceLine "FONTS_GLOBAL" "${globals}" "../${CONST_FrontendFontsFile}"
+    file_replaceLine "FONTS_USAGE" "${usage}" "../${CONST_FrontendFontsFile}"
 
     _popd
   }

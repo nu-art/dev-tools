@@ -5,6 +5,20 @@ GLOBAL_TranspilerPaths=("${BASH_SOURCE%/*}")
 
 setTranspilerOutput() {
   local output=${1}
+  logWarning "output01: ${output}"
+  if [[ "$(string_startsWith "${output}" "./")" ]]; then
+    logWarning "output11: ${output}"
+    output="$(pwd)$(string_substring "${output}" 1)"
+    logWarning "output12: ${output}"
+  elif [[ "$(string_startsWith "${output}" "/")" ]]; then
+    logWarning "output22: ${output}"
+  else
+    logWarning "output31: ${output}"
+    output="$(pwd)/${output}"
+    logWarning "output32: ${output}"
+  fi
+  logWarning "output02: ${output}"
+
   _logInfo "Setting output: ${output}"
   [[ ! -e "${output}" ]] && mkdir "${output}"
 

@@ -30,6 +30,18 @@ string_endsWith() {
   [[ "${string: -${#expected}}" == "${expected}" ]] && echo "true"
 }
 
+## @function: string_startsWith(string, expected)
+##
+## @description: Check if a string starts with the expected
+##
+## @return: true if starts with the expected string, null otherwise
+string_startsWith() {
+  local string="${1}"
+  local expected="${2}"
+  [[ "${string:0:${#expected}}" == "${expected}" ]] && echo "true"
+}
+
+
 ## @function: string_substring(string, fromIndex, length?)
 ##
 ## @description: Substring out of the given string from and to the provided indices
@@ -41,17 +53,6 @@ string_substring() {
   local length=${3}
   [[ ! "${length}" ]] && length=$((${#string} - fromIndex))
   echo "${string:${fromIndex}:${length}}"
-}
-
-## @function: string_startsWith(string, expected)
-##
-## @description: Check if a string starts with the expected
-##
-## @return: true if starts with the expected string, null otherwise
-string_startsWith() {
-  local string="${1}"
-  local expected="${2}"
-  [[ "${string: -${#expected}}" == "${expected}" ]] && echo "true"
 }
 
 ##   == WIP ==

@@ -1,6 +1,8 @@
 #!/bin/bash
 CONST_TS_VER_JSON="version-thunderstorm.json"
 CONST_APP_VER_JSON="version-app.json"
+CONST_TS_ENV_FILE=".ts_env"
+
 Workspace() {
 
   declare thunderstormVersion
@@ -110,7 +112,12 @@ Workspace() {
   }
 
   _setEnvironment() {
-    [[ ! "${envType}" ]] && return
+    if [[ ! "${envType}" ]]; then
+      envType=$(cat ${CONST_TS_ENV_FILE} | grep -E "env=" | sed -E "s/^env=\"(.*)\"$/\1/")
+      [[ ! "${envType}" ]] && envType=dev
+      return
+    fi
+
     [[ "${envType}" ]] && [[ "${envType}" != "dev" ]] && compilerFlags+=(--sourceMap false)
 
     logInfo
@@ -127,6 +134,7 @@ Workspace() {
     $(resolveCommand firebase) use "${firebaseProject}"
 
     this.apps.forEach setEnvironment
+    echo "env=\"${envType}\"" > "${CONST_TS_ENV_FILE}"
   }
 
   _assertNoCyclicImport() {

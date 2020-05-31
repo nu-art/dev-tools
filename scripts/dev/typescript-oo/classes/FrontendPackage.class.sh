@@ -58,6 +58,7 @@ FrontendPackage() {
 
   _generateSVG() {
     local _pwd=$(pwd)
+    [[ ! -e "src/main/res/images" ]] && return
 
     _pushd "src/main/res/images"
     local files=($(ls | grep .*\.svg))
@@ -81,6 +82,7 @@ FrontendPackage() {
 
   _generateFonts() {
     local _pwd=$(pwd)
+    [[ ! -e "src/main/res/fonts" ]] && return
     _pushd "src/main/res/fonts"
     local files=($(ls | grep .*\.ttf))
 

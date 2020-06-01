@@ -2,7 +2,7 @@ import * as React from 'react';
 import {css} from 'emotion';
 
 
-	function fontRenderer(text: string, fontFamily: string, color: string = "#000000", fontSize: number = 16) {
+function fontRenderer(text: string, fontFamily: string, color: string = "#000000", fontSize: number = 16) {
 	return <div style={{fontFamily, display: "inline-block", color, fontSize}}>{text}</div>
 }
 

@@ -148,8 +148,8 @@ NodePackage() {
       [[ "${folder}" == "test" ]] && continue
 
       logInfo "Compiling: ${folderName}/${folder}"
-      if [[ "${watch}" ]]; then
-        tsc-watch -p "./src/${folder}/tsconfig.json" --outDir --rootDir "./src/${folder}" "${outputDir}" ${compilerFlags[@]} --onSuccess "bash ../relaunch-backend.sh" &
+      if [[ "${ts_watch}" ]]; then
+        tsc-watch -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]} --onSuccess "bash ../relaunch-backend.sh" &
         echo "${module} ${folder} $!" >> "${BuildFile__watch}"
       else
         tsc -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]}

@@ -52,13 +52,14 @@ FrontendPackage() {
     [[ ! "$(array_contains "${folderName}" "${ts_generate[@]}")" ]] && return
 
     logInfo "Generating: ${folderName}"
+    this.generateColors
     this.generateSVG
     this.generateFonts
   }
 
   _generateSVG() {
     local _pwd=$(pwd)
-    [[ ! -e "${CONST_FrontendIconsPath}" ]] && logVerbose "Will not generate ${CONST_FrontendIconsFile}.. folder not found: ${CONST_FrontendIconsPath} " && return
+    [[ ! -e "${CONST_FrontendIconsPath}" ]] && logDebug "Will not generate ${CONST_FrontendIconsFile}.. folder not found: ${CONST_FrontendIconsPath} " && return
 
     _pushd "${CONST_FrontendIconsPath}"
     local files=($(ls | grep .*\.svg))
@@ -73,16 +74,34 @@ FrontendPackage() {
       usage="${usage}\\n\t${varName}: (color?: string, width?: number) => iconsRenderer(${varName}, color, width),"
     done
 
-    deleteFile ../icons.tsx
+    deleteFile "../${CONST_FrontendIconsFile}"
     copyFileToFolder "${_pwd}/../dev-tools/scripts/dev/typescript-oo/templates/${CONST_FrontendIconsFile}" ../
     file_replaceLine "ICONS_DECLARATION" "${declaration}" "../${CONST_FrontendIconsFile}"
     file_replaceLine "ICONS_USAGE" "${usage}" "../${CONST_FrontendIconsFile}"
     _popd
   }
 
+  _generateColors() {
+    local _pwd=$(pwd)
+    local colorsFile="${CONST_FrontendColorsPath}/${CONST_FrontendColorsFile}"
+    [[ ! -e "${colorsFile}" ]] && logDebug "Will not generate colors... file not found: ${colorsFile} " && return
+
+    local declaration="$(cat "${colorsFile}" | grep -E "^const ")"
+    local usage=""
+    while IFS= read -r line; do
+      local varName=$(echo "${line}" | sed -E 's/^const (.*) = "(.[0-9a-fA-F]+)";$/\1/')
+      usage="${usage}\\n\t${varName}: (alpha?: number) => calculateColorWithAlpha(${varName}, alpha),"
+    done <<< "$declaration"
+
+    deleteFile "${colorsFile}"
+    copyFileToFolder "${_pwd}/../dev-tools/scripts/dev/typescript-oo/templates/${CONST_FrontendColorsFile}" "${CONST_FrontendColorsPath}"
+    file_replaceLine "COLORS_DECLARATION" "${declaration}" "${colorsFile}"
+    file_replaceLine "COLORS_USAGE" "${usage}" "${colorsFile}"
+  }
+
   _generateFonts() {
     local _pwd=$(pwd)
-    [[ ! -e "${CONST_FrontendFontsPath}" ]] && logVerbose "Will not generate ${CONST_FrontendFontsFile}.. folder not found: ${CONST_FrontendFontsPath} " && return
+    [[ ! -e "${CONST_FrontendFontsPath}" ]] && logDebug "Will not generate ${CONST_FrontendFontsFile}.. folder not found: ${CONST_FrontendFontsPath} " && return
     _pushd "${CONST_FrontendFontsPath}"
     local files=($(ls | grep .*\.ttf))
 

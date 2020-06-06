@@ -5,7 +5,6 @@ source ./dev-tools/scripts/firebase/core.sh
 source ./dev-tools/scripts/node/_source.sh
 
 setErrorOutputFile "$(pwd)/error_message.txt"
-BuildFile__watch="$(pwd)/.trash/build/watch.txt"
 
 # shellcheck source=./modules.sh
 source "${BASH_SOURCE%/*}/modules.sh"

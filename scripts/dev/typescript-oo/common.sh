@@ -4,6 +4,8 @@ CONST_FrontendIconsPath="src/main/res/icons"
 CONST_FrontendIconsFile="icons.tsx"
 CONST_FrontendFontsPath="src/main/res/fonts"
 CONST_FrontendFontsFile="fonts.tsx"
+CONST_FrontendColorsPath="src/main/res"
+CONST_FrontendColorsFile="colors.ts"
 
 copyConfigFile() {
   local filePattern=${1}

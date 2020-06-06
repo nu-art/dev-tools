@@ -207,10 +207,12 @@ extractParams() {
       checkCircularImports=true
       ;;
 
-    "--rebuild-on-change" | "-roc")
+    "--watch" | "-w")
       # FUTURE: will build and listen for changes in the libraries
       ts_watch=true
       ts_compile=true
+      BuildFile__watch="$(pwd)/.trash/bai/watch.txt"
+
       ;;
 
       #        ==== TEST ====

@@ -52,7 +52,7 @@ NodePackage() {
 
     cleanPackageJson() {
       local i
-      for lib in ${libs[@]}; do
+      for lib in "${libs[@]}"; do
         [[ "${lib}" == "${_this}" ]] && break
 
         local libPackageName="$("${lib}.packageName")"
@@ -60,12 +60,20 @@ NodePackage() {
       done
     }
 
+    deleteFile package-lock.json
+    deleteDir "./node_modules/@nu-art"
+    for lib in "${libs[@]}"; do
+      [[ "${lib}" == "${_this}" ]] && break
+
+      local libPackageName="$("${lib}.packageName")"
+      deleteDir "./node_modules/${libPackageName}"
+    done
+
     backupPackageJson "${folderName}"
     cleanPackageJson
 
     trap 'restorePackageJson' SIGINT
 
-    deleteFile package-lock.json
     logInfo "Installing: ${folderName}"
     logInfo
 

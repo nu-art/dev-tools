@@ -136,13 +136,7 @@ breakpoint() {
           dontExit
 
           if ((exitCode < 2)); then
-            if [[ "$(array_contains "${input}" "${historyCommands[@]}")" ]]; then
-              for i in "${!historyCommands[@]}"; do
-                if [[ "${historyCommands[i]}" == "${input}" ]]; then
-                  unset 'historyCommands[i]'
-                fi
-              done
-            fi
+            array_remove historyCommands "${input}"
             historyCommands+=("${input}")
 
             printf "%s\n" "${historyCommands[@]}" > "${CONST_DEBUGGER_COMMANDS_HISTORY}"

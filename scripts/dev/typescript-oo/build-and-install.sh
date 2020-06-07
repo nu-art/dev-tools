@@ -37,6 +37,8 @@ buildWorkspace() {
   workspace.appVersion = "${appVersion}"
   workspace.prepare
 
+  [[ -e "${CONST_BuildWatchFile}" ]] && readarray -t activeWatches < "${CONST_BuildWatchFile}"
+
   local _tsLibs=()
   local _projectLibs=()
   local _apps=()
@@ -54,6 +56,13 @@ buildWorkspace() {
       [[ ! -e "${lib}" ]] && continue
       [[ ! -e "${lib}/package.json" ]] && continue
 
+      local watchProcessIds=()
+      for watchLine in "${activeWatches[@]}" ; do
+        breakpoint "watch line"
+        [[ ! "$(string_match "${watchLine}" "${lib}")" ]] && continue
+        watchProcessIds+=("${watchLine}")
+      done
+
       ref=$(string_replaceAll "-" "_" "${lib}")
 
       new "${className}" "${ref}"
@@ -63,6 +72,7 @@ buildWorkspace() {
       "${ref}".outputDir = "${outputDir}"
       "${ref}".outputTestDir = "${outputTestDir}"
       "${ref}".version = "${version}"
+      "${ref}".watchIds = "${watchProcessIds[@]}"
 
       [[ "$(array_contains "${lib}" ${tsLibs[@]})" ]] && _tsLibs+=(${ref})
       [[ "$(array_contains "${lib}" ${projectLibs[@]})" ]] && _projectLibs+=(${ref})

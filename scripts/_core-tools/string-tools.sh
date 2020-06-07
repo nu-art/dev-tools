@@ -41,7 +41,6 @@ string_startsWith() {
   [[ "${string:0:${#expected}}" == "${expected}" ]] && echo "true"
 }
 
-
 ## @function: string_substring(string, fromIndex, length?)
 ##
 ## @description: Substring out of the given string from and to the provided indices
@@ -122,4 +121,17 @@ string_generateHex() {
   done
 
   echo "${hex}"
+}
+
+## @function: string_contains(string, substring)
+##
+## @description: Check if a string contains the given substring
+##
+## @return: true - Successful
+##          "" - Failed
+string_match() {
+  local string="${1}"
+  local substring="${2}"
+
+  [[ "${string}" == *"${substring}"* ]] && echo "true"
 }

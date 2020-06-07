@@ -224,9 +224,10 @@ transpile_Class() {
     class=$(echo -e "${class}" | sed -E "s/declare ([a-zA-Z_]{1,})=.*$/declare \1/g")
 
     for member in "${members[@]}"; do
+      class=$(echo -e "${class}" | sed -E "s/\\$\{#${member}/\${#${className}_${member}/g")
       class=$(echo -e "${class}" | sed -E "s/\\$\{${member}([\[\}:])/\${${className}_${member}\1/g")
       class=$(echo -e "${class}" | sed -E "s/${member}(\+|\[.*])?=/${className}_${member}\1=/g")
-      class=$(echo -e "${class}" | sed -E "s/this.${member}/${className}.${member}/g")
+      class=$(echo -e "${class}" | sed -E "s/this\.${member}/${className}.${member}/g")
       class=$(echo -e "${class}" | sed -E "s/this_${member}/${className}_${member}/g")
       #      _logWarning "transpiling member: ${member}"
       if [[ "$(echo -e "${class}" | grep -E "declare -a ${member}")" ]]; then

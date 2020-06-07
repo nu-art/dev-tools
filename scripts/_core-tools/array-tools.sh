@@ -33,6 +33,26 @@ array_contains() {
   done
 }
 
+## @function: array_remove(arrayVarName, itemToRemove)
+##
+## @description: remove the give item from the array if it exists
+##
+## @return: void
+array_remove() {
+  local arrayVarName=${1}
+  local itemToRemove=${2}
+
+  local temp=
+  temp="${arrayVarName}[@]"
+
+  for i in $(eval "echo \${!${arrayVarName}[@]}"); do
+    temp="${arrayVarName}[${i}]"
+    if [[ "${!temp}" == "${itemToRemove}" ]]; then
+      unset "${temp}"
+    fi
+  done
+}
+
 ## @function: array_filterDuplicates(...list)
 ##
 ## @description: filters duplicated items in the list

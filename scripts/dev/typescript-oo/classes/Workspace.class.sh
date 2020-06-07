@@ -191,6 +191,13 @@ Workspace() {
     bannerInfo "Compile"
 
     this.active.forEach compile ${allLibs[@]}
+
+    [[ "${ts_watch}" ]] && deleteFile "${CONST_BuildWatchFile}"
+    for lib in ${allLibs[@]}; do
+      local temp="$("${lib}.watchIds[@]")"
+      [[ ! "${temp}" ]] && continue
+      echo -e "$("${lib}.watchIds[@]")" >> "${CONST_BuildWatchFile}"
+    done
   }
 
   _lint() {

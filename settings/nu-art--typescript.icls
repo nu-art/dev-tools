@@ -1,16 +1,17 @@
 <scheme name="nu-art--typescript" version="142" parent_scheme="Default">
   <option name="FONT_SCALE" value="1.0" />
   <metaInfo>
-    <property name="created">2019-02-25T10:43:58</property>
+    <property name="created">2020-06-07T17:17:39</property>
     <property name="ide">idea</property>
-    <property name="ideVersion">2018.3.2.0.0</property>
-    <property name="modified">2019-02-25T10:44:02</property>
+    <property name="ideVersion">2020.1.2.0.0</property>
+    <property name="modified">2020-06-07T17:18:46</property>
     <property name="originalScheme">nu-art--typescript</property>
   </metaInfo>
   <option name="LINE_SPACING" value="1.0" />
-  <option name="EDITOR_FONT_SIZE" value="12" />
-  <option name="EDITOR_FONT_NAME" value="Source Code Pro" />
+  <option name="EDITOR_FONT_SIZE" value="15" />
+  <option name="EDITOR_FONT_NAME" value="Monaco" />
   <option name="CONSOLE_FONT_NAME" value="Monospaced" />
+  <option name="CONSOLE_FONT_SIZE" value="12" />
   <attributes>
     <option name="ABSTRACT_CLASS_NAME_ATTRIBUTES">
       <value>
@@ -61,6 +62,11 @@
       <value>
         <option name="FOREGROUND" value="814102" />
         <option name="FONT_TYPE" value="1" />
+      </value>
+    </option>
+    <option name="DEFAULT_CLASS_NAME">
+      <value>
+        <option name="FOREGROUND" value="7d3102" />
       </value>
     </option>
     <option name="DEFAULT_KEYWORD">

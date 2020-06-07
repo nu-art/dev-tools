@@ -9,6 +9,7 @@ NodePackage() {
   declare version
   declare outputDir
   declare outputTestDir
+  declare -a watchIds
 
   _prepare() {
     packageName="$(getJsonValueForKey "${folderName}/package.json" "name")"
@@ -157,8 +158,38 @@ NodePackage() {
 
       logInfo "Compiling: ${folderName}/${folder}"
       if [[ "${ts_watch}" ]]; then
+        local parts=
+        for watchLine in "${watchIds[@]}"; do
+          parts=(${watchLine[@]})
+          [[ "${parts[1]}" == "${folder}" ]] && break
+        done
+        [[ $(ps -p "${parts[2]}" | grep tsc-watch) ]] &&
+          logDebug " - Already listening on pid: ${parts[2]}" &&
+          echo "${folderName} ${folder} $!" >> "${CONST_BuildWatchFile}" &&
+          continue
+
+        array_remove this_watchIds "${parts[@]}"
+
+        echo
+        echo
+        echo
+        echo
+        echo
+        echo
+        echo
+        echo
+        echo
+        echo
+        echo
+        echo
+        echo
+        echo
+        echo
+        echo
+        echo
+        echo
         tsc-watch -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]} --onSuccess "bash ../relaunch-backend.sh" &
-        echo "${module} ${folder} $!" >> "${BuildFile__watch}"
+        watchIds+=("${folderName} ${folder} $!")
       else
         tsc -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]}
         throwWarning "Error compiling: ${module}/${folder}"

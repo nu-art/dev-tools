@@ -211,7 +211,7 @@ extractParams() {
       # FUTURE: will build and listen for changes in the libraries
       ts_watch=true
       ts_compile=true
-      BuildFile__watch="$(pwd)/.trash/bai/watch.txt"
+      CONST_BuildWatchFile="$(pwd)/.trash/bai/watch.txt"
 
       ;;
 

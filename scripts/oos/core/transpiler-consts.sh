@@ -18,7 +18,7 @@ OOS_TranspileConst_ArrayMemberWithGetterAndSetter="
     local ${OOS_TranspileConst_ClassName}_${OOS_TranspileConst_Name}=()
     ${OOS_TranspileConst_ClassName}.${OOS_TranspileConst_Name}() {
         if [[ \"\$1\" == \"=\" ]]; then
-            ${OOS_TranspileConst_ClassName}_${OOS_TranspileConst_Name}=(\${@:2})
+            ${OOS_TranspileConst_ClassName}_${OOS_TranspileConst_Name}=(\"\${@:2}\")
         elif [[ ! \"\$1\" ]]; then
             echo \"\${${OOS_TranspileConst_ClassName}_${OOS_TranspileConst_Name}[@]}\"
         else

@@ -194,9 +194,9 @@ Workspace() {
 
     [[ "${ts_watch}" ]] && deleteFile "${CONST_BuildWatchFile}"
     for lib in ${allLibs[@]}; do
-      local temp="$("${lib}.watchIds[@]")"
+      local temp="$("${lib}.watchIds")"
       [[ ! "${temp}" ]] && continue
-      echo -e "$("${lib}.watchIds[@]")" >> "${CONST_BuildWatchFile}"
+      echo -e "$("${lib}.watchIds")" >> "${CONST_BuildWatchFile}"
     done
   }
 
@@ -211,7 +211,7 @@ Workspace() {
   _test() {
     [[ ! "${ts_test}" ]] && return
     [[ ! "${testServiceAccount}" ]] && throwError "MUST specify path to a test service account" 2
-    [[ ! -e "${testServiceAccount}" ]] && throwError "Sevice account cannot be resolved from path: ${testServiceAccount}" 2
+    [[ ! -e "${testServiceAccount}" ]] && throwError "Service account cannot be resolved from path: ${testServiceAccount}" 2
 
     export GOOGLE_APPLICATION_CREDENTIALS="${testServiceAccount}"
     logInfo

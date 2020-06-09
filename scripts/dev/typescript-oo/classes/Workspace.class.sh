@@ -239,7 +239,6 @@ Workspace() {
     this.apps.forEach deploy
 
     logInfo "Deployed Apps: $(getVersionName "${CONST_APP_VER_JSON}") => ${appVersion}"
-    setVersionName "${appVersion}" "${CONST_APP_VER_JSON}"
 
     [[ "${noGit}" ]] && return
 

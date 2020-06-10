@@ -113,6 +113,7 @@ Workspace() {
 
   _setEnvironment() {
     if [[ ! "${envType}" ]]; then
+      [[ ! -e "${CONST_TS_ENV_FILE}" ]] && throwError "Please run ${0} --set-env=<env>" 2
       envType=$(cat ${CONST_TS_ENV_FILE} | grep -E "env=" | sed -E "s/^env=\"(.*)\"$/\1/")
       [[ ! "${envType}" ]] && envType=dev
       return

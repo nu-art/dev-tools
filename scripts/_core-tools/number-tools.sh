@@ -49,5 +49,5 @@ number_assertNumeric() {
 ## @return: The generated random number
 number_random() {
   local seed=$(number_assertNumeric "${1}" 100)
-  echo "$((1 + (RANDOM * RANDOM * RANDOM) % seed))"
+  echo "$(((RANDOM * RANDOM * RANDOM) % seed))"
 }

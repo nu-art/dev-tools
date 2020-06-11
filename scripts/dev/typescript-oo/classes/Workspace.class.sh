@@ -136,6 +136,7 @@ Workspace() {
 
     this.apps.forEach setEnvironment
     echo "env=\"${envType}\"" > "${CONST_TS_ENV_FILE}"
+    [[ "${fallbackEnv}" ]] && echo "env=\"${fallbackEnv}\"" >> "${CONST_TS_ENV_FILE}"
   }
 
   _assertNoCyclicImport() {

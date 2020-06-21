@@ -214,7 +214,9 @@ NodePackage() {
 
   _test() {
     [[ ! -e "./src/test/tsconfig.json" ]] && return 0
+    [[ ! -e "${testServiceAccount}" ]] && throwError "Service account cannot be resolved from path: $(pwd)${testServiceAccount}" 2
 
+    export GOOGLE_APPLICATION_CREDENTIALS="${testServiceAccount}"
     logInfo "Testing: ${folderName}"
 
     deleteDir "${outputTestDir}"

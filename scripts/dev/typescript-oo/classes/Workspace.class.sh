@@ -213,9 +213,7 @@ Workspace() {
   _test() {
     [[ ! "${ts_test}" ]] && return
     [[ ! "${testServiceAccount}" ]] && throwError "MUST specify path to a test service account" 2
-    [[ ! -e "${testServiceAccount}" ]] && throwError "Service account cannot be resolved from path: ${testServiceAccount}" 2
 
-    export GOOGLE_APPLICATION_CREDENTIALS="${testServiceAccount}"
     logInfo
     bannerInfo "Test"
     this.active.forEach test

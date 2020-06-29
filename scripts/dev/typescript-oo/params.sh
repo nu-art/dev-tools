@@ -179,6 +179,15 @@ extractParams() {
 
       ;;
 
+    "--thunderstorm-home" | "-th")
+      #DOC: Will link the output folder of the libraries of thunderstorm that exists under the give path
+      #NOTE: MUST have ThunderstormHome env variable defined and point to the Thunderstorm sample project
+
+      [[ ! "${ThunderstormHome}" ]] && throwError "ThunderstormHome must be defined as an Environment variable" 2
+      linkDependencies=true
+      linkThunderstorm=true
+    ;;
+
     "--thunderstorm-home="* | "-th="*)
       #DOC: Will link the output folder of the libraries of thunderstorm that exists under the give path
       #PARAM=path-to-thunderstorm-folder

@@ -135,6 +135,15 @@ extractParams() {
       build=
       ;;
 
+    "--thunderstorm-home" | "-th")
+      #DOC: Will link the output folder of the libraries of thunderstorm that exists under the give path
+      #NOTE: MUST have ThunderstormHome env variable defined and point to the Thunderstorm sample project
+
+      [[ ! "${ThunderstormHome}" ]] && throwError "ThunderstormHome must be defined as an Environment variable" 2
+      linkDependencies=true
+      linkThunderstorm=true
+    ;;
+
     "--thunderstorm-home="* | "-th="*)
       #DOC: Will link the output folder of the libraries of thunderstorm that exists under the give path
       #PARAM=path-to-thunderstorm-folder
@@ -171,7 +180,7 @@ extractParams() {
       #        ==== TEST ====
     "--test" | "-t")
       #DOC: Run the tests in all the project packages
-      #NOTE: Running this way expecting the "testServiceAccount" variable to be defined gloabally
+      #NOTE: Running this way expecting the "testServiceAccount" variable to be defined globally
 
       [[ ! "${testServiceAccount}" ]] && throwError "MUST specify the path to the testServiceAccount in the .scripts/modules.sh in your project"
       runTests=true

@@ -211,7 +211,7 @@ Workspace() {
   }
 
   _test() {
-    [[ ! "${ts_test}" ]] && return
+    [[ ! "${ts_runTests}" ]] && return
     [[ ! "${testServiceAccount}" ]] && throwError "MUST specify path to a test service account" 2
 
     logInfo

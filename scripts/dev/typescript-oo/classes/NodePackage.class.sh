@@ -231,7 +231,12 @@ NodePackage() {
     throwError "Error while linting tests in:  ${folderName}"
 
     logInfo "${folderName} - Running tests..."
-    node "${outputTestDir}/test/test" "--service-account=${testServiceAccount}"
+
+    local testsToRun=()
+    for testToRun in "${ts_testsToRun[@]}"; do
+      testsToRun+=("--test=${testToRun}")
+    done
+    node "${outputTestDir}/test/test" "--service-account=${testServiceAccount}" "${testsToRun[@]}"
     throwError "Error while running tests in:  ${folderName}"
   }
 

@@ -11,7 +11,7 @@ ts_watch=
 ts_link=
 ts_linkThunderstorm=
 ts_lint=
-ts_test=
+ts_runTests=
 ts_publish=
 
 checkCircularImports=
@@ -29,7 +29,8 @@ outputTestDir=dist-test
 ts_generate=()
 ts_launch=()
 ts_deploy=()
-activeLibs=()
+ts_testsToRun=()
+ts_activeLibs=()
 ts_LogLevel=${LOG_LEVEL__INFO}
 
 params=(
@@ -46,12 +47,13 @@ params=(
   ts_link
   ts_linkThunderstorm
   ts_lint
-  ts_test
+  ts_runTests
   ts_publish
   "ts_generate[@]"
   "ts_launch[@]"
   "ts_deploy[@]"
-  "activeLibs[@]"
+  "ts_activeLibs[@]"
+  "ts_testsToRun[@]"
   checkCircularImports
   newVersion
   promoteThunderstormVersion
@@ -116,7 +118,7 @@ extractParams() {
       #PARAM=project-package-folder
 
       local lib=$(regexParam "--use-package|-up" "${paramValue}")
-      activeLibs+=("${lib}")
+      ts_activeLibs+=("${lib}")
       ;;
 
     "--set-env="* | "-se="*)
@@ -221,15 +223,24 @@ extractParams() {
       #NOTE: Running this way expecting the "testServiceAccount" variable to be defined gloabally
 
       [[ ! "${testServiceAccount}" ]] && throwError "MUST specify the path to the testServiceAccount in the .scripts/modules.sh in your project"
-      ts_test=true
+      ts_runTests=true
       ;;
 
     "--test="* | "-t="*)
+      #DOC: Specify tests you want to run
+      #PARAM="the label of the test you want to run"
+
+      local testToRun="$(regexParam "--test|-t" "${paramValue}")"
+      ts_testsToRun+=("${testToRun}")
+      ts_runTests=true
+      ;;
+
+    "--account="* | "-a="*)
       #DOC: Run the tests in all the project packages
       #PARAM=path-to-firebase-service-account
 
-      testServiceAccount=$(regexParam "--test|-t" "${paramValue}")
-      ts_test=true
+      testServiceAccount=$(regexParam "--account|-a" "${paramValue}")
+      ts_runTests=true
       ;;
 
     "--output-test-dir="* | "-otd="*)
@@ -329,7 +340,7 @@ extractParams() {
 
       ts_lint=
       ts_compile=
-      ts_test=
+      ts_runTests=
       ;;
 
     "--publish="* | "--publish")

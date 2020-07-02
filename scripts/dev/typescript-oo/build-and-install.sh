@@ -43,7 +43,7 @@ buildWorkspace() {
   local _projectLibs=()
   local _apps=()
 
-  local _activeLibs=()
+  local _ts_runTests=()
   local _allLibs=()
 
   createPackages() {
@@ -78,7 +78,7 @@ buildWorkspace() {
       [[ "$(array_contains "${lib}" ${projectLibs[@]})" ]] && _projectLibs+=(${ref})
       [[ "$(array_contains "${lib}" ${backendApps[@]} ${frontendApps[@]})" ]] && _apps+=(${ref})
 
-      [[ "$(array_contains "${lib}" ${activeLibs[@]})" ]] && _activeLibs+=(${ref})
+      [[ "$(array_contains "${lib}" ${ts_activeLibs[@]})" ]] && _activeLibs+=(${ref})
       _allLibs+=(${ref})
     done
   }

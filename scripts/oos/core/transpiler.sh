@@ -14,7 +14,7 @@ setTranspilerOutput() {
   fi
 
   _logInfo "Setting output: ${output}"
-  [[ ! -e "${output}" ]] && mkdir "${output}"
+  [[ ! -e "${output}" ]] && createDir "${output}"
 
   GLOBAL_TranspilerOutput="${output}/output"
   createDir "${GLOBAL_TranspilerOutput}" > /dev/null

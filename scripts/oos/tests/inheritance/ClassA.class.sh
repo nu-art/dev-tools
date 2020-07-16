@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ClassA() {
+
     declare logMessage
     declare logLevel=Error
 

@@ -18,8 +18,6 @@ source "${BASH_SOURCE%/*}/params.sh"
 [[ -e ".scripts/signature.sh" ]] && source .scripts/signature.sh
 [[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh
 
-enforceBashVersion 4.4
-
 #signature
 extractParams "$@"
 

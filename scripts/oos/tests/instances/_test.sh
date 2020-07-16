@@ -1,9 +1,10 @@
 #!/bin/bash
 
-source ../core/transpiler.sh
-source `pwd`/../../_core-tools/_source.sh
+source ${BASH_SOURCE%/*}/../../core/transpiler.sh
 
-addTranspilerClassPath `pwd`
+CONST_Debug=true
+setTranspilerOutput ${BASH_SOURCE%/*}
+addTranspilerClassPath ${BASH_SOURCE%/*}
 
 new LogEntry logEntry1
 new LogEntry logEntry2

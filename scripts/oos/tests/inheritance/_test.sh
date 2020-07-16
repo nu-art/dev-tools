@@ -1,9 +1,9 @@
 #!/bin/bash
-source ${BASH_SOURCE%/*}/../../../_core-tools/_source.sh
-source ${BASH_SOURCE%/*}/../../core/transpiler.sh
+
+source "${BASH_SOURCE%/*}/../../core/transpiler.sh"
+
 CONST_Debug=true
-setTranspilerOutput ${BASH_SOURCE%/*}
-addTranspilerClassPath ${BASH_SOURCE%/*}
+addTranspilerClassPath "${BASH_SOURCE%/*}"
 
 new ClassA logEntry1
 new ClassA logEntry2

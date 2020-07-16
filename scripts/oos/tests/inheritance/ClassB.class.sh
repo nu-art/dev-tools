@@ -2,6 +2,7 @@
 
 ClassB() {
   extends class ClassA
+
   declare memberB
 
   _toSomthing() {

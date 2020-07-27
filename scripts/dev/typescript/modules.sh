@@ -21,6 +21,8 @@ resolveThunderstormLibs() {
     permissions
     push-pub-sub
     bug-report
+    github
+    jira
   )
 
   thunderstormLibraries=()

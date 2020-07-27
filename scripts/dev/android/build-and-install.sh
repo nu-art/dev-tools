@@ -105,7 +105,6 @@ extractParams() {
             ;;
 
             "--path-to-apk="*)
-                pathToApk=`regexParam "--path-to-apk" "${paramValue}"`
             ;;
 
             "--path-to-test-apk="*)

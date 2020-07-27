@@ -5,7 +5,8 @@ ts_debug=
 ts_dependencies=
 ts_purge=
 ts_clean=
-ts_install=
+ts_installGlobals=
+ts_installPackages=
 ts_compile=true
 ts_watch=
 ts_link=
@@ -41,7 +42,8 @@ params=(
   ts_dependencies
   ts_purge
   ts_clean
-  ts_install
+  ts_installGlobals
+  ts_installPackages
   ts_compile
   ts_watch
   ts_link
@@ -101,7 +103,7 @@ extractParams() {
 
       ts_purge=true
       ts_clean=true
-      ts_install=true
+      ts_installPackages=true
       ts_link=true
       ;;
 
@@ -142,8 +144,16 @@ extractParams() {
     "--install" | "-i")
       #DOC: Will run 'npm install' in all project packages
       #DOC: Will perform --link
+      ts_installGlobals=true
+      ts_installPackages=true
+      ts_link=true
+      ;;
 
-      ts_install=true
+    "--install-packages" | "-ip")
+      #DOC: Will run 'npm install' in all project packages
+      #DOC: Will perform --link
+
+      ts_installPackages=true
       ts_link=true
       ;;
 
@@ -188,7 +198,7 @@ extractParams() {
       [[ ! "${ThunderstormHome}" ]] && throwError "ThunderstormHome must be defined as an Environment variable" 2
       linkDependencies=true
       linkThunderstorm=true
-    ;;
+      ;;
 
     "--thunderstorm-home="* | "-th="*)
       #DOC: Will link the output folder of the libraries of thunderstorm that exists under the give path

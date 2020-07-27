@@ -20,6 +20,8 @@ tsLibs=(
   permissions
   push-pub-sub
   bug-report
+  github
+  jira
 )
 
 projectLibs=(

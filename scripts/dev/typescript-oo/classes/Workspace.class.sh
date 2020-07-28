@@ -167,12 +167,12 @@ Workspace() {
   }
 
   _install() {
-    if [[ ! "${ts_installGlobals}" ]]; then
+    if [[ "${ts_installGlobals}" ]]; then
       logInfo "Installing global packages..."
       npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest sort-json@latest tsc-watch@latest
     fi
 
-    if [[ ! "${ts_installPackages}" ]]; then
+    if [[ "${ts_installPackages}" ]]; then
       logInfo
       bannerInfo "Install"
 

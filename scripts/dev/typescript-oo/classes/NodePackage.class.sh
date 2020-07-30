@@ -206,9 +206,16 @@ NodePackage() {
     for folder in "${folders[@]}"; do
       [[ "${folder}" == "test" ]] && continue
 
-      logInfo "Linting: ${folderName}/${folder}"
-      tslint --project "./src/${folder}/tsconfig.json"
-      throwError "Error while linting: ${module}/${folder}"
+      if [[ -e ".eslintrc.js" ]]; then
+        logInfo "ES Linting: ${folderName}/${folder}"
+        eslint . --ext .ts --ext .tsx "./src/${folder}"
+        throwError "Error while ES linting: ${module}/${folder}"
+
+      elif [[ -e "tslint.json" ]]; then
+        logInfo "Linting: ${folderName}/${folder}"
+        tslint --project "./src/${folder}/tsconfig.json"
+        throwError "Error while linting: ${module}/${folder}"
+      fi
     done
   }
 

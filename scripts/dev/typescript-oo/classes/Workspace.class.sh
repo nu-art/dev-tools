@@ -119,6 +119,7 @@ Workspace() {
       return
     fi
 
+    [[ "${envType}" == "NONE" ]] && return
     [[ "${envType}" ]] && [[ "${envType}" != "dev" ]] && compilerFlags+=(--sourceMap false)
 
     logInfo

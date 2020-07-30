@@ -311,7 +311,7 @@ gitAssertOrigin() {
 
 gitAssertTagExists() {
   local version=${1}
-  git tag -l | grep ${version}
+  git tag -l | grep "${version}"
 }
 
 gitAssertNoCommitsToPull() {

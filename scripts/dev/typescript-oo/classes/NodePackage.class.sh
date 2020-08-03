@@ -208,7 +208,7 @@ NodePackage() {
 
       if [[ -e ".eslintrc.js" ]]; then
         logInfo "ES Linting: ${folderName}/${folder}"
-        eslint . --ext .ts --ext .tsx "./src/${folder}"
+        eslint --ext .ts --ext .tsx "./src/${folder}"
         throwError "Error while ES linting: ${module}/${folder}"
 
       elif [[ -e "tslint.json" ]]; then

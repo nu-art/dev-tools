@@ -35,3 +35,7 @@ backendApps=(
 frontendApps=(
   app-frontend
 )
+
+executableApps=(
+  app
+)

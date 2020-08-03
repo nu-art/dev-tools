@@ -248,7 +248,7 @@ deleteTerminalLine() {
     tput cuu1 tput el
   done
   for ((arg = 0; arg < count; arg += 1)); do
-    echo "                                                                                                                                              "
+    echo "                                                                                                                                                       "
   done
   for ((arg = 0; arg < count; arg += 1)); do
     tput cuu1 tput el

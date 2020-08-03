@@ -50,7 +50,7 @@ buildWorkspace() {
     local libs=(${@:3})
     local ref
 
-    for lib in ${libs[@]}; do
+    for lib in "${libs[@]}"; do
       [[ ! -e "${lib}" ]] && continue
       [[ ! -e "${lib}/package.json" ]] && continue
 
@@ -72,20 +72,21 @@ buildWorkspace() {
       "${ref}".version = "${version}"
       "${ref}".watchIds = "${watchProcessIds[@]}"
 
-      [[ "$(array_contains "${lib}" ${tsLibs[@]})" ]] && _tsLibs+=(${ref})
-      [[ "$(array_contains "${lib}" ${projectLibs[@]})" ]] && _projectLibs+=(${ref})
-      [[ "$(array_contains "${lib}" ${backendApps[@]} ${frontendApps[@]})" ]] && _apps+=(${ref})
+      [[ "$(array_contains "${lib}" "${tsLibs[@]}")" ]] && _tsLibs+=(${ref})
+      [[ "$(array_contains "${lib}" "${projectLibs[@]}")" ]] && _projectLibs+=(${ref})
+      [[ "$(array_contains "${lib}" "${executableApps[@]}" "${backendApps[@]}" "${frontendApps[@]}")" ]] && _apps+=(${ref})
 
-      [[ "$(array_contains "${lib}" ${ts_activeLibs[@]})" ]] && _activeLibs+=(${ref})
+      [[ "$(array_contains "${lib}" "${ts_activeLibs[@]}")" ]] && _activeLibs+=(${ref})
       _allLibs+=(${ref})
     done
   }
 
   [[ "${ThunderstormHome}" ]] && [[ "${ts_linkThunderstorm}" ]] && _pushd "${ThunderstormHome}"
-  createPackages NodePackage "$(workspace.thunderstormVersion)" ${tsLibs[@]}
+  createPackages NodePackage "$(workspace.thunderstormVersion)" "${tsLibs[@]}"
   [[ "${ThunderstormHome}" ]] && [[ "${ts_linkThunderstorm}" ]] && _popd
 
-  createPackages NodePackage "$(workspace.appVersion)" ${projectLibs[@]}
+  createPackages NodePackage "$(workspace.appVersion)" "${projectLibs[@]}"
+  createPackages ExecutablePackage "$(workspace.appVersion)" "${executableApps[@]}"
   createPackages FrontendPackage "$(workspace.appVersion)" "${frontendApps[@]}"
   createPackages BackendPackage "$(workspace.appVersion)" "${backendApps[@]}"
 
@@ -116,10 +117,3 @@ buildWorkspace() {
 }
 
 buildWorkspace
-
-#zevel() {
-#  echo "${1}er"
-#}
-#
-#original="what a piece rap of crap this little crap is"
-#echo "${original}" | sed -E "s/(rap)/$(zevel \\1)/g"

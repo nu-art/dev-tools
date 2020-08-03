@@ -99,7 +99,7 @@ promptForFirebaseProjectLocationRepo() {
 
 installNpmPackages() {
   logInfo "Verify required npm packages are installed gloabally"
-  npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest sort-json@latest nodemon@latest
+  npm i -g firebase-tools@latest
   logInfo
 }
 

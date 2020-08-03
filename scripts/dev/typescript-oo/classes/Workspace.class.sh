@@ -28,7 +28,7 @@ Workspace() {
       for ((arg = 0; arg < 3; arg += 1)); do
         [[ ! "${splitVersion[${arg}]}" ]] && splitVersion[${arg}]=0
       done
-      appVersion=$(string_join "." ${splitVersion[@]})
+      appVersion=$(string_join "." "${splitVersion[@]}")
       return
     fi
 
@@ -65,15 +65,15 @@ Workspace() {
   }
 
   Workspace.active.forEach() {
-    this.forEach "${1}" "${active[*]}" ${@:2}
+    this.forEach "${1}" "${active[*]}" "${@:2}"
   }
 
   Workspace.apps.forEach() {
-    this.forEach "${1}" "${apps[*]}" ${@:2}
+    this.forEach "${1}" "${apps[*]}" "${@:2}"
   }
 
   Workspace.tsLibs.forEach() {
-    this.forEach "${1}" "${tsLibs[*]}" ${@:2}
+    this.forEach "${1}" "${tsLibs[*]}" "${@:2}"
   }
 
   _forEach() {
@@ -81,9 +81,9 @@ Workspace() {
     [[ ! "${command}" ]] && throwError "No command spcified" 2
     local items=(${2})
 
-    for item in ${items[@]}; do
+    for item in "${items[@]}"; do
       _pushd "$("${item}.path")/$("${item}.folderName")"
-      "${item}.${command}" ${@:3}
+      "${item}.${command}" "${@:3}"
       (($? > 0)) && throwError "Error executing command: ${item}.${command}"
       _popd
     done
@@ -177,7 +177,7 @@ Workspace() {
       logInfo
       bannerInfo "Install"
 
-      this.active.forEach install ${allLibs[@]}
+      this.active.forEach install "${allLibs[@]}"
     fi
   }
 
@@ -187,7 +187,7 @@ Workspace() {
     logInfo
     bannerInfo "Link"
 
-    this.active.forEach link ${allLibs[@]}
+    this.active.forEach link "${allLibs[@]}"
   }
 
   _compile() {
@@ -195,10 +195,10 @@ Workspace() {
     logInfo
     bannerInfo "Compile"
 
-    this.active.forEach compile ${allLibs[@]}
+    this.active.forEach compile "${allLibs[@]}"
 
     [[ "${ts_watch}" ]] && deleteFile "${CONST_BuildWatchFile}"
-    for lib in ${allLibs[@]}; do
+    for lib in "${allLibs[@]}"; do
       local temp="$("${lib}.watchIds")"
       [[ ! "${temp}" ]] && continue
       echo -e "$("${lib}.watchIds")" >> "${CONST_BuildWatchFile}"

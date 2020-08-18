@@ -28,14 +28,6 @@ projectLibs=(
   app-shared
 )
 
-backendApps=(
-  app-backend
-)
-
-frontendApps=(
-  app-frontend
-)
-
 executableApps=(
   app
 )

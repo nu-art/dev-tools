@@ -7,4 +7,5 @@ A collection of development tools I use wherever I go that save me a ton of valu
 
 * Gradle build and deploy utility scripts
 
+
 * My personal Intellij formatter and settings

@@ -23,6 +23,7 @@ resolveThunderstormLibs() {
     bug-report
     github
     jira
+    file-upload
   )
 
   thunderstormLibraries=()

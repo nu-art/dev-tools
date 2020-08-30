@@ -22,6 +22,7 @@ tsLibs=(
   bug-report
   github
   jira
+  file-upload
 )
 
 projectLibs=(

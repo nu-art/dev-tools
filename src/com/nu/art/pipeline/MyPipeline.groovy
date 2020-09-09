@@ -17,7 +17,7 @@ public class MyPipeline
   }
 
   void addStage(String label, Closure stageMethod) {
-    script.stage(label, () -> {
+    script.stage(label, {
       try {
         stageMethod()
       } catch (e) {

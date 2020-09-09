@@ -65,6 +65,7 @@ public class Docker
     }
 
     GString dockerLink = "${this.key}:${this.version}"
+    pipeline.logInfo("Launching docker: ${id}")
     pipeline.sh """docker run --rm -d --net=host --name ${id} ${envVars} ${virtualFilesVars} ${dockerLink} tail -f /dev/null"""
     return this
   }
@@ -75,7 +76,7 @@ public class Docker
   }
 
   void kill() {
+    pipeline.logInfo("Killing docker: ${id}")
     pipeline.sh "docker rm -f ${id}"
-
   }
 }

@@ -21,11 +21,10 @@ public class MyPipeline
       try {
         stageMethod()
       } catch (e) {
-        logInfo(e.getMessage())
-        e.printStackTrace()
-      } finally {
         this.docker.kill()
-
+        logError(e.getMessage())
+        e.printStackTrace()
+        throw e
       }
     })
   }
@@ -43,21 +42,40 @@ public class MyPipeline
     this.repo = repo
   }
 
+  public void logVerbose(GString message) {
+    logVerbose message.toString()
+  }
+
+  public void logVerbose(String message) {
+    script.echo message
+  }
+
+  public void logDebug(GString message) {
+    logDebug message.toString()
+  }
+
+  public void logDebug(String message) {
+    script.echo message.toString()
+  }
+
   public void logInfo(GString message) {
     logInfo message.toString()
   }
 
   public void logInfo(String message) {
-    script.echo message
+    script.echo "### ${message}"
+  }
+
+  public void logError(GString message) {
+    logError message.toString()
+  }
+
+  public void logError(String message) {
+    script.echo " ---------------- ###### ------------------- \n${message}"
   }
 
   public void sh(GString command) {
-    logInfo(command)
+    logVerbose(command)
     script.sh command
-  }
-
-  void runEnvDocker() {
-    def currDir = script.pwd()
-    containerName = "ci_gf_${script.env.JOB_NAME}_${script.env.BUILD_NUMBER}".replaceAll("/", "-")
   }
 }

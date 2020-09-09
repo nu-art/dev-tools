@@ -16,7 +16,7 @@ public class MyPipeline
     this.timeout = timeout
   }
 
-  addStage(String label, Closure stageMethod) {
+  void addStage(String label, Closure stageMethod) {
     script.stage(label, () -> {
       try {
         stageMethod()

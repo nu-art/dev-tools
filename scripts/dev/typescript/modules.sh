@@ -24,6 +24,7 @@ resolveThunderstormLibs() {
     github
     jira
     file-upload
+    google-services
   )
 
   thunderstormLibraries=()

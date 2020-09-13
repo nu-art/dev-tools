@@ -33,6 +33,7 @@ public class MyPipeline
     this.docker = new Docker(this, key, version)
     this.docker.init()
     this.docker.addVirtualFile("${script.env.WORKSPACE}")
+    this.docker.addEnvironmentVariable("WORKSPACE", "${script.pwd()}".toString())
     this.docker.addEnvironmentVariable("BUILD_NUMBER", "${script.env.BUILD_NUMBER}".toString())
 
     return this.docker

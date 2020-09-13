@@ -23,6 +23,7 @@ tsLibs=(
   github
   jira
   file-upload
+  google-services
 )
 
 projectLibs=(

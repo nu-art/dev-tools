@@ -75,7 +75,8 @@ public class MyPipeline
     script.echo " ---------------- ###### ------------------- \n${message}"
   }
 
-  public void sh(GString command) {
+  public MyPipeline sh(GString command) {
     script.sh "${command}"
+    return this
   }
 }

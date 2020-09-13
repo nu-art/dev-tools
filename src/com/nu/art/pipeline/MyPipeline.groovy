@@ -76,6 +76,10 @@ public class MyPipeline
   }
 
   public MyPipeline sh(GString command) {
+    return sh(command.toString())
+  }
+
+  public MyPipeline sh(String command) {
     script.sh "${command}"
     return this
   }

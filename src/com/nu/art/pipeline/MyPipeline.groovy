@@ -75,7 +75,6 @@ public class MyPipeline
   }
 
   public void sh(GString command) {
-    logVerbose(command)
-    script.sh command
+    script.sh "${command}"
   }
 }

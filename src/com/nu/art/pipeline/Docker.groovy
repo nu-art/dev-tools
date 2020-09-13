@@ -71,7 +71,7 @@ public class Docker
   }
 
   Docker executeCommand(String command) {
-    pipeline.sh """docker exec ${id} ./jenkins_env_entrypoint.sh "${command}" """
+    pipeline.sh """docker exec ${id} ./jenkins_env_entrypoint.sh \"${command}\" """
     return this
   }
 

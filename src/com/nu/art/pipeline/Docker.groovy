@@ -79,18 +79,18 @@ public class Docker
     return this
   }
 
-  Docker executeCommand(GString command) {
+  Docker executeCommand(GString command, GString workingDirector = "${envVariables[EnvVar_Workspace]}") {
     if (!command)
       throw new BadImplementationException("Trying to execute a command that is undefined")
 
-    return executeCommand(command.toString())
+    return executeCommand(command.toString(), workingDirector.toString())
   }
 
-  Docker executeCommand(String command) {
+  Docker executeCommand(String command, String workingDirector = envVariables[EnvVar_Workspace]) {
     if (!command)
       throw new BadImplementationException("Trying to execute a command that is undefined")
 
-    pipeline.sh """docker exec -w ${envVariables[EnvVar_Workspace]} ${id} ${command} """
+    pipeline.sh """docker exec -w ${workingDirector} ${id} ${command} """
     return this
   }
 

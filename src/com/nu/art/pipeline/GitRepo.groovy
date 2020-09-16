@@ -16,7 +16,7 @@ class GitRepo {
   GitRepo(MyPipeline pipeline, String url) {
     this.pipeline = pipeline
     this.url = url
-    this.folderName = url.replace(".git", "").substring(url.lastIndexOf("/"))
+    this.folderName = url.replace(".git", "").substring(url.lastIndexOf("/")+1)
   }
 
   void cloneRepo() {

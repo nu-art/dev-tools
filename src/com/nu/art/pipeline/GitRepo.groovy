@@ -41,7 +41,7 @@ class GitRepo {
       ]
 
     Closure updateSubmodules = {
-      (pipeline) -> {
+      pipeline -> {
         pipeline.sh "git submodule update --recursive --init"
       }
     }

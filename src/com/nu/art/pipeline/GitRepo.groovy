@@ -16,7 +16,7 @@ class GitRepo {
   GitRepo(MyPipeline pipeline, String url) {
     this.pipeline = pipeline
     this.url = url
-    this.folderName = url.replace(".git", "").substring(url.lastIndexOf("/")+1)
+    this.folderName = url.replace(".git", "").substring(url.lastIndexOf("/") + 1)
   }
 
   void cloneRepo() {
@@ -40,7 +40,7 @@ class GitRepo {
         userRemoteConfigs: [[url: url + '.git']]
       ]
 
-    Closure updateSubmodules =  {
+    Closure updateSubmodules = {
       pipeline.sh "git submodule update --recursive --init"
     }
 
@@ -49,6 +49,31 @@ class GitRepo {
       pipeline.cd(folderName, updateSubmodules)
     else
       updateSubmodules.call()
+  }
+
+  GitRepo setService(String service) {
+    this.service = service
+    return this
+  }
+
+  GitRepo setBranch(String branch) {
+    this.branch = branch
+    return this
+  }
+
+  GitRepo setFolderName(String folderName) {
+    this.folderName = folderName
+    return this
+  }
+
+  GitRepo setShallowClone(String shallowClone) {
+    this.shallowClone = shallowClone
+    return this
+  }
+
+  GitRepo setChangelog(Boolean changelog) {
+    this.changelog = changelog
+    return this
   }
 
   void createTag(String tagName) {

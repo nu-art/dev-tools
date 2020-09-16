@@ -19,7 +19,7 @@ class GitRepo {
     this.folderName = url.replace(".git", "").substring(url.lastIndexOf("/"))
   }
 
-  cloneRepo() {
+  void cloneRepo() {
     String url = this.url.replace(".git", "")
     pipeline.script.checkout changelog: changelog,
       scm: [
@@ -50,22 +50,22 @@ class GitRepo {
       updateSubmodules(pipeline)
   }
 
-  createTag(String tagName) {
+  void createTag(String tagName) {
     if (!tagName)
       throw new BadImplementationException("tag name is undefined")
 
     pipeline.sh("git tag -f ${tagName}")
   }
 
-  pushTags() {
+  void pushTags() {
     pipeline.sh("git push --tags")
   }
 
-  push() {
+  void push() {
     pipeline.sh("git push")
   }
 
-  commit(String message) {
+  void commit(String message) {
     pipeline.sh("git commit -am \"${message}\"")
   }
 }

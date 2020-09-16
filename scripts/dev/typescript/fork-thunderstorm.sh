@@ -223,7 +223,7 @@ sayHello() {
 start() {
   sayHello
 
-  installNpmPackages
+  [[ ! "$1" ]] && installNpmPackages
   promptForRepoUrl
   promptForFirebaseProject
   promptForFirebaseProjectLocationRepo
@@ -246,4 +246,4 @@ start() {
 }
 
 installAndUseNvmIfNeeded
-start
+start "$@"

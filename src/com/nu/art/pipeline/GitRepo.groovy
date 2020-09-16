@@ -40,7 +40,7 @@ class GitRepo {
         userRemoteConfigs: [[url: url + '.git']]
       ]
 
-    Closure<MyPipeline> updateSubmodules =  {
+    Closure updateSubmodules =  {
       pipeline.sh "git submodule update --recursive --init"
     }
 
@@ -48,7 +48,7 @@ class GitRepo {
     if (folderName != "")
       pipeline.cd(folderName, updateSubmodules)
     else
-      updateSubmodules(pipeline)
+      updateSubmodules.call()
   }
 
   void createTag(String tagName) {

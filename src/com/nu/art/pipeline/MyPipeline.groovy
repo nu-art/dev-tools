@@ -32,7 +32,7 @@ class MyPipeline
   void cd(String folder, Closure todo) {
     String pwd = script.pwd()
     script.dir(folder)
-    todo()
+    todo.call()
     script.dir(pwd)
   }
 

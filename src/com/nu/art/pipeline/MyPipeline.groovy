@@ -16,6 +16,10 @@ class MyPipeline
     this.timeout = timeout
   }
 
+  String getEnv(String key) {
+    return script.env[key]
+  }
+
   void addStage(String label, Closure stageMethod) {
     script.stage(label, {
       try {

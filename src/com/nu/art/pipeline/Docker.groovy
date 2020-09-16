@@ -70,6 +70,10 @@ public class Docker
     return this
   }
 
+  Docker executeCommand(GString command) {
+    return executeCommand(command.toString())
+  }
+
   Docker executeCommand(String command) {
     pipeline.sh """docker exec ${id} ./jenkins_env_entrypoint.sh \"${command}\" """
     return this

@@ -1,6 +1,6 @@
 package com.nu.art.pipeline
 
-public class MyPipeline
+class MyPipeline
   implements Serializable {
 
   def script
@@ -29,6 +29,13 @@ public class MyPipeline
     })
   }
 
+  cd(String folder, Closure todo) {
+    String pwd = script.pwd()
+    script.dir(folder)
+    todo()
+    script.dir(pwd)
+  }
+
   Docker createDocker(String key, String version) {
     this.docker = new Docker(this, key, version)
     this.docker.init()
@@ -39,47 +46,48 @@ public class MyPipeline
     return this.docker
   }
 
-  void setGitRepo(GitRepo repo) {
-    this.repo = repo
+  GitRepo createGitRepo(String url) {
+    this.repo = new GitRepo(this, url)
+    return this.repo
   }
 
-  public void logVerbose(GString message) {
+  void logVerbose(GString message) {
     logVerbose message.toString()
   }
 
-  public void logVerbose(String message) {
+  void logVerbose(String message) {
     script.echo message
   }
 
-  public void logDebug(GString message) {
+  void logDebug(GString message) {
     logDebug message.toString()
   }
 
-  public void logDebug(String message) {
+  void logDebug(String message) {
     script.echo message.toString()
   }
 
-  public void logInfo(GString message) {
+  void logInfo(GString message) {
     logInfo message.toString()
   }
 
-  public void logInfo(String message) {
+  void logInfo(String message) {
     script.echo "### ${message}"
   }
 
-  public void logError(GString message) {
+  void logError(GString message) {
     logError message.toString()
   }
 
-  public void logError(String message) {
+  void logError(String message) {
     script.echo " ---------------- ###### ------------------- \n${message}"
   }
 
-  public MyPipeline sh(GString command) {
+  MyPipeline sh(GString command) {
     return sh(command.toString())
   }
 
-  public MyPipeline sh(String command) {
+  MyPipeline sh(String command) {
     script.sh "${command}"
     return this
   }

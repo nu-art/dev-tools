@@ -1,3 +1,5 @@
+package com.nu.art.pipeline
+
 public class Job
   implements Serializable {
 

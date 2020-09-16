@@ -12,7 +12,7 @@ public class Docker
   def virtualFiles = [:]
 
   Docker(MyPipeline pipeline, String key, String version) {
-    this.pipeline = pipeline;
+    this.pipeline = pipeline
     this.key = key
     this.version = version
   }

@@ -90,7 +90,7 @@ public class Docker
     if (!command)
       throw new BadImplementationException("Trying to execute a command that is undefined")
 
-    pipeline.sh """docker exec ${id} \"cd ${envVariables[EnvVar_Workspace]} && eval \\"${command}\\"\" """
+    pipeline.sh """docker exec ${id} "cd ${envVariables[EnvVar_Workspace]} && eval \"${command}\"" """
     return this
   }
 

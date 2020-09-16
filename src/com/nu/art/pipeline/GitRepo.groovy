@@ -40,7 +40,7 @@ class GitRepo {
         userRemoteConfigs: [[url: url + '.git']]
       ]
 
-    Closure<MyPipeline> updateSubmodules = (MyPipeline pipeline) -> {
+    Closure<MyPipeline> updateSubmodules =  {
       pipeline.sh "git submodule update --recursive --init"
     }
 

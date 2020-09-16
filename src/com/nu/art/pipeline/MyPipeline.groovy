@@ -30,10 +30,9 @@ class MyPipeline
   }
 
   void cd(String folder, Closure todo) {
-    String pwd = script.pwd()
-    script.dir(folder)
-    todo.call()
-    script.dir(pwd)
+    script.dir(folder) {
+      todo.call()
+    }
   }
 
   Docker createDocker(String key, String version) {

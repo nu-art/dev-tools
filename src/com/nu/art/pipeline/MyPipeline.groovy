@@ -29,7 +29,7 @@ class MyPipeline
     })
   }
 
-  cd(String folder, Closure todo) {
+  void cd(String folder, Closure todo) {
     String pwd = script.pwd()
     script.dir(folder)
     todo()

@@ -1,8 +1,11 @@
 package com.nu.art.pipeline
 
+import com.nu.art.exception.BadImplementationException
+
 public class Docker
   implements Serializable {
 
+  public static String EnvVar_Workspace = "WORKSPACE"
   final String key
   final String version
   final MyPipeline pipeline
@@ -52,6 +55,12 @@ public class Docker
 
 
   Docker launch() {
+    if (!this.key)
+      throw new BadImplementationException("Trying to launch a Docker without a container key")
+
+    if (!this.version)
+      throw new BadImplementationException("Trying to launch a Docker without a container version")
+
     List<String> _envVars = envVariables.collect { key, value -> "-e ${key}=${value}".toString() }
     String envVars = ""
     for (i in 0..<_envVars.size()) {
@@ -71,11 +80,17 @@ public class Docker
   }
 
   Docker executeCommand(GString command) {
+    if (!command)
+      throw new BadImplementationException("Trying to execute a command that is undefined")
+
     return executeCommand(command.toString())
   }
 
   Docker executeCommand(String command) {
-    pipeline.sh """docker exec ${id} ./jenkins_env_entrypoint.sh \"${command}\" """
+    if (!command)
+      throw new BadImplementationException("Trying to execute a command that is undefined")
+
+    pipeline.sh """docker exec ${id} \"cd ${envVariables[EnvVar_Workspace]} && eval \\"${command}\\"\" """
     return this
   }
 

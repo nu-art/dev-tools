@@ -19,7 +19,7 @@ class MyPipeline
       paramsAsString += " ${_params.get(i)}"
     }
 
-    return """${command} ${paramsAsString}"""
+    return "${command} ${paramsAsString}"
   }
 
   void setTimeout(Integer timeout) {

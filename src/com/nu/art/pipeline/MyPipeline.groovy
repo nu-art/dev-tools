@@ -5,8 +5,6 @@ class MyPipeline
 
   def script
   Integer timeout = 300000 // 5 min
-  GitRepo repo
-  Docker docker
 
   MyPipeline(script) {
     this.script = script
@@ -50,18 +48,17 @@ class MyPipeline
   }
 
   Docker createDocker(String key, String version) {
-    this.docker = new Docker(this, key, version)
-    this.docker.init()
-    this.docker.addVirtualFile("${script.env.WORKSPACE}")
-    this.docker.addEnvironmentVariable(Docker.EnvVar_Workspace, "${script.pwd()}".toString())
-    this.docker.addEnvironmentVariable("BUILD_NUMBER", "${script.env.BUILD_NUMBER}".toString())
+    Docker docker = new Docker(this, key, version)
+    docker.init()
+    docker.addVirtualFile("${script.env.WORKSPACE}")
+    docker.addEnvironmentVariable(Docker.EnvVar_Workspace, "${script.pwd()}".toString())
+    docker.addEnvironmentVariable("BUILD_NUMBER", "${script.env.BUILD_NUMBER}".toString())
 
-    return this.docker
+    return docker
   }
 
   GitRepo createGitRepo(String url) {
-    this.repo = new GitRepo(this, url)
-    return this.repo
+    return new GitRepo(this, url)
   }
 
   void logVerbose(GString message) {

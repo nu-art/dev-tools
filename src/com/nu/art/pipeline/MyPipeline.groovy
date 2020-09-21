@@ -18,7 +18,7 @@ class MyPipeline
     for (i in 0..<_params.size()) {
       paramsAsString += " ${_params.get(i)}"
     }
-
+    logInfo("paramsAsString: ${paramsAsString}")
     return "${command} ${paramsAsString}"
   }
 

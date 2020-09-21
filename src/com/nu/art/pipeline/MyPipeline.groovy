@@ -12,6 +12,16 @@ class MyPipeline
     this.script = script
   }
 
+  String buildCommand(String command, LinkedHashMap<String, String> params) {
+    List<String> _params = params.collect { key, value -> "--${key}=${this.script.env[value]}".toString() }
+    String paramsAsString = ""
+    for (i in 0..<_params.size()) {
+      paramsAsString += " ${_params.get(i)}"
+    }
+
+    return """${command} ${paramsAsString}"""
+  }
+
   void setTimeout(Integer timeout) {
     this.timeout = timeout
   }

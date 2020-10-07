@@ -1,7 +1,5 @@
 package com.nu.art.pipeline
 
-import com.nu.art.exception
-
 class GitRepo {
 
   final MyPipeline pipeline
@@ -78,7 +76,7 @@ class GitRepo {
 
   void createTag(String tagName) {
     if (!tagName)
-      throw new exception.BadImplementationException("tag name is undefined")
+      throw new pipeline.exception("tag name is undefined")
 
     pipeline.sh("git tag -f ${tagName}")
   }

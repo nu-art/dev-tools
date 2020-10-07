@@ -1,7 +1,5 @@
 package com.nu.art.pipeline
 
-import com.nu.art.exception
-
 public class Docker
   implements Serializable {
 
@@ -56,10 +54,10 @@ public class Docker
 
   Docker launch() {
     if (!this.key)
-      throw new exception.BadImplementationException("Trying to launch a Docker without a container key")
+      throw new pipeline.exception("Trying to launch a Docker without a container key")
 
     if (!this.version)
-      throw new exception.BadImplementationException("Trying to launch a Docker without a container version")
+      throw new pipeline.exception("Trying to launch a Docker without a container version")
 
     List<String> _envVars = envVariables.collect { key, value -> "-e ${key}=${value}".toString() }
     String envVars = ""
@@ -81,14 +79,14 @@ public class Docker
 
   Docker executeCommand(GString command, GString workingDirector = "${envVariables[EnvVar_Workspace]}") {
     if (!command)
-      throw new exception.BadImplementationException("Trying to execute a command that is undefined")
+      throw new pipeline.exception("Trying to execute a command that is undefined")
 
     return executeCommand(command.toString(), workingDirector.toString())
   }
 
   Docker executeCommand(String command, String workingDirector = envVariables[EnvVar_Workspace]) {
     if (!command)
-      throw new exception.BadImplementationException("Trying to execute a command that is undefined")
+      throw new pipeline.exception("Trying to execute a command that is undefined")
 
     pipeline.sh """docker exec -w ${workingDirector} ${id} bash -c \"${command}\""""
     return this

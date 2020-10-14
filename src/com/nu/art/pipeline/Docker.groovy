@@ -1,28 +1,24 @@
 package com.nu.art.pipeline
 
-public class Docker
-  implements Serializable {
+import com.nu.art.consts.Param_EnvVar
+import com.nu.art.pipeline.exceptions.BadImplementationException
 
-  public static String EnvVar_Workspace = "WORKSPACE"
+class Docker
+  implements IShell<Docker>, Serializable {
+
   final String key
   final String version
-  final MyPipeline pipeline
   final String id = UUID.randomUUID().toString()
 
   def envVariables = [:]
   def virtualFiles = [:]
 
-  Docker(MyPipeline pipeline, String key, String version) {
-    this.pipeline = pipeline
+  Docker(String key, String version) {
     this.key = key
     this.version = version
   }
 
   void init() {
-    addEnvironmentVariable("USER", "jenkins")
-    addVirtualFile("/home/jenkins/.config")
-    addVirtualFile("/home/jenkins/.ssh/id_rsa")
-    addVirtualFile("/home/jenkins/.ssh/known_hosts")
   }
 
   Docker addEnvironmentVariable(GString key, GString value) {
@@ -54,10 +50,10 @@ public class Docker
 
   Docker launch() {
     if (!this.key)
-      throw new pipeline.exception("Trying to launch a Docker without a container key")
+      throw new BadImplementationException("Trying to launch a Docker without a container key")
 
     if (!this.version)
-      throw new pipeline.exception("Trying to launch a Docker without a container version")
+      throw new BadImplementationException("Trying to launch a Docker without a container version")
 
     List<String> _envVars = envVariables.collect { key, value -> "-e ${key}=${value}".toString() }
     String envVars = ""
@@ -72,28 +68,28 @@ public class Docker
     }
 
     GString dockerLink = "${this.key}:${this.version}"
-    pipeline.logInfo("Launching docker: ${id}")
-    pipeline.sh """docker run --rm -d --net=host --name ${id} ${envVars} ${virtualFilesVars} ${dockerLink} tail -f /dev/null"""
+    BasePipeline.instance.logInfo("Launching docker: ${id}")
+    BasePipeline.instance.sh """docker run --rm -d --net=host --name ${id} ${envVars} ${virtualFilesVars} ${dockerLink} tail -f /dev/null"""
     return this
   }
 
-  Docker executeCommand(GString command, GString workingDirector = "${envVariables[EnvVar_Workspace]}") {
+  Docker sh(GString command, GString workingDirector = "${Param_EnvVar.Workspace.envValue()}") {
     if (!command)
-      throw new pipeline.exception("Trying to execute a command that is undefined")
+      throw new BadImplementationException("Trying to execute a command that is undefined")
 
-    return executeCommand(command.toString(), workingDirector.toString())
+    return sh(command.toString(), workingDirector.toString())
   }
 
-  Docker executeCommand(String command, String workingDirector = envVariables[EnvVar_Workspace]) {
+  Docker sh(String command, String workingDirector = Param_EnvVar.Workspace.envValue()) {
     if (!command)
-      throw new pipeline.exception("Trying to execute a command that is undefined")
+      throw new BadImplementationException("Trying to execute a command that is undefined")
 
-    pipeline.sh """docker exec -w ${workingDirector} ${id} bash -c \"${command}\""""
+    BasePipeline.instance.sh """docker exec -w ${workingDirector} ${id} bash -c \"${command}\""""
     return this
   }
 
   void kill() {
-    pipeline.logInfo("Killing docker: ${id}")
-    pipeline.sh "docker rm -f ${id}"
+    BasePipeline.instance.logInfo("Killing docker: ${id}")
+    BasePipeline.instance.sh "docker rm -f ${id}"
   }
 }

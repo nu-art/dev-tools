@@ -15,7 +15,7 @@ public class Job
     return this
   }
 
-  run() {
+  void run() {
     script.build job: name, parameters: params
   }
 }

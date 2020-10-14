@@ -1,8 +1,9 @@
 package com.nu.art.pipeline
 
+import com.nu.art.pipeline.exceptions.BadImplementationException
+
 class GitRepo {
 
-  final MyPipeline pipeline
   final String url
 
   String service = "GithubWeb"
@@ -11,19 +12,17 @@ class GitRepo {
   String shallowClone = false
   Boolean changelog = true
 
-  GitRepo(MyPipeline pipeline, String url) {
-    this.pipeline = pipeline
+  GitRepo(String url) {
     this.url = url
     this.folderName = url.replace(".git", "").substring(url.lastIndexOf("/") + 1)
   }
 
   void cloneRepo() {
     String url = this.url.replace(".git", "")
-    pipeline.script.checkout changelog: changelog,
+    BasePipeline.instance.script.checkout changelog: changelog,
       scm: [
         $class           : 'GitSCM',
         branches         : [[name: branch]],
-        timeout          : 30,
         extensions       : [[$class: 'LocalBranch', localBranch: "**"],
                             [$class             : 'SubmoduleOption',
                              disableSubmodules  : true,
@@ -39,14 +38,39 @@ class GitRepo {
       ]
 
     Closure updateSubmodules = {
-      pipeline.sh "git submodule update --recursive --init"
+      BasePipeline.instance.sh "git submodule update --recursive --init"
     }
 
 
     if (folderName != "")
-      pipeline.cd(folderName, updateSubmodules)
+      BasePipeline.instance.cd(folderName, updateSubmodules)
     else
       updateSubmodules.call()
+  }
+
+  void createFullChangelog() {
+    log
+    logger.info "### Create full changelog "
+    script.sh """echo 'Full Changelog:' > ${script.env.WORKSPACE}/full_changelog.txt """
+    script.sh """echo '--------------------------------------------------------------' >> ${script.env.WORKSPACE}/full_changelog.txt """
+    script.sh """echo '' >> ${script.env.WORKSPACE}/full_changelog.txt """
+    def commitsIdsList = script.currentBuild.changeSets.collect({ it.items.collect { it.commitId } })
+    for (int i = 0; i < commitsIdsList.size(); i++) {
+      def commitsIds = commitsIdsList[i]
+      for (int j = 0; j < commitsIds.size(); j++) {
+        String commitInfo = script.sh(returnStdout: true, script: "git show -s ${commitsIds[j]} || true").trim()
+        String commitInfoFiles = script.sh(returnStdout: true, script: "git diff-tree --no-commit-id --name-only -r ${commitsIds[j]} || true").trim()
+        // Add submodules changes by running 'git show <commitid> <submodule>' for each changed submodule
+        commitInfo = commitInfo.replaceAll("\"", " ").replaceAll("'", " ")
+        commitInfoFiles = commitInfoFiles.replaceAll("\"", "").replaceAll("'", "")
+        if (commitInfo != "") {
+          script.sh """echo '${commitInfo}' >> ${script.env.WORKSPACE}/full_changelog.txt """
+          script.sh """echo '${commitInfoFiles}' >> ${script.env.WORKSPACE}/full_changelog.txt """
+          script.sh """echo '--------------------------------------------------------------' >> ${script.env.WORKSPACE}/full_changelog.txt """
+          script.sh """echo '' >> ${script.env.WORKSPACE}/full_changelog.txt """
+        }
+      }
+    }
   }
 
   GitRepo setService(String service) {
@@ -76,21 +100,21 @@ class GitRepo {
 
   void createTag(String tagName) {
     if (!tagName)
-      throw new pipeline.exception("tag name is undefined")
+      throw new BadImplementationException("tag name is undefined")
 
-    pipeline.sh("git tag -f ${tagName}")
+    BasePipeline.instance.sh("git tag -f ${tagName}")
   }
 
   void pushTags() {
-    pipeline.sh("git push --tags")
+    BasePipeline.instance.sh("git push --tags")
   }
 
   void push() {
-    pipeline.sh("git push")
+    BasePipeline.instance.sh("git push")
   }
 
   void commit(String message) {
-    pipeline.sh("git commit -am \"${message}\"")
+    BasePipeline.instance.sh("git commit -am \"${message}\"")
   }
 }
 

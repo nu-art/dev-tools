@@ -1,4 +1,4 @@
-package com.nu.art.exception
+package com.nu.art.pipeline.exceptions;
 
 public class BadImplementationException
   extends Exception {

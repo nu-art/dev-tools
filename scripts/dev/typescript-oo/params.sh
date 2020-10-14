@@ -14,6 +14,7 @@ ts_linkThunderstorm=
 ts_lint=
 ts_runTests=
 ts_publish=
+ts_fileToExecute="index.js"
 
 checkCircularImports=
 
@@ -51,6 +52,7 @@ params=(
   ts_lint
   ts_runTests
   ts_publish
+  ts_fileToExecute
   "ts_generate[@]"
   "ts_launch[@]"
   "ts_deploy[@]"
@@ -273,6 +275,14 @@ extractParams() {
     "--launch="* | "-l="*)
       #DOC: It will add the provided App to the launch list
       ts_launch+=($(regexParam "--launch|-l" "${paramValue}"))
+      ;;
+
+    "--file="* | "-f="*)
+      #DOC: The file name to launch
+      #NOTE: Apply on to the executable apps
+
+      [[ ! "${testServiceAccount}" ]] && throwError "MUST specify the path to the testServiceAccount in the .scripts/modules.sh in your project"
+      ts_fileToExecute=$(regexParam "--file|-f" "${paramValue}")
       ;;
 
     "--launch-frontend" | "-lf")

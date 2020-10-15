@@ -2,7 +2,7 @@ package com.nu.art.pipeline.modules
 
 import com.nu.art.pipeline.workflow.OnPipelineListener
 import com.nu.art.pipeline.workflow.WorkflowModule
-import com.nu.art.pipeline.workflow.variables.Consts
+import com.nu.art.pipeline.workflow.variables.VarConsts
 import com.nu.art.pipeline.workflow.variables.Var_Creds
 import com.nu.art.utils.Colors
 
@@ -32,7 +32,7 @@ class SlackModule
 	}
 
 	void notify(String message, String color, String channelName = defaultChannel) {
-		String preMessage = "*${Consts.Var_JobName.get()}* - #${Consts.Var_BuildNumber.get()} (<${Consts.Var_BuildUrl.get()}|Open>)\n"
+		String preMessage = "*${VarConsts.Var_JobName.get()}* - #${VarConsts.Var_BuildNumber.get()} (<${VarConsts.Var_BuildUrl.get()}|Open>)\n"
 		String finalMessage = "${preMessage}\n${message}"
 		workflow.script.slackSend(color: color, channel: channelName, message: finalMessage, tokenCredentialId: SlackToken.id)
 	}

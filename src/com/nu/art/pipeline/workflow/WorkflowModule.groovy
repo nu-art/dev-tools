@@ -6,13 +6,13 @@ import com.nu.art.modular.core.Module
 abstract class WorkflowModule
   extends Module {
 
-  protected final Workflow workflow = Workflow.workflow
+  final Workflow workflow = Workflow.workflow
 
   @NonCPS
   @Override
   protected void init() {}
 
-  protected void cd(String path, Closure closure) {
+  void cd(String path, Closure closure) {
     workflow.cd(path, closure)
   }
 

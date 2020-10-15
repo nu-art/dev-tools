@@ -48,7 +48,7 @@ class GitRepoConfig {
 		return outputFolder
 	}
 
-	GitModule.GitRepo build() {
-		return module.createRepo(this)
+	GitRepo build() {
+		return new GitRepo(module, this)
 	}
 }

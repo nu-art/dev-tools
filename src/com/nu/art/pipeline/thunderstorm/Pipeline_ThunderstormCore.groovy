@@ -1,10 +1,16 @@
 package com.nu.art.pipeline.thunderstorm
 
+import com.nu.art.pipeline.exceptions.BadImplementationException
+import com.nu.art.pipeline.modules.BuildModule
+import com.nu.art.pipeline.modules.docker.Docker
 import com.nu.art.pipeline.modules.docker.DockerModule
-import com.nu.art.pipeline.modules.docker.DockerModule.Docker
 import com.nu.art.pipeline.modules.git.GitModule
-import com.nu.art.pipeline.modules.git.GitModule.GitRepo
+import com.nu.art.pipeline.modules.git.GitRepo
+import com.nu.art.pipeline.thunderstorm.models.VersionApp
 import com.nu.art.pipeline.workflow.NewBasePipeline
+import com.nu.art.pipeline.workflow.WorkflowModule
+import com.nu.art.pipeline.workflow.utils.Utils
+import com.nu.art.pipeline.workflow.variables.VarConsts
 
 abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 	extends NewBasePipeline<T> {
@@ -12,12 +18,12 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 	protected GitRepo repo
 	protected Docker docker
 
-	Pipeline_ThunderstormCore() {
-		this(null)
+	Pipeline_ThunderstormCore(Class<? extends WorkflowModule>... modules) {
+		this(null, modules)
 	}
 
-	Pipeline_ThunderstormCore(String name) {
-		super(name, DockerModule.class, GitModule.class)
+	Pipeline_ThunderstormCore(String name, Class<? extends WorkflowModule>... modules) {
+		super(name, (([DockerModule.class, GitModule.class] as Class<? extends WorkflowModule>[]) + modules))
 	}
 
 	T setDocker(Docker docker) {
@@ -30,9 +36,13 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 		return (T) this
 	}
 
-	T checkout() {
+	T checkout(Closure postCheckout) {
 		if (repo)
-			addStage("checkout", { repo.cloneRepo() })
+			addStage("checkout", {
+				repo.cloneRepo()
+				if(postCheckout)
+					postCheckout()
+			})
 		if (docker)
 			addStage("launch-docker", { docker.launch() })
 		return (T) this
@@ -86,5 +96,25 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 		}
 
 		return (T) workflow.sh(command)
+	}
+
+
+	String readFile(String pathToFolder, String file) {
+		String pathToFile = "${VarConsts.Var_Workspace.get()}/${pathToFolder}/${file}"
+		if (!workflow.script.fileExists(pathToFile))
+			throw new BadImplementationException("Could not find file: ${pathToFile}")
+
+		logDebug("Reading file: ${pathToFile}")
+		return workflow.script.readFile(pathToFile)
+	}
+
+	protected String getVersion() {
+		String fileContent = readFile(repo.getOutputFolder(), "version-app.json")
+		VersionApp versionApp = Utils.parseJson(fileContent) as VersionApp
+		return versionApp.version
+	}
+
+	protected setDefaultDisplayName() {
+		getModule(BuildModule.class).setDisplayName("#${VarConsts.Var_BuildNumber.get()} - ${repo.getBranch()} - v${getVersion()}")
 	}
 }

@@ -40,10 +40,5 @@ abstract class NewBasePipeline<T extends NewBasePipeline>
 		workflow.run()
 	}
 
-	void prepare() {
-		if (name)
-			getModule(BuildModule.class).setDisplayName(name)
-	}
-
 	abstract void pipeline()
 }

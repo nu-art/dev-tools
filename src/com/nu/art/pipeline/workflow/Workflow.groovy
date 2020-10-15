@@ -9,7 +9,7 @@ import com.nu.art.modular.core.ModuleManagerBuilder
 import com.nu.art.pipeline.interfaces.Shell
 import com.nu.art.pipeline.workflow.logs.Config_WorkflowLogger
 import com.nu.art.pipeline.workflow.logs.WorkflowLogger
-import com.nu.art.pipeline.workflow.variables.Consts
+import com.nu.art.pipeline.workflow.variables.VarConsts
 import com.nu.art.pipeline.workflow.variables.Var_Creds
 import com.nu.art.pipeline.workflow.variables.Var_Env
 import com.nu.art.reflection.tools.ReflectiveTools
@@ -17,6 +17,7 @@ import com.nu.art.reflection.tools.ReflectiveTools
 @Grab('com.nu-art-software:module-manager:1.2.34')
 @Grab('com.nu-art-software:reflection:1.2.34')
 @Grab('com.nu-art-software:belog:1.2.34')
+@Grab('com.google.code.gson:gson:2.8.6')
 
 
 class Workflow
@@ -33,15 +34,13 @@ class Workflow
 		workflow.build()
 		workflow.start()
 
-		Consts.Var_JobName = Var_Env.create("JOB_NAME")
-		Consts.Var_BuildNumber = Var_Env.create("BUILD_NUMBER")
-		Consts.Var_BuildUrl = Var_Env.create("BUILD_URL")
-		Consts.Var_Workspace = Var_Env.create("WORKSPACE", { script.pwd() })
+		VarConsts.Var_JobName = Var_Env.create("JOB_NAME")
+		VarConsts.Var_BuildNumber = Var_Env.create("BUILD_NUMBER")
+		VarConsts.Var_BuildUrl = Var_Env.create("BUILD_URL")
+		VarConsts.Var_Workspace = Var_Env.create("WORKSPACE", { script.pwd() })
 
 		script.ansiColor('xterm') {
 			script.withCredentials(pipeline.creds.collect { param -> param.toCredential(script) }) {
-				pipeline.prepare()
-
 				pipeline.pipeline()
 				pipeline.run()
 			}

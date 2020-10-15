@@ -1,31 +1,42 @@
 package com.nu.art.pipeline.thunderstorm
 
-class Pipeline_ThunderstormWebApp
-  extends Pipeline_ThunderstormCore {
+import com.nu.art.pipeline.workflow.WorkflowModule
 
-  private String env
-  private String fallEnv
+class Pipeline_ThunderstormWebApp<T extends Pipeline_ThunderstormWebApp>
+	extends Pipeline_ThunderstormCore<T> {
 
-  Pipeline_ThunderstormWebApp(def script, String name) {
-    super(script, name)
-  }
+	protected String env
+	protected String fallEnv
 
-  void setEnv(String env, String fallEnv = "") {
-    this.env = env
-    this.fallEnv = fallEnv
-  }
+	Pipeline_ThunderstormWebApp(GString name, Class<? extends WorkflowModule>... modules = []) {
+		this(name.toString(), modules)
+	}
 
-  void deploy(Closure postDeploy) {
-    addStage("deploy", { this._deploy() })
-    if (postDeploy)
-      addStage("post-deploy", { postDeploy() })
-  }
+	Pipeline_ThunderstormWebApp(String name, Class<? extends WorkflowModule>... modules = []) {
+		super(name, modules)
+	}
 
-  protected void _install() {
-    _sh("bash build-and-install.sh --set-env=${this.env} -fe=${this.fallEnv} --install --no-build --link")
-  }
+	Pipeline_ThunderstormWebApp(Class<? extends WorkflowModule>... modules = []) {
+		super(modules)
+	}
 
-  private void _deploy() {
-    _sh("bash build-and-install.sh --deploy --quick-deploy --no-git")
-  }
+	protected void setEnv(String env, String fallEnv = "") {
+		this.env = env
+		this.fallEnv = fallEnv
+	}
+
+	protected void deploy() {
+		addStage("deploy", { this._deploy() })
+	}
+
+	protected void _install() {
+		_sh("bash build-and-install.sh --set-env=${this.env} -fe=${this.fallEnv} --install --no-build --link")
+	}
+
+	void _deploy() {
+		_sh("bash build-and-install.sh --deploy --quick-deploy --no-git")
+	}
+
+	@Override
+	void pipeline() {}
 }

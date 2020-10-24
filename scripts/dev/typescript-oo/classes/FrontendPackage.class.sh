@@ -102,7 +102,7 @@ FrontendPackage() {
     local declaration="$(cat "${colorsFile}" | grep -E "^const ")"
     local usage=""
     while IFS= read -r line; do
-      local varName=$(echo "${line}" | sed -E 's/^const (.*) = "(.[0-9a-fA-F]+)";$/\1/')
+      local varName=$(echo "${line}" | sed -E 's/^const (.*) ?= ?"(.[0-9a-fA-F]+)";?$/\1/')
       usage="${usage}\\n\t${varName}: (alpha?: number) => calculateColorWithAlpha(${varName}, alpha),"
     done <<< "$declaration"
 

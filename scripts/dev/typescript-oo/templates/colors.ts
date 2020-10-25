@@ -10,5 +10,4 @@ export const COLORS = {
 	COLORS_USAGE
 };
 
-
-
+export type ColorsType = typeof COLORS

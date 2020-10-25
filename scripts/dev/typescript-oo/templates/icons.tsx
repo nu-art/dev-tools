@@ -1,5 +1,6 @@
 import * as React from "react";
 import {css} from "emotion";
+import {FONTS} from "./fonts";
 
 export type IconStyle = {
 	color: string;
@@ -44,3 +45,5 @@ ICONS_DECLARATION
 export const ICONS = {
 	ICONS_USAGE
 };
+
+export type IconsType = typeof ICONS

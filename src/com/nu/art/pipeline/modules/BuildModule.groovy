@@ -7,6 +7,7 @@ class BuildModule
 	extends WorkflowModule {
 
 	void setDisplayName(String displayName) {
+		logInfo("Setting display name: ${displayName}")
 		workflow.script.currentBuild.displayName = displayName
 	}
 
@@ -15,6 +16,7 @@ class BuildModule
 	}
 
 	void setDescription(String description) {
+		logInfo("Setting description: ${description}")
 		workflow.script.currentBuild.description = description
 	}
 

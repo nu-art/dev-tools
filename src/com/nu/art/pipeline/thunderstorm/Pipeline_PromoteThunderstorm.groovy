@@ -1,6 +1,6 @@
 package com.nu.art.pipeline.thunderstorm
 
-import com.nu.art.pipeline.modules.BuildModule
+import com.nu.art.pipeline.modules.build.BuildModule
 import com.nu.art.pipeline.processes.Pipeline_PromoteRepo
 import com.nu.art.pipeline.thunderstorm.models.VersionApp
 import com.nu.art.pipeline.workflow.utils.Utils

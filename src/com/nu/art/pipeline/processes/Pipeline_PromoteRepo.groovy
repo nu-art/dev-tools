@@ -56,6 +56,7 @@ abstract class Pipeline_PromoteRepo<T extends Pipeline_PromoteRepo>
 				.forAll({ GitCli.create().commit("Merged origin/${fromBranch} => ${toBranch}").push() }, "dev-tools")
 				.execute()
 
+
 			String beforeVersion = readVersion(pathToVersionFile)
 
 			GitCli
@@ -63,6 +64,9 @@ abstract class Pipeline_PromoteRepo<T extends Pipeline_PromoteRepo>
 				.createTag("v${beforeVersion}-${toBranch}").pushTags()
 				.checkout(fromBranch)
 				.execute()
+
+			if (Env_Promote.get() == "none")
+				return
 
 			String afterVersion = promoteVersion(beforeVersion, deriveIndexToPromote(Env_Promote))
 			saveVersion(pathToVersionFile, afterVersion)

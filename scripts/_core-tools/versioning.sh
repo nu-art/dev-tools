@@ -126,7 +126,7 @@ getJsonValueForKey() {
   local fileName=${1}
   local key=${2}
 
-  local value=$(cat "${fileName}" | grep "\"${key}\":" | head -1 | sed -E "s/.*\"${key}\".*\"(.*)\",?/\1/")
+  local value=$(cat "${fileName}" | grep "\"${key}\":" | head -1 | sed -E "s/.*\"${key}\".*\"(.*)\".*/\1/")
   echo "${value}"
 }
 

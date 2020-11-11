@@ -1,21 +1,28 @@
 package com.nu.art.pipeline.workflow
 
 
-import com.nu.art.core.tools.ArrayTools
-import com.nu.art.pipeline.modules.BuildModule
+import com.nu.art.pipeline.modules.build.BuildModule
+import com.nu.art.pipeline.workflow.variables.VarConsts
 import com.nu.art.pipeline.workflow.variables.Var_Creds
+import com.nu.art.pipeline.workflow.variables.Var_Env
 
-abstract class NewBasePipeline<T extends NewBasePipeline>
+abstract class BasePipeline<T extends BasePipeline>
 	extends WorkflowModulesPack {
 
 	private static Class<? extends WorkflowModule>[] defaultModules = [BuildModule.class]
 	protected final Workflow workflow = Workflow.workflow
+
 	protected final String name
 	protected Var_Creds[] creds = []
 
-	NewBasePipeline(String name, Class<? extends WorkflowModule>... modules) {
-		super(ArrayTools.appendElements(defaultModules, modules))
+	BasePipeline(String name, Class<? extends WorkflowModule>... modules) {
+		super(defaultModules + modules)
 		this.name = name
+	}
+
+	T printEnvParams(Var_Env... envVars) {
+		envVars.each { workflow.logDebug("${it.varName} == ${it.get()}") }
+		return (T) this
 	}
 
 	T setRequiredCredentials(Var_Creds... creds) {
@@ -36,9 +43,18 @@ abstract class NewBasePipeline<T extends NewBasePipeline>
 		workflow.withCredentials(params, toRun)
 	}
 
+	String getName() {
+		return name
+	}
+
 	void run() {
+		setDisplayName()
 		workflow.run()
 	}
 
 	abstract void pipeline()
+
+	void setDisplayName() {
+		getModule(BuildModule.class).setDisplayName("#${VarConsts.Var_BuildNumber.get()}: ${name}")
+	}
 }

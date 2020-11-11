@@ -2,7 +2,7 @@ package com.nu.art.pipeline.modules.docker
 
 import com.nu.art.pipeline.IShell
 import com.nu.art.pipeline.exceptions.BadImplementationException
-import com.nu.art.pipeline.workflow.variables.VarConsts;
+import com.nu.art.pipeline.workflow.variables.VarConsts
 
 class Docker
 	implements IShell<Docker>, Serializable {

@@ -8,9 +8,11 @@ class GitRepoConfig {
 
 	String service = "GithubWeb"
 	String branch = "master"
-	String shallowClone = false
+	Boolean shallowClone = false
+	Boolean trackSubmodules = true
 	Boolean changelog = true
 	GitModule module
+	boolean trackSCM = true
 
 	GitRepoConfig(GitModule module, String url) {
 		this.module = module
@@ -34,8 +36,13 @@ class GitRepoConfig {
 		return this
 	}
 
-	GitRepoConfig setShallowClone(String shallowClone) {
+	GitRepoConfig setShallowClone(Boolean shallowClone) {
 		this.shallowClone = shallowClone
+		return this
+	}
+
+	GitRepoConfig setTrackSubmodules(Boolean trackSubmodules) {
+		this.trackSubmodules = trackSubmodules
 		return this
 	}
 
@@ -44,11 +51,16 @@ class GitRepoConfig {
 		return this
 	}
 
+	GitRepoConfig setTrackSCM(boolean trackSCM) {
+		this.trackSCM = trackSCM
+		return this
+	}
+
 	String getOutputFolder() {
 		return outputFolder
 	}
 
 	GitRepo build() {
-		return new GitRepo(module, this)
+		return module.createRepo(this)
 	}
 }

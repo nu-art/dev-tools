@@ -1,10 +1,8 @@
 package com.nu.art.pipeline.modules.git
 
-import com.nu.art.pipeline.exceptions.BadImplementationException;
-
 class GitRepo {
 
-	private GitRepoConfig config
+	GitRepoConfig config
 	private GitModule module
 
 	GitRepo(GitModule module, GitRepoConfig config) {
@@ -13,7 +11,25 @@ class GitRepo {
 	}
 
 	void cloneRepo() {
+		GitCli command = GitCli.create(this).clone(config)
+		if (config.trackSubmodules)
+			command.gsui()
+
+		module.logDebug("clonning repo(GIT): ${config.url}")
+		module.logDebug("${command.script}")
+		module.sh(command.script)
+		module.setCommit(this)
+	}
+
+	void cloneSCM() {
+		if(!config.trackSCM)
+			return
+
 		String url = config.url.replace(".git", "")
+		String outputFolder = config.url.replace(".git", "").substring(url.lastIndexOf("/") + 1)
+
+		module.logDebug("clonning repo(SCM): ${config.url}")
+
 		module.workflow.script.checkout changelog: config.changelog,
 			scm: [
 				$class           : 'GitSCM',
@@ -27,21 +43,79 @@ class GitRepo {
 														 trackingSubmodules : false],
 														[$class: 'CloneOption', noTags: false, reference: '', shallow: config.shallowClone],
 														[$class: 'CheckoutOption'],
-														[$class: 'RelativeTargetDirectory', relativeTargetDir: config.outputFolder]],
+														[$class: 'RelativeTargetDirectory', relativeTargetDir: "__${outputFolder}"]],
 				browser          : [$class: config.service, repoUrl: url],
 				userRemoteConfigs: [[url: url + '.git']]
 			]
-
-		Closure updateSubmodules = {
-			module.sh "git submodule update --recursive --init"
-		}
-
-
-		if (config.outputFolder != "")
-			module.cd(config.outputFolder, updateSubmodules)
-		else
-			updateSubmodules.call()
 	}
+
+	GitCli cli() {
+		GitCli.create(this)
+	}
+
+	String currentBranch() {
+		return executeCommand(cli().getCurrentBranch(), true)
+	}
+
+	void checkout(String branch, force = false) {
+		try {
+			executeCommand(cli().checkout(branch))
+		} catch (e) {
+			if (!force)
+				throw e
+
+			if (currentBranch() != branch)
+				executeCommand(cli().createBranch(branch))
+		}
+	}
+
+	void merge(String commitTag) {
+		executeCommand(cli().merge(commitTag))
+	}
+
+	void createTag(String tagName) {
+		executeCommand(cli().createTag(tagName))
+	}
+
+	void pushTags() {
+		executeCommand(cli().pushTags())
+	}
+
+	void gsui() {
+		executeCommand(cli().gsui())
+	}
+
+	void push() {
+		executeCommand(cli().push())
+	}
+
+	void commit(String message) {
+		executeCommand(cli().commit(message))
+	}
+
+	String executeCommand(Cli cli, output = false) {
+		executeCommand(cli.script, output)
+	}
+
+	String executeCommand(String command, output = false) {
+		module.logVerbose("command: ${command}")
+		return module.cd(config.getOutputFolder()) {
+			return module.sh(command, output)
+		}
+	}
+
+	String getUrl() {
+		return config.url
+	}
+
+	String getOutputFolder() {
+		return config.outputFolder
+	}
+
+	String getBranch() {
+		return config.branch
+	}
+}
 
 //  void createFullChangelog() {
 //    log
@@ -67,39 +141,3 @@ class GitRepo {
 //      }
 //    }
 //  }
-
-	void createTag(String tagName) {
-		if (!tagName)
-			throw new BadImplementationException("tag name is undefined")
-
-		module.cd(config.getOutputFolder()) {
-			module.sh("git tag -f ${tagName}")
-		}
-	}
-
-	void pushTags() {
-		module.cd(config.getOutputFolder()) {
-			module.sh("git push --tags")
-		}
-	}
-
-	void push() {
-		module.cd(config.getOutputFolder()) {
-			module.sh("git push")
-		}
-	}
-
-	void commit(String message) {
-		module.cd(config.getOutputFolder()) {
-			module.sh("git commit -am \"${message}\"")
-		}
-	}
-
-	String getOutputFolder() {
-		return config.outputFolder
-	}
-
-	String getBranch() {
-		return config.branch
-	}
-}

@@ -24,7 +24,6 @@ tsLibs=(
   jira
   file-upload
   google-services
-  analytics
 )
 
 projectLibs=(

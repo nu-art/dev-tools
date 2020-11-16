@@ -25,7 +25,6 @@ resolveThunderstormLibs() {
     jira
     file-upload
     google-services
-    analytics
   )
 
   thunderstormLibraries=()

@@ -18,26 +18,13 @@
 #  limitations under the License.
 
 #!/bin/bash
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source "${DIR}/../_tests.sh"
 
-declare -A timerMap
-
-startTimer() {
-  local key=${1}
-  timerMap[$key]=$SECONDS
+actionToRun() {
+  echo "Got param: ${1} - START"
+  sleep 5
+  echo "Got param: ${1} - END"
 }
 
-calcDuration() {
-  local key=${1}
-  local startedTimestamp=${timerMap[$key]}
-  if [[ ! "${startedTimestamp}" ]]; then startedTimestamp=0; fi
-
-  local duration=$(($SECONDS - ${startedTimestamp}))
-  local seconds=$(($duration % 60))
-  if [[ "$seconds" -lt 10 ]]; then seconds="0$seconds"; fi
-
-  local min=$(($duration / 60))
-  if [[ "$min" -eq 0 ]]; then min=00; elif [[ "$min" -lt 10 ]]; then min="0$min"; else min="$min"; fi
-  echo ${min}:${seconds}
-}
-
-startTimer "rootTimer"
+spinner "actionToRun ZEVEL" "PAH"

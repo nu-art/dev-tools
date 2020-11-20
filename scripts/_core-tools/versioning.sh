@@ -141,4 +141,3 @@ setJsonValueForKey() {
     sed -i "s/\"${key}\": \".*\"/\"${key}\": \"${value/"/\\"/}\"/g" "${jsonFile}"
   fi
 }
-

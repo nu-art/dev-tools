@@ -23,19 +23,28 @@ source "${DIR}/../_tests.sh"
 
 actionToRun() {
   echo "Got param: ${1} - START"
-  sleep 5
+  sleep 1
+  echo "Got param: 1"
+  sleep 1
+  echo "Got param: 2"
+  sleep 1
+  echo "Got param: 3"
+  sleep 1
+  echo "Got param: 4"
+  sleep 1
+  echo "Got param: 5"
   echo "Got param: ${1} - END"
 }
 
-spinner "actionToRun test" "Default"
-spinner "actionToRun test" "Dot" Spinner_Dot
-spinner "actionToRun test" "Vertical" Spinner_Vertical
-spinner "actionToRun test" "Horizontal" Spinner_Horizontal
-spinner "actionToRun test" "Arrows" Spinner_Arrows
-spinner "actionToRun test" "WHAT" Spinner_WHAT
-spinner "actionToRun test" "WHAT2" Spinner_WHAT2
-spinner "actionToRun test" "Triangle" Spinner_Triangle
-spinner "actionToRun test" "Square" Spinner_Square
-spinner "actionToRun test" "Quarters" Spinner_Quarters
-spinner "actionToRun test" "Halves" Spinner_Halves
-spinner "actionToRun test" "Braille" Spinner_Braille
+spinner "actionToRun Default" "test"
+spinner "actionToRun Dot" "test" Spinner_Dot
+spinner "actionToRun Vertical" "test" Spinner_Vertical
+spinner "actionToRun Horizontal" "test" Spinner_Horizontal
+spinner "actionToRun Arrows" "test" Spinner_Arrows
+spinner "actionToRun WHAT" "test" Spinner_WHAT
+spinner "actionToRun WHAT2" "test" Spinner_WHAT2
+spinner "actionToRun Triangle" "test" Spinner_Triangle
+spinner "actionToRun Square" "test" Spinner_Square
+spinner "actionToRun Quarters" "test" Spinner_Quarters
+spinner "actionToRun Halves" "test" Spinner_Halves
+spinner "actionToRun Braille" "test" Spinner_Braille

@@ -128,6 +128,9 @@ class GitRepo {
 	}
 
 	String[] getChangeLog(String current = getCurrentCommit(), String pastCommit = getLastSuccessfulCommit()) {
+		if(!pastCommit)
+			return
+
 		executeCommand("git diff ${current}...${pastCommit}")
 		executeCommand("git diff ${current}..${pastCommit}")
 		executeCommand("git diff ${current}^..${pastCommit}")

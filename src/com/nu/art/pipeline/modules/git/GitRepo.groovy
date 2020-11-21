@@ -131,7 +131,8 @@ class GitRepo {
 		if(!pastCommit)
 			return
 
-		executeCommand("git log --pretty=format:'%Cred%ad %Cblue%an %Creset%s' --date=format:'%Y-%m-%d %H:%M:%S' ${current}...${pastCommit}")
+		String pos= executeCommand("git log --pretty=format:'%Cred%ad %Cblue%an %Creset%s' --date=format:'%Y-%m-%d %H:%M:%S' ${current}...${pastCommit}",true)
+		module.logDebug(pos)
 	}
 }
 

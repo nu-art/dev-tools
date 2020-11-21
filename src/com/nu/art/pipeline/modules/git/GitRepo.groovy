@@ -131,9 +131,7 @@ class GitRepo {
 		if(!pastCommit)
 			return
 
-		executeCommand("git diff ${current}...${pastCommit}")
-		executeCommand("git diff ${current}..${pastCommit}")
-		executeCommand("git diff ${current}^..${pastCommit}")
+		executeCommand("git log --pretty=oneline ${current}...${pastCommit}")
 	}
 }
 

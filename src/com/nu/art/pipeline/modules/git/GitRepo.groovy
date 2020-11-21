@@ -1,5 +1,7 @@
 package com.nu.art.pipeline.modules.git
 
+import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
+
 class GitRepo {
 
 	GitRepoConfig config
@@ -22,7 +24,7 @@ class GitRepo {
 	}
 
 	void cloneSCM() {
-		if(!config.trackSCM)
+		if (!config.trackSCM)
 			return
 
 		String url = config.url.replace(".git", "")
@@ -114,6 +116,21 @@ class GitRepo {
 
 	String getBranch() {
 		return config.branch
+	}
+
+	String getCurrentCommit() {
+		return executeCommand("git show HEAD~2 --pretty=format:\"%H\" --no-patch", true)
+	}
+
+	String getLastSuccessfulCommit() {
+		RunWrapper lastSuccessfulBuild = module.workflow.getCurrentBuild().getPreviousSuccessfulBuild()
+		return module.getCommit(this, lastSuccessfulBuild)
+	}
+
+	String[] getChangeLog(String current = getCurrentCommit(), String pastCommit = getLastSuccessfulCommit()) {
+		executeCommand("git diff ${current}...${pastCommit}")
+		executeCommand("git diff ${current}..${pastCommit}")
+		executeCommand("git diff ${current}^..${pastCommit}")
 	}
 }
 

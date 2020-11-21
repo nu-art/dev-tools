@@ -24,7 +24,7 @@ class GitModule
 	}
 
 	void setCommit(GitRepo repo) {
-		String commitId = repo.executeCommand("git show HEAD~2 --pretty=format:\"%H\" --no-patch", true)
+		String commitId = repo.getCurrentCommit(repo)
 		commitStatus.put(repo.getUrl(), new GitCheckoutStatus(commitId))
 		String pathToFile = getModule(BuildModule.class).pathToFile(checkoutStatusFileName)
 		workflow.writeToFile(pathToFile, JsonOutput.toJson(commitStatus))

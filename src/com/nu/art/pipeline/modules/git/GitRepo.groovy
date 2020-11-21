@@ -131,7 +131,7 @@ class GitRepo {
 		if(!pastCommit)
 			return
 
-		executeCommand("git log --pretty=oneline ${current}...${pastCommit}")
+		executeCommand("git log --pretty=format:'%Cred%ad %Cblue%an %Creset%s' --date=format:'%Y-%m-%d %H:%M:%S' ${current}...${pastCommit}")
 	}
 }
 

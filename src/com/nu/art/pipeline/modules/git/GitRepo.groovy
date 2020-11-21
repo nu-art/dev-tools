@@ -119,7 +119,7 @@ class GitRepo {
 	}
 
 	String getCurrentCommit() {
-		return executeCommand("git show HEAD~2 --pretty=format:\"%H\" --no-patch", true)
+		return executeCommand("git show HEAD --pretty=format:\"%H\" --no-patch", true)
 	}
 
 	String getLastSuccessfulCommit() {

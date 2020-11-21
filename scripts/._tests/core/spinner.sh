@@ -27,4 +27,15 @@ actionToRun() {
   echo "Got param: ${1} - END"
 }
 
-spinner "actionToRun ZEVEL" "PAH"
+spinner "actionToRun test" "Default"
+spinner "actionToRun test" "Dot" Spinner_Dot
+spinner "actionToRun test" "Vertical" Spinner_Vertical
+spinner "actionToRun test" "Horizontal" Spinner_Horizontal
+spinner "actionToRun test" "Arrows" Spinner_Arrows
+spinner "actionToRun test" "WHAT" Spinner_WHAT
+spinner "actionToRun test" "WHAT2" Spinner_WHAT2
+spinner "actionToRun test" "Triangle" Spinner_Triangle
+spinner "actionToRun test" "Square" Spinner_Square
+spinner "actionToRun test" "Quarters" Spinner_Quarters
+spinner "actionToRun test" "Halves" Spinner_Halves
+spinner "actionToRun test" "Braille" Spinner_Braille

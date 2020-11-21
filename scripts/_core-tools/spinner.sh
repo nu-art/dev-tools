@@ -20,6 +20,24 @@
 #!/bin/bash
 DEFAULT_SpinnerFrames=("—" "\\" "|" "/")
 
+# Credit for the lovely spinner sequences
+# https://unix.stackexchange.com/a/565551/248440
+Spinner_Dot=("⠁" "⠂" "⠄" "⡀" "⢀" "⠠" "⠐" "⠈")
+Spinner_Vertical=("▁" "▂" "▃" "▄" "▅" "▆" "▇" "█" "▇" "▆" "▅" "▄" "▃" "▂" "▁")
+Spinner_Horizontal=("▉" "▊" "▋" "▌" "▍" "▎" "▏" "▎" "▍" "▌" "▋" "▊" "▉")
+Spinner_Arrows=("←" "↖" "↑" "↗" "→" "↘" "↓" "↙")
+Spinner_WHAT=("▖" "▘" "▝" "▗")
+Spinner_WHAT2=("┤" "┘" "┴" "└" "├" "┌" "┬" "┐")
+Spinner_Triangle=("◢" "◣" "◤" "◥")
+Spinner_Square=("◰" "◳" "◲" "◱")
+Spinner_Quarters=("◴" "◷" "◶" "◵")
+Spinner_Halves=("◐" "◓" "◑" "◒")
+Spinner_Braille=("⣾" "⣽" "⣻" "⢿" "⡿" "⣟" "⣯" "⣷")
+
+#  11)
+#    local spin='⣾⣽⣻⢿⡿⣟⣯⣷'
+#    local charwidth=3
+
 ## @function: spinner(action, label, &spinnerFramesRef[])
 ##
 ## @description: Perform an action asynchronously and display

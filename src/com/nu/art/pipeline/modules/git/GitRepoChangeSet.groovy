@@ -20,4 +20,14 @@ class GitRepoChangeSet {
 		this.fromCommit = fromCommit
 		this.toCommit = toCommit
 	}
+
+	String toSlackMessage() {
+		GitRepoConfig config = repo.config
+		String repoUrl = "https://github.com/${config.group}/${config.repoName}"
+		String repo = "<${repoUrl}|${config.repoName}>"
+		String diff = "<${repoUrl}/compare/${toCommit}...${fromCommit}|diff> "
+		String changeLog = "${repo} | ${diff}\n"
+		log.collect({ "<${repoUrl}/commit/${it.hash}/|Changes> by <https://github.com/${it.author}|${it.author}>: ${it.comment}" }).each { changeLog += " * ${it}\n" }
+		return changeLog
+	}
 }

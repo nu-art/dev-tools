@@ -12,6 +12,7 @@ class GitRepoChangeSet {
 			return
 
 		this.log = changeLog.split("\n").collect { commit -> new GitChangeLog(commit) }
+		this.log.reverse()
 	}
 
 	GitRepoChangeSet(GitRepo repo, String fromCommit, String toCommit) {

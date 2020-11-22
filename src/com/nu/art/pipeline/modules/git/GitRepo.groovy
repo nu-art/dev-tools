@@ -129,10 +129,10 @@ class GitRepo {
 
 	GitRepoChangeSet getChangeLog(String current = getCurrentCommit(), String pastCommit = getLastSuccessfulCommit()) {
 		if (!pastCommit)
-			return new GitRepoChangeSet(this)
+			return new GitRepoChangeSet(this, current, pastCommit)
 
 		String gitLog = executeCommand("git log --pretty=format:'%C(yellow)%h %Cred%ad %Cblue%an %Creset%s' --date=format:'%Y-%m-%d %H:%M:%S %z' ${current}...${pastCommit}", true)
-		return new GitRepoChangeSet(this, gitLog)
+		return new GitRepoChangeSet(this, current, pastCommit, gitLog)
 	}
 }
 

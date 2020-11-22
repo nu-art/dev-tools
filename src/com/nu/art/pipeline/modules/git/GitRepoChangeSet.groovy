@@ -6,6 +6,9 @@ class GitRepoChangeSet {
 
 	GitRepoChangeSet(GitRepo repo, String changeLog) {
 		this(repo)
+		if (changeLog.length() < 10)
+			return
+
 		this.log = changeLog.split("\n").collect { commit -> new GitChangeLog(commit) }
 	}
 

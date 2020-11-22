@@ -13,6 +13,8 @@ class GitChangeLog {
 	GitChangeLog(String commit) {
 		Workflow.workflow.logDebug(commit)
 		def result = (commit =~ /^([0-9a-f]{7}) ([0-9: \+-]{25}) (.*?) (.*)$/)
+		Workflow.workflow.logDebug("result: ${result}")
+		Workflow.workflow.logDebug("result[0]: ${result[0]}")
 		hash = result[0][1]
 		date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss zzz").parse(result[0][2])
 		author = result[0][3]

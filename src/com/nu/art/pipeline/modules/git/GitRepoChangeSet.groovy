@@ -35,7 +35,7 @@ class GitRepoChangeSet {
 		String repo = "<${repoUrl}|${config.repoName}>"
 		String diff = "<${repoUrl}/compare/${toCommit}...${fromCommit}|diff> "
 		String changeLog = "${repo} | ${diff}\n"
-		log.collect({ "<${repoUrl}/commit/${it.hash}/|Changes> by **${it.author}**: ${it.comment}" }).each { changeLog += " * ${it}\n" }
+		log.collect({ "<${repoUrl}/commit/${it.hash}/|Changes> by *${it.author}*: ${it.comment}" }).each { changeLog += " - ${it}\n" }
 		return changeLog
 	}
 }

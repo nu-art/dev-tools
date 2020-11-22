@@ -5,7 +5,7 @@ import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 class GitRepo {
 
 	GitRepoConfig config
-	private GitModule module
+	 GitModule module
 
 	GitRepo(GitModule module, GitRepoConfig config) {
 		this.module = module

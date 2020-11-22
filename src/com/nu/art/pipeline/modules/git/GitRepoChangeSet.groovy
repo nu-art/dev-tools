@@ -6,20 +6,19 @@ class GitRepoChangeSet {
 	String fromCommit
 	String toCommit
 
-	GitRepoChangeSet(GitRepo repo, String fromCommit, String toCommit, String changeLog) {
-		this(repo, fromCommit, toCommit)
+	GitRepoChangeSet(GitRepo repo, String fromCommit, String toCommit) {
+		this.repo = repo
+		this.fromCommit = fromCommit
+		this.toCommit = toCommit
+		String changeLog = repo.executeCommand("git log --pretty=format:'%C(yellow)%h %Cred%ad \"%Cblue%an\" %Creset%s' --date=format:'%Y-%m-%d %H:%M:%S %z' ${current}...${pastCommit}", true)
 		if (changeLog.length() < 10)
 			return
+
 
 		this.log = changeLog.split("\n").collect { commit -> new GitChangeLog(commit) }
 		this.log.reverse()
 	}
 
-	GitRepoChangeSet(GitRepo repo, String fromCommit, String toCommit) {
-		this.repo = repo
-		this.fromCommit = fromCommit
-		this.toCommit = toCommit
-	}
 
 	String toSlackMessage() {
 		GitRepoConfig config = repo.config
@@ -27,7 +26,7 @@ class GitRepoChangeSet {
 		String repo = "<${repoUrl}|${config.repoName}>"
 		String diff = "<${repoUrl}/compare/${toCommit}...${fromCommit}|diff> "
 		String changeLog = "${repo} | ${diff}\n"
-		log.collect({ "<${repoUrl}/commit/${it.hash}/|Changes> by <https://github.com/${it.author}|${it.author}>: ${it.comment}" }).each { changeLog += " * ${it}\n" }
+		log.collect({ "<${repoUrl}/commit/${it.hash}/|Changes> by **${it.author}**: ${it.comment}" }).each { changeLog += " * ${it}\n" }
 		return changeLog
 	}
 }

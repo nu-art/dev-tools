@@ -128,7 +128,7 @@ class GitRepo {
 	}
 
 	GitRepoChangeSet getChangeLog(String fromCommit = getCurrentCommit(), String toCommit = getLastSuccessfulCommit()) {
-		return new GitRepoChangeSet(this, fromCommit, toCommit)
+		return new GitRepoChangeSet(this, fromCommit, toCommit).init()
 	}
 }
 

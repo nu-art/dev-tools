@@ -10,6 +10,10 @@ class GitRepoChangeSet {
 		this.repo = repo
 		this.fromCommit = fromCommit
 		this.toCommit = toCommit
+
+	}
+
+	void init() {
 		if (!toCommit)
 			return
 
@@ -17,11 +21,9 @@ class GitRepoChangeSet {
 		if (changeLog.length() < 10)
 			return
 
-
 		this.log = changeLog.split("\n").collect { commit -> new GitChangeLog(commit) }
 		this.log.reverse()
 	}
-
 
 	String toSlackMessage() {
 		GitRepoConfig config = repo.config

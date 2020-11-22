@@ -1,5 +1,7 @@
 package com.nu.art.pipeline.modules.git
 
+import com.nu.art.pipeline.workflow.Workflow
+
 import java.text.SimpleDateFormat
 
 class GitChangeLog {
@@ -8,7 +10,8 @@ class GitChangeLog {
 	final String author
 	final String comment
 
-	GitChangeLog(commit) {
+	GitChangeLog(String commit) {
+		Workflow.workflow.logDebug(commit)
 		def result = (commit =~ /^([0-9a-f]{7}) ([0-9: \+-]{25}) (.*?) (.*)$/)
 		hash = result[0][1]
 		date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss zzz").parse(result[0][2])

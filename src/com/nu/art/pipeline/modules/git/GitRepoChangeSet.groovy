@@ -13,7 +13,7 @@ class GitRepoChangeSet {
 		if (!toCommit)
 			return
 
-		String changeLog = repo.executeCommand("git log --pretty=format:'%C(yellow)%h %Cred%ad \"%Cblue%an\" %Creset%s' --date=format:'%Y-%m-%d %H:%M:%S %z' ${current}...${pastCommit}", true)
+		String changeLog = repo.executeCommand("git log --pretty=format:'%C(yellow)%h %Cred%ad \"%Cblue%an\" %Creset%s' --date=format:'%Y-%m-%d %H:%M:%S %z' ${fromCommit}...${toCommit}", true)
 		if (changeLog.length() < 10)
 			return
 

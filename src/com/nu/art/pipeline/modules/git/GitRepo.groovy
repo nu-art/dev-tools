@@ -127,8 +127,8 @@ class GitRepo {
 		return module.getCommit(this, lastSuccessfulBuild).commitId
 	}
 
-	GitRepoChangeSet getChangeLog(String current = getCurrentCommit(), String pastCommit = getLastSuccessfulCommit()) {
-		return new GitRepoChangeSet(this, current, pastCommit)
+	GitRepoChangeSet getChangeLog(String fromCommit = getCurrentCommit(), String toCommit = getLastSuccessfulCommit()) {
+		return new GitRepoChangeSet(this, fromCommit, toCommit)
 	}
 }
 

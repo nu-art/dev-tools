@@ -3,6 +3,7 @@ package com.nu.art.pipeline.modules.git
 class GitRepoConfig {
 	final String url
 	final String repoName
+	final String group
 
 	String outputFolder
 
@@ -18,6 +19,7 @@ class GitRepoConfig {
 		this.module = module
 		this.url = url
 		this.repoName = url.replace(".git", "").substring(url.lastIndexOf("/") + 1)
+		this.group = url.substring(url.indexOf(":") + 1,url.lastIndexOf("/"))
 		this.outputFolder = this.repoName
 	}
 

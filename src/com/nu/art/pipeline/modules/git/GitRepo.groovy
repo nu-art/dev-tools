@@ -127,14 +127,12 @@ class GitRepo {
 		return module.getCommit(this, lastSuccessfulBuild).commitId
 	}
 
-	String[] getChangeLog(String current = getCurrentCommit(), String pastCommit = getLastSuccessfulCommit()) {
+	GitRepoChangeSet getChangeLog(String current = getCurrentCommit(), String pastCommit = getLastSuccessfulCommit()) {
 		if (!pastCommit)
-			return
+			return new GitRepoChangeSet(this)
 
-		String pos = executeCommand("git log --pretty=format:'%Cred%ad %Cblue%an %Creset%s' --date=format:'%Y-%m-%d %H:%M:%S' ${current}...${pastCommit}", true)
-		String[] commits = pos.split("\n")
-		commits.each { commit -> module.logDebug(commit) }
-
+		String gitLog = executeCommand("git log --pretty=format:'%C(yellow)%h %Cred%ad %Cblue%an %Creset%s' --date=format:'%Y-%m-%d %H:%M:%S' ${current}...${pastCommit}", true)
+		return new GitRepoChangeSet(this, gitLog)
 	}
 }
 

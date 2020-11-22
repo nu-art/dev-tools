@@ -128,10 +128,7 @@ class GitRepo {
 	}
 
 	GitRepoChangeSet getChangeLog(String current = getCurrentCommit(), String pastCommit = getLastSuccessfulCommit()) {
-		if (!pastCommit)
-			return new GitRepoChangeSet(this, current, pastCommit)
-
-		return new GitRepoChangeSet(this, current, pastCommit, gitLog)
+		return new GitRepoChangeSet(this, current, pastCommit)
 	}
 }
 

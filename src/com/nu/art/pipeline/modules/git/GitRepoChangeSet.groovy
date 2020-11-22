@@ -10,6 +10,9 @@ class GitRepoChangeSet {
 		this.repo = repo
 		this.fromCommit = fromCommit
 		this.toCommit = toCommit
+		if (!toCommit)
+			return
+
 		String changeLog = repo.executeCommand("git log --pretty=format:'%C(yellow)%h %Cred%ad \"%Cblue%an\" %Creset%s' --date=format:'%Y-%m-%d %H:%M:%S %z' ${current}...${pastCommit}", true)
 		if (changeLog.length() < 10)
 			return

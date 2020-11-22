@@ -13,19 +13,20 @@ class GitRepoChangeSet {
 
 	}
 
-	void init() {
+	GitRepoChangeSet init() {
 		if (!toCommit)
-			return
+			return this
 
 		String changeLog = repo.executeCommand("git log --pretty=format:'%C(yellow)%h %Cred%ad %Cblue\"%an\" %Creset%s' --date=format:'%Y-%m-%d %H:%M:%S %z' ${fromCommit}...${toCommit}", true)
 		if (changeLog.length() < 10)
-			return
+			return this
 
 		this.log = changeLog.split("\n").collect { commit ->
 			repo.module.logDebug("commit: ${commit}")
 			new GitChangeLog(commit)
 		}
 		this.log.reverse()
+		return this
 	}
 
 	String toSlackMessage() {

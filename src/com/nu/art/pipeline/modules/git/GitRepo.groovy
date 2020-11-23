@@ -124,7 +124,7 @@ class GitRepo {
 
 	String getLastSuccessfulCommit() {
 		RunWrapper lastSuccessfulBuild = module.workflow.getCurrentBuild().getPreviousSuccessfulBuild()
-		return module.getCommit(this, lastSuccessfulBuild).commitId
+		return module.getCommit(this, lastSuccessfulBuild)?.commitId
 	}
 
 	GitRepoChangeSet getChangeLog(String fromCommit = getCurrentCommit(), String toCommit = getLastSuccessfulCommit()) {

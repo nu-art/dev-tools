@@ -1,6 +1,5 @@
 package com.nu.art.pipeline.modules.git
 
-import com.nu.art.pipeline.workflow.Workflow
 
 import java.text.SimpleDateFormat
 

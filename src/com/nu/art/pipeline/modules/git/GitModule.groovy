@@ -32,11 +32,16 @@ class GitModule
 	}
 
 	GitCheckoutStatus getCommit(GitRepo repo, RunWrapper build) {
-		getModule(BuildModule.class)
-			.copyArtifacts(VarConsts.Var_JobName.get(), build.getNumber())
-			.filter(checkoutStatusFileName)
-			.output(".input")
-			.copy()
+		try {
+			getModule(BuildModule.class)
+				.copyArtifacts(VarConsts.Var_JobName.get(), build.getNumber())
+				.filter(checkoutStatusFileName)
+				.output(".input")
+				.copy()
+		} catch (e) {
+			logError("Failed to resolve checkout status file from previous successful build",e)
+			return null
+		}
 
 		String pathToFile = ".input/${checkoutStatusFileName}"
 		if (!workflow.fileExists(pathToFile))

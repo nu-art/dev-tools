@@ -56,8 +56,9 @@ class GitModule
 			return null
 
 		String fileContent = workflow.readFile(pathToFile)
-		def checkoutStatus = Utils.parse(fileContent, GitStatus_Job.class) as GitStatus_Job
-		return checkoutStatus[repo.getUrl()] ?[repo.config.branch]
+		GitStatus_Job checkoutStatus = Utils.parse(fileContent, GitStatus_Job.class) as GitStatus_Job
+		GitStatus_Repo repoStatus = checkoutStatus[repo.getUrl()]
+		return repoStatus[repo.config.branch]
 	}
 }
 

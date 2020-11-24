@@ -20,7 +20,7 @@ class GitRepo {
 		module.logDebug("clonning repo(GIT): ${config.url}")
 		module.logDebug("${command.script}")
 		module.sh(command.script)
-		module.setCommit(this)
+		module.gitStatusSave(this)
 	}
 
 	void cloneSCM() {
@@ -124,7 +124,7 @@ class GitRepo {
 
 	String getLastSuccessfulCommit() {
 		RunWrapper lastSuccessfulBuild = module.workflow.getCurrentBuild().getPreviousSuccessfulBuild()
-		return module.getCommit(this, lastSuccessfulBuild)?.commitId
+		return module.gitStatus(this, lastSuccessfulBuild)?.commitId
 	}
 
 	GitRepoChangeSet getChangeLog(String fromCommit = getCurrentCommit(), String toCommit = getLastSuccessfulCommit()) {

@@ -1,5 +1,7 @@
 package com.nu.art.pipeline.modules.git
 
+import com.nu.art.pipeline.modules.git.models.GitChangeLog
+
 class GitRepoChangeSet {
 	GitChangeLog[] log
 	GitRepo repo

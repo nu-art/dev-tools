@@ -1,4 +1,4 @@
-package com.nu.art.pipeline.modules.git
+package com.nu.art.pipeline.modules.git.models
 
 
 import java.text.SimpleDateFormat

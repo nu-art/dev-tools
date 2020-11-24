@@ -1,6 +1,9 @@
 package com.nu.art.pipeline.modules.git
 
 import com.nu.art.pipeline.modules.build.BuildModule
+import com.nu.art.pipeline.modules.git.models.GitStatus
+import com.nu.art.pipeline.modules.git.models.GitStatus_Job
+import com.nu.art.pipeline.modules.git.models.GitStatus_Repo
 import com.nu.art.pipeline.workflow.WorkflowModule
 import com.nu.art.pipeline.workflow.utils.Utils
 import com.nu.art.pipeline.workflow.variables.VarConsts
@@ -11,7 +14,7 @@ import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 class GitModule
 	extends WorkflowModule {
 
-	private HashMap<String, GitCheckoutStatus> commitStatus = [:]
+	private GitStatus_Job commitStatus = [:]
 	private String checkoutStatusFileName = "checkout-status.json"
 
 	@PackageScope
@@ -23,15 +26,20 @@ class GitModule
 		return new GitRepoConfig(this, url)
 	}
 
-	void setCommit(GitRepo repo) {
+	void gitStatusSave(GitRepo repo) {
 		String commitId = repo.getCurrentCommit()
-		commitStatus.put(repo.getUrl(), new GitCheckoutStatus(commitId))
+		GitStatus_Repo repoStatus = commitStatus.get(repo.getUrl())
+		if (!repoStatus)
+			commitStatus.put(repo.getUrl(), new GitStatus_Repo(repo.getUrl()))
+
+		repoStatus.put(repo.config.branch, new GitStatus(repo.config.branch, commitId))
+		commitStatus.put(repo.getUrl(), repoStatus)
 		String pathToFile = getModule(BuildModule.class).pathToFile(checkoutStatusFileName)
 		workflow.writeToFile(pathToFile, JsonOutput.toJson(commitStatus))
 		workflow.archiveArtifacts checkoutStatusFileName
 	}
 
-	GitCheckoutStatus getCommit(GitRepo repo, RunWrapper build) {
+	GitStatus gitStatus(GitRepo repo, RunWrapper build) {
 		try {
 			getModule(BuildModule.class)
 				.copyArtifacts(VarConsts.Var_JobName.get(), build.getNumber())
@@ -39,7 +47,7 @@ class GitModule
 				.output(".input")
 				.copy()
 		} catch (e) {
-			logError("Failed to resolve checkout status file from previous successful build",e)
+			logError("Failed to resolve checkout status file from previous successful build", e)
 			return null
 		}
 
@@ -48,8 +56,8 @@ class GitModule
 			return null
 
 		String fileContent = workflow.readFile(pathToFile)
-		def checkoutStatus = Utils.parse(fileContent, HashMap.class) as HashMap<String, GitCheckoutStatus>
-		return checkoutStatus[repo.getUrl()]
+		def checkoutStatus = Utils.parse(fileContent, GitStatus_Job.class) as GitStatus_Job
+		return checkoutStatus[repo.getUrl()] ?[repo.config.branch]
 	}
 }
 

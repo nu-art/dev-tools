@@ -27,6 +27,10 @@ class SlackModule
 		this.enabled = false
 	}
 
+	void enableNotifications() {
+		this.enabled = true
+	}
+
 	void setOnSuccess(String onSuccess) {
 		this.onSuccess = onSuccess
 	}

@@ -30,7 +30,7 @@ class GitModule
 		String commitId = repo.getCurrentCommit()
 		GitStatus_Repo repoStatus = commitStatus.get(repo.getUrl())
 		if (!repoStatus)
-			commitStatus.put(repo.getUrl(), new GitStatus_Repo(repo.getUrl()))
+			commitStatus.put(repo.getUrl(), repoStatus = new GitStatus_Repo(repo.getUrl()))
 
 		repoStatus.put(repo.config.branch, new GitStatus(repo.config.branch, commitId))
 		commitStatus.put(repo.getUrl(), repoStatus)

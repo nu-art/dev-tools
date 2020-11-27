@@ -1,14 +1,15 @@
 package com.nu.art.pipeline.modules.git
 
+import com.nu.art.pipeline.modules.build.BuildModule
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 class GitRepo {
 
 	GitRepoConfig config
-	 GitModule module
+	GitModule gitModule
 
-	GitRepo(GitModule module, GitRepoConfig config) {
-		this.module = module
+	GitRepo(GitModule gitModule, GitRepoConfig config) {
+		this.gitModule = gitModule
 		this.config = config
 	}
 
@@ -17,10 +18,10 @@ class GitRepo {
 		if (config.trackSubmodules)
 			command.gsui()
 
-		module.logDebug("clonning repo(GIT): ${config.url}")
-		module.logDebug("${command.script}")
-		module.sh(command.script)
-		module.gitStatusSave(this)
+		gitModule.logDebug("clonning repo(GIT): ${config.url}")
+		gitModule.logDebug("${command.script}")
+		gitModule.sh(command.script)
+		gitModule.gitStatusSave(this)
 	}
 
 	void cloneSCM() {
@@ -30,9 +31,9 @@ class GitRepo {
 		String url = config.url.replace(".git", "")
 		String outputFolder = config.url.replace(".git", "").substring(url.lastIndexOf("/") + 1)
 
-		module.logDebug("clonning repo(SCM): ${config.url}")
+		gitModule.logDebug("clonning repo(SCM): ${config.url}")
 
-		module.workflow.script.checkout changelog: config.changelog,
+		gitModule.workflow.script.checkout changelog: config.changelog,
 			scm: [
 				$class           : 'GitSCM',
 				branches         : [[name: config.branch]],
@@ -100,9 +101,9 @@ class GitRepo {
 	}
 
 	String executeCommand(String command, output = false) {
-		module.logVerbose("command: ${command}")
-		return module.cd(config.getOutputFolder()) {
-			return module.sh(command, output)
+		gitModule.logVerbose("command: ${command}")
+		return gitModule.cd(config.getOutputFolder()) {
+			return gitModule.sh(command, output)
 		}
 	}
 
@@ -122,12 +123,11 @@ class GitRepo {
 		return executeCommand("git show HEAD --pretty=format:\"%H\" --no-patch", true)
 	}
 
-	String getLastSuccessfulCommit() {
-		RunWrapper lastSuccessfulBuild = module.workflow.getCurrentBuild().getPreviousSuccessfulBuild()
-		return module.gitStatus(this, lastSuccessfulBuild)?.commitId
-	}
 
-	GitRepoChangeSet getChangeLog(String fromCommit = getCurrentCommit(), String toCommit = getLastSuccessfulCommit()) {
+	GitRepoChangeSet getChangeLog(String fromCommit = getCurrentCommit(), String toCommit = null) {
+		if (!toCommit) {
+			toCommit = gitModule.gitStatus(this)?.commitId
+		}
 		return new GitRepoChangeSet(this, fromCommit, toCommit).init()
 	}
 }

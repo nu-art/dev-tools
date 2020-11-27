@@ -14,7 +14,7 @@ import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 class GitModule
 	extends WorkflowModule {
 
-	private GitStatus_Job commitStatus = [:]
+	private GitStatus_Job jobGitStatus
 	private String checkoutStatusFileName = "checkout-status.json"
 
 	@PackageScope
@@ -27,44 +27,68 @@ class GitModule
 	}
 
 	void gitStatusSave(GitRepo repo) {
+		if (!jobGitStatus)
+			jobGitStatus = resolveStatus()
+
+		if (!jobGitStatus)
+			jobGitStatus = new GitStatus_Job()
+
 		String commitId = repo.getCurrentCommit()
-		GitStatus_Repo repoStatus = commitStatus.get(repo.getUrl())
+		GitStatus_Repo repoStatus = jobGitStatus.get(repo.getUrl())
 		if (!repoStatus)
-			commitStatus.put(repo.getUrl(), repoStatus = new GitStatus_Repo(repo.getUrl()))
+			jobGitStatus.put(repo.getUrl(), repoStatus = new GitStatus_Repo(repo.getUrl()))
 
 		repoStatus.put(repo.config.branch, new GitStatus(repo.config.branch, commitId))
-		commitStatus.put(repo.getUrl(), repoStatus)
+		jobGitStatus.put(repo.getUrl(), repoStatus)
 		String pathToFile = getModule(BuildModule.class).pathToFile(checkoutStatusFileName)
-		workflow.writeToFile(pathToFile, JsonOutput.toJson(commitStatus))
+		workflow.writeToFile(pathToFile, JsonOutput.toJson(jobGitStatus))
 		workflow.archiveArtifacts checkoutStatusFileName
 	}
 
-	GitStatus gitStatus(GitRepo repo, RunWrapper build) {
+	GitStatus gitStatus(GitRepo repo, RunWrapper build = null) {
+		GitStatus_Job jobGitStatus = resolveStatus(build)
+
+		if (!jobGitStatus)
+			return null
+
+		GitStatus_Repo repoStatus = jobGitStatus[repo.getUrl()]
+		if (!repoStatus)
+			return null
+
+		return repoStatus[repo.config.branch]
+	}
+
+	private GitStatus_Job resolveStatus(RunWrapper build = null) {
 		try {
+			if (build == null)
+				build = getModule(BuildModule.class).getLastSuccessfulBuild()
+
 			getModule(BuildModule.class)
 				.copyArtifacts(VarConsts.Var_JobName.get(), build.getNumber())
 				.filter(checkoutStatusFileName)
 				.output(".input")
 				.copy()
+
+			String pathToFile = ".input/${checkoutStatusFileName}"
+			if (!workflow.fileExists(pathToFile))
+				return null
+
+			String fileContent = workflow.readFile(pathToFile)
+			GitStatus_Job toRet = Utils.parse(fileContent, { jobInstance ->
+				GitStatus_Job badJobInstance = jobInstance as GitStatus_Job
+				GitStatus_Job goodJobInstance = [:]
+				badJobInstance.each { k1, repoInstance ->
+					GitStatus_Repo badRepoInstance = repoInstance as GitStatus_Repo
+					GitStatus_Repo goodRepoInstance = [:]
+					badRepoInstance.each { k2, v -> goodRepoInstance.put(k2, v as GitStatus) }
+					goodJobInstance.put(k1, goodRepoInstance)
+				}
+				return goodJobInstance
+			})
+			toRet
 		} catch (e) {
-			logError("Failed to resolve checkout status file from previous successful build", e)
-			return null
+			logError("Failed to resolve checkout status file from previous successful .build", e)
 		}
-
-		String pathToFile = ".input/${checkoutStatusFileName}"
-		if (!workflow.fileExists(pathToFile))
-			return null
-
-		String fileContent = workflow.readFile(pathToFile)
-		GitStatus_Job checkoutStatus = Utils.parse(fileContent, GitStatus_Job.class) as GitStatus_Job
-		if (!checkoutStatus)
-			return null
-
-		GitStatus_Repo repoStatus = checkoutStatus[repo.getUrl()]
-		if (!repoStatus)
-			return null
-
-		return repoStatus[repo.config.branch]
 	}
 }
 

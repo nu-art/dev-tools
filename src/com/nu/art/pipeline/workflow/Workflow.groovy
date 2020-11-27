@@ -199,8 +199,8 @@ class Workflow
 		script.writeFile file: pathToFile, text: content
 	}
 
-	void archiveArtifacts(String pattern) {
-		script.archiveArtifacts artifacts: pattern, onlyIfSuccessful: true
+	void archiveArtifacts(String pattern, boolean onlyIfSuccessful = true) {
+		script.archiveArtifacts artifacts: pattern, onlyIfSuccessful: onlyIfSuccessful
 	}
 }
 

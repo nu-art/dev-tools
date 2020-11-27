@@ -9,8 +9,8 @@ class Utils {
 		return new JsonSlurper().parseText(jsonAsString)
 	}
 
-	static <T> T parse(String jsonAsString, Class<T> type) {
-		return new JsonSlurper().parseText(jsonAsString) as T
+	static <T> T parse(String jsonAsString, Closure<T> converter = { it }) {
+		return converter(new JsonSlurper().parseText(jsonAsString))
 	}
 }
 

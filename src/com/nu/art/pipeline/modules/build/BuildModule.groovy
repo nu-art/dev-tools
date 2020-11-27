@@ -80,4 +80,9 @@ class BuildModule
 	FileWrapper[] findFiles(String filter) {
 		return workflow.script.findFiles(glob: filter)
 	}
+
+	RunWrapper getLastSuccessfulBuild() {
+		workflow.getCurrentBuild().getPreviousSuccessfulBuild()
+	}
+
 }

@@ -1,6 +1,7 @@
 package com.nu.art.pipeline.modules.git
 
 import com.nu.art.pipeline.modules.build.BuildModule
+import hudson.model.Build
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 class GitRepo {
@@ -125,10 +126,14 @@ class GitRepo {
 
 
 	GitRepoChangeSet getChangeLog(String fromCommit = getCurrentCommit(), String toCommit = null) {
-		if (!toCommit) {
+		if (!toCommit)
 			toCommit = gitModule.gitStatus(this)?.commitId
-		}
+
 		return new GitRepoChangeSet(this, fromCommit, toCommit).init()
+	}
+
+	String pathToFile(String relativePath) {
+		return gitModule.getModule(BuildModule.class).pathToFile("${config.outputFolder}/${relativePath}")
 	}
 }
 

@@ -16,4 +16,8 @@ class GitChangeLog {
 		author = result[0][3]
 		comment = result[0][4]
 	}
+
+	String[] findPattern(String pattern) {
+		return (comment =~ pattern)?.collect({ it })
+	}
 }

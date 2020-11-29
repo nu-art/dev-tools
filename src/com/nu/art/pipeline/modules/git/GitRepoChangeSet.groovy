@@ -38,4 +38,8 @@ class GitRepoChangeSet {
 		log.collect({ "<${repoUrl}/commit/${it.hash}/|Changes> by *${it.author}*: ${it.comment}" }).each { changeLog += " - ${it}\n" }
 		return changeLog
 	}
+
+	String[] findPattern(String pattern) {
+		return log.collect({ it.findPattern(pattern) }).flatten()
+	}
 }

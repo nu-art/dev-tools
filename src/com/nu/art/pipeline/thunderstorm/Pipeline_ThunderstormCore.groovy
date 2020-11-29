@@ -120,4 +120,12 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 			branch = " - ${repo.getBranch()}"
 		getModule(BuildModule.class).setDisplayName("#${VarConsts.Var_BuildNumber.get()}: ${getName()}${branch}${version}")
 	}
+
+	@Override
+	void cleanup() {
+		if (!docker)
+			return
+
+		docker.kill()
+	}
 }

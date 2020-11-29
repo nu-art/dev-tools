@@ -111,6 +111,7 @@ class Workflow
 	void run() {
 		Throwable t = null
 		addStage(Stage_Completed, {
+			pipeline.cleanup()
 			try {
 				this.dispatchEvent("Pipeline Completed Event", OnPipelineListener.class, { listener -> listener.onPipelineSuccess() } as WorkflowProcessor<OnPipelineListener>)
 			} catch (e) {

@@ -63,7 +63,7 @@ class GitModule
 			if (build == null)
 				build = getModule(BuildModule.class).getLastSuccessfulBuild()
 
-			if (build != null)
+			if (build == null)
 				return null
 
 			getModule(BuildModule.class)

@@ -19,6 +19,7 @@ class GitCli
 		_if("[[ -e ${config.outputFolder ? config.outputFolder + "/" : ""}.git ]]", {
 			create()
 				.cd(config.outputFolder)
+				.resetHard()
 				.fetch()
 				.checkout(config.branch)
 				.append("git branch --set-upstream-to=origin/${config.branch} ${config.branch}\n")
@@ -34,6 +35,11 @@ class GitCli
 
 	GitCli fetch() {
 		append("git fetch")
+		return this
+	}
+
+	GitCli resetHard(String tag = "") {
+		append("git reset --hard ${tag}")
 		return this
 	}
 

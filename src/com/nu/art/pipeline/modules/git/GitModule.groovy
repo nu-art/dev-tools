@@ -63,6 +63,9 @@ class GitModule
 			if (build == null)
 				build = getModule(BuildModule.class).getLastSuccessfulBuild()
 
+			if (build != null)
+				return null
+
 			getModule(BuildModule.class)
 				.copyArtifacts(VarConsts.Var_JobName.get(), build.getNumber())
 				.filter(checkoutStatusFileName)

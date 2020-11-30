@@ -98,7 +98,7 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 		if (docker)
 			return docker.sh(command, "${VarConsts.Var_Workspace.get()}/${repo.getOutputFolder()}")
 
-		return workflow.sh(command, readOutput)
+		return repo.sh(command, readOutput)
 	}
 
 	protected String getVersion(String path) {

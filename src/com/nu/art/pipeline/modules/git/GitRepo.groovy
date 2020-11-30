@@ -97,11 +97,24 @@ class GitRepo {
 		executeCommand(cli().commit(message))
 	}
 
+	@Deprecated
 	String executeCommand(Cli cli, output = false) {
 		executeCommand(cli.script, output)
 	}
 
+	@Deprecated
 	String executeCommand(String command, output = false) {
+		gitModule.logVerbose("command: ${command}")
+		return gitModule.cd(config.getOutputFolder()) {
+			return gitModule.sh(command, output)
+		}
+	}
+
+	String sh(Cli cli, output = false) {
+		sh(cli.script, output)
+	}
+
+	String sh(String command, output = false) {
 		gitModule.logVerbose("command: ${command}")
 		return gitModule.cd(config.getOutputFolder()) {
 			return gitModule.sh(command, output)

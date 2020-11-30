@@ -16,16 +16,18 @@ class Pipeline_ThunderstormWebProject<T extends Pipeline_ThunderstormWebProject>
 	String httpUrl
 	String gitRepoUri
 	def envProjects = [:]
+	String slackChannel
 
 	Pipeline_ThunderstormWebProject(String name, String slackChannel, Class<? extends WorkflowModule>... modules) {
 		super(name, modules)
+		this.slackChannel = slackChannel
 	}
 
 	@Override
 	protected void init() {
 		String branch = Env_Branch.get()
 		getModule(SlackModule.class).prepare()
-		getModule(SlackModule.class).setDefaultChannel("backend")
+		getModule(SlackModule.class).setDefaultChannel(this.slackChannel)
 
 		setRepo(getModule(GitModule.class)
 			.create(gitRepoUri)
@@ -40,11 +42,6 @@ class Pipeline_ThunderstormWebProject<T extends Pipeline_ThunderstormWebProject>
 		getModule(SlackModule.class).setOnSuccess(links)
 
 		setEnv(branch)
-		switch (branch) {
-			case "dev":
-				setEnv("dev-server", branch)
-				break
-		}
 	}
 
 	void setGitRepoId(String repoId) {

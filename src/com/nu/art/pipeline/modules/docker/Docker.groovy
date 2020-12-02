@@ -7,7 +7,7 @@ import com.nu.art.pipeline.workflow.variables.VarConsts
 class Docker
 	implements IShell<Docker>, Serializable {
 
-	final String id = UUID.randomUUID().toString()
+	String id
 	final DockerConfig config
 	final DockerModule module
 
@@ -16,7 +16,9 @@ class Docker
 		this.module = module
 	}
 
-	void init() {
+	Docker init() {
+		this.id = "${UUID.randomUUID().toString()}_${VarConsts.Var_JobName.get()}-${VarConsts.Var_BuildNumber.get()}"
+		return this
 	}
 
 	Docker launch() {
@@ -40,7 +42,7 @@ class Docker
 
 		GString dockerLink = "${config.key}:${config.version}"
 		module.logInfo("Launching docker: ${id}")
-		module.workflow.sh """docker run --rm -d --net=host --name ${id}${VarConsts.Var_JobName.get()}-${VarConsts.Var_BuildNumber.get()} ${envVars} ${virtualFilesVars} ${dockerLink} tail -f /dev/null"""
+		module.workflow.sh """docker run --rm -d --net=host --name ${id} ${envVars} ${virtualFilesVars} ${dockerLink} tail -f /dev/null"""
 		return this
 	}
 

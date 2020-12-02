@@ -52,6 +52,6 @@ class DockerConfig {
 		addVirtualFile("/home/jenkins/.ssh/id_rsa")
 		addVirtualFile("/home/jenkins/.ssh/known_hosts")
 
-		return new Docker(module, this)
+		return new Docker(module, this).init()
 	}
 }

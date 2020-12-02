@@ -105,19 +105,11 @@ class Workflow
 
 	void addStage(String name, Closure toRun) {
 		orderedStaged = ArrayTools.appendElement(orderedStaged, name)
-		stages.put(name, toRun)
+		stages.put(name, { toRun() })
 	}
 
 	void run() {
 		Throwable t = null
-		addStage(Stage_Completed, {
-			pipeline.cleanup()
-			try {
-				this.dispatchEvent("Pipeline Completed Event", OnPipelineListener.class, { listener -> listener.onPipelineSuccess() } as WorkflowProcessor<OnPipelineListener>)
-			} catch (e) {
-				t = e
-			}
-		})
 
 		for (String stage : orderedStaged) {
 			this.currentStage = stage
@@ -133,6 +125,15 @@ class Workflow
 				}
 			})
 		}
+
+		script.stage(Stage_Completed, {
+			pipeline.cleanup()
+			try {
+				this.dispatchEvent("Pipeline Completed Event", OnPipelineListener.class, { listener -> listener.onPipelineSuccess() } as WorkflowProcessor<OnPipelineListener>)
+			} catch (e) {
+				t = e
+			}
+		})
 
 		if (!t)
 			return

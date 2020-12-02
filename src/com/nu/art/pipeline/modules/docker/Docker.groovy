@@ -40,7 +40,7 @@ class Docker
 
 		GString dockerLink = "${config.key}:${config.version}"
 		module.logInfo("Launching docker: ${id}")
-		module.workflow.sh """docker run --rm -d --net=host --name ${id} ${envVars} ${virtualFilesVars} ${dockerLink} tail -f /dev/null"""
+		module.workflow.sh """docker run --rm -d --net=host --name ${id}${VarConsts.Var_JobName.get()}-${VarConsts.Var_BuildNumber.get()} ${envVars} ${virtualFilesVars} ${dockerLink} tail -f /dev/null"""
 		return this
 	}
 

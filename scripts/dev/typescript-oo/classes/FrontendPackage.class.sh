@@ -80,11 +80,11 @@ FrontendPackage() {
     local declaration=""
     local usage=""
     for file in "${files[@]}"; do
-      local width=$(cat "${file}" | grep -E ' width="[0-9]+"' | sed -E 's/^.* width="([0-9]+)(px)?".*$/\1/')
-      local height=$(cat "${file}" | grep -E ' height="[0-9]+"' | sed -E 's/^.* height="([0-9]+)(px)?".*$/\1/')
+      local width=$(cat "${file}" | grep -E 'svg.*width="[0-9]+' | sed -E 's/^.*svg.*width="([0-9]+)(px)?".*$/\1/')
+      local height=$(cat "${file}" | grep -E 'svg.*height="[0-9]+' | sed -E 's/^.*svg.*height="([0-9]+)(px)?".*$/\1/')
       local varName=$(echo "${file}" | sed -E 's/icon__(.*).svg/\1/')
       declaration="${declaration}\\nconst ${varName}: IconData = {ratio: ${height} / ${width},  value: require('@res/icons/${file}')};"
-      usage="${usage}\\n\t${varName}: (color?: string, width?: number) => iconsRenderer(${varName}, color, width),"
+      usage="${usage}\\n\t${varName}: (color?: string, width?: number, props?: HTMLAttributes<HTMLSpanElement>) => iconsRenderer(${varName}, color, width, props),"
     done
 
     deleteFile "../${CONST_FrontendIconsFile}"

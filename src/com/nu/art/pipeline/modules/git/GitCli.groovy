@@ -19,7 +19,7 @@ class GitCli
 		_if("[[ -e ${config.outputFolder ? config.outputFolder + "/" : ""}.git ]]", {
 			create()
 				.cd(config.outputFolder)
-				.resetHard()
+				.resetHard("origin/${config.branch}")
 				.fetch()
 				.checkout(config.branch)
 				.append("git branch --set-upstream-to=origin/${config.branch} ${config.branch}\n")

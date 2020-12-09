@@ -1,6 +1,6 @@
 package com.nu.art.pipeline.workflow
 
-
+import com.nu.art.pipeline.JobTrigger
 import com.nu.art.pipeline.modules.build.BuildModule
 import com.nu.art.pipeline.workflow.variables.VarConsts
 import com.nu.art.pipeline.workflow.variables.Var_Creds
@@ -41,6 +41,10 @@ abstract class BasePipeline<T extends BasePipeline>
 
 	void withCredentials(Var_Creds[] params, Closure toRun) {
 		workflow.withCredentials(params, toRun)
+	}
+
+	JobTrigger triggerJob(String name) {
+		return new JobTrigger(name)
 	}
 
 	String getName() {

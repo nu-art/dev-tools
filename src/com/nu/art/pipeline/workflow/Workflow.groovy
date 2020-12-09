@@ -204,6 +204,10 @@ class Workflow
 	void archiveArtifacts(String pattern, boolean onlyIfSuccessful = true) {
 		script.archiveArtifacts artifacts: pattern, onlyIfSuccessful: onlyIfSuccessful
 	}
+
+	void deleteWorkspace() {
+		script.deleteDir()
+	}
 }
 
 

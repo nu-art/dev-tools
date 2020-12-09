@@ -123,9 +123,9 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 
 	@Override
 	void cleanup() {
-		if (!docker)
-			return
+		if (docker)
+			docker.kill()
 
-		docker.kill()
+		workflow.deleteWorkspace()
 	}
 }

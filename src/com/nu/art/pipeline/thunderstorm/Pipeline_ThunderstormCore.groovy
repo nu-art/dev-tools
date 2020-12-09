@@ -126,6 +126,6 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 		if (docker)
 			docker.kill()
 
-		workflow.deleteWorkspace()
+		super.cleanup()
 	}
 }

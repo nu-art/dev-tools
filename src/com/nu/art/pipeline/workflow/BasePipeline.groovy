@@ -58,5 +58,7 @@ abstract class BasePipeline<T extends BasePipeline>
 		getModule(BuildModule.class).setDisplayName("#${VarConsts.Var_BuildNumber.get()}: ${name}")
 	}
 
-	void cleanup() {}
+	void cleanup() {
+		workflow.deleteWorkspace()
+	}
 }

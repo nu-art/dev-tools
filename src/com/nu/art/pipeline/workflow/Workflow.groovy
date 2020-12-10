@@ -117,8 +117,10 @@ class Workflow
 			logDebug("STAGE: ${stage}")
 			try {
 				script.stage(stage, {
-					if (t)
+					if (t) {
+						script.currentBuild.result = "FAILURE"
 						throw t
+					}
 
 					stages[stage]()
 				})
@@ -142,6 +144,7 @@ class Workflow
 				if (!t) {
 					this.dispatchEvent("Pipeline Completed Event", OnPipelineListener.class, { listener -> listener.onPipelineSuccess() } as WorkflowProcessor<OnPipelineListener>)
 				} else {
+					script.currentBuild.result = "FAILURE"
 					logError("Error ${t.getMessage()}")
 					this.dispatchEvent("Pipeline Error Event", OnPipelineListener.class, { listener -> listener.onPipelineFailed(t) } as WorkflowProcessor<OnPipelineListener>)
 				}
@@ -151,8 +154,10 @@ class Workflow
 			script.currentBuild.result = "FAILURE"
 		}
 
-		if (t)
+		if (t) {
+			script.currentBuild.result = "FAILURE"
 			throw t
+		}
 	}
 
 	private <T> void dispatchEvent(String message, Class<T> listenerType, WorkflowProcessor<T> processor) {

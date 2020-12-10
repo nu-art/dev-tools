@@ -119,14 +119,14 @@ class Workflow
 				try {
 					if (t) {
 						script.currentBuild.result = "FAILURE"
-						return
+						throw t
 					}
 
 					stages[stage]()
 				} catch (e) {
 					t = e
 					logError("Error in stage '${stage}': ${t.getMessage()}")
-					script.currentBuild.result = "FAILURE"
+					throw t
 				}
 			})
 		}
@@ -139,6 +139,7 @@ class Workflow
 
 				logError("Error in 'cleanup' stage: ${t.getMessage()}")
 				t = e
+				throw t
 			}
 		})
 

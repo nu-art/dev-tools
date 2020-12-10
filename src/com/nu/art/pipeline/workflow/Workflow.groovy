@@ -125,7 +125,7 @@ class Workflow
 					stages[stage]()
 				} catch (e) {
 					t = e
-					logError("Error in stage '${stage}' ${t.getMessage()}")
+					logError("Error in stage '${stage}': ${t.getMessage()}")
 					script.currentBuild.result = "FAILURE"
 				}
 			})
@@ -137,7 +137,7 @@ class Workflow
 			} catch (e) {
 				script.currentBuild.result = "FAILURE"
 
-				logError("Error ${t.getMessage()}")
+				logError("Error in 'cleanup' stage: ${t.getMessage()}")
 				t = e
 			}
 		})
@@ -147,19 +147,20 @@ class Workflow
 				if (!t) {
 					this.dispatchEvent("Pipeline Completed Event", OnPipelineListener.class, { listener -> listener.onPipelineSuccess() } as WorkflowProcessor<OnPipelineListener>)
 				} else {
-					script.currentBuild.result = "FAILURE"
 					this.dispatchEvent("Pipeline Error Event", OnPipelineListener.class, { listener -> listener.onPipelineFailed(t) } as WorkflowProcessor<OnPipelineListener>)
 				}
 			} catch (e) {
+				logError("Error in 'completion' stage: ${t.getMessage()}")
 				t = e
-				script.currentBuild.result = "FAILURE"
 			}
+
+			if (t)
+				throw t
 		})
 
-		if (t) {
-			script.currentBuild.result = "FAILURE"
+		if (t)
 			throw t
-		}
+
 	}
 
 	private <T> void dispatchEvent(String message, Class<T> listenerType, WorkflowProcessor<T> processor) {

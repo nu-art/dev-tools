@@ -124,7 +124,7 @@ class Workflow
 				})
 			} catch (e) {
 				t = e
-				throw t
+				script.currentBuild.result = "FAILURE"
 			}
 		}
 
@@ -133,6 +133,7 @@ class Workflow
 				pipeline.cleanup()
 			})
 		} catch (e) {
+			script.currentBuild.result = "FAILURE"
 			t = e
 		}
 
@@ -147,6 +148,7 @@ class Workflow
 			})
 		} catch (e) {
 			t = e
+			script.currentBuild.result = "FAILURE"
 		}
 
 		if (t)

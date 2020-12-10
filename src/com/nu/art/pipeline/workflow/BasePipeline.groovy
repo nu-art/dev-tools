@@ -44,7 +44,7 @@ abstract class BasePipeline<T extends BasePipeline>
 	}
 
 	JobTrigger triggerJob(String name) {
-		return new JobTrigger(name)
+		return getModule(BuildModule.class).triggerJob(name)
 	}
 
 	String getName() {

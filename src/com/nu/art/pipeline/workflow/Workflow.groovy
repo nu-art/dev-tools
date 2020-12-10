@@ -125,7 +125,7 @@ class Workflow
 					stages[stage]()
 				} catch (e) {
 					t = e
-					logError("Error in stage '${stage}': ${t.getMessage()}")
+					logError("Error in stage '${stage}': ${t.getMessage()}", e)
 					script.currentBuild.result = "FAILURE"
 				}
 			})
@@ -137,7 +137,7 @@ class Workflow
 			} catch (e) {
 				script.currentBuild.result = "FAILURE"
 
-				logError("Error in 'cleanup' stage: ${t.getMessage()}")
+				logError("Error in 'cleanup' stage: ${t.getMessage()}", e)
 				t = e
 				throw t
 			}
@@ -151,7 +151,7 @@ class Workflow
 					this.dispatchEvent("Pipeline Error Event", OnPipelineListener.class, { listener -> listener.onPipelineFailed(t) } as WorkflowProcessor<OnPipelineListener>)
 				}
 			} catch (e) {
-				logError("Error in 'completion' stage: ${t.getMessage()}")
+				logError("Error in 'completion' stage: ${t.getMessage()}", e)
 				t = e
 			}
 

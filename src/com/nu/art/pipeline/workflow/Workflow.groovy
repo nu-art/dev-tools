@@ -115,20 +115,20 @@ class Workflow
 		for (String stage : orderedStaged) {
 			this.currentStage = stage
 			logDebug("STAGE: ${stage}")
-			script.stage(stage, {
-				try {
+			try {
+				script.stage(stage, {
 					if (t) {
 						script.currentBuild.result = "FAILURE"
 						throw t
 					}
 
 					stages[stage]()
-				} catch (e) {
-					t = e
-					logError("Error in stage '${stage}': ${t.getMessage()}", e)
-					script.currentBuild.result = "FAILURE"
-				}
-			})
+				})
+			} catch (e) {
+				t = e
+				logError("Error in stage '${stage}': ${t.getMessage()}", e)
+				script.currentBuild.result = "FAILURE"
+			}
 		}
 
 		script.stage(Stage_Cleanup, {

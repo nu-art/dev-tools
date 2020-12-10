@@ -85,4 +85,7 @@ class BuildModule
 		workflow.getCurrentBuild().getPreviousSuccessfulBuild()
 	}
 
+	JobTrigger triggerJob (String name) {
+		return new JobTrigger(workflow, name)
+	}
 }

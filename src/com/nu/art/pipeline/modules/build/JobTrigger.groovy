@@ -1,5 +1,6 @@
-package com.nu.art.pipeline
+package com.nu.art.pipeline.modules.build
 
+import com.nu.art.pipeline.workflow.Workflow
 import com.nu.art.pipeline.workflow.variables.Var_Env
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
@@ -7,10 +8,12 @@ class JobTrigger
 	implements Serializable {
 
 	String name
+	Workflow workflow
 	def params = []
 
-	JobTrigger(String name) {
+	JobTrigger(Workflow workflow, String name) {
 		this.name = name
+		this.workflow = workflow
 	}
 
 	JobTrigger addString(String key, String value) {
@@ -35,7 +38,7 @@ class JobTrigger
 	}
 
 	RunWrapper run() {
-		RunWrapper result = script.build job: name, parameters: params
+		RunWrapper result = workflow.script.build job: name, parameters: params
 		return result
 	}
 }

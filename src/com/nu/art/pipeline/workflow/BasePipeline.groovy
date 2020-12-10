@@ -1,6 +1,6 @@
 package com.nu.art.pipeline.workflow
 
-import com.nu.art.pipeline.JobTrigger
+import com.nu.art.pipeline.modules.build.JobTrigger
 import com.nu.art.pipeline.modules.build.BuildModule
 import com.nu.art.pipeline.workflow.variables.VarConsts
 import com.nu.art.pipeline.workflow.variables.Var_Creds

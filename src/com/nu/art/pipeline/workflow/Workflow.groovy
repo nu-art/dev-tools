@@ -115,44 +115,46 @@ class Workflow
 		for (String stage : orderedStaged) {
 			this.currentStage = stage
 			logDebug("STAGE: ${stage}")
-			try {
-				script.stage(stage, {
+			script.stage(stage, {
+				try {
 					if (t) {
 						script.currentBuild.result = "FAILURE"
-						throw t
+						return
 					}
 
 					stages[stage]()
-				})
-			} catch (e) {
-				t = e
-				script.currentBuild.result = "FAILURE"
-			}
-		}
-
-		try {
-			script.stage(Stage_Cleanup, {
-				pipeline.cleanup()
+				} catch (e) {
+					t = e
+					logError("Error in stage '${stage}' ${t.getMessage()}")
+					script.currentBuild.result = "FAILURE"
+				}
 			})
-		} catch (e) {
-			script.currentBuild.result = "FAILURE"
-			t = e
 		}
 
-		try {
-			script.stage(Stage_Completed, {
+		script.stage(Stage_Cleanup, {
+			try {
+				pipeline.cleanup()
+			} catch (e) {
+				script.currentBuild.result = "FAILURE"
+
+				logError("Error ${t.getMessage()}")
+				t = e
+			}
+		})
+
+		script.stage(Stage_Completed, {
+			try {
 				if (!t) {
 					this.dispatchEvent("Pipeline Completed Event", OnPipelineListener.class, { listener -> listener.onPipelineSuccess() } as WorkflowProcessor<OnPipelineListener>)
 				} else {
 					script.currentBuild.result = "FAILURE"
-					logError("Error ${t.getMessage()}")
 					this.dispatchEvent("Pipeline Error Event", OnPipelineListener.class, { listener -> listener.onPipelineFailed(t) } as WorkflowProcessor<OnPipelineListener>)
 				}
-			})
-		} catch (e) {
-			t = e
-			script.currentBuild.result = "FAILURE"
-		}
+			} catch (e) {
+				t = e
+				script.currentBuild.result = "FAILURE"
+			}
+		})
 
 		if (t) {
 			script.currentBuild.result = "FAILURE"

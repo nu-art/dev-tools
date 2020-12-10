@@ -115,39 +115,39 @@ class Workflow
 		for (String stage : orderedStaged) {
 			this.currentStage = stage
 			logDebug("STAGE: ${stage}")
-			script.stage(stage, {
-				if (t)
-					return
-
-				try {
-					stages[stage]()
-				} catch (e) {
-					t = e
-					throw t
-				}
-			})
-		}
-
-		script.stage(Stage_Cleanup, {
 			try {
-				pipeline.cleanup()
+				script.stage(stage, {
+					if (t)
+						throw t
+
+					stages[stage]()
+				})
 			} catch (e) {
 				t = e
+				throw t
 			}
-		})
+		}
 
-		script.stage(Stage_Completed, {
-			try {
+		try {
+			script.stage(Stage_Cleanup, {
+				pipeline.cleanup()
+			})
+		} catch (e) {
+			t = e
+		}
+
+		try {
+			script.stage(Stage_Completed, {
 				if (!t) {
 					this.dispatchEvent("Pipeline Completed Event", OnPipelineListener.class, { listener -> listener.onPipelineSuccess() } as WorkflowProcessor<OnPipelineListener>)
 				} else {
 					logError("Error ${t.getMessage()}")
 					this.dispatchEvent("Pipeline Error Event", OnPipelineListener.class, { listener -> listener.onPipelineFailed(t) } as WorkflowProcessor<OnPipelineListener>)
 				}
-			} catch (e) {
-				t = e
-			}
-		})
+			})
+		} catch (e) {
+			t = e
+		}
 
 		if (t)
 			throw t

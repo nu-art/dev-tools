@@ -126,7 +126,7 @@ class Workflow
 				} catch (e) {
 					t = e
 					logError("Error in stage '${stage}': ${t.getMessage()}")
-					throw t
+					script.currentBuild.result = "FAILURE"
 				}
 			})
 		}

@@ -123,6 +123,7 @@ class Workflow
 					stages[stage]()
 				} catch (e) {
 					t = e
+					throw t
 				}
 			})
 		}

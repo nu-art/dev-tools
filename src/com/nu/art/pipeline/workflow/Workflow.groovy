@@ -118,7 +118,7 @@ class Workflow
 			try {
 				script.stage(stage, {
 					if (t) {
-						script.currentBuild.result = "FAILURE"
+//						script.currentBuild.result = "FAILURE"
 						throw t
 					}
 
@@ -127,7 +127,7 @@ class Workflow
 			} catch (e) {
 				t = e
 				logError("Error in stage '${stage}': ${t.getMessage()}", e)
-				script.currentBuild.result = "FAILURE"
+//				script.currentBuild.result = "FAILURE"
 			}
 		}
 
@@ -135,7 +135,7 @@ class Workflow
 			try {
 				pipeline.cleanup()
 			} catch (e) {
-				script.currentBuild.result = "FAILURE"
+//				script.currentBuild.result = "FAILURE"
 
 				logError("Error in 'cleanup' stage: ${t.getMessage()}", e)
 				t = e

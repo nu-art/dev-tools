@@ -1,6 +1,7 @@
 package com.nu.art.pipeline
 
 import com.nu.art.pipeline.workflow.variables.Var_Env
+import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 class JobTrigger
 	implements Serializable {
@@ -33,8 +34,8 @@ class JobTrigger
 		return this
 	}
 
-	void run() {
-		def toRet = script.build job: name, parameters: params
-
+	RunWrapper run() {
+		RunWrapper result = script.build job: name, parameters: params
+		return result
 	}
 }

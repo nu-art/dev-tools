@@ -62,6 +62,7 @@ class Workflow
 
 	public static final String Stage_IDLE = "IDLE"
 	public static final String Stage_Started = "Started"
+	public static final String Stage_Cleanup = "Cleanup"
 	public static final String Stage_Completed = "Completed"
 	public static final String Stage_Finally = "Finally"
 
@@ -115,10 +116,10 @@ class Workflow
 			this.currentStage = stage
 			logDebug("STAGE: ${stage}")
 			script.stage(stage, {
-				try {
-					if (t)
-						throw t
+				if (t)
+					return
 
+				try {
 					stages[stage]()
 				} catch (e) {
 					t = e
@@ -126,21 +127,29 @@ class Workflow
 			})
 		}
 
-		script.stage(Stage_Completed, {
-			pipeline.cleanup()
+		script.stage(Stage_Cleanup, {
 			try {
-				this.dispatchEvent("Pipeline Completed Event", OnPipelineListener.class, { listener -> listener.onPipelineSuccess() } as WorkflowProcessor<OnPipelineListener>)
+				pipeline.cleanup()
 			} catch (e) {
 				t = e
 			}
 		})
 
-		if (!t)
-			return
+		script.stage(Stage_Completed, {
+			try {
+				if (!t) {
+					this.dispatchEvent("Pipeline Completed Event", OnPipelineListener.class, { listener -> listener.onPipelineSuccess() } as WorkflowProcessor<OnPipelineListener>)
+				} else {
+					logError("Error ${t.getMessage()}")
+					this.dispatchEvent("Pipeline Error Event", OnPipelineListener.class, { listener -> listener.onPipelineFailed(t) } as WorkflowProcessor<OnPipelineListener>)
+				}
+			} catch (e) {
+				t = e
+			}
+		})
 
-		logError("Error ${t.getMessage()}")
-		this.dispatchEvent("Pipeline Error Event", OnPipelineListener.class, { listener -> listener.onPipelineFailed(t) } as WorkflowProcessor<OnPipelineListener>)
-		throw t
+		if (t)
+			throw t
 	}
 
 	private <T> void dispatchEvent(String message, Class<T> listenerType, WorkflowProcessor<T> processor) {

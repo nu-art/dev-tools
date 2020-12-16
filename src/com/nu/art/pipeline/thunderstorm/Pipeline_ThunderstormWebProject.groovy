@@ -17,8 +17,9 @@ class Pipeline_ThunderstormWebProject<T extends Pipeline_ThunderstormWebProject>
 	String gitRepoUri
 	def envProjects = [:]
 	String slackChannel
+	boolean scm
 
-	Pipeline_ThunderstormWebProject(String name, String slackChannel, Class<? extends WorkflowModule>... modules) {
+	Pipeline_ThunderstormWebProject(String name, String slackChannel, Class < ? extends WorkflowModule > ... modules) {
 		super(name, modules)
 		this.slackChannel = slackChannel
 	}
@@ -30,6 +31,7 @@ class Pipeline_ThunderstormWebProject<T extends Pipeline_ThunderstormWebProject>
 
 		setRepo(getModule(GitModule.class)
 			.create(gitRepoUri)
+			.setTrackSCM(scm)
 			.setBranch(branch)
 			.build())
 
@@ -43,9 +45,10 @@ class Pipeline_ThunderstormWebProject<T extends Pipeline_ThunderstormWebProject>
 		setEnv(branch)
 	}
 
-	void setGitRepoId(String repoId) {
+	void setGitRepoId(String repoId, boolean scm = false) {
 		this.httpUrl = "https://github.com/${repoId}".toString()
 		this.gitRepoUri = "git@github.com:${repoId}.git".toString()
+		this.scm = scm
 	}
 
 	void declareEnv(String env, String projectId) {

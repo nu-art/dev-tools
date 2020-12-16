@@ -26,8 +26,7 @@ class Pipeline_ThunderstormWebProject<T extends Pipeline_ThunderstormWebProject>
 	@Override
 	protected void init() {
 		String branch = Env_Branch.get()
-		getModule(SlackModule.class).prepare()
-		getModule(SlackModule.class).setDefaultChannel(this.slackChannel)
+		getModule(SlackModule.class).prepare().setDefaultChannel(this.slackChannel)
 
 		setRepo(getModule(GitModule.class)
 			.create(gitRepoUri)
@@ -55,8 +54,6 @@ class Pipeline_ThunderstormWebProject<T extends Pipeline_ThunderstormWebProject>
 
 	@Override
 	void pipeline() {
-		String branch = Env_Branch.get()
-
 		checkout({
 			getModule(SlackModule.class).setOnSuccess(getRepo().getChangeLog().toSlackMessage())
 		})
@@ -65,9 +62,5 @@ class Pipeline_ThunderstormWebProject<T extends Pipeline_ThunderstormWebProject>
 //		test()
 
 		deploy()
-//		run("register", {
-//			String registerURL = "https://us-central1-${envProjects.get(branch)}.cloudfunctions.net/api/v1/register/register-project"
-//			workflow.sh """curl -H "x-secret: ${Env_RegisterToken.get()}" -H "x-proxy: jenkins" ${registerURL}"""
-//		})
 	}
 }

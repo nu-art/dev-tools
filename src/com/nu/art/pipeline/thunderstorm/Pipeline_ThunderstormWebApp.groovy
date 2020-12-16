@@ -25,8 +25,9 @@ class Pipeline_ThunderstormWebApp<T extends Pipeline_ThunderstormWebApp>
 		this.fallEnv = fallEnv
 	}
 
-	protected void deploy() {
+	protected T deploy() {
 		addStage("deploy", { this._deploy() })
+		return this as T
 	}
 
 	protected void _install() {

@@ -32,4 +32,8 @@ class Pipeline_ThunderstormMain<T extends Pipeline_ThunderstormMain>
 	void _publish() {
 		_sh("bash build-and-install.sh --publish --quick-publish ${NO_GIT.get() == "true" ? "--no-git" : ""}")
 	}
+
+	@Override
+	void cleanup() {
+	}
 }

@@ -57,6 +57,8 @@ class Pipeline_ThunderstormWebProject<T extends Pipeline_ThunderstormWebProject>
 		checkout({
 			getModule(SlackModule.class).setOnSuccess(getRepo().getChangeLog().toSlackMessage())
 		})
+
+		clean()
 		install()
 		build()
 //		test()

@@ -15,8 +15,8 @@ import com.nu.art.pipeline.workflow.variables.VarConsts
 abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 	extends BasePipeline<T> {
 
-	protected GitRepo repo
 	protected Docker docker
+	protected GitRepo repo
 
 	Pipeline_ThunderstormCore(Class<? extends WorkflowModule>... modules) {
 		this(null, modules)
@@ -58,6 +58,11 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 		return (T) this
 	}
 
+	T clean() {
+		addStage("clean", { this._clean() })
+		return (T) this
+	}
+
 	T build() {
 		addStage("compile", { this._compile() })
 		addStage("lint", { this._lint() })
@@ -76,6 +81,10 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 
 	protected void _install() {
 		_sh("bash build-and-install.sh --install --no-build --link")
+	}
+
+	protected void _clean() {
+		_sh("bash build-and-install.sh --clean")
 	}
 
 	protected void _compile() {

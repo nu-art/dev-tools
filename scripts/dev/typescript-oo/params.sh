@@ -394,6 +394,18 @@ extractParams() {
       ts_lint=true
       ;;
 
+    "--quick-publish" | "-qp")
+      #DOC: Will publish thunderstorm without link clean lint and compile
+      #WARNING: ONLY used for publishing Thunderstorm!!
+      #WARNING: Use only if you REALLY understand the lifecycle of the project and script!!
+
+
+      ts_link=
+      ts_clean=
+      ts_compile=
+      ts_lint=
+      ;;
+
     *)
       logWarning "UNKNOWN PARAM: ${paramValue}"
       ;;

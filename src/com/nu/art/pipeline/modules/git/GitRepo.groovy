@@ -154,28 +154,3 @@ class GitRepo {
 		return gitModule.getModule(BuildModule.class).pathToFile("${config.outputFolder}/${relativePath}")
 	}
 }
-
-//  void createFullChangelog() {
-//    log
-//    logger.info "### Create full changelog "
-//    script.sh """echo 'Full Changelog:' > ${script.env.WORKSPACE}/full_changelog.txt """
-//    script.sh """echo '--------------------------------------------------------------' >> ${script.env.WORKSPACE}/full_changelog.txt """
-//    script.sh """echo '' >> ${script.env.WORKSPACE}/full_changelog.txt """
-//    def commitsIdsList = script.currentBuild.changeSets.collect({ it.items.collect { it.commitId } })
-//    for (int i = 0; i < commitsIdsList.size(); i++) {
-//      def commitsIds = commitsIdsList[i]
-//      for (int j = 0; j < commitsIds.size(); j++) {
-//        String commitInfo = script.sh(returnStdout: true, script: "git show -s ${commitsIds[j]} || true").trim()
-//        String commitInfoFiles = script.sh(returnStdout: true, script: "git diff-tree --no-commit-id --name-only -r ${commitsIds[j]} || true").trim()
-//        // Add submodules changes by running 'git show <commitid> <submodule>' for each changed submodule
-//        commitInfo = commitInfo.replaceAll("\"", " ").replaceAll("'", " ")
-//        commitInfoFiles = commitInfoFiles.replaceAll("\"", "").replaceAll("'", "")
-//        if (commitInfo != "") {
-//          script.sh """echo '${commitInfo}' >> ${script.env.WORKSPACE}/full_changelog.txt """
-//          script.sh """echo '${commitInfoFiles}' >> ${script.env.WORKSPACE}/full_changelog.txt """
-//          script.sh """echo '--------------------------------------------------------------' >> ${script.env.WORKSPACE}/full_changelog.txt """
-//          script.sh """echo '' >> ${script.env.WORKSPACE}/full_changelog.txt """
-//        }
-//      }
-//    }
-//  }

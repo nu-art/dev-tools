@@ -143,7 +143,11 @@ class GitRepo {
 		if (!toCommit)
 			toCommit = gitModule.gitStatus(this)?.commitId
 
-		return new GitRepoChangeSet(this, fromCommit, toCommit).init()
+		try {
+			return new GitRepoChangeSet(this, fromCommit, toCommit).init()
+		} catch (Exception e) {
+			gitModule.logWarning("Failed to get changelog: ${e.getMessage()}")
+		}
 	}
 
 	String pathToFile(String relativePath) {

@@ -147,6 +147,7 @@ class GitRepo {
 			return new GitRepoChangeSet(this, fromCommit, toCommit).init()
 		} catch (Exception e) {
 			gitModule.logWarning("Failed to get changelog: ${e.getMessage()}")
+			return new GitRepoChangeSet(this, fromCommit, null).init()
 		}
 	}
 

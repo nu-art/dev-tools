@@ -205,7 +205,7 @@ isMacOS() {
 }
 
 # To reconsider
-replaceStringInFiles() {
+string_replaceAll() {
   local rootFolder=${1}
   local matchPattern=${2}
   local replaceWith="${3}"

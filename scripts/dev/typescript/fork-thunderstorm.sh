@@ -171,8 +171,8 @@ forkThunderstorm() {
 }
 
 replaceBoilerplateNamesWithNewForkedNames() {
-  replaceStringInFiles . ${const_BoilerplateFirebaseProject} "${firebaseProject}" "dev-tools"
-  replaceStringInFiles . ${const_BoilerplateLocation} "${firebaseProjectLocation}" "dev-tools"
+  string_replaceAll . ${const_BoilerplateFirebaseProject} "${firebaseProject}" "dev-tools"
+  string_replaceAll . ${const_BoilerplateLocation} "${firebaseProjectLocation}" "dev-tools"
 }
 
 prepareForkedProjectEnvironment() {

@@ -23,7 +23,7 @@ source ${BASH_SOURCE%/*}/_core.sh
 
 runningDir=$(getRunningDir)
 projectsToIgnore=("dev-tools")
-params=(fromBranch toBranch)
+params=(fromBranch toBranch scope)
 scope="conflict"
 
 extractParams() {

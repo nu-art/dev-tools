@@ -24,6 +24,7 @@ source ${DIR}/colors.sh
 source ${DIR}/logger.sh
 source ${DIR}/time.sh
 source ${DIR}/signature.sh
+source ${DIR}/spinner.sh
 
 source ${DIR}/tools.sh
 source ${DIR}/error-handling.sh

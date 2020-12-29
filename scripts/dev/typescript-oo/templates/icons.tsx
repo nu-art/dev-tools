@@ -1,5 +1,6 @@
 import * as React from "react";
 import {css} from "emotion";
+import {HTMLAttributes} from "react";
 
 export type IconStyle = {
 	color: string;
@@ -10,6 +11,7 @@ export type IconStyle = {
 type Props = {
 	iconStyle: IconStyle
 	icon: string
+	props?: HTMLAttributes<HTMLSpanElement>
 }
 
 class RenderIcon
@@ -25,7 +27,7 @@ class RenderIcon
 		 display: inline-block;
 		`;
 
-		return <span className={iconStyle}/>;
+		return <span className={iconStyle} {...this.props.props}/>;
 	}
 }
 
@@ -35,12 +37,15 @@ export type IconData = {
 	value: string
 }
 
-export const iconsRenderer = (key: IconData, color?: string, width: number = 24) => {
-	return <RenderIcon icon={key.value} iconStyle={{color: color || "#000000", height: width * key.ratio, width: width}}/>
+export const iconsRenderer = (key: IconData, color?: string, width: number = 24, props?: HTMLAttributes<HTMLSpanElement>) => {
+	return <RenderIcon icon={key.value} iconStyle={{color: color || "#000000", height: width * key.ratio, width: width}} props={props}/>
 };
+
 
 ICONS_DECLARATION
 
 export const ICONS = {
 	ICONS_USAGE
 };
+
+export type IconsType = typeof ICONS

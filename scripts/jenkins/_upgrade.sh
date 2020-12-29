@@ -18,26 +18,23 @@
 #  limitations under the License.
 
 #!/bin/bash
+source ${BASH_SOURCE%/*}/../android/_source.sh
 
-declare -A timerMap
-
-startTimer() {
-  local key=${1}
-  timerMap[$key]=$SECONDS
+executeCommand() {
+  local command=${1}
+  local message=${2}
+  if [[ ! "${message}" ]]; then message="Running: ${1}"; fi
+  logInfo "${message}"
+  eval "${command}"
+  throwError "${message}"
 }
 
-calcDuration() {
-  local key=${1}
-  local startedTimestamp=${timerMap[$key]}
-  if [[ ! "${startedTimestamp}" ]]; then startedTimestamp=0; fi
+logInfo "DID YOU REMEMBER TO COMMENT OUT THE PASSWORD?"
 
-  local duration=$(($SECONDS - ${startedTimestamp}))
-  local seconds=$(($duration % 60))
-  if [[ "$seconds" -lt 10 ]]; then seconds="0$seconds"; fi
-
-  local min=$(($duration / 60))
-  if [[ "$min" -eq 0 ]]; then min=00; elif [[ "$min" -lt 10 ]]; then min="0$min"; else min="$min"; fi
-  echo ${min}:${seconds}
-}
-
-startTimer "rootTimer"
+signature "Jenkins Upgrade"
+executeCommand "sudo service jenkins stop"
+executeCommand "wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -"
+executeCommand "sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'"
+executeCommand "sudo apt-get update"
+executeCommand "sudo apt-get install jenkins"
+executeCommand "sudo service jenkins start"

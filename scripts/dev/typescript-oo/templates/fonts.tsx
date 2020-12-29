@@ -15,3 +15,5 @@ FONTS_GLOBALS
 export const FONTS = {
 	FONTS_USAGE
 }
+
+export type FontsType = typeof FONTS

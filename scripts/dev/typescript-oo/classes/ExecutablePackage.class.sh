@@ -7,6 +7,7 @@ ExecutablePackage() {
     [[ ! "$(array_contains "${folderName}" "${ts_launch[@]}")" ]] && return
 
     logInfo "Launching: ${folderName}"
-    node "./${outputDir}/index.js"
+    node "./${outputDir}/"${ts_fileToExecute}
+    throwError "execution failed ./${outputDir}/${ts_fileToExecute}"
   }
 }

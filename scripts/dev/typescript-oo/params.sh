@@ -14,6 +14,7 @@ ts_linkThunderstorm=
 ts_lint=
 ts_runTests=
 ts_publish=
+ts_fileToExecute="index.js"
 
 checkCircularImports=
 
@@ -51,6 +52,7 @@ params=(
   ts_lint
   ts_runTests
   ts_publish
+  ts_fileToExecute
   "ts_generate[@]"
   "ts_launch[@]"
   "ts_deploy[@]"
@@ -275,6 +277,14 @@ extractParams() {
       ts_launch+=($(regexParam "--launch|-l" "${paramValue}"))
       ;;
 
+    "--file="* | "-f="*)
+      #DOC: The file name to launch
+      #NOTE: Apply on to the executable apps
+
+      [[ ! "${testServiceAccount}" ]] && throwError "MUST specify the path to the testServiceAccount in the .scripts/modules.sh in your project"
+      ts_fileToExecute=$(regexParam "--file|-f" "${paramValue}")
+      ;;
+
     "--launch-frontend" | "-lf")
       #DOC: Will add the app-frontend to the launch list
       ts_launch+=(app-frontend)
@@ -382,6 +392,18 @@ extractParams() {
       ts_compile=true
       ts_publish=true
       ts_lint=true
+      ;;
+
+    "--quick-publish" | "-qp")
+      #DOC: Will publish thunderstorm without link clean lint and compile
+      #WARNING: ONLY used for publishing Thunderstorm!!
+      #WARNING: Use only if you REALLY understand the lifecycle of the project and script!!
+
+
+      ts_link=
+      ts_clean=
+      ts_compile=
+      ts_lint=
       ;;
 
     *)

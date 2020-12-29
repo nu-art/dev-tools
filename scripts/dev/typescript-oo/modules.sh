@@ -19,9 +19,9 @@ tsLibs=(
   user-account
   permissions
   push-pub-sub
+  jira
   bug-report
   github
-  jira
   file-upload
   google-services
 )

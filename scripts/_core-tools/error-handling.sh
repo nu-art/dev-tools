@@ -105,7 +105,7 @@ throwErrorImpl() {
   logException "Exiting with Error code: ${errorCode}"
   logException
 
-  [[ ! "${CONST_throwErrorDebugger}" ]] &&  exit ${errorCode}
+  [[ ! "${CONST_throwErrorDebugger}" ]] && exit ${errorCode}
 }
 
 dontExit() {

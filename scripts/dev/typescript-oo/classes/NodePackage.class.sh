@@ -156,7 +156,7 @@ NodePackage() {
     for folder in "${folders[@]}"; do
       [[ "${folder}" == "test" ]] && continue
 
-      logInfo "Compiling: ${folderName}/${folder}"
+      logInfo "Compiling($(tsc -v)): ${folderName}/${folder}"
       if [[ "${ts_watch}" ]]; then
         local parts=
         for watchLine in "${watchIds[@]}"; do

@@ -222,6 +222,7 @@ setupModule() {
 
   trap 'restorePackageJson' SIGINT
 
+  deleteDir node_modules/@ir
   deleteDir node_modules/@nu-art
   deleteFile package-lock.json
   logInfo

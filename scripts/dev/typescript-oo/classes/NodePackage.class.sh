@@ -63,6 +63,7 @@ NodePackage() {
 
     deleteFile package-lock.json
     deleteDir "./node_modules/@nu-art"
+    deleteDir "./node_modules/@ir"
     for lib in "${libs[@]}"; do
       [[ "${lib}" == "${_this}" ]] && break
 

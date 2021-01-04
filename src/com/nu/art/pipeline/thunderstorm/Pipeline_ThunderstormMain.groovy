@@ -18,12 +18,6 @@ class Pipeline_ThunderstormMain<T extends Pipeline_ThunderstormMain>
 		envProjects.put(env, projectId)
 	}
 
-	@Override
-	void pipeline() {
-		super.pipeline()
-		publish()
-	}
-
 	protected T publish() {
 		addStage("publish", { this._publish() })
 		return this as T

@@ -84,7 +84,7 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 	}
 
 	protected void _clean() {
-		_sh("bash build-and-install.sh --clean")
+		_sh("bash build-and-install.sh --clean --no-build")
 	}
 
 	protected void _compile() {

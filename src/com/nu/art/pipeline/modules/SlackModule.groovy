@@ -57,7 +57,6 @@ class SlackModule
 		preMessage += "<${VarConsts.Var_BuildUrl.get()}|*${buildModule.getDisplayName()}*>"
 		preMessage += workflow.currentStage != Workflow.Stage_Started ? " after: ${buildModule.getDurationAsString()}" : ""
 		preMessage += email != null ? "\nTriggered By: *${email}*" : ""
-		preMessage += buildModule.getResult() ? "\nResult: ${buildModule.getResult()}" : ""
 		preMessage += buildModule.getDescription() ? "\n${buildModule.getDescription()}" : ""
 		String finalMessage = "${preMessage}\n${message}"
 		finalMessage = finalMessage

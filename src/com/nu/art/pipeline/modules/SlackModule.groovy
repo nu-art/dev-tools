@@ -74,6 +74,10 @@ class SlackModule
 		notify("*Started*", Colors.Gray)
 	}
 
+	void onPipelineAborted() {
+		notify("*Aborted*", Colors.DarkGray)
+	}
+
 	@Override
 	void onPipelineFailed(Throwable e) {
 		notify("*Error*", Colors.Red)

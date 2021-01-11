@@ -159,7 +159,10 @@ class Workflow
 		script.stage(Stage_Completed, {
 			try {
 				if (!t) {
-					this.dispatchEvent("Pipeline Completed Event", OnPipelineListener.class, { listener -> listener.onPipelineSuccess() } as WorkflowProcessor<OnPipelineListener>)
+					if (build.result == Result.ABORTED)
+						this.dispatchEvent("Pipeline Aborted", OnPipelineListener.class, { listener -> listener.onPipelineAborted() } as WorkflowProcessor<OnPipelineListener>)
+					else
+						this.dispatchEvent("Pipeline Completed Event", OnPipelineListener.class, { listener -> listener.onPipelineSuccess() } as WorkflowProcessor<OnPipelineListener>)
 				} else {
 					this.dispatchEvent("Pipeline Error Event", OnPipelineListener.class, { listener -> listener.onPipelineFailed(t) } as WorkflowProcessor<OnPipelineListener>)
 				}

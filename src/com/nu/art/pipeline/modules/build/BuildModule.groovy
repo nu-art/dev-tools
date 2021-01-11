@@ -6,6 +6,7 @@ import com.nu.art.pipeline.workflow.variables.VarConsts
 import hudson.model.Cause
 import hudson.model.Run
 import hudson.tasks.test.AbstractTestResultAction
+import hudson.triggers.SCMTrigger
 import org.jenkinsci.plugins.pipeline.utility.steps.fs.FileWrapper
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
@@ -13,6 +14,7 @@ class BuildModule
 	extends WorkflowModule {
 
 	Cause.UserIdCause userCause
+	SCMTrigger.SCMTriggerCause scmCause
 
 	void setDisplayName(String displayName) {
 		logInfo("Setting display name: ${displayName}")
@@ -57,6 +59,10 @@ class BuildModule
 			switch (cause.getClass()) {
 				case Cause.UserIdCause.class:
 					userCause = cause as Cause.UserIdCause
+					break
+
+				case SCMTrigger.SCMTriggerCause.class:
+					scmCause = cause as SCMTrigger.SCMTriggerCause
 					break
 
 				default:

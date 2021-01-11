@@ -63,8 +63,7 @@ class TriggerCause {
 		}
 	}
 
-	@Override
-	String toString() {
+	String print() {
 		return "Cause(${className}): ${description}"
 	}
 }

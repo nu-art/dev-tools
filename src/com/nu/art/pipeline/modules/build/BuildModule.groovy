@@ -21,9 +21,9 @@ class BuildModule
 		triggers = causes.collect { new TriggerCause(it) }
 		triggers.each {
 			if (it.type == TriggerCause.Type_Unknown)
-				logWarning("Missing case: ${it}")
+				logWarning("Missing case: ${it.print()}")
 			else
-				logInfo("${it}")
+				logInfo("${it.print()}")
 		}
 	}
 

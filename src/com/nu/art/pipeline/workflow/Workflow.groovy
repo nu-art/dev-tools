@@ -15,7 +15,10 @@ import com.nu.art.pipeline.workflow.variables.VarConsts
 import com.nu.art.pipeline.workflow.variables.Var_Creds
 import com.nu.art.pipeline.workflow.variables.Var_Env
 import com.nu.art.reflection.tools.ReflectiveTools
+import hudson.model.Result
+import hudson.model.Run
 import org.jenkinsci.plugins.workflow.cps.CpsScript
+import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 @Grab('com.nu-art-software:module-manager:1.2.34')
@@ -111,6 +114,7 @@ class Workflow
 
 	void run() {
 		Throwable t = null
+		Run build = script.currentBuild.rawBuild
 
 		for (String stage : orderedStaged) {
 			this.currentStage = stage
@@ -126,6 +130,15 @@ class Workflow
 				})
 			} catch (e) {
 				t = e
+				Result result = build.result
+				if (Result.FAILURE == result || Result.ABORTED == result)
+					continue
+
+				if (e.getClass() == FlowInterruptedException.class)
+					build.result = Result.ABORTED
+				else
+					build.result = Result.FAILURE
+
 				logError("Error in stage '${stage}': ${t.getMessage()}", e)
 //				script.currentBuild.result = "FAILURE"
 			}

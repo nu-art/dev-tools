@@ -47,10 +47,11 @@ class BuildModule
 	}
 
 	void printCauses() {
+		this.logWarning("Causes")
 		Run build = workflow.getCurrentBuild().rawBuild
 		List<Cause> causes = build.getCauses()
 		for (Cause cause : causes) {
-			this.logInfo(cause.getShortDescription())
+			this.logInfo("Cause: ${cause.getShortDescription()}")
 		}
 //		return build.getCause(hudson.model.Cause$UserIdCause).userId
 	}

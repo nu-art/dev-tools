@@ -50,8 +50,8 @@ class BuildModule
 		this.logWarning("Causes")
 		Run build = workflow.getCurrentBuild().rawBuild
 		List<Cause> causes = build.getCauses()
-			this.logWarning("Causes: ${causes.size()}")
-		for (Cause cause : causes) {
+		for (i in 0..<causes.size()) {
+			Cause cause = causes.get(i)
 			this.logInfo("Cause: ${cause.getShortDescription()}")
 		}
 //		return build.getCause(hudson.model.Cause$UserIdCause).userId

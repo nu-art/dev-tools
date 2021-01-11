@@ -52,7 +52,7 @@ class BuildModule
 		List<Cause> causes = build.getCauses()
 		for (i in 0..<causes.size()) {
 			Cause cause = causes.get(i)
-			this.logInfo("Cause: ${cause.getShortDescription()}")
+			this.logInfo("Cause(${cause.getClass().getName()}): ${cause.getShortDescription()}")
 		}
 //		return build.getCause(hudson.model.Cause$UserIdCause).userId
 	}

@@ -51,7 +51,7 @@ class BuildModule
 	}
 
 	void printCauses() {
-		this.logWarning("Causes")
+		this.logInfo("Causes:")
 		Run build = workflow.getCurrentBuild().rawBuild
 		List<Cause> causes = build.getCauses()
 		for (i in 0..<causes.size()) {
@@ -59,10 +59,12 @@ class BuildModule
 			switch (cause.getClass()) {
 				case Cause.UserIdCause.class:
 					userCause = cause as Cause.UserIdCause
+					this.logInfo("Cause(${cause.getClass().getName()}): ${cause.getShortDescription()}")
 					break
 
 				case SCMTrigger.SCMTriggerCause.class:
 					scmCause = cause as SCMTrigger.SCMTriggerCause
+					this.logInfo("Cause(${cause.getClass().getName()}): ${cause.getShortDescription()}")
 					break
 
 				default:

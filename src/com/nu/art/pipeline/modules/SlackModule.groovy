@@ -70,7 +70,7 @@ class SlackModule
 
 	@Override
 	void onPipelineStarted() {
-		notify("*Started*", Colors.Gray)
+		notify("*Started*", Colors.LightBlue)
 	}
 
 	void onPipelineAborted() {

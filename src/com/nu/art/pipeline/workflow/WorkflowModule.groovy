@@ -12,6 +12,8 @@ abstract class WorkflowModule
 	@Override
 	protected void init() {}
 
+	protected void prepare() {}
+
 	@SuppressWarnings('GrMethodMayBeStatic')
 	Workflow getWorkflow() {
 		Workflow.workflow

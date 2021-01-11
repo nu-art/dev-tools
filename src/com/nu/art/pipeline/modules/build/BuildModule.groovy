@@ -6,17 +6,20 @@ import com.nu.art.pipeline.workflow.variables.VarConsts
 import hudson.model.Cause
 import hudson.model.Run
 import hudson.tasks.test.AbstractTestResultAction
-import hudson.triggers.SCMTrigger
 import org.jenkinsci.plugins.pipeline.utility.steps.fs.FileWrapper
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
-
-import static org.apache.commons.lang3.StringUtils.trimToEmpty
 
 class BuildModule
 	extends WorkflowModule {
 
-	Cause.UserIdCause userCause
-	SCMTrigger.SCMTriggerCause scmCause
+	TriggerCause[] triggers
+
+	@Override
+	protected void prepare() {
+		Run build = workflow.getCurrentBuild().rawBuild
+		List<Cause> causes = build.getCauses()
+		triggers = causes.collect { new TriggerCause(it) }
+	}
 
 	boolean getUser() {
 		if (userCause != null)
@@ -24,7 +27,7 @@ class BuildModule
 
 		if (scmCause != null)
 			if (scmCause.getClass().getSimpleName() == "GitHubPushCause")
-				return trimToEmpty(scmCause.pushedBy)
+				return scmUser = scmCause.pushedBy
 
 		return "UNKNOWN"
 	}
@@ -69,28 +72,6 @@ class BuildModule
 		return workflow.getCurrentBuild().durationString.replaceAll("and counting", "")
 	}
 
-	void printCauses() {
-		this.logInfo("Causes:")
-		Run build = workflow.getCurrentBuild().rawBuild
-		List<Cause> causes = build.getCauses()
-		for (i in 0..<causes.size()) {
-			Cause cause = causes.get(i)
-			switch (cause.getClass()) {
-				case Cause.UserIdCause.class:
-					userCause = cause as Cause.UserIdCause
-					this.logInfo("Cause(${cause.getClass().getName()}): ${cause.getShortDescription()}")
-					break
-
-				case SCMTrigger.SCMTriggerCause.class:
-					scmCause = cause as SCMTrigger.SCMTriggerCause
-					this.logInfo("Cause(${cause.getClass().getName()}): ${cause.getShortDescription()}")
-					break
-
-				default:
-					this.logWarning("Missing case handling for cause(${cause.getClass().getName()}): ${cause.getShortDescription()}")
-			}
-		}
-	}
 
 	String collectDetails() {
 		String displayName = getDisplayName() ? "\ndisplayName: ${getDisplayName()}" : ""

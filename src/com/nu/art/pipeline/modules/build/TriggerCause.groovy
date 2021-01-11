@@ -22,10 +22,10 @@ package com.nu.art.pipeline.modules.build
 import hudson.model.Cause
 
 class TriggerCause {
-	static String Type_User = "user"
-	static String Type_SCM = "scm"
-	static String Type_Rebuild = "rebuild"
-	static String Type_Unknown = "unknown"
+	public static String Type_User = "user"
+	public static String Type_SCM = "scm"
+	public static String Type_Rebuild = "rebuild"
+	public static String Type_Unknown = "unknown"
 
 	final String className
 	final String description

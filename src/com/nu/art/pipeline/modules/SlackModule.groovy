@@ -18,6 +18,7 @@ class SlackModule
 	private BuildModule buildModule
 	private boolean enabled = true
 
+	@Deprecated
 	SlackModule prepare() {
 		return this
 	}

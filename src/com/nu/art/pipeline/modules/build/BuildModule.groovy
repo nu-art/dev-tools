@@ -19,6 +19,12 @@ class BuildModule
 		Run build = workflow.getCurrentBuild().rawBuild
 		List<Cause> causes = build.getCauses()
 		triggers = causes.collect { new TriggerCause(it) }
+		triggers.each {
+			if (it.type == TriggerCause.Type_Unknown)
+				logWarning("Missing case: ${it}")
+			else
+				logInfo("${it}")
+		}
 	}
 
 	boolean getUser() {

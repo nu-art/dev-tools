@@ -18,7 +18,7 @@ class SlackModule
 	private BuildModule buildModule
 	private boolean enabled = true
 
-	void prepare() {
+	void _init() {
 		setTokenCredentialsId("slack-token")
 		buildModule = getModule(BuildModule.class)
 	}

@@ -115,7 +115,7 @@ class Workflow
 	void run() {
 		Throwable t = null
 
-		this.manager.getModule(BuildModule.class).printCauses()
+		this.manager.getModule(BuildModule.class).prepare()
 
 		for (String stage : orderedStaged) {
 			logDebug("STAGE: ${stage}")

@@ -12,7 +12,7 @@ abstract class WorkflowModule
 	@Override
 	protected void init() {}
 
-	protected void _init() {}
+	void _init() {}
 
 	@SuppressWarnings('GrMethodMayBeStatic')
 	Workflow getWorkflow() {

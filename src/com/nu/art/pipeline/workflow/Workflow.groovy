@@ -8,7 +8,6 @@ import com.nu.art.core.tools.ArrayTools
 import com.nu.art.modular.core.ModuleManager
 import com.nu.art.modular.core.ModuleManagerBuilder
 import com.nu.art.pipeline.exceptions.BadImplementationException
-import com.nu.art.pipeline.modules.build.BuildModule
 import com.nu.art.pipeline.modules.git.Cli
 import com.nu.art.pipeline.workflow.logs.Config_WorkflowLogger
 import com.nu.art.pipeline.workflow.logs.WorkflowLogger
@@ -115,7 +114,8 @@ class Workflow
 	void run() {
 		Throwable t = null
 
-		this.manager.getModule(BuildModule.class)._init()
+		WorkflowModule[] allmodules = this.manager.getModulesAssignableFrom(WorkflowModule.class)
+		allmodules.each { it._init() }
 
 		for (String stage : orderedStaged) {
 			logDebug("STAGE: ${stage}")

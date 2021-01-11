@@ -10,6 +10,8 @@ import hudson.triggers.SCMTrigger
 import org.jenkinsci.plugins.pipeline.utility.steps.fs.FileWrapper
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
+import static org.apache.commons.lang3.StringUtils.trimToEmpty
+
 class BuildModule
 	extends WorkflowModule {
 
@@ -17,7 +19,14 @@ class BuildModule
 	SCMTrigger.SCMTriggerCause scmCause
 
 	boolean getUser() {
-		return userCause != null
+		if (userCause != null)
+			return userCause.userName
+
+		if (scmCause != null)
+			if (scmCause.getClass().getSimpleName() == "GitHubPushCause")
+				return trimToEmpty(scmCause.pushedBy)
+
+		return "UNKNOWN"
 	}
 
 	boolean getscm() {

@@ -8,6 +8,7 @@ import com.nu.art.core.tools.ArrayTools
 import com.nu.art.modular.core.ModuleManager
 import com.nu.art.modular.core.ModuleManagerBuilder
 import com.nu.art.pipeline.exceptions.BadImplementationException
+import com.nu.art.pipeline.modules.build.BuildModule
 import com.nu.art.pipeline.modules.git.Cli
 import com.nu.art.pipeline.workflow.logs.Config_WorkflowLogger
 import com.nu.art.pipeline.workflow.logs.WorkflowLogger
@@ -16,7 +17,6 @@ import com.nu.art.pipeline.workflow.variables.Var_Creds
 import com.nu.art.pipeline.workflow.variables.Var_Env
 import com.nu.art.reflection.tools.ReflectiveTools
 import hudson.model.Result
-import hudson.model.Run
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
@@ -114,6 +114,8 @@ class Workflow
 
 	void run() {
 		Throwable t = null
+
+		this.manager.getModule(BuildModule.class).printCauses()
 
 		for (String stage : orderedStaged) {
 			logDebug("STAGE: ${stage}")

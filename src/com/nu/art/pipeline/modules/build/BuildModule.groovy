@@ -3,6 +3,8 @@ package com.nu.art.pipeline.modules.build
 import com.cloudbees.groovy.cps.NonCPS
 import com.nu.art.pipeline.workflow.WorkflowModule
 import com.nu.art.pipeline.workflow.variables.VarConsts
+import hudson.model.Cause
+import hudson.model.Run
 import hudson.tasks.test.AbstractTestResultAction
 import org.jenkinsci.plugins.pipeline.utility.steps.fs.FileWrapper
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
@@ -42,6 +44,15 @@ class BuildModule
 
 	String getDurationAsString() {
 		return workflow.getCurrentBuild().durationString.replaceAll("and counting", "")
+	}
+
+	void printCauses() {
+		Run build = workflow.getCurrentBuild().rawBuild
+		List<Cause> causes = build.getCauses()
+		for (Cause cause : causes) {
+			this.logInfo(cause.getShortDescription())
+		}
+//		return build.getCause(hudson.model.Cause$UserIdCause).userId
 	}
 
 	String collectDetails() {
@@ -85,7 +96,7 @@ class BuildModule
 		workflow.getCurrentBuild().getPreviousSuccessfulBuild()
 	}
 
-	JobTrigger triggerJob (String name) {
+	JobTrigger triggerJob(String name) {
 		return new JobTrigger(workflow, name)
 	}
 }

@@ -117,7 +117,6 @@ class Workflow
 		Run build = script.currentBuild.rawBuild
 
 		for (String stage : orderedStaged) {
-			this.currentStage = stage
 			logDebug("STAGE: ${stage}")
 			try {
 				script.stage(stage, {
@@ -126,6 +125,7 @@ class Workflow
 						throw t
 					}
 
+					this.currentStage = stage
 					stages[stage]()
 				})
 			} catch (e) {

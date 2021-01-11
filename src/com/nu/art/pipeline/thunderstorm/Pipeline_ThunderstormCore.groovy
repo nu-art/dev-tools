@@ -26,11 +26,6 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 		super(name, (([DockerModule.class, GitModule.class] as Class<? extends WorkflowModule>[]) + modules))
 	}
 
-	@Override
-	protected void init() {
-		getModule(BuildModule.class).printCauses()
-	}
-
 	T setDocker(Docker docker) {
 		this.docker = docker
 		return (T) this

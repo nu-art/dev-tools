@@ -15,7 +15,7 @@ class BuildModule
 	TriggerCause[] triggers
 
 	@Override
-	protected void _init() {
+	void _init() {
 		Run build = workflow.getCurrentBuild().rawBuild
 		List<Cause> causes = build.getCauses()
 		triggers = causes.collect { new TriggerCause(it) }

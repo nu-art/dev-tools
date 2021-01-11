@@ -114,7 +114,6 @@ class Workflow
 
 	void run() {
 		Throwable t = null
-		Run build = script.currentBuild.rawBuild
 
 		for (String stage : orderedStaged) {
 			logDebug("STAGE: ${stage}")
@@ -130,14 +129,14 @@ class Workflow
 				})
 			} catch (e) {
 				t = e
-				Result result = build.result
+				Result result = script.currentBuild.rawBuild.result
 				if (Result.FAILURE == result || Result.ABORTED == result)
 					continue
 
 				if (e.getClass() == FlowInterruptedException.class)
-					build.result = Result.ABORTED
+					script.currentBuild.rawBuild.result = Result.ABORTED
 				else
-					build.result = Result.FAILURE
+					script.currentBuild.rawBuild.result = Result.FAILURE
 
 				logError("Error in stage '${stage}': ${t.getMessage()}", e)
 //				script.currentBuild.result = "FAILURE"
@@ -161,7 +160,7 @@ class Workflow
 				if (!t) {
 					this.dispatchEvent("Pipeline Completed Event", OnPipelineListener.class, { listener -> listener.onPipelineSuccess() } as WorkflowProcessor<OnPipelineListener>)
 				} else {
-					if (build.result == Result.ABORTED)
+					if (script.currentBuild.rawBuild.result == Result.ABORTED)
 						this.dispatchEvent("Pipeline Aborted", OnPipelineListener.class, { listener -> listener.onPipelineAborted() } as WorkflowProcessor<OnPipelineListener>)
 					else
 						this.dispatchEvent("Pipeline Error Event", OnPipelineListener.class, { listener -> listener.onPipelineFailed(t) } as WorkflowProcessor<OnPipelineListener>)

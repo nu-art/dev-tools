@@ -74,7 +74,7 @@ class SlackModule
 
 	@Override
 	void onPipelineStarted() {
-		notify("*Started*", Colors.randomColor())
+		notify("*Started*", Colors.LightGray)
 	}
 
 	void onPipelineAborted() {

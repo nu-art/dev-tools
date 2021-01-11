@@ -16,6 +16,16 @@ class BuildModule
 	Cause.UserIdCause userCause
 	SCMTrigger.SCMTriggerCause scmCause
 
+	boolean getUser() {
+		return userCause != null
+	}
+
+	boolean getscm() {
+		scmCause.getShortDescription()
+		return scmCause != null
+
+	}
+
 	void setDisplayName(String displayName) {
 		logInfo("Setting display name: ${displayName}")
 		workflow.getCurrentBuild().displayName = displayName

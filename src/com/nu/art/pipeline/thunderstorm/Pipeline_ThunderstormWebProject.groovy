@@ -1,11 +1,9 @@
 package com.nu.art.pipeline.thunderstorm
 
 import com.nu.art.pipeline.modules.SlackModule
-import com.nu.art.pipeline.modules.docker.DockerModule
 import com.nu.art.pipeline.modules.git.GitModule
 import com.nu.art.pipeline.thunderstorm.Pipeline_ThunderstormWebApp
 import com.nu.art.pipeline.workflow.WorkflowModule
-import com.nu.art.pipeline.workflow.variables.Var_Creds
 import com.nu.art.pipeline.workflow.variables.Var_Env
 
 class Pipeline_ThunderstormWebProject<T extends Pipeline_ThunderstormWebProject>
@@ -19,13 +17,15 @@ class Pipeline_ThunderstormWebProject<T extends Pipeline_ThunderstormWebProject>
 	String slackChannel
 	boolean scm
 
-	Pipeline_ThunderstormWebProject(String name, String slackChannel, Class < ? extends WorkflowModule > ... modules) {
+	Pipeline_ThunderstormWebProject(String name, String slackChannel, Class<? extends WorkflowModule>... modules) {
 		super(name, modules)
 		this.slackChannel = slackChannel
 	}
 
 	@Override
 	protected void init() {
+		super.init()
+
 		String branch = Env_Branch.get()
 		getModule(SlackModule.class).prepare().setDefaultChannel(this.slackChannel)
 

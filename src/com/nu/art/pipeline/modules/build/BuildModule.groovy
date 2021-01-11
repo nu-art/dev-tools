@@ -50,6 +50,7 @@ class BuildModule
 		this.logWarning("Causes")
 		Run build = workflow.getCurrentBuild().rawBuild
 		List<Cause> causes = build.getCauses()
+			this.logWarning("Causes: ${causes.size()}")
 		for (Cause cause : causes) {
 			this.logInfo("Cause: ${cause.getShortDescription()}")
 		}

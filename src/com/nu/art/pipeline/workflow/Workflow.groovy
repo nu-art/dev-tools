@@ -48,6 +48,10 @@ class Workflow
 		workflow.setPipeline(pipeline)
 		workflow.addModulePacks(pipeline)
 		workflow.build()
+
+		WorkflowModule[] allmodules = workflow.manager.getModulesAssignableFrom(WorkflowModule.class)
+		allmodules.each { it._init() }
+
 		pipeline._postInit()
 		workflow.start()
 
@@ -121,9 +125,6 @@ class Workflow
 
 	void run() {
 		Throwable t = null
-
-		WorkflowModule[] allmodules = this.manager.getModulesAssignableFrom(WorkflowModule.class)
-		allmodules.each { it._init() }
 
 		for (String stage : orderedStaged) {
 			logDebug("STAGE: ${stage}")

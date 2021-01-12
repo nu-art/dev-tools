@@ -120,7 +120,7 @@ class Workflow
 
 	void terminate(String reason) {
 		orderedStaged = []
-		currentBuild.getRawBuild().delete()
+//		currentBuild.getRawBuild().delete()
 		Job job = Jenkins.instance.getItemByFullName(currentBuild.fullProjectName)
 		int nextBuildNumber = job.getNextBuildNumber()
 		job.updateNextBuildNumber(currentBuild.getRawBuild().getNumber())

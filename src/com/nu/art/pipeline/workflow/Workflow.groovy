@@ -111,6 +111,13 @@ class Workflow
 		stages.put(name, { toRun() })
 	}
 
+	void terminate(String reason) {
+		orderedStaged = []
+		currentBuild.getRawBuild().getExecutor().interrupt(Result.SUCCESS)
+		this.logWarning("Intentionally terminating this job: ${reason}")
+		sleep(10000)   // Interrupt is not blocking and does not take effect immediately.
+	}
+
 	void run() {
 		Throwable t = null
 

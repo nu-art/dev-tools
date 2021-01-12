@@ -15,7 +15,9 @@ import com.nu.art.pipeline.workflow.variables.VarConsts
 import com.nu.art.pipeline.workflow.variables.Var_Creds
 import com.nu.art.pipeline.workflow.variables.Var_Env
 import com.nu.art.reflection.tools.ReflectiveTools
+import hudson.model.Job
 import hudson.model.Result
+import jenkins.model.Jenkins
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
@@ -120,16 +122,13 @@ class Workflow
 		orderedStaged = []
 		try {
 			currentBuild.getRawBuild().delete()
+			Job job = Jenkins.instance.getItemByFullName(currentBuild.fullProjectName)
+			job.updateNextBuildNumber(currentBuild.getRawBuild().getNumber())
+			job.save()
 		} catch (e) {
 			this.logError("Failed delete build 1", e)
 		}
 		currentBuild.getRawBuild().getExecutor().interrupt(Result.NOT_BUILT)
-
-		try {
-			currentBuild.getRawBuild().delete()
-		} catch (e) {
-			this.logError("Failed delete build 2", e)
-		}
 		this.logWarning("Intentionally terminating this job: ${reason}")
 		sleep(10000)   // Interrupt is not blocking and does not take effect immediately.
 		try {

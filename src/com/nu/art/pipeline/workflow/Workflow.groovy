@@ -126,7 +126,7 @@ class Workflow
 		job.updateNextBuildNumber(currentBuild.getRawBuild().getNumber())
 		job.save()
 
-		this.logWarning("updating build number ${nextBuildNumber} => " $ { currentBuild.getRawBuild().getNumber() })
+		this.logWarning("updating build number ${nextBuildNumber} => ${currentBuild.getRawBuild().getNumber()}")
 		currentBuild.getRawBuild().getExecutor().interrupt(Result.NOT_BUILT)
 		this.logWarning("Intentionally terminating this job: ${reason}")
 		sleep(10000)   // Interrupt is not blocking and does not take effect immediately.

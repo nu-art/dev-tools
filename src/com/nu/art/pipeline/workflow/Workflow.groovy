@@ -118,9 +118,25 @@ class Workflow
 
 	void terminate(String reason) {
 		orderedStaged = []
+		try {
+			currentBuild.getRawBuild().delete()
+		} catch (e) {
+			this.logError("Failed delete build 1", e)
+		}
 		currentBuild.getRawBuild().getExecutor().interrupt(Result.NOT_BUILT)
+
+		try {
+			currentBuild.getRawBuild().delete()
+		} catch (e) {
+			this.logError("Failed delete build 2", e)
+		}
 		this.logWarning("Intentionally terminating this job: ${reason}")
 		sleep(10000)   // Interrupt is not blocking and does not take effect immediately.
+		try {
+			currentBuild.getRawBuild().delete()
+		} catch (e) {
+			this.logError("Failed delete build 3", e)
+		}
 	}
 
 	void run() {

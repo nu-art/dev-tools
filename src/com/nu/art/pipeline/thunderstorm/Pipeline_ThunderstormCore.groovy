@@ -80,23 +80,23 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 	}
 
 	protected void _install() {
-		_sh("bash build-and-install.sh --install --no-build --link")
+		_sh("bash build-and-install.sh --install --no-build --link --debug")
 	}
 
 	protected void _clean() {
-		_sh("bash build-and-install.sh --clean --no-build --link")
+		_sh("bash build-and-install.sh --clean --no-build --link --debug")
 	}
 
 	protected void _compile() {
-		_sh("bash build-and-install.sh")
+		_sh("bash build-and-install.sh --debug")
 	}
 
 	protected void _lint() {
-		_sh("bash build-and-install.sh --lint --no-build")
+		_sh("bash build-and-install.sh --lint --no-build --debug")
 	}
 
 	protected void _test() {
-		_sh("bash build-and-install.sh --test --no-build")
+		_sh("bash build-and-install.sh --test --no-build  --debug")
 	}
 
 	String _sh(GString command, readOutput = false) {

@@ -118,7 +118,7 @@ class Workflow
 
 	void terminate(String reason) {
 		orderedStaged = []
-		currentBuild.getRawBuild().getExecutor().interrupt(Result.SUCCESS)
+		currentBuild.getRawBuild().getExecutor().interrupt(Result.NOT_BUILT)
 		this.logWarning("Intentionally terminating this job: ${reason}")
 		sleep(10000)   // Interrupt is not blocking and does not take effect immediately.
 	}

@@ -125,6 +125,7 @@ class Workflow
 		int nextBuildNumber = job.getNextBuildNumber()
 		job.updateNextBuildNumber(currentBuild.getRawBuild().getNumber())
 		job.save()
+		sleep(5000)   // Interrupt is not blocking and does not take effect immediately.
 
 		this.logWarning("updating build number ${nextBuildNumber} => ${currentBuild.getRawBuild().getNumber()}")
 		currentBuild.getRawBuild().getExecutor().interrupt(Result.NOT_BUILT)

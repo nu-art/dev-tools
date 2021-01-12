@@ -27,6 +27,10 @@ class BuildModule
 		}
 	}
 
+	TriggerCause[] getTriggerCause(String causeType) {
+		return triggers.findAll { it.type == causeType }
+	}
+
 	boolean getUser() {
 		if (userCause != null)
 			return userCause.userName

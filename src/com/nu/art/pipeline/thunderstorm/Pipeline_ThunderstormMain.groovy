@@ -14,10 +14,6 @@ class Pipeline_ThunderstormMain<T extends Pipeline_ThunderstormMain>
 		super(name, slackChannel, modules)
 	}
 
-	void declareEnv(String env, String projectId) {
-		envProjects.put(env, projectId)
-	}
-
 	protected T publish() {
 		addStage("publish", { this._publish() })
 		return this as T
@@ -29,5 +25,11 @@ class Pipeline_ThunderstormMain<T extends Pipeline_ThunderstormMain>
 
 	@Override
 	void cleanup() {
+	}
+
+	@Override
+	void pipeline() {
+		super.pipeline()
+		publish()
 	}
 }

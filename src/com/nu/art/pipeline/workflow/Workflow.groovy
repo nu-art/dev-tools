@@ -15,9 +15,7 @@ import com.nu.art.pipeline.workflow.variables.VarConsts
 import com.nu.art.pipeline.workflow.variables.Var_Creds
 import com.nu.art.pipeline.workflow.variables.Var_Env
 import com.nu.art.reflection.tools.ReflectiveTools
-import hudson.model.Job
 import hudson.model.Result
-import jenkins.model.Jenkins
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
@@ -120,24 +118,9 @@ class Workflow
 
 	void terminate(String reason) {
 		orderedStaged = []
-//		currentBuild.getRawBuild().delete()
-		String fullProjectName = currentBuild.fullProjectName
-		Job job = Jenkins.instance.getItemByFullName(fullProjectName)
-		int nextBuildNumber = job.getNextBuildNumber()
-		this.logWarning("updating build number(${fullProjectName}): ${nextBuildNumber} => ${currentBuild.getRawBuild().getNumber()}")
-
-		job.updateNextBuildNumber(currentBuild.getRawBuild().getNumber())
-		job.save()
-		sleep(5000)   // Interrupt is not blocking and does not take effect immediately.
-
+		currentBuild.getRawBuild().delete()
 		currentBuild.getRawBuild().getExecutor().interrupt(Result.NOT_BUILT)
-		this.logWarning("Intentionally terminating this job: ${reason}")
-		sleep(10000)   // Interrupt is not blocking and does not take effect immediately.
-//		try {
-//			currentBuild.getRawBuild().delete()
-//		} catch (e) {
-//			this.logError("Failed delete build 3", e)
-//		}
+		sleep(5000)
 	}
 
 	void run() {

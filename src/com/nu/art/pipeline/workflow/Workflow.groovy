@@ -48,6 +48,7 @@ class Workflow
 		workflow.setPipeline(pipeline)
 		workflow.addModulePacks(pipeline)
 		workflow.build()
+		pipeline._postInit()
 		workflow.start()
 
 

@@ -1,7 +1,7 @@
 package com.nu.art.pipeline.workflow
 
-import com.nu.art.pipeline.modules.build.JobTrigger
 import com.nu.art.pipeline.modules.build.BuildModule
+import com.nu.art.pipeline.modules.build.JobTrigger
 import com.nu.art.pipeline.workflow.variables.VarConsts
 import com.nu.art.pipeline.workflow.variables.Var_Creds
 import com.nu.art.pipeline.workflow.variables.Var_Env
@@ -57,6 +57,8 @@ abstract class BasePipeline<T extends BasePipeline>
 	}
 
 	abstract void pipeline()
+
+	void _postInit() {}
 
 	void setDisplayName() {
 		getModule(BuildModule.class).setDisplayName("#${VarConsts.Var_BuildNumber.get()}: ${name}")

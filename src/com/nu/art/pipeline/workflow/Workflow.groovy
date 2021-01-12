@@ -121,13 +121,15 @@ class Workflow
 	void terminate(String reason) {
 		orderedStaged = []
 //		currentBuild.getRawBuild().delete()
-		Job job = Jenkins.instance.getItemByFullName(currentBuild.fullProjectName)
+		String fullProjectName = currentBuild.fullProjectName
+		Job job = Jenkins.instance.getItemByFullName(fullProjectName)
 		int nextBuildNumber = job.getNextBuildNumber()
+		this.logWarning("updating build number(${fullProjectName}): ${nextBuildNumber} => ${currentBuild.getRawBuild().getNumber()}")
+
 		job.updateNextBuildNumber(currentBuild.getRawBuild().getNumber())
 		job.save()
 		sleep(5000)   // Interrupt is not blocking and does not take effect immediately.
 
-		this.logWarning("updating build number ${nextBuildNumber} => ${currentBuild.getRawBuild().getNumber()}")
 		currentBuild.getRawBuild().getExecutor().interrupt(Result.NOT_BUILT)
 		this.logWarning("Intentionally terminating this job: ${reason}")
 		sleep(10000)   // Interrupt is not blocking and does not take effect immediately.

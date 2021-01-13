@@ -2,7 +2,7 @@
 COLORS_DECLARATION
 
 function calculateColorWithAlpha(color: string, alpha?: number) {
-	return alpha === undefined ? color : color + ((alpha * 256) % 256).toString(16);
+	return color + (255 - Math.round((alpha * 256) % 256)).toString(16);
 }
 
 export const COLORS = {

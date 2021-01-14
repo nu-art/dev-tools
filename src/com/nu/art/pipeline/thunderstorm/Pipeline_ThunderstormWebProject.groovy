@@ -2,7 +2,6 @@ package com.nu.art.pipeline.thunderstorm
 
 import com.nu.art.pipeline.modules.SlackModule
 import com.nu.art.pipeline.modules.git.GitModule
-import com.nu.art.pipeline.thunderstorm.Pipeline_ThunderstormWebApp
 import com.nu.art.pipeline.workflow.WorkflowModule
 import com.nu.art.pipeline.workflow.variables.Var_Env
 
@@ -41,6 +40,7 @@ class Pipeline_ThunderstormWebProject<T extends Pipeline_ThunderstormWebProject>
 		getModule(SlackModule.class).setOnSuccess(links)
 
 		setEnv(branch)
+		super.init()
 	}
 
 	void setGitRepoId(String repoId, boolean scm = false) {

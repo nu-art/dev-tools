@@ -50,7 +50,7 @@ createFolder() {
 }
 
 clearDir() {
-  clearFolder $@
+  clearFolder "$@"
 }
 
 clearFolder() {
@@ -65,7 +65,7 @@ clearFolder() {
 }
 
 deleteFolder() {
-  deleteDir $@
+  deleteDir "$@"
 }
 
 deleteDir() {
@@ -85,6 +85,10 @@ _cd() {
 
 _cd..() {
   cd ..
+}
+
+_cd-() {
+  cd -
 }
 
 _pushd() {

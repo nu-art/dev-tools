@@ -33,23 +33,25 @@ array_contains() {
   done
 }
 
-## @function: array_remove(arrayVarName, itemToRemove)
+## @function: array_remove(arrayVarName, ...itemToRemoves)
 ##
-## @description: remove the give item from the array if it exists
+## @description: remove the given list of items from the array
 ##
 ## @return: void
 array_remove() {
   local arrayVarName=${1}
-  local itemToRemove=${2}
+  local itemToRemoves=("${@:2}")
 
   local temp=
   temp="${arrayVarName}[@]"
 
-  for i in $(eval "echo \${!${arrayVarName}[@]}"); do
-    temp="${arrayVarName}[${i}]"
-    if [[ "${!temp}" == "${itemToRemove}" ]]; then
-      unset "${temp}"
-    fi
+  for itemToRemove in "${itemToRemoves[@]}"; do
+    for i in $(eval "echo \${!${arrayVarName}[@]}"); do
+      temp="${arrayVarName}[${i}]"
+      if [[ "${!temp}" == "${itemToRemove}" ]]; then
+        unset "${temp}"
+      fi
+    done
   done
 }
 
@@ -59,19 +61,30 @@ array_remove() {
 ##
 ## @return: a filtered list with every item existing only once in it
 array_filterDuplicates() {
-  local list=(${@})
+  local list=("${@}")
   local filteredList=()
 
-  for item in ${list[@]}; do
-    [[ $(array_contains "${item}" ${filteredList[@]}) ]] && continue
-    #      echo "adding item: ${item}"
+  for item in "${list[@]}"; do
+    [[ $(array_contains "${item}" "${filteredList[@]}") ]] && continue
 
-    filteredList+=(${item})
+    filteredList+=("${item}")
   done
 
   echo "${filteredList[@]}"
 }
 
+## @function: array_isArray(arrayVarName)
+##
+## @description: will check if the ver name supplied is of type array
+##
+## @return: true if the varName ref to an array, nothing otherwise
 array_isArray() {
-  [[ "$(declare -p variable_name)" =~ "declare -a" ]] && echo true
+  local arrayVarName=${1}
+  [[ "$(declare -p arrayVarName)" =~ "declare -a" ]] && echo true
+}
+
+array_setVariable() {
+  local arrayVarName="${1}"
+  local values="${*:2}"
+  eval "${arrayVarName}=(${values})"
 }

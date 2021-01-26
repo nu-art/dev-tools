@@ -58,8 +58,7 @@ prompt_WaitForChoice() {
   local options=("${@:3}")
 
   logVerbose
-  logWarning "   ${message}"
-
+  logInfo " - ${message}"
   local response=
   select response in "${options[@]}"; do
     deleteTerminalLine
@@ -68,6 +67,48 @@ prompt_WaitForChoice() {
     eval "${resultVar}='${response}'"
     break
   done
-
   deleteTerminalLine ${#options[@]}
+
+  logDebug "  + Selected: ${response}"
+}
+
+## @function: prompt_yesOrNo(resultVar, message, defaultOption)
+##
+## @description: Printing a list of choices and prompting the user to choose an option
+##
+## @return: The selected value
+prompt_yesOrNo() {
+  local resultVar=${1}
+  local message=${2}
+  local defaultOption=${3}
+
+  logInfo " - ${message}?"
+  while [[ ! "${response}" ]]; do
+
+    # shellcheck disable=SC2162
+    read -n 1 -p "" response
+    logVerbose
+    if [[ "${defaultOption}" ]] && [[ "$response" == "" ]]; then
+      deleteTerminalLine
+      response=${defaultOption}
+    fi
+    case "$response" in
+    [yY])
+      deleteTerminalLine
+      setVariable "${resultVar}" y
+      logDebug "  + Yes"
+      ;;
+
+    [nN])
+      deleteTerminalLine
+      setVariable "${resultVar}" n
+      logDebug "  + No"
+      ;;
+
+    *)
+      deleteTerminalLine
+      response=
+      ;;
+    esac
+  done
 }

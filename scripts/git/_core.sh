@@ -77,6 +77,10 @@ gitGetRepoUrl() {
   fi
 }
 
+getGitCommitId() {
+  git show HEAD --pretty=format:"%H" --no-patch
+}
+
 getGitRepoName() {
   git remote -v | head -1 | perl -pe "s/.*:(.*?)(:?.git| ).*/\1/"
 }

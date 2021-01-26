@@ -18,8 +18,7 @@
 #  limitations under the License.
 
 #!/bin/bash
-
-declare -A timerMap
+timerMap=()
 
 startTimer() {
   local key=${1}

@@ -1,8 +1,8 @@
+// empty line
+COLORS_DECLARATION;
 
-COLORS_DECLARATION
-
-function calculateColorWithAlpha(color: string, alpha?: number) {
-	return color + (255 - Math.round((alpha * 256) % 256)).toString(16);
+function calculateColorWithAlpha(color: string, alpha: number = 1) {
+	return color + (255 - Math.round(((1 - alpha) * 256) % 256)).toString(16);
 }
 
 export const COLORS = {

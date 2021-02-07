@@ -18,7 +18,7 @@
 #  limitations under the License.
 
 #!/bin/bash
-DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 source "${DIR}/../_core-tools/_source.sh"
 CONST_Debug=TRUE
 
@@ -26,40 +26,40 @@ totalSuccess=0
 totalErrors=0
 
 assertValue() {
-    local expected=${1}
-    local actual=${2}
+  local expected=${1}
+  local actual=${2}
 
-    assert "${expected}" "${actual}"
-    result=$?
-    [[ ${result} == "1" ]] && logWarning "expected: ${expected} ... but got ${actual}"
+  assert "${expected}" "${actual}"
+  result=$?
+  [[ ${result} == "1" ]] && logWarning "expected: ${expected} ... but got ${actual}"
 }
 
 assert() {
-    local expected=${1}
-    local actual=${2}
+  local expected=${1}
+  local actual=${2}
 
-    if [[ "${expected}" == "${actual}" ]]; then
-        ((totalSuccess++))
-        return 0
-    else
-        ((totalErrors++))
-        return 1
-    fi
+  if [[ "${expected}" == "${actual}" ]]; then
+    ((totalSuccess++))
+    return 0
+  else
+    ((totalErrors++))
+    return 1
+  fi
 }
 
 assertCommand() {
-    local expected=${1}
-    local toEval=${2}
-    local actual=$(${toEval})
-    local label=${3}
+  local expected=${1}
+  local toEval=${2}
+  local actual=$(${toEval})
+  local label=${3}
 
-    assert "${expected}" "${actual}"
-    result=$?
-    [[ ${result} == "1" ]] && logWarning "${label} ${toEval} => ${actual} ... expected: ${expected}"
-    [[ ${result} == "0" ]] && logVerbose "${toEval} => ${actual}"
+  assert "${expected}" "${actual}"
+  result=$?
+  [[ ${result} == "1" ]] && logWarning "${label} ${toEval} => ${actual} ... expected: ${expected}"
+  [[ ${result} == "0" ]] && logVerbose "${toEval} => ${actual}"
 }
 
 printSummary() {
-    logInfo "Success: ${totalSuccess}"
-    (( totalErrors > 0 )) && logError "Errors: ${totalErrors}"
+  logInfo "Success: ${totalSuccess}"
+  ((totalErrors > 0)) && logError "Errors: ${totalErrors}"
 }

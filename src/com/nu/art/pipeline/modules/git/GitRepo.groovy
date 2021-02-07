@@ -1,8 +1,6 @@
 package com.nu.art.pipeline.modules.git
 
 import com.nu.art.pipeline.modules.build.BuildModule
-import hudson.model.Build
-import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
 class GitRepo {
 
@@ -59,48 +57,55 @@ class GitRepo {
 	}
 
 	String currentBranch() {
-		return executeCommand(cli().getCurrentBranch(), true)
+		return sh(cli().getCurrentBranch(), true)
+	}
+
+	void assertCommitDiffs(Closure action = null) {
+		sh(cli().append("git clone ${this.config.url} --depth 1 --branch ${this.config.branch} _temp"))
+		String commitId = sh("cd _temp; git show HEAD --pretty=format:\"%H\" --no-patch", true)
+
+
 	}
 
 	void checkout(String branch, force = false) {
 		try {
-			executeCommand(cli().checkout(branch))
+			sh(cli().checkout(branch))
 		} catch (e) {
 			if (!force)
 				throw e
 
 			if (currentBranch() != branch)
-				executeCommand(cli().createBranch(branch))
+				sh(cli().createBranch(branch))
 		}
 	}
 
 	void merge(String commitTag) {
-		executeCommand(cli().merge(commitTag))
+		sh(cli().merge(commitTag))
 	}
 
 	void createTag(String tagName) {
-		executeCommand(cli().createTag(tagName))
+		sh(cli().createTag(tagName))
 	}
 
 	void pushTags() {
-		executeCommand(cli().pushTags())
+		sh(cli().pushTags())
 	}
 
 	void gsui() {
-		executeCommand(cli().gsui())
+		sh(cli().gsui())
 	}
 
 	void push() {
-		executeCommand(cli().push())
+		sh(cli().push())
 	}
 
 	void commit(String message) {
-		executeCommand(cli().commit(message))
+		sh(cli().commit(message))
 	}
 
 	@Deprecated
 	String executeCommand(Cli cli, output = false) {
-		executeCommand(cli.script, output)
+		sh(cli.script, output)
 	}
 
 	@Deprecated
@@ -135,7 +140,7 @@ class GitRepo {
 	}
 
 	String getCurrentCommit() {
-		return executeCommand("git show HEAD --pretty=format:\"%H\" --no-patch", true)
+		return sh("git show HEAD --pretty=format:\"%H\" --no-patch", true)
 	}
 
 

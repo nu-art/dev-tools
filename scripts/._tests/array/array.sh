@@ -19,25 +19,25 @@
 
 #!/bin/bash
 DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+source "${DIR}/../_tests.sh"
+arrayRemoveTest1() {
+  local pah=("value1" "value2" "value3" "value4")
+  array_remove pah value3 value4
+  echo "${pah[@]}"
+}
 
-CHAR_TAB="$(printf '\t')"
+arrayRemoveTest2() {
+  local pah=("value1" "value2" "value3" "value4" "value4")
+  array_remove pah value3 value4
+  echo "${pah[@]}"
+}
 
-source ${DIR}/colors.sh
-source ${DIR}/logger.sh
-source ${DIR}/time.sh
-source ${DIR}/signature.sh
-source ${DIR}/spinner.sh
+arraySetVarTest1() {
+  local pah=("value1" "value2")
+  array_setVariable zevel "${pah[@]}"
+  echo "${zevel[@]}"
+}
 
-source ${DIR}/tools.sh
-source ${DIR}/error-handling.sh
-source ${DIR}/cli-params.sh
-source ${DIR}/folder-filters.sh
-source ${DIR}/file-tools.sh
-source ${DIR}/folder-tools.sh
-source ${DIR}/array-tools.sh
-source ${DIR}/string-tools.sh
-source ${DIR}/number-tools.sh
-source ${DIR}/versioning.sh
-source ${DIR}/help-tools.sh
-source ${DIR}/prompt-tools.sh
-source ${DIR}/debugger.sh
+assertCommand "value1 value2" "arrayRemoveTest1"
+assertCommand "value1 value2" "arrayRemoveTest2"
+assertCommand "value1 value2" "arraySetVarTest1"

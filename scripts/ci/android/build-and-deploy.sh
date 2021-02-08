@@ -20,101 +20,100 @@
 #!/bin/bash
 
 prepare() {
-    local branch=${1}
-    git checkout ${branch}
-    git submodule update
+  local branch=${1}
+  git checkout ${branch}
+  git submodule update
 
-    cd dev-tools
-        git checkout master
-        git pull
-    cd ..
+  cd dev-tools
+  git checkout master
+  git pull
+  cd ..
 }
 
 build() {
-	logInfo
-  	logInfo "------------------------------------------------------------------------------------------------"
-  	logInfo "-----------------------------------       Building...        -----------------------------------"
+  logInfo
+  logInfo "------------------------------------------------------------------------------------------------"
+  logInfo "-----------------------------------       Building...        -----------------------------------"
 
-	local modules=(`echo $1`)
-	local tasks=(`echo $2`)
+  local modules=($(echo $1))
+  local tasks=($(echo $2))
 
+  for moduleName in "${modules[@]}"; do
+    echo ${moduleName}
 
-    for moduleName in "${modules[@]}"; do
-        echo ${moduleName}
-
-        local gradleParams=""
-        for task in "${tasks[@]}"; do
-            gradleParams+="${moduleName}:${task} "
-        done
-
-        bash gradlew ${gradleParams}
-	    throwError "Building projects"
+    local gradleParams=""
+    for task in "${tasks[@]}"; do
+      gradleParams+="${moduleName}:${task} "
     done
 
-    bash gradlew  :closeAndReleaseRepository -i
-    throwError "Error deploying to central"
+    bash gradlew ${gradleParams}
+    throwError "Building projects"
+  done
 
-  	logInfo "-----------------------------------     Build Completed      -----------------------------------"
-  	logInfo "------------------------------------------------------------------------------------------------"
+  bash gradlew :closeAndReleaseRepository -i
+  throwError "Error deploying to central"
+
+  logInfo "-----------------------------------     Build Completed      -----------------------------------"
+  logInfo "------------------------------------------------------------------------------------------------"
 }
 
 updateRepository() {
-	logInfo
-  	logInfo "------------------------------------------------------------------------------------------------"
-  	logInfo "------------------------------       Update Repositories...        -----------------------------"
+  logInfo
+  logInfo "------------------------------------------------------------------------------------------------"
+  logInfo "------------------------------       Update Repositories...        -----------------------------"
 
-	local modules=(`echo ${1}`)
-    local newVersionName=`getJsonValueForKey version.json versionName`
-    local newVersionCode=`getJsonValueForKey version.json versionCode`
-    local tag=
-    local message=
+  local modules=($(echo ${1}))
+  local newVersionName=$(getJsonValueForKey version.json versionName)
+  local newVersionCode=$(getJsonValueForKey version.json versionCode)
+  local tag=
+  local message=
 
-    if [[ ! "${newVersionName}" ]]; then
-        throwError "could not resolve version" 3
-    fi
+  if [[ ! "${newVersionName}" ]]; then
+    throwError "could not resolve version" 3
+  fi
 
-    if [[ ! "${newVersionCode}" ]] || [[ "${newVersionCode}" == "1" ]]; then
-        tag="v${newVersionName}"
-        message="Jenkins Build - v${newVersionName}"
-    else
-        tag="v${newVersionName}-${newVersionCode}"
-        message="Jenkins Build - v${newVersionName} (${newVersionCode})"
-    fi
+  if [[ ! "${newVersionCode}" ]] || [[ "${newVersionCode}" == "1" ]]; then
+    tag="v${newVersionName}"
+    message="Jenkins Build - v${newVersionName}"
+  else
+    tag="v${newVersionName}-${newVersionCode}"
+    message="Jenkins Build - v${newVersionName} (${newVersionCode})"
+  fi
 
-    logInfo "TEST_RUN: ${TEST_RUN}"
-    logInfo "Commit push tag: ${tag}, message: ${message}"
-    logInfo "Commit Message: ${message}"
-    logInfo "Tag: ${tag}"
+  logInfo "TEST_RUN: ${TEST_RUN}"
+  logInfo "Commit push tag: ${tag}, message: ${message}"
+  logInfo "Commit Message: ${message}"
+  logInfo "Tag: ${tag}"
 
-    for module in "${modules[@]}"; do
-        pushd ${module} > /dev/null
-            git tag -a ${tag} -am "${message}"
-            git push origin ${tag}
-        popd > /dev/null
-    done
+  for module in "${modules[@]}"; do
+    pushd ${module} > /dev/null
+    git tag -a ${tag} -am "${message}"
+    git push origin ${tag}
+    popd > /dev/null
+  done
 
-    git commit -am "${message}"
-    git tag -a "${tag}" -am "${message}"
-    git push --tags
-    git push
+  git commit -am "${message}"
+  git tag -a "${tag}" -am "${message}"
+  git push --tags
+  git push
 
-    logInfo "--------------------------------     Repositories Updated!     ---------------------------------"
-  	logInfo "------------------------------------------------------------------------------------------------"
+  logInfo "--------------------------------     Repositories Updated!     ---------------------------------"
+  logInfo "------------------------------------------------------------------------------------------------"
 }
 
 buildDeployPush() {
-    local modules=$(listGradleGitModulesFolders)
-    local tasks=uploadArchives
+  local modules=$(listGradleModulesFolders)
+  local tasks=uploadArchives
 
-    bash gradlew assembleDebug
-    throwError "Error compiling project in Debug"
+  bash gradlew assembleDebug
+  throwError "Error compiling project in Debug"
 
-#    bash gradlew test -i
-#    throwError "Error running tests"
+  #    bash gradlew test -i
+  #    throwError "Error running tests"
 
-    build "${modules}" "${tasks}"
-    throwError "Error while building artifacts"
+  build "${modules}" "${tasks}"
+  throwError "Error while building artifacts"
 
-    updateRepository "${modules}"
-    throwError "Error while updating repos"
+  updateRepository "${modules}"
+  throwError "Error while updating repos"
 }

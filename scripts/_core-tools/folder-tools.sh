@@ -147,6 +147,10 @@ listGradleGitFolders() {
   listFoldersImpl allGradleFolders allGitFolders
 }
 
+listGradleModulesFolders() {
+  listFoldersImpl allGradleFolders moduleFolder
+}
+
 listGradleGitModulesFolders() {
   listFoldersImpl allGradleFolders allGitFolders moduleFolder
 }

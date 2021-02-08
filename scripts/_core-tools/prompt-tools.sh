@@ -83,6 +83,7 @@ prompt_yesOrNo() {
   local defaultOption=${3}
 
   logInfo " - ${message}?"
+  local response=
   while [[ ! "${response}" ]]; do
 
     # shellcheck disable=SC2162

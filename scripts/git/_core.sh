@@ -20,6 +20,7 @@
 #!/bin/bash
 
 source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
+source ${BASH_SOURCE%/*}/_core-refactoring.sh
 
 GIT_TAG="GIT:"
 
@@ -75,10 +76,6 @@ gitGetRepoUrl() {
   else
     git remote -v | grep push | sed -E 's/origin\s//' | sed -E 's/\s\(push\)//'
   fi
-}
-
-getGitCommitId() {
-  git show HEAD --pretty=format:"%H" --no-patch
 }
 
 getGitRepoName() {
@@ -370,8 +367,8 @@ gitNoConflictsAddCommitPush() {
       throwError "Failed to push... probably need to pull" 2
     fi
   fi
-
 }
+
 getSubmodulesByScope() {
   local scope=${1}
   local submodules=()

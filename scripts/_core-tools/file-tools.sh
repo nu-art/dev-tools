@@ -32,7 +32,7 @@ renameFiles() {
   local replaceWith=${3}
 
   local files=($(find "${rootFolder}" -iname "*${matchPattern}*"))
-  for file in ${files[@]}; do
+  for file in "${files[@]}"; do
     local newFile=$(echo "${file}" | sed -E "s/${matchPattern}/${replaceWith}/g")
     mv "${file}" "${newFile}"
   done
@@ -45,6 +45,24 @@ renameFiles() {
 ## @return: void
 file_replaceAll() {
   file_replace "$1" "$2" "$3" g "${4}"
+}
+
+## @function: file_deleteLine(match, pathToFile, delimiter?)
+##
+## @description: Delete all the lines containing or matching the provided match
+##
+## @return: void
+file_deleteLine() {
+  local match=${1}
+  local pathToFile=${2}
+  local delimiter="${5:-/}"
+
+  if [[ $(isMacOS) ]]; then
+    sed -i '' -E "/${match}/d" "${pathToFile}"
+  else
+    sed -i -E "/${match}/d" "${pathToFile}"
+  fi
+
 }
 
 ## @function: file_replace(match, replaceWith, file, flags?, delimiter?)

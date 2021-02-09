@@ -51,11 +51,13 @@ buildWorkspace() {
     local ref
 
     for lib in "${libs[@]}"; do
+      _logWarning "processing ${lib}"
+
       [[ ! -e "${lib}" ]] && continue
       [[ ! -e "${lib}/package.json" ]] && continue
 
       local watchProcessIds=()
-      for watchLine in "${activeWatches[@]}" ; do
+      for watchLine in "${activeWatches[@]}"; do
         breakpoint "watch line"
         [[ ! "$(string_match "${watchLine}" "${lib}")" ]] && continue
         watchProcessIds+=("${watchLine}")
@@ -63,6 +65,7 @@ buildWorkspace() {
 
       ref=$(string_replaceAll "-" "_" "${lib}")
 
+      _logWarning "new ${className} ${ref}"
       new "${className}" "${ref}"
       "${ref}".folderName = "${lib}"
       "${ref}".path = "$(pwd)"

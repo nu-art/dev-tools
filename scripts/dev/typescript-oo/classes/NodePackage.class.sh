@@ -154,23 +154,27 @@ NodePackage() {
     local folders=($(listFolders))
     _cd..
 
+    logWarning "Compiling"
     for folder in "${folders[@]}"; do
       [[ "${folder}" == "test" ]] && continue
 
       logInfo "Compiling($(tsc -v)): ${folderName}/${folder}"
       if [[ "${ts_watch}" ]]; then
-        local parts=
+        parts=
         for watchLine in "${watchIds[@]}"; do
           parts=(${watchLine[@]})
           [[ "${parts[1]}" == "${folder}" ]] && break
         done
-        [[ $(ps -p "${parts[2]}" | grep tsc-watch) ]] &&
+
+        [[ "${parts[2]}" ]] && [[ "$(pgrep -P "${parts[2]}")" == "${parts[2]}" ]] &&
           logDebug " - Already listening on pid: ${parts[2]}" &&
           echo "${folderName} ${folder} $!" >> "${CONST_BuildWatchFile}" &&
           continue
 
+        breakpoint "remove watch line"
+        logDebug "watchIds: ${watchIds[*]}"
         array_remove this_watchIds "${parts[@]}"
-
+        logDebug "watchIds: ${watchIds[*]}"
         echo
         echo
         echo
@@ -191,6 +195,8 @@ NodePackage() {
         echo
         tsc-watch -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]} --onSuccess "bash ../relaunch-backend.sh" &
         watchIds+=("${folderName} ${folder} $!")
+        logDebug "watchIds: ${watchIds[*]}"
+
       else
         tsc -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]}
         throwWarning "Error compiling: ${module}/${folder}"

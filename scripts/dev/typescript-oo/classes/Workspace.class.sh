@@ -201,7 +201,7 @@ Workspace() {
     for lib in "${allLibs[@]}"; do
       local temp="$("${lib}.watchIds")"
       [[ ! "${temp}" ]] && continue
-      echo -e "$("${lib}.watchIds")" >> "${CONST_BuildWatchFile}"
+      echo -e "$("${lib}.watchIds")\n" >> "${CONST_BuildWatchFile}"
     done
   }
 

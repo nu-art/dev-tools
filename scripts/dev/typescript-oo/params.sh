@@ -338,6 +338,13 @@ extractParams() {
       noGit=true
       ;;
 
+    "--debug-transpiler")
+      CONST_Debug=true
+      setDebugLog true
+      ts_debug=true
+      ((ts_LogLevel > LOG_LEVEL__DEBUG)) && ts_LogLevel=${LOG_LEVEL__DEBUG}
+      ;;
+
     "--debug")
       #DOC: Will print the parameters the script is running with
       setDebugLog true
@@ -398,7 +405,6 @@ extractParams() {
       #DOC: Will publish thunderstorm without link clean lint and compile
       #WARNING: ONLY used for publishing Thunderstorm!!
       #WARNING: Use only if you REALLY understand the lifecycle of the project and script!!
-
 
       ts_link=
       ts_clean=

@@ -20,99 +20,99 @@
 #!/bin/bash
 
 source ${BASH_SOURCE%/*}/_core.sh
-
+CONST_Debug=true
 paramColor=${BRed}
 projectsToIgnore=("dev-tools")
 params=(githubUsername fromBranch toBranch)
 
 extractParams() {
-    for paramValue in "${@}"; do
-        case "${paramValue}" in
-            "--github-username="*)
-                githubUsername=`regexParam "--github-username" "${paramValue}"`
-            ;;
+  for paramValue in "${@}"; do
+    case "${paramValue}" in
+    "--github-username="*)
+      githubUsername=$(regexParam "--github-username" "${paramValue}")
+      ;;
 
-            "--from="*)
-                fromBranch=`regexParam "--from" "${paramValue}"`
-            ;;
+    "--from="*)
+      fromBranch=$(regexParam "--from" "${paramValue}")
+      ;;
 
-            "--from-this")
-                fromBranch=`gitGetCurrentBranch`
-            ;;
+    "--from-this")
+      fromBranch=$(gitGetCurrentBranch)
+      ;;
 
-            "--to="*)
-                toBranch=`regexParam "--to" "${paramValue}"`
-            ;;
+    "--to="*)
+      toBranch=$(regexParam "--to" "${paramValue}")
+      ;;
 
-            "--debug")
-                debug="true"
-            ;;
-        esac
-    done
+    "--debug")
+      debug="true"
+      ;;
+    esac
+  done
 }
 
 printUsage() {
-    logVerbose
-    logVerbose "   USAGE:"
-    logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${fromBranch} ${toBranch}"
-    logVerbose
-    exit 0
+  logVerbose
+  logVerbose "   USAGE:"
+  logVerbose "     ${BBlack}bash${NoColor} ${BCyan}${0}${NoColor} ${fromBranch} ${toBranch}"
+  logVerbose
+  exit 0
 }
 
 verifyRequirement() {
-    local missingParamColor=${BRed}
-    local existingParamColor=${BBlue}
+  local missingParamColor=${BRed}
+  local existingParamColor=${BBlue}
 
-    missingData=
-    if [[ ! "${fromBranch}" ]]; then
-        fromBranch="--from=${missingParamColor}branch-name${NoColor} OR ${missingParamColor}--from-this${NoColor}"
-        missingData=true
-    fi
+  missingData=
+  if [[ ! "${fromBranch}" ]]; then
+    fromBranch="--from=${missingParamColor}branch-name${NoColor} OR ${missingParamColor}--from-this${NoColor}"
+    missingData=true
+  fi
 
-    if [[ ! "${toBranch}" ]]; then
-        toBranch="--to=${paramColor}Branch-to-merge-onto${NoColor}"
-        missingData=true
-    fi
+  if [[ ! "${toBranch}" ]]; then
+    toBranch="--to=${paramColor}Branch-to-merge-onto${NoColor}"
+    missingData=true
+  fi
 
-    if [[ "${missingData}" ]]; then
-        printUsage
-    fi
+  if [[ "${missingData}" ]]; then
+    printUsage
+  fi
 
 }
 extractParams "$@"
 printCommand "$@"
 verifyRequirement
 
-currentBranch=`gitGetCurrentBranch`
+currentBranch=$(gitGetCurrentBranch)
 if [[ "${currentBranch}" != "${fromBranch}" ]]; then
-    logError "Main Repo MUST be on branch: ${fromBranch}"
-    exit 1
+  logError "Main Repo MUST be on branch: ${fromBranch}"
+  exit 1
 fi
 
 summary=""
 
 processFolder() {
-    local submoduleName=${1}
-    local currentBranch=`gitGetCurrentBranch`
-    if [[ "${currentBranch}" != "${fromBranch}" ]]; then
-        logVerbose "repo '${submoduleName}'is not aligned with branch: ${fromBranch}!!"
-        return
-    fi
+  local submoduleName=${1}
+  local currentBranch=$(gitGetCurrentBranch)
+  if [[ "${currentBranch}" != "${fromBranch}" ]]; then
+    logVerbose "repo '${submoduleName}'is not aligned with branch: ${fromBranch}!!"
+    return
+  fi
 
-    if [[ ! `git status` =~ "Your branch is up to date with 'origin/${fromBranch}'" ]]; then
-        logError "repo '${submoduleName}'is not synced with origin!!"
-        git status
-        exit 1
-    fi
+  if [[ ! $(git status) =~ "Your branch is up to date with 'origin/${fromBranch}'" ]]; then
+    logError "repo '${submoduleName}'is not synced with origin!!"
+    git status
+    exit 1
+  fi
 
-    local project=`getGitRepoName`
-    throwError "Unable to extract remote project name"
+  local project=$(getGitRepoName)
+  throwError "Unable to extract remote project name"
 
-    url="https://github.com/${project}/compare/${toBranch}...${fromBranch}?expand=1"
-    echo "URL: ${url}"
-    open ${url}
-    sleep 2s
-    summary="${summary}\nhttps://github.com/${project}/pulls/${githubUsername}"
+  url="https://github.com/${project}/compare/${toBranch}...${fromBranch}?expand=1"
+  echo "URL: ${url}"
+  open ${url}
+  sleep 2s
+  summary="${summary}\nhttps://github.com/${project}/pulls/${githubUsername}"
 }
 
 signature "Pull-Request"

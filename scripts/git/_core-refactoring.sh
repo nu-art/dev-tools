@@ -17,7 +17,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-#Z !/bin/bash
+# !/bin/bash
 
 ## @function: git_listSubmodules(varName, scope, ...toIgnore)
 ##

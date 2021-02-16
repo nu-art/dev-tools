@@ -199,10 +199,10 @@ Workspace() {
 
     [[ "${ts_watch}" ]] && deleteFile "${CONST_BuildWatchFile}"
     for lib in "${allLibs[@]}"; do
-      local length=$("${lib}.watchIds.length")
+      local length=$("${lib}.newWatchIds.length")
       ((length == 0)) && continue
       for ((i = 0; i < length; i++)); do
-        local var="${lib}_watchIds[${i}]"
+        local var="${lib}_newWatchIds[${i}]"
         echo -e "${!var}" >> "${CONST_BuildWatchFile}"
       done
     done

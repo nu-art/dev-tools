@@ -10,6 +10,7 @@ NodePackage() {
   declare outputDir
   declare outputTestDir
   declare -a watchIds
+  declare -a newWatchIds
 
   _prepare() {
     packageName="$(getJsonValueForKey "${folderName}/package.json" "name")"
@@ -154,22 +155,24 @@ NodePackage() {
     local folders=($(listFolders))
     _cd..
 
-    watchIds=()
     for folder in "${folders[@]}"; do
       [[ "${folder}" == "test" ]] && continue
-
       logInfo "Compiling($(tsc -v)): ${folderName}/${folder}"
       if [[ "${ts_watch}" ]]; then
-        parts=
+
+        local parts=
         for watchLine in "${watchIds[@]}"; do
           parts=(${watchLine[@]})
           [[ "${parts[1]}" == "${folder}" ]] && break
         done
 
-        [[ "${parts[2]}" ]] && pkill -P ${parts[2]}
+        [[ "${parts[2]}" ]] && execute "pkill -P ${parts[2]}"
 
         tsc-watch -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]} --onSuccess "bash ../relaunch-backend.sh" &
-        watchIds+=("${folderName} ${folder} $!")
+
+        local _pid="${folderName} ${folder} $!"
+        logInfo "${_pid}"
+        newWatchIds+=("${_pid}")
       else
         tsc -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]}
         throwWarning "Error compiling: ${module}/${folder}"

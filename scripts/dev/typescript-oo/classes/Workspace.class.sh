@@ -19,6 +19,8 @@ Workspace() {
 
     this.setAppsVersion
     this.setThunderstormVersion
+
+    logWarning "versions: ${appVersion} ${thunderstormVersion}"
   }
 
   _setAppsVersion() {

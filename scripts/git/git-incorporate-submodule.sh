@@ -49,38 +49,23 @@ gitDeinitSubmodule() {
   logWarning "de-init submodule: ${submodule} on branch: ${branch}"
   local ok=
   local submodule="${1}"
-  local submoduleFolder="${outputFolder}/${submodule}"
   _cd "${submodule}"
   local url="$(gitGetRepoUrl)"
+  local commitId="$(git_getCurrentCommitId)"
   _cd-
 
-  execute "git clone ${url} ${submoduleFolder}"
-
-  _cd "${submoduleFolder}"
-
-  execute "git checkout ${branch}"
-
-  # Last confirmation
-  git ls-files -s | sed "s/${CHAR_TAB}/${CHAR_TAB}${submodule}\//"
-  prompt_yesOrNo ok "Please take a look at the printed file list. Does it look correct (y/n)..." n
-  [[ "${ok}" == "n" ]] && throwError "aborting..." 2
-
-  # The actual processing happens here
-  local indexFilter="git ls-files -s | sed \"s/${CHAR_TAB}/${CHAR_TAB}${submodule}\//\" | GIT_INDEX_FILE=\${GIT_INDEX_FILE}.new git update-index --index-info && mv \${GIT_INDEX_FILE}.new \${GIT_INDEX_FILE}"
-
-  git filter-branch --index-filter "$indexFilter" HEAD
-
-  _cd-
-  rm -r "${submodule}"
+  execute "git submodule deinit ${submodule}"
+  execute "git rm -rf --cache ${submodule}"
+  execute "rm -rf ${submodule}"
   file_deleteLine "${submodule}" .gitmodules
-  git commit -am "melding submodule: ${submodule}"
-  git remote add "${submodule}" "${submoduleFolder}"
-  git fetch "${submodule}"
-  git merge -s ours --no-commit "${submodule}/${branch}" --allow-unrelated-histories
-  git clone "${url}"
-  rm -rf "${submodule}/.git"
-  git commit -am "melded submodule: ${submodule}"
-  git remote remove "${submodule}"
+  git commit -am "removed git submodule: ${submodule}"
+
+  execute "git clone ${url} ${submodule}"
+  _cd "${submodule}"
+  git fetch
+  git checkout "${commitId}"
+  deleteFolder .git
+  _cd-
 }
 
 function pickSubmodules() {
@@ -120,6 +105,9 @@ function start() {
     gitDeinitSubmodule "${submodule}"
   done
 
+  git add .
+  git commit -am "Incorporated submodules for: ${submodule}"
+  #  git push
   #  git commit -am "Melded submodules: (${submodulesToMeld[*]})"
 }
 

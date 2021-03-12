@@ -147,6 +147,10 @@ listGradleGitFolders() {
   listFoldersImpl allGradleFolders allGitFolders
 }
 
+listGradleModulesFolders() {
+  listFoldersImpl allGradleFolders moduleFolder
+}
+
 listGradleGitModulesFolders() {
   listFoldersImpl allGradleFolders allGitFolders moduleFolder
 }
@@ -163,12 +167,9 @@ iterateOverFolders() {
   local directories=("${directoriesAsString}")
   _logDebug "directories(${#directories[@]}): ${directories[*]}"
   for folderName in ${directories[@]}; do
-    echo "Processing: ${folderName}"
-    #    bannerDebug "Processing: ${folderName}"
-    #    _pushd "${folderName}"
-    #    ${toExecute} "${folderName}"
-    #    _popd
-    #    logVerbose "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+    _pushd "${folderName}"
+    ${toExecute} "${folderName}"
+    _popd
   done
 
 }

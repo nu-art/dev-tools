@@ -338,9 +338,15 @@ extractParams() {
       noGit=true
       ;;
 
+    "--debug-transpiler")
+      CONST_Debug=true
+      setDebugLog true
+      ts_debug=true
+      ((ts_LogLevel > LOG_LEVEL__DEBUG)) && ts_LogLevel=${LOG_LEVEL__DEBUG}
+      ;;
+
     "--debug")
       #DOC: Will print the parameters the script is running with
-      setDebugLog true
       ts_debug=true
       ((ts_LogLevel > LOG_LEVEL__DEBUG)) && ts_LogLevel=${LOG_LEVEL__DEBUG}
 

@@ -49,7 +49,7 @@ new() {
   [[ ! "${instanceName}" ]] && instanceName="i$(string_generateHex 8)"
   local fqn=Class_${className}
 
-  _logVerbose "new ${className} ${instanceName}"
+  _logInfo "new instance ${className} ${instanceName}"
   loadClass "${className}"
 
   local class=$("${fqn}.class")
@@ -60,19 +60,26 @@ new() {
 
   if [[ "${className}" == "ClassObj" ]]; then
     saveAndSource "${class}" "${GLOBAL_TranspilerOutputClasses}/${className}_${instanceName}.class.sh"
+    _logDebug "Instance cached: ${className} ${instanceName}"
     return
   fi
 
   saveAndSource "${class}" "${GLOBAL_TranspilerOutputInstances}/${className}_${instanceName}.class.sh"
+
+  _logVerbose "sed ${className} ${instanceName}"
   echo -e "${class}" > "${GLOBAL_TranspilerOutputInstances}/${className}_${instanceName}.class.sh"
 
+  _logVerbose "load instance ${instanceName}"
   ${instanceName}
+
+  _logVerbose "load defaultValues ${defaultValues}"
   ${defaultValues}
 
   "${instanceName}.__this" = "${instanceName}"
   "${instanceName}.__class" = "${fqn}"
 
-  [[ "${2}" ]] && return
+  _logDebug "Instance cached ${className} ${instanceName}"
+  [[ "${instanceName}" ]] && return
   echo "${instanceName}"
 }
 
@@ -134,6 +141,8 @@ loadClass() {
   local className=${1}
   local pathToClassFile=
 
+  _logInfo "Loading class: ${className}"
+  _logVerbose "Resolving file for: ${className}"
   resolveClassFile "${className}" pathToClassFile
 
   local class=
@@ -146,12 +155,13 @@ loadClass() {
   local fqn=Class_${className}
   [[ $(isFunction "${fqn}.class") ]] && return
 
-  _logDebug "Loading class from file: ${className} from: ${pathToClassFile}"
+  _logVerbose "Loading class: ${className} from: ${pathToClassFile}"
   local rawClass="$(cat ${pathToClassFile})"
   class="${rawClass}"
   # shellcheck disable=SC2076
   [[ ! "${class}" =~ "${className}()" ]] && throwError "Could not find constructor matching class name '${className}' in class file: ${pathToClassFile}" 3
 
+  _logVerbose "Collecting class information: ${className}"
   parents=($(transpile_GetParentsClasses "${class}"))
   class="$(transpile_AppendParentClasses "${class}")"
   echo -e "${class}" > "${GLOBAL_TranspilerOutputTemplate}/${className}.class.sh"
@@ -168,19 +178,22 @@ loadClass() {
 
   if [[ "${fqn}" == "Class_ClassObj" ]]; then
     # This is creating a new Class instance of the Class object
+    _logInfo "new instance: ClassObj ${className}"
     class="$(echo -e "${class}" | sed -E "s/ClassObj/${fqn}/g")"
 
     saveAndSource "${class}" "${GLOBAL_TranspilerOutputClasses}/${className}.class.sh"
+    _logDebug "Instance cached: ${className} ${className}"
   else
     # This is creating a new Class instance of a new type
     new ClassObj "${className}"
   fi
 
-  #  _logWarning "parent: ${parents[*]}"
   "${fqn}"
+
   local rawClassStart=$(echo -e "${rawClass}" | grep -n "${className}\(\)" | head -n 1 | cut -d: -f1)
   local rawClassEnd=$(echo -e "${rawClass}" | grep -n "}" | tail -n 1 | cut -d: -f1)
   rawClass=$(echo -e "${rawClass}" | sed -n "$((rawClassStart + 2)),$((rawClassEnd - 1))p")
+
   #  breakpoint "rawClass after"
   "${fqn}.rawClass" = "${rawClass}"
   "${fqn}.class" = "${class}"
@@ -225,8 +238,10 @@ transpile_Class() {
     local members+=($(transpile_GetStaticMemberNames "${class}"))
 
     class=$(echo -e "${class}" | sed -E "s/declare ([a-zA-Z_]{1,})=.*$/declare \1/g")
-
+    _logDebug "Transpile members: ${className}"
     for member in "${members[@]}"; do
+      _logVerbose "  > Transpile member: ${className} - ${member}"
+
       class=$(echo -e "${class}" | sed -E "s/\\$\{#${member}/\${#${className}_${member}/g")
       class=$(echo -e "${class}" | sed -E "s/\\$\{${member}([\[\}:])/\${${className}_${member}\1/g")
       class=$(echo -e "${class}" | sed -E "s/${member}(\+|\[.*])?=/${className}_${member}\1=/g")
@@ -251,7 +266,10 @@ transpile_Class() {
 
     local methods=($(transpile_GetMethodsNames "${class}"))
 
+    _logDebug "Transpile methods: ${className}"
     for method in "${methods[@]}"; do
+      _logVerbose "  > Transpile method: ${className} - ${method}"
+
       class=$(echo -e "${class}" | sed -E "s/_${method}\(\)/${className}.${method}()/g")
       class=$(echo -e "${class}" | sed -E "s/this.${method}/${className}.${method}/g")
     done

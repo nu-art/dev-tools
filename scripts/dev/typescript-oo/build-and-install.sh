@@ -54,15 +54,17 @@ buildWorkspace() {
       [[ ! -e "${lib}" ]] && continue
       [[ ! -e "${lib}/package.json" ]] && continue
 
+      _logWarning "processing ${lib}"
       local watchProcessIds=()
-      for watchLine in "${activeWatches[@]}" ; do
-        breakpoint "watch line"
-        [[ ! "$(string_match "${watchLine}" "${lib}")" ]] && continue
+      for watchLine in "${activeWatches[@]}"; do
+        [[ ! "${watchLine}" ]] && continue
+        [[ ! "${watchLine}" =~ ^${lib} ]] && continue
+
         watchProcessIds+=("${watchLine}")
       done
-
       ref=$(string_replaceAll "-" "_" "${lib}")
 
+      _logWarning "new ${className} ${ref}"
       new "${className}" "${ref}"
       "${ref}".folderName = "${lib}"
       "${ref}".path = "$(pwd)"
@@ -97,6 +99,8 @@ buildWorkspace() {
   workspace.active = "${_activeLibs[@]}"
   workspace.apps = "${_apps[@]}"
   workspace.allLibs = "${_allLibs[@]}"
+
+  #  breakpoint "before running workspace"
 
   #  workspace.toLog
   workspace.setEnvironment

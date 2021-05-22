@@ -198,8 +198,8 @@ extractParams() {
       #NOTE: MUST have ThunderstormHome env variable defined and point to the Thunderstorm sample project
 
       [[ ! "${ThunderstormHome}" ]] && throwError "ThunderstormHome must be defined as an Environment variable" 2
-      linkDependencies=true
-      linkThunderstorm=true
+      ts_link=true
+      ts_linkThunderstorm=true
       ;;
 
     "--thunderstorm-home="* | "-th="*)
@@ -347,7 +347,6 @@ extractParams() {
 
     "--debug")
       #DOC: Will print the parameters the script is running with
-      setDebugLog true
       ts_debug=true
       ((ts_LogLevel > LOG_LEVEL__DEBUG)) && ts_LogLevel=${LOG_LEVEL__DEBUG}
 

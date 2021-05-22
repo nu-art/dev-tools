@@ -1,6 +1,6 @@
 package com.nu.art.pipeline.thunderstorm
 
-
+import com.nu.art.pipeline.modules.SlackModule
 import com.nu.art.pipeline.workflow.WorkflowModule
 import com.nu.art.pipeline.workflow.variables.Var_Env
 
@@ -29,7 +29,16 @@ class Pipeline_ThunderstormMain<T extends Pipeline_ThunderstormMain>
 
 	@Override
 	void pipeline() {
-		super.pipeline()
+		checkout({
+			getModule(SlackModule.class).setOnSuccess(getRepo().getChangeLog().toSlackMessage())
+		})
+
+		install()
+		clean()
+		build()
+//		test()
+
 		publish()
+		deploy()
 	}
 }

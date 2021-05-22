@@ -114,6 +114,9 @@ buildDeployPush() {
   build "${modules}" "${tasks}"
   throwError "Error while building artifacts"
 
-  updateRepository "${modules}"
+  local gitSubmodules=$(listGradleGitModulesFolders)
+  gitSubmodules=($(array_filterDuplicates "${gitSubmodules[@]}"))
+
+  updateRepository "${gitSubmodules}"
   throwError "Error while updating repos"
 }

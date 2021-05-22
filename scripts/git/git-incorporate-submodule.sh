@@ -65,7 +65,7 @@ gitDeinitSubmodule() {
   git fetch
   git checkout "${commitId}"
   deleteFolder .git
-  cd-
+  _cd-
 }
 
 function pickSubmodules() {

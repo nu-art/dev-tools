@@ -575,7 +575,7 @@ _setup() {
   bannerInfo "Setup"
   logInfo "Setting up global packages..."
 
-  npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest sort-json@latest tsc-watch@latest
+  npm i -g typescript@4.1 eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest sort-json@latest tsc-watch@latest
   executeOnModules setupModule
 }
 _clean() {

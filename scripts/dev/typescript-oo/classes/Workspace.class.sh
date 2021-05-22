@@ -78,7 +78,7 @@ Workspace() {
 
   _forEach() {
     local command=${1}
-    [[ ! "${command}" ]] && throwError "No command spcified" 2
+    [[ ! "${command}" ]] && throwError "No command specified" 2
     local items=(${2})
 
     for item in "${items[@]}"; do

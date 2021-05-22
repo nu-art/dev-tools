@@ -73,7 +73,7 @@ extractParams() {
     case "${paramValue}" in
     #        ==== General ====
     "--help" | "-h")
-      #￿￿￿￿DOC: This help menu
+      #DOC: This help menu
 
       printHelp "${BASH_SOURCE%/*}/params.sh"
       ;;

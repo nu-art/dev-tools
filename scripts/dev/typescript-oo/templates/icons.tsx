@@ -27,7 +27,7 @@ class RenderIcon
 		 display: inline-block;
 		`;
 
-		return <span className={iconStyle} {...this.props.props}/>;
+		return <span {...this.props.props} className={`${iconStyle} ${this.props.props?.className}`}/>;
 	}
 }
 

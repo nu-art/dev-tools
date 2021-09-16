@@ -19,121 +19,164 @@
 
 def applyAndroidApplication(id, apkName) {
 
-    apply plugin: 'com.android.application'
+	apply plugin: 'com.android.application'
 
-    android {
-        defaultConfig {
-            applicationId id
-        }
+	project.android {
+		defaultConfig {
+			applicationId id
+		}
 
-        def rootProjectPath = rootProject.projectDir.getAbsolutePath()
+		def rootProjectPath = rootProject.projectDir.getAbsolutePath()
 
-        compileSdkVersion COMPILE_SDK.toInteger()
-        if (!checkMinGradleVersion("4.4"))
-            buildToolsVersion TOOLS_VERSION
+		compileSdkVersion COMPILE_SDK.toInteger()
+		buildToolsVersion TOOLS_VERSION
 
-        defaultConfig {
-            multiDexEnabled true
+		defaultConfig {
+			multiDexEnabled true
 
-            minSdkVersion MIN_SDK
-            targetSdkVersion TARGET_SDK
-            versionName getVersionNameFromFile()
-            versionCode getVersionCodeFromFile()
-            project.version = versionName
+			minSdkVersion MIN_SDK
+			targetSdkVersion TARGET_SDK
+			versionName getVersionNameFromFile()
+			versionCode getVersionCodeFromFile()
+			project.version = versionName
 
-            javaCompileOptions {
-                annotationProcessorOptions {
-                    includeCompileClasspath false
-                }
-            }
-            testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        }
+			testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+		}
 
-        lintOptions {
-            checkReleaseBuilds false
-            abortOnError false
-        }
+		lintOptions {
+			checkReleaseBuilds false
+			abortOnError false
+		}
 
-        compileOptions {
-            sourceCompatibility JavaVersion.VERSION_1_8
-            targetCompatibility JavaVersion.VERSION_1_8
-        }
+		compileOptions {
+			sourceCompatibility JavaVersion.VERSION_1_8
+			targetCompatibility JavaVersion.VERSION_1_8
+		}
 
-        signingConfigs {
-            debug {
-                storeFile file(rootProjectPath + "/debug.keystore")
-            }
-        }
+		signingConfigs {
+			debug {
+				storeFile file(rootProjectPath + "/debug.keystore")
+			}
+		}
 
-        dexOptions {
-            javaMaxHeapSize "4g"
-        }
+		buildTypes {
+			debug {
+				signingConfig signingConfigs.debug
+			}
+		}
 
-        buildTypes {
-            debug {
-                signingConfig signingConfigs.debug
-            }
-        }
+		defineDefaultVariantsAPK(apkName)
+	}
+}
 
-        defineDefaultVariantsAPK(apkName)
-    }
+def applyAndroidXApplication(id, apkName) {
+
+	apply plugin: 'com.android.application'
+
+	project.android {
+		defaultConfig {
+			applicationId id
+		}
+
+		def rootProjectPath = rootProject.projectDir.getAbsolutePath()
+
+		compileSdkVersion COMPILE_SDK.toInteger()
+		buildToolsVersion TOOLS_VERSION
+
+		defaultConfig {
+			multiDexEnabled true
+
+			minSdkVersion MIN_SDK
+			targetSdkVersion TARGET_SDK
+			versionName getVersionNameFromFile()
+			versionCode getVersionCodeFromFile()
+			project.version = versionName
+
+			testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+		}
+
+		lintOptions {
+			checkReleaseBuilds false
+			abortOnError false
+		}
+
+		compileOptions {
+			sourceCompatibility JavaVersion.VERSION_1_8
+			targetCompatibility JavaVersion.VERSION_1_8
+		}
+
+		signingConfigs {
+			debug {
+				storeFile file(rootProjectPath + "/debug.keystore")
+			}
+		}
+
+		buildTypes {
+			debug {
+				signingConfig signingConfigs.debug
+			}
+		}
+
+		defineDefaultVariantsAPK(apkName)
+	}
 }
 
 def applyAndroidLibrary() {
-    apply plugin: 'com.android.library'
+	apply plugin: 'com.android.library'
 
-    android {
-        def rootProjectPath = rootProject.projectDir.getAbsolutePath()
-        apply from: rootProjectPath + '/dev-tools/gradle/utils.gradle'
+	android {
+		def rootProjectPath = rootProject.projectDir.getAbsolutePath()
+		apply from: rootProjectPath + '/dev-tools/gradle/utils.gradle'
 
-        compileSdkVersion COMPILE_SDK.toInteger()
-        if (!checkMinGradleVersion("4.4"))
-            buildToolsVersion TOOLS_VERSION
+		compileSdkVersion COMPILE_SDK.toInteger()
+		if (!checkMinGradleVersion("4.4"))
+			buildToolsVersion TOOLS_VERSION
 
-        lintOptions {
-            abortOnError false
-        }
+		lintOptions {
+			abortOnError false
+		}
 
-        compileOptions {
-            sourceCompatibility JavaVersion.VERSION_1_8
-            targetCompatibility JavaVersion.VERSION_1_8
-        }
+		compileOptions {
+			sourceCompatibility JavaVersion.VERSION_1_8
+			targetCompatibility JavaVersion.VERSION_1_8
+		}
 
-        defaultConfig {
-            minSdkVersion MIN_SDK
-            targetSdkVersion TARGET_SDK
-            versionName getVersionNameFromFile()
-            project.version = versionName
-            testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+		defaultConfig {
+			minSdkVersion MIN_SDK
+			targetSdkVersion TARGET_SDK
+			versionName getVersionNameFromFile()
+			project.version = versionName
+			testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
-            javaCompileOptions {
-                annotationProcessorOptions {
-                    includeCompileClasspath false
-                }
-            }
-        }
+			javaCompileOptions {
+				annotationProcessorOptions {
+					includeCompileClasspath false
+				}
+			}
+		}
 
-        buildTypes {
-            release {
-                signingConfig null
-            }
-        }
+		buildTypes {
+			release {
+				signingConfig null
+			}
+		}
 
-        defineVariantsAAR()
-    }
+		defineVariantsAAR()
+	}
 }
 
 def applyJavaLibrary() {
-    apply plugin: 'java-library'
+	apply plugin: 'java-library'
 
-    tasks.withType(JavaCompile) {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
+	tasks.withType(JavaCompile) {
+		sourceCompatibility = JavaVersion.VERSION_1_8
+		targetCompatibility = JavaVersion.VERSION_1_8
+	}
 }
 
 ext {
-    applyAndroidApplication = this.&applyAndroidApplication
-    applyAndroidLibrary = this.&applyAndroidLibrary
-    applyJavaLibrary = this.&applyJavaLibrary
+	applyAndroidXApplication = this.&applyAndroidXApplication
+	applyAndroidApplication = this.&applyAndroidApplication
+	applyAndroidLibrary = this.&applyAndroidLibrary
+	applyJavaLibrary = this.&applyJavaLibrary
 }

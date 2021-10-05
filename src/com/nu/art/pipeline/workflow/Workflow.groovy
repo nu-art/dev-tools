@@ -43,7 +43,7 @@ class Workflow
 		VarConsts.Var_UserEmail = Var_Env.create("BUILD_USER_EMAIL")
 		VarConsts.Var_BuildUrl = Var_Env.create("BUILD_URL")
 		VarConsts.Var_Workspace = Var_Env.create("WORKSPACE", { script.pwd() })
-		VarConsts.Var_CleanWorkspace = Var_Env.create("CLEAN_WORKSPACE", { false })
+		VarConsts.Var_CleanWorkspace = Var_Env.create("CLEAN_WORKSPACE")
 
 		T pipeline = ReflectiveTools.newInstance(pipelineType)
 		workflow.setPipeline(pipeline)

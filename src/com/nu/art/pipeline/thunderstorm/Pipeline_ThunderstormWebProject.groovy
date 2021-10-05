@@ -62,8 +62,9 @@ class Pipeline_ThunderstormWebProject<T extends Pipeline_ThunderstormWebProject>
 		install()
 		clean()
 		build()
-//		test()
+		test()
 
 		deploy()
+		cleanup()
 	}
 }

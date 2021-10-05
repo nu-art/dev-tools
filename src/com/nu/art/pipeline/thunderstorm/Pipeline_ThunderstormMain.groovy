@@ -36,7 +36,7 @@ class Pipeline_ThunderstormMain<T extends Pipeline_ThunderstormMain>
 		install()
 		clean()
 		build()
-//		test()
+		test()
 
 		publish()
 		deploy()

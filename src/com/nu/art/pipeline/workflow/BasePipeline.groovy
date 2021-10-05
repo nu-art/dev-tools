@@ -65,6 +65,7 @@ abstract class BasePipeline<T extends BasePipeline>
 	}
 
 	void cleanup() {
-		workflow.deleteWorkspace()
+		if (VarConsts.Var_CleanWorkspace.get())
+			workflow.deleteWorkspace()
 	}
 }

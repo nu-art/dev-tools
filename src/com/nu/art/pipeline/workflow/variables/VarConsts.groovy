@@ -7,5 +7,6 @@ class VarConsts {
 	public static Var_Env Var_UserEmail
 	public static Var_Env Var_BuildUrl
 	public static Var_Env Var_Workspace
+	public static Var_Env Var_CleanWorkspace
 
 }

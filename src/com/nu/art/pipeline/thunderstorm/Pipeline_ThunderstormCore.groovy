@@ -28,6 +28,7 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 
 	@Override
 	protected void init() {
+
 	}
 
 	T setDocker(Docker docker) {

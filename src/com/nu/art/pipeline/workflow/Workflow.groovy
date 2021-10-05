@@ -15,9 +15,7 @@ import com.nu.art.pipeline.workflow.variables.VarConsts
 import com.nu.art.pipeline.workflow.variables.Var_Creds
 import com.nu.art.pipeline.workflow.variables.Var_Env
 import com.nu.art.reflection.tools.ReflectiveTools
-import hudson.model.Job
 import hudson.model.Result
-import jenkins.model.Jenkins
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
@@ -45,6 +43,7 @@ class Workflow
 		VarConsts.Var_UserEmail = Var_Env.create("BUILD_USER_EMAIL")
 		VarConsts.Var_BuildUrl = Var_Env.create("BUILD_URL")
 		VarConsts.Var_Workspace = Var_Env.create("WORKSPACE", { script.pwd() })
+		VarConsts.Var_CleanWorkspace = Var_Env.create("CLEAN_WORKSPACE", { false })
 
 		T pipeline = ReflectiveTools.newInstance(pipelineType)
 		workflow.setPipeline(pipeline)
@@ -91,6 +90,15 @@ class Workflow
 	}
 
 	void start() {
+		logDebug("Default run env var values:")
+		logDebug("JenkinsHome: " + VarConsts.Var_JenkinsHome.get())
+		logDebug("JobName: " + VarConsts.Var_JobName.get())
+		logDebug("BuildNumber: " + VarConsts.Var_BuildNumber.get())
+		logDebug("UserEmail: " + VarConsts.Var_UserEmail.get())
+		logDebug("BuildUrl: " + VarConsts.Var_BuildUrl.get())
+		logDebug("Workspace: " + VarConsts.Var_Workspace.get())
+		logDebug("CleanWorkspace: " + VarConsts.Var_CleanWorkspace.get())
+
 		addStage(Stage_Started, {
 			this.dispatchEvent("Pipeline Started Event", OnPipelineListener.class, { listener -> listener.onPipelineStarted() } as WorkflowProcessor<OnPipelineListener>)
 		})

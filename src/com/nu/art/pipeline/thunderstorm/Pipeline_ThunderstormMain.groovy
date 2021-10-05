@@ -36,6 +36,5 @@ class Pipeline_ThunderstormMain<T extends Pipeline_ThunderstormMain>
 
 		publish()
 		deploy()
-		cleanup()
 	}
 }

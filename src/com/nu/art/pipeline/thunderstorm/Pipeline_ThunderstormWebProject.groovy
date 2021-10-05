@@ -65,6 +65,5 @@ class Pipeline_ThunderstormWebProject<T extends Pipeline_ThunderstormWebProject>
 		test()
 
 		deploy()
-		cleanup()
 	}
 }

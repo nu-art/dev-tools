@@ -91,6 +91,7 @@ class Workflow
 
 	void start() {
 		logDebug("Default run env var values:")
+		logDebug("env.GIT_BRANCH: " + env.GIT_BRANCH.get())
 		logDebug("JenkinsHome: " + VarConsts.Var_JenkinsHome.get())
 		logDebug("JobName: " + VarConsts.Var_JobName.get())
 		logDebug("BuildNumber: " + VarConsts.Var_BuildNumber.get())

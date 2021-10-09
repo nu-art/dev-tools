@@ -20,11 +20,13 @@
 package com.nu.art.pipeline.modules.build
 
 import hudson.model.Cause
+import jenkins.branch.BranchIndexingCause
 
 class TriggerCause {
 	public static String Type_User = "user"
 	public static String Type_SCM = "scm"
 	public static String Type_Rebuild = "rebuild"
+	public static String Type_BranchIndexing = "branch-indexing"
 	public static String Type_Unknown = "unknown"
 
 	final String className
@@ -54,6 +56,12 @@ class TriggerCause {
 				type = Type_Rebuild
 				originator = (cause as Cause.UpstreamCause).upstreamProject
 				data = (cause as Cause.UpstreamCause).upstreamBuild
+				break
+
+			case 'jenkins.branch.BranchIndexingCause':
+				type = Type_BranchIndexing
+				originator = (cause as BranchIndexingCause).properties.toString()
+
 				break
 
 			default:

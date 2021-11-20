@@ -91,17 +91,16 @@ class Workflow
 	}
 
 	void start() {
-		logDebug("Default run env var values:")
-		logDebug("GitBranch: " + VarConsts.Var_GitBranch.get())
-		logDebug("JenkinsHome: " + VarConsts.Var_JenkinsHome.get())
-		logDebug("JobName: " + VarConsts.Var_JobName.get())
-		logDebug("BuildNumber: " + VarConsts.Var_BuildNumber.get())
-		logDebug("UserEmail: " + VarConsts.Var_UserEmail.get())
-		logDebug("BuildUrl: " + VarConsts.Var_BuildUrl.get())
-		logDebug("Workspace: " + VarConsts.Var_Workspace.get())
-		logDebug("CleanWorkspace: " + VarConsts.Var_CleanWorkspace.get())
-
 		addStage(Stage_Started, {
+			logDebug("Default run env var values:")
+			logDebug("GitBranch: " + VarConsts.Var_GitBranch.get())
+			logDebug("JenkinsHome: " + VarConsts.Var_JenkinsHome.get())
+			logDebug("JobName: " + VarConsts.Var_JobName.get())
+			logDebug("BuildNumber: " + VarConsts.Var_BuildNumber.get())
+			logDebug("UserEmail: " + VarConsts.Var_UserEmail.get())
+			logDebug("BuildUrl: " + VarConsts.Var_BuildUrl.get())
+			logDebug("Workspace: " + VarConsts.Var_Workspace.get())
+			logDebug("CleanWorkspace: " + VarConsts.Var_CleanWorkspace.get())
 			this.dispatchEvent("Pipeline Started Event", OnPipelineListener.class, { listener -> listener.onPipelineStarted() } as WorkflowProcessor<OnPipelineListener>)
 		})
 	}

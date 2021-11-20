@@ -8,5 +8,6 @@ class VarConsts {
 	public static Var_Env Var_BuildUrl
 	public static Var_Env Var_Workspace
 	public static Var_Env Var_CleanWorkspace
+	public static Var_Env Var_GitBranch
 
 }

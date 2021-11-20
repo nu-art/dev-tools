@@ -44,6 +44,7 @@ class Workflow
 		VarConsts.Var_BuildUrl = Var_Env.create("BUILD_URL")
 		VarConsts.Var_Workspace = Var_Env.create("WORKSPACE", { script.pwd() })
 		VarConsts.Var_CleanWorkspace = Var_Env.create("CLEAN_WORKSPACE")
+		VarConsts.Var_GitBranch = Var_Env.create("GIT_BRANCH")
 
 		T pipeline = ReflectiveTools.newInstance(pipelineType)
 		workflow.setPipeline(pipeline)
@@ -91,7 +92,7 @@ class Workflow
 
 	void start() {
 		logDebug("Default run env var values:")
-		logDebug("env.GIT_BRANCH: " + env.GIT_BRANCH.get())
+		logDebug("GitBranch: " + VarConsts.Var_GitBranch.get())
 		logDebug("JenkinsHome: " + VarConsts.Var_JenkinsHome.get())
 		logDebug("JobName: " + VarConsts.Var_JobName.get())
 		logDebug("BuildNumber: " + VarConsts.Var_BuildNumber.get())

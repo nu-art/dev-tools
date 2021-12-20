@@ -62,4 +62,48 @@ BackendPackage() {
     this.NodePackage.clean
     deleteDir ".dependencies"
   }
+
+  _install() {
+      local libs=(${@})
+
+      deleteFile package-lock.json
+      deleteDir "./node_modules/@nu-art"
+      deleteDir "./node_modules/@intuitionrobotics"
+      for lib in "${libs[@]}"; do
+        [[ "${lib}" == "${_this}" ]] && break
+
+        local libPackageName="$("${lib}.packageName")"
+        deleteDir "./node_modules/${libPackageName}"
+
+        local libPath="$("${lib}.path")"
+        local libFolderName="$("${lib}.folderName")"
+        local backendDependencyPath="./.dependencies/${libFolderName}"
+
+        logInfo "Local Dep Path: ${backendDependencyPath}"
+        logInfo "LibPath: ${libPath}"
+        logInfo "outputDir: ${outputDir}"
+
+        [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
+
+        ls ./.dependencies
+        deleteDir "${backendDependencyPath}"
+        createDir "${backendDependencyPath}"
+        cp -rf "${libPath}/${libFolderName}/${outputDir}"/* "${backendDependencyPath}/"
+        ls ./.dependencies
+        ls ./.dependencies/kaspero-types
+      done
+
+      this.link
+
+#      backupPackageJson "${folderName}"
+#      cleanPackageJson
+
+      logInfo "Installing: ${folderName}"
+      logInfo
+
+      npm install
+      throwError "Error installing module"
+
+#      restorePackageJson "${folderName}"
+    }
 }

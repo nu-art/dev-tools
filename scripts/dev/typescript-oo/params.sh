@@ -106,6 +106,7 @@ extractParams() {
       ts_purge=true
       ts_clean=true
       ts_installPackages=true
+      ts_installGlobals=true
       ts_link=true
       ;;
 

@@ -29,7 +29,7 @@ class JobTrigger
 		return this.addParam(JobParam.Param_Boolean, key.toString(), value)
 	}
 
-	setWait(boolean wait) {
+	JobTrigger setWait(boolean wait) {
 		this.wait = wait
 		return this
 	}

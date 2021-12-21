@@ -56,7 +56,7 @@ class SlackModule
 		if (!enabled)
 			return
 
-		String email = VarConsts.Var_UserEmail.get()
+		String email = VarConsts.Var_User.get()
 		String preMessage = ""
 		preMessage += "<${VarConsts.Var_BuildUrl.get()}|*${buildModule.getDisplayName()}*>"
 		preMessage += workflow.currentStage != Workflow.Stage_Started ? " after: ${buildModule.getDurationAsString()}" : ""

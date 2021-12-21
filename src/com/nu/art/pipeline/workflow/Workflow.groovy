@@ -40,7 +40,7 @@ class Workflow
 		VarConsts.Var_JenkinsHome = Var_Env.create("JENKINS_HOME")
 		VarConsts.Var_JobName = Var_Env.create("JOB_NAME")
 		VarConsts.Var_BuildNumber = Var_Env.create("BUILD_NUMBER")
-		VarConsts.Var_UserEmail = Var_Env.create("BUILD_USER_EMAIL")
+		VarConsts.Var_User = Var_Env.create("BUILD_USER_EMAIL")
 		VarConsts.Var_BuildUrl = Var_Env.create("BUILD_URL")
 		VarConsts.Var_Workspace = Var_Env.create("WORKSPACE", { script.pwd() })
 
@@ -94,7 +94,7 @@ class Workflow
 			logDebug("JenkinsHome: " + VarConsts.Var_JenkinsHome.get())
 			logDebug("JobName: " + VarConsts.Var_JobName.get())
 			logDebug("BuildNumber: " + VarConsts.Var_BuildNumber.get())
-			logDebug("UserEmail: " + VarConsts.Var_UserEmail.get())
+			logDebug("UserEmail: " + VarConsts.Var_User.get())
 			logDebug("BuildUrl: " + VarConsts.Var_BuildUrl.get())
 			logDebug("Workspace: " + VarConsts.Var_Workspace.get())
 

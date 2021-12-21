@@ -1,73 +1,63 @@
+/*
+ * Permissions management system, define access level for each of
+ * your server apis, and restrict users by giving them access levels
+ *
+ * Copyright (C) 2020 Adam van der Kruk aka TacB0sS
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.nu.art.pipeline.workflow
 
-
-import com.nu.art.pipeline.modules.docker.Docker
-import com.nu.art.pipeline.modules.docker.DockerModule
-import com.nu.art.pipeline.modules.git.GitModule
-import com.nu.art.pipeline.modules.git.GitRepo
-import com.nu.art.pipeline.workflow.BasePipeline
-import com.nu.art.pipeline.workflow.WorkflowModule
+import com.nu.art.pipeline.modules.SlackModule
+import com.nu.art.pipeline.modules.build.BuildModule
+import com.nu.art.pipeline.modules.build.JobTrigger
 import com.nu.art.pipeline.workflow.variables.VarConsts
+import com.nu.art.pipeline.workflow.variables.Var_Env
 
 abstract class Pipeline_BaseRouter<T extends Pipeline_BaseRouter>
 	extends BasePipeline<T> {
 
-	protected Docker docker
-	protected GitRepo repo
+	public Var_Env Env_Branch = new Var_Env("BRANCH_NAME")
+	def envJobs = [:]
+
+	Pipeline_BaseRouter() {
+		super("proxy", ([SlackModule.class] as Class<? extends WorkflowModule>[]) as Class<? extends WorkflowModule>[])
+	}
 
 	Pipeline_BaseRouter(Class<? extends WorkflowModule>... modules) {
-		this(null, modules)
+		super("proxy", (([SlackModule.class] as Class<? extends WorkflowModule>[]) + modules) as Class<? extends WorkflowModule>[])
 	}
 
 	Pipeline_BaseRouter(String name, Class<? extends WorkflowModule>... modules) {
-		super(name, (([DockerModule.class, GitModule.class] as Class<? extends WorkflowModule>[]) + modules))
+		super(name, (([SlackModule.class] as Class<? extends WorkflowModule>[]) + modules) as Class<? extends WorkflowModule>[])
+	}
+
+	void declareJob(String branch, String jobName) {
+		envJobs.put(branch, jobName)
+	}
+
+	void setDisplayName() {
+		def branch = Env_Branch.get()
+		getModule(BuildModule.class).setDisplayName("#${VarConsts.Var_BuildNumber.get()}: ${getName()}-${branch}")
 	}
 
 	@Override
-	protected void init() {
-	}
-
-	T setRepo(GitRepo repo) {
-		this.repo = repo
-		return (T) this
-	}
-
-	GitRepo getRepo() {
-		return repo
-	}
-
-	T checkout(Closure postCheckout) {
-		if (repo)
-			addStage("checkout", {
-				getRepo().cloneRepo()
-				getRepo().cloneSCM()
-				if (postCheckout)
-					postCheckout()
-			})
-		return (T) this
-	}
-
-	T run(String name, Closure toRun) {
-		addStage(name, { toRun() })
-		return (T) this
-	}
-
-	String _sh(GString command, readOutput = false) {
-		return _sh(command.toString(), readOutput)
-	}
-
-	String _sh(String command, readOutput = false) {
-		if (docker)
-			return docker.sh(command, "${VarConsts.Var_Workspace.get()}/${repo.getOutputFolder()}")
-
-		return repo.sh(command, readOutput)
-	}
-
-	@Override
-	void cleanup() {
-		if (docker)
-			docker.kill()
-
-		super.cleanup()
+	void pipeline() {
+		addStage("running", {
+			def branch = Env_Branch.get()
+			def jobName = (String) envJobs[branch]
+			new JobTrigger(workflow, jobName).setWait(false).run()
+		})
 	}
 }

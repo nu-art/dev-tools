@@ -27,6 +27,7 @@ class TriggerCause {
 	public static String Type_SCM = "scm"
 	public static String Type_Rebuild = "rebuild"
 	public static String Type_BranchIndexing = "branch-indexing"
+	public static String Type_GenericTrigger = "generic-trigger"
 	public static String Type_Unknown = "unknown"
 
 	final String className
@@ -61,6 +62,12 @@ class TriggerCause {
 			case 'jenkins.branch.BranchIndexingCause':
 				type = Type_BranchIndexing
 				originator = (cause as BranchIndexingCause).properties.toString()
+
+				break
+
+			case 'org.jenkinsci.plugins.gwt.GenericCause':
+				type = Type_GenericTrigger
+				originator = (cause as org.jenkinsci.plugins.gwt.GenericCause).properties.toString()
 
 				break
 

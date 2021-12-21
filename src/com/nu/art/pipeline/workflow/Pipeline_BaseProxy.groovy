@@ -25,21 +25,21 @@ import com.nu.art.pipeline.modules.build.JobTrigger
 import com.nu.art.pipeline.workflow.variables.VarConsts
 import com.nu.art.pipeline.workflow.variables.Var_Env
 
-abstract class Pipeline_BaseRouter<T extends Pipeline_BaseRouter>
+abstract class Pipeline_BaseProxy<T extends Pipeline_BaseProxy>
 	extends BasePipeline<T> {
 
 	public Var_Env Env_Branch = new Var_Env("BRANCH_NAME")
 	def envJobs = [:]
 
-	Pipeline_BaseRouter() {
+	Pipeline_BaseProxy() {
 		super("proxy", ([SlackModule.class] as Class<? extends WorkflowModule>[]) as Class<? extends WorkflowModule>[])
 	}
 
-	Pipeline_BaseRouter(Class<? extends WorkflowModule>... modules) {
+	Pipeline_BaseProxy(Class<? extends WorkflowModule>... modules) {
 		super("proxy", (([SlackModule.class] as Class<? extends WorkflowModule>[]) + modules) as Class<? extends WorkflowModule>[])
 	}
 
-	Pipeline_BaseRouter(String name, Class<? extends WorkflowModule>... modules) {
+	Pipeline_BaseProxy(String name, Class<? extends WorkflowModule>... modules) {
 		super(name, (([SlackModule.class] as Class<? extends WorkflowModule>[]) + modules) as Class<? extends WorkflowModule>[])
 	}
 

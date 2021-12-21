@@ -62,7 +62,7 @@ abstract class BasePipeline<T extends BasePipeline>
 
 	void _postInit() {}
 
-	void setDisplayName() {
+	protected void setDisplayName() {
 		getModule(BuildModule.class).setDisplayName("#${VarConsts.Var_BuildNumber.get()}: ${name}")
 	}
 

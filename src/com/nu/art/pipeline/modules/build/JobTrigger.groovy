@@ -29,9 +29,6 @@ class JobTrigger
 		return this.addParam(JobParam.Param_Boolean, key.toString(), value)
 	}
 
-//	JobTrigger addBoolean(Var_Env envVar) {
-//		return this.addParam(JobParam.Param_Boolean, envVar.varName, envVar.get())
-//	}
 	setWait(boolean wait) {
 		this.wait = wait
 		return this

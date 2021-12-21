@@ -32,6 +32,10 @@ class JobTrigger
 //	JobTrigger addBoolean(Var_Env envVar) {
 //		return this.addParam(JobParam.Param_Boolean, envVar.varName, envVar.get())
 //	}
+	setWait(boolean wait) {
+		this.wait = wait
+		return this
+	}
 
 	private <T> JobTrigger addParam(JobParam<T> type, String key, T value) {
 		params += [$class: type.key, name: key, value: value.toString()]

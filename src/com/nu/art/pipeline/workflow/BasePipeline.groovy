@@ -9,7 +9,7 @@ import com.nu.art.pipeline.workflow.variables.Var_Env
 abstract class BasePipeline<T extends BasePipeline>
 	extends WorkflowModulesPack {
 
-	public Var_Env Var_CleanWorkspace = Var_Env.create("CLEAN_WORKSPACE")
+	public Var_Env Var_CleanWorkspace = new Var_Env("CLEAN_WORKSPACE")
 
 	private static Class<? extends WorkflowModule>[] defaultModules = [BuildModule.class]
 	protected final Workflow workflow = Workflow.workflow

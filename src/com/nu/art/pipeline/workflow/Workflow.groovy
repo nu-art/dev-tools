@@ -43,8 +43,6 @@ class Workflow
 		VarConsts.Var_UserEmail = Var_Env.create("BUILD_USER_EMAIL")
 		VarConsts.Var_BuildUrl = Var_Env.create("BUILD_URL")
 		VarConsts.Var_Workspace = Var_Env.create("WORKSPACE", { script.pwd() })
-		VarConsts.Var_CleanWorkspace = Var_Env.create("CLEAN_WORKSPACE")
-		VarConsts.Var_GitBranch = Var_Env.create("GIT_BRANCH")
 
 		T pipeline = ReflectiveTools.newInstance(pipelineType)
 		workflow.setPipeline(pipeline)
@@ -93,14 +91,13 @@ class Workflow
 	void start() {
 		addStage(Stage_Started, {
 			logDebug("Default run env var values:")
-			logDebug("GitBranch: " + VarConsts.Var_GitBranch.get())
 			logDebug("JenkinsHome: " + VarConsts.Var_JenkinsHome.get())
 			logDebug("JobName: " + VarConsts.Var_JobName.get())
 			logDebug("BuildNumber: " + VarConsts.Var_BuildNumber.get())
 			logDebug("UserEmail: " + VarConsts.Var_UserEmail.get())
 			logDebug("BuildUrl: " + VarConsts.Var_BuildUrl.get())
 			logDebug("Workspace: " + VarConsts.Var_Workspace.get())
-			logDebug("CleanWorkspace: " + VarConsts.Var_CleanWorkspace.get())
+
 			this.dispatchEvent("Pipeline Started Event", OnPipelineListener.class, { listener -> listener.onPipelineStarted() } as WorkflowProcessor<OnPipelineListener>)
 		})
 	}

@@ -20,7 +20,6 @@
 package com.nu.art.pipeline.modules.build
 
 import hudson.model.Cause
-import jenkins.branch.BranchIndexingCause
 
 class TriggerCause {
 	public static String Type_User = "user"
@@ -61,13 +60,13 @@ class TriggerCause {
 
 			case 'jenkins.branch.BranchIndexingCause':
 				type = Type_BranchIndexing
-				originator = (cause as BranchIndexingCause).properties.toString()
+				originator = cause.properties.toString()
 
 				break
 
 			case 'org.jenkinsci.plugins.gwt.GenericCause':
 				type = Type_GenericTrigger
-				originator = (cause as org.jenkinsci.plugins.gwt.GenericCause).properties.toString()
+				originator = cause.properties.toString()
 
 				break
 

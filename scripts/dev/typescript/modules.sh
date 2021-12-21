@@ -5,7 +5,7 @@ boilerplateRepo="git@github.com:nu-art-js/thunderstorm.git"
 frontendModule=app-frontend
 backendModule=app-backend
 
-allowedBranchesForPromotion=(master staging)
+allowedBranchesForPromotion=(prod staging dev)
 
 resolveThunderstormLibs() {
   local _thunderstormLibraries=(

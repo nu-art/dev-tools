@@ -38,6 +38,25 @@ renameFiles() {
   done
 }
 
+## @function: file_copy(origin, targetFolder, silent)
+##
+## @description: Copies the origin file to the target folder
+##
+## @return: void
+file_copyToFolder() {
+  local origin="${1}"
+  local targetFolder="${2}"
+  local silent="${3}"
+
+  [[ ! -e "${targetFolder}" ]] && createDir "${targetFolder}"
+
+  if [[ "${silent}" ]]; then
+    cp "${origin}" "${targetFolder}"
+  else
+    execute "cp \"${origin}\" \"${targetFolder}\"" "Copying file: ${origin} => ${targetFolder}" "${2}"
+  fi
+}
+
 ## @function: file_replaceAll(match, replaceWith, file, delimiter?)
 ##
 ## @description: Replaces all substrings matching the provided regexp in the given file

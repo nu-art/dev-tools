@@ -38,13 +38,6 @@ FrontendPackage() {
 #    done
   }
 
-  _lint() {
-    logInfo "Linting: ${folderName}"
-
-    npm run lint
-    throwWarning "Error linting: ${folderName}"
-  }
-
   _launch() {
     [[ ! "$(array_contains "${folderName}" "${ts_launch[@]}")" ]] && return
 

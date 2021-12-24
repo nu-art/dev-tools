@@ -81,13 +81,19 @@ Workspace() {
     local command=${1}
     [[ ! "${command}" ]] && throwError "No command specified" 2
     local items=(${2})
+    local p="${startFromPackage}"
 
-    for item in "${items[@]}"; do
+    for (( ; p < ${#items[@]}; p++)); do
+      item=${items[${p}]}
+      startFromPackage=${p}
+      saveState
+
       _pushd "$("${item}.path")/$("${item}.folderName")"
       "${item}.${command}" "${@:3}"
       (($? > 0)) && throwError "Error executing command: ${item}.${command}"
       _popd
     done
+    startFromPackage=0
   }
 
   _printDependencyTree() {

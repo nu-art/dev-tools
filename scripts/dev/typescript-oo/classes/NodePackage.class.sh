@@ -14,6 +14,11 @@ NodePackage() {
 
   _prepare() {
     packageName="$(getJsonValueForKey "${folderName}/package.json" "name")"
+    if { [[ -e "./${folderName}/.eslintrc.js" ]] && [[ "$(cat "./${folderName}/.eslintrc.js" | grep "FROM DEV-TOOLS")" ]]; } || { [[ ! -e "./${folderName}/.eslintrc.js" ]] && [[ ! -e "./${folderName}/tslint.json" ]]; }; then
+      local silent
+      [[ -e "./${folderName}/.eslintrc.js" ]] && silent="true"
+      file_copyToFolder "${PATH_ESLintConfigFile}" "./${folderName}" ${silent}
+    fi
   }
 
   _printDependencyTree() {
@@ -192,7 +197,7 @@ NodePackage() {
       if [[ -e ".eslintrc.js" ]]; then
         logInfo "ES Linting: ${folderName}/${folder}"
         eslint --ext .ts --ext .tsx "./src/${folder}"
-        throwError "Error while ES linting: ${module}/${folder}"
+        [[ "$?" == "1" ]] && throwError "Error while ES linting: ${module}/${folder}" 2
 
       elif [[ -e "tslint.json" ]]; then
         logInfo "Linting: ${folderName}/${folder}"

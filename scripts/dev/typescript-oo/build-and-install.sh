@@ -4,8 +4,12 @@ source ./dev-tools/scripts/firebase/core.sh
 source ./dev-tools/scripts/node/_source.sh
 source ./dev-tools/scripts/oos/core/transpiler.sh
 
-setErrorOutputFile "$(pwd)/error_message.txt"
+Path_RootRunningDir="$(pwd)"
+Path_OutputDir=".trash"
+Path_BuildState="${Path_OutputDir}/build-state.txt"
 
+#CONST_Debug="true"
+setErrorOutputFile "${Path_RootRunningDir}/error_message.txt"
 # shellcheck source=./common.sh
 source "${BASH_SOURCE%/*}/common.sh"
 # shellcheck source=./modules.sh
@@ -21,13 +25,17 @@ source "${BASH_SOURCE%/*}/params.sh"
 #signature
 extractParams "$@"
 
-CONST_RunningFolder="$(folder_getRunningPath 1)"
-#setTranspilerOutput "${CONST_RunningFolder}"
-setTranspilerOutput ".trash/bai"
-addTranspilerClassPath "${CONST_RunningFolder}/classes"
+CONST_RealPathOfThisScriptFile="$(folder_getRunningPath 1)"
+#setTranspilerOutput "${CONST_RealPathOfThisScriptFile}"
+setTranspilerOutput "${Path_OutputDir}/bai"
+addTranspilerClassPath "${CONST_RealPathOfThisScriptFile}/classes"
+
+saveState() {
+  echo "${startFromStep}" > "${Path_BuildState}"
+  echo "${startFromPackage}" >> "${Path_BuildState}"
+}
 
 buildWorkspace() {
-
   installAndUseNvmIfNeeded
   storeFirebasePath
 
@@ -104,19 +112,26 @@ buildWorkspace() {
 
   #  workspace.toLog
   workspace.setEnvironment
+  local i="${startFromStep}"
+  for (( ; i < ${#buildSteps[@]}; i++)); do
+    startFromStep=${i}
+    saveState
 
-  workspace.purge
-  workspace.clean
-  workspace.install
-  workspace.link
-  workspace.generate
-  workspace.compile
-  workspace.lint
-  workspace.test
+    "workspace.${buildSteps[${i}]}"
+  done
 
-  workspace.publish
-  workspace.launch
-  workspace.deploy
+  #  workspace.purge
+  #  workspace.clean
+  #  workspace.install
+  #  workspace.link
+  #  workspace.generate
+  #  workspace.compile
+  #  workspace.lint
+  #  workspace.test
+  #
+  #  workspace.publish
+  #  workspace.launch
+  #  workspace.deploy
 
 }
 

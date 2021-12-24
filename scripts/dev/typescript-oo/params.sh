@@ -15,11 +15,12 @@ ts_lint=
 ts_runTests=
 ts_publish=
 ts_fileToExecute="index.js"
+startFromStep=0
+startFromPackage=0
 
 checkCircularImports=
 
 envType=
-
 promoteThunderstormVersion=
 promoteAppVersion=
 newAppVersion=
@@ -34,6 +35,7 @@ ts_deploy=()
 ts_testsToRun=()
 ts_activeLibs=()
 ts_LogLevel=${LOG_LEVEL__INFO}
+PATH_ESLintConfigFile="${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/utils/.eslintrc.js"
 
 params=(
   envType
@@ -63,7 +65,8 @@ params=(
   promoteThunderstormVersion
   version
   promoteAppVersion
-
+  startFromStep
+  startFromPackage
 )
 
 extractParams() {
@@ -117,6 +120,12 @@ extractParams() {
       ;;
 
       #        ==== BUILD ====
+    "--continue" | "-con")
+      #DOC: Will pick up where last build process failed
+      startFromStep=$(cat "${Path_BuildState}" | head -1)
+      startFromPackage=$(cat "${Path_BuildState}" | tail -1)
+      ;;
+
     "--use-package="* | "-up="*)
       #DOC: Would ONLY run the script in the context of the specified project packages
       #PARAM=project-package-folder

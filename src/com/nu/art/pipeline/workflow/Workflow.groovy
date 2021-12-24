@@ -147,7 +147,7 @@ class Workflow
 					this.currentStage = stage
 					stages[stage]()
 				})
-			} catch (e) {
+			} catch (e:any) {
 				t = e
 				Result result = script.currentBuild.rawBuild.result
 				if (Result.FAILURE == result || Result.ABORTED == result)
@@ -166,7 +166,7 @@ class Workflow
 		script.stage(Stage_Cleanup, {
 			try {
 				pipeline.cleanup()
-			} catch (e) {
+			} catch (e:any) {
 //				script.currentBuild.result = "FAILURE"
 
 				logError("Error in 'cleanup' stage: ${t.getMessage()}", e)
@@ -185,7 +185,7 @@ class Workflow
 					else
 						this.dispatchEvent("Pipeline Error Event", OnPipelineListener.class, { listener -> listener.onPipelineFailed(t) } as WorkflowProcessor<OnPipelineListener>)
 				}
-			} catch (e) {
+			} catch (e:any) {
 				logError("Error in 'completion' stage: ${t.getMessage()}", e)
 				t = e
 			}

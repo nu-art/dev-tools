@@ -89,7 +89,7 @@ class GitModule
 				return goodJobInstance
 			})
 			toRet
-		} catch (e:any) {
+		} catch (e) {
 			logError("Failed to resolve checkout status file from previous successful .build", e)
 		}
 	}

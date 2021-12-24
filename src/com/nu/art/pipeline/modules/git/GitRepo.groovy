@@ -70,7 +70,7 @@ class GitRepo {
 	void checkout(String branch, force = false) {
 		try {
 			sh(cli().checkout(branch))
-		} catch (e:any) {
+		} catch (e) {
 			if (!force)
 				throw e
 

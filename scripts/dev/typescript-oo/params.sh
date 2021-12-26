@@ -381,8 +381,11 @@ extractParams() {
     "--quick-deploy" | "-qd")
       #DOC: Will deploy both frontend & backend, without any other lifecycle action
       #WARNING: Use only if you REALLY understand the lifecycle of the project and script!!
-      ts_deploy+=(app-backend)
-      ts_deploy+=(app-frontend)
+      if [[ "${#ts_deploy[@]}" == 0 ]]; then
+        ts_deploy+=(app-backend)
+        ts_deploy+=(app-frontend)
+      fi
+
       ts_lint=
       ts_compile=
       ts_runTests=

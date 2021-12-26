@@ -116,7 +116,7 @@ string_join() {
 string_generateHex() {
   local length="${1}"
   local hex=""
-  for ((i = 0; i < length; i++)); do
+  for ((charAt = 0; charAt < length; charAt++)); do
     hex="${hex}$(printf "%x" "$(number_random 16)")"
   done
 

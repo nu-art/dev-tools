@@ -112,12 +112,12 @@ buildWorkspace() {
 
   #  workspace.toLog
   workspace.setEnvironment
-  local i="${startFromStep}"
-  for (( ; i < ${#buildSteps[@]}; i++)); do
-    startFromStep=${i}
+  local buildStep="${startFromStep}"
+  for (( ; buildStep < ${#buildSteps[@]}; buildStep++)); do
+    startFromStep=${buildStep}
     saveState
 
-    "workspace.${buildSteps[${i}]}"
+    "workspace.${buildSteps[${buildStep}]}"
   done
 
   #  workspace.purge

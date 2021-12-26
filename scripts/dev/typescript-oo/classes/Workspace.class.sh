@@ -208,8 +208,8 @@ Workspace() {
     for lib in "${allLibs[@]}"; do
       local length=$("${lib}.newWatchIds.length")
       ((length == 0)) && continue
-      for ((i = 0; i < length; i++)); do
-        local var="${lib}_newWatchIds[${i}]"
+      for ((watchId = 0; watchId < length; watchId++)); do
+        local var="${lib}_newWatchIds[${watchId}]"
         echo -e "${!var}" >> "${CONST_BuildWatchFile}"
       done
     done

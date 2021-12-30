@@ -39,6 +39,10 @@ abstract class Pipeline_BaseProxy<T extends Pipeline_BaseProxy>
 		super("proxy", (([SlackModule.class] as Class<? extends WorkflowModule>[]) + modules) as Class<? extends WorkflowModule>[])
 	}
 
+	Pipeline_BaseProxy(String name) {
+		super(name, (([SlackModule.class] as Class<? extends WorkflowModule>[])) as Class<? extends WorkflowModule>[])
+	}
+
 	Pipeline_BaseProxy(String name, Class<? extends WorkflowModule>... modules) {
 		super(name, (([SlackModule.class] as Class<? extends WorkflowModule>[]) + modules) as Class<? extends WorkflowModule>[])
 	}

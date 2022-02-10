@@ -103,6 +103,7 @@ buildWorkspace() {
   #  breakpoint "before running workspace"
 
   #  workspace.toLog
+  workspace.installGlobalPackages
   workspace.setEnvironment
 
   workspace.purge

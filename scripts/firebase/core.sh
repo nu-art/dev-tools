@@ -6,7 +6,7 @@ storeFirebasePath() {
 verifyFirebaseProjectIsAccessible() {
   local firebaseProject=${1}
 
-  logDebug "Verifying You are logged in to firebase tools...'"
+  logDebug "Verifying You are logged in to firebase tools... command '${CONST_Firebase} login'"
   [[ "${USER,,}" != "jenkins" ]] && ${CONST_Firebase} login
   logDebug
 

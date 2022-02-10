@@ -90,7 +90,7 @@ printDebugParams() {
   logDebug "--"
   logInfo "----------- DEBUG -----------"
   logVerbose
-  sleep 3s
+  sleep 3
 }
 
 printCommand() {

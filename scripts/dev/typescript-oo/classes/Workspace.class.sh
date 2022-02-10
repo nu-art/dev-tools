@@ -143,8 +143,8 @@ Workspace() {
     $(resolveCommand firebase) use "${firebaseProject}"
 
     this.apps.forEach setEnvironment
-    echo "env=\"${envType}\"" > "${CONST_TS_ENV_FILE}"
-    [[ "${fallbackEnv}" ]] && echo "env=\"${fallbackEnv}\"" >> "${CONST_TS_ENV_FILE}"
+    echo "env=\"${envType}\"" >"${CONST_TS_ENV_FILE}"
+    [[ "${fallbackEnv}" ]] && echo "env=\"${fallbackEnv}\"" >>"${CONST_TS_ENV_FILE}"
   }
 
   _assertNoCyclicImport() {
@@ -174,12 +174,15 @@ Workspace() {
     this.active.forEach clean
   }
 
-  _install() {
+  _installGlobalPackages() {
     if [[ "${ts_installGlobals}" ]]; then
       logInfo "Installing global packages..."
       npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest sort-json@latest tsc-watch@latest
+      storeFirebasePath
     fi
+  }
 
+  _install() {
     if [[ "${ts_installPackages}" ]]; then
       logInfo
       bannerInfo "Install"
@@ -208,9 +211,15 @@ Workspace() {
     for lib in "${allLibs[@]}"; do
       local length=$("${lib}.newWatchIds.length")
       ((length == 0)) && continue
+<<<<<<< HEAD
       for ((watchId = 0; watchId < length; watchId++)); do
         local var="${lib}_newWatchIds[${watchId}]"
         echo -e "${!var}" >> "${CONST_BuildWatchFile}"
+=======
+      for ((i = 0; i < length; i++)); do
+        local var="${lib}_newWatchIds[${i}]"
+        echo -e "${!var}" >>"${CONST_BuildWatchFile}"
+>>>>>>> 2ad16b5
       done
     done
   }

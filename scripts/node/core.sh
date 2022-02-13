@@ -44,6 +44,12 @@ installAndUseNvmIfNeeded() {
     bannerInfo "Installing NVM"
 
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+
+    if [[ -e "~/.zshrc" ]]; then
+      echo 'export NVM_DIR="$HOME/.nvm"' >>~/.zshrc
+      echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm' >>~/.zshrc
+      echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion' >>~/.zshrc
+    fi
   fi
 
   # shellcheck source=./$HOME/.nvm
@@ -69,5 +75,5 @@ printNodePackadeTree() {
   local output=${1}
   logDebug "${module} - Printing dependency tree..."
   createDir "${output}"
-  npm list > "${output}/${module}.txt"
+  npm list >"${output}/${module}.txt"
 }

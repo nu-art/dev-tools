@@ -67,8 +67,8 @@ FrontendPackage() {
   _launch() {
     [[ ! "$(array_contains "${folderName}" "${ts_launch[@]}")" ]] && return
 
-    logInfo "Launching: ${folderName}"
-    npm run launch
+    logInfo "Launching: ${folderName}, app is: ${ts_feApp}"
+    npm run launch -- --name="${ts_feApp}"
   }
 
   _install() {

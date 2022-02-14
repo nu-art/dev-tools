@@ -8,7 +8,7 @@ FrontendPackage() {
 
     logInfo "Deploying: ${folderName}"
 
-    _getJsonValueForKeyAndIndex() {
+    getJsonValueForKeyAndIndex() {
       local fileName=${1}
       local key=${2}
       local i=${3}
@@ -20,10 +20,10 @@ FrontendPackage() {
       echo "${value}"
     }
 
-    local target1="$(_getJsonValueForKeyAndIndex "./firebase.json" "target" 1)"
+    local target1="$(getJsonValueForKeyAndIndex "./firebase.json" "target" 1)"
     ${CONST_Firebase} target:apply hosting "${target1}" "${target1}"
 
-    local target2="$(_getJsonValueForKeyAndIndex "./firebase.json" "target" 2)"
+    local target2="$(getJsonValueForKeyAndIndex "./firebase.json" "target" 2)"
     ${CONST_Firebase} target:apply hosting "${target2}" "${target2}"
 
     ${CONST_Firebase} deploy --only hosting

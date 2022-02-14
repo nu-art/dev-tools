@@ -8,8 +8,23 @@ FrontendPackage() {
 
     logInfo "Deploying: ${folderName}"
 
-    ${CONST_Firebase} target:apply hosting ir-q-messaging-dev ir-q-messaging-dev
-    ${CONST_Firebase} target:apply hosting pwa-msg-dev pwa-msg-dev
+    _getJsonValueForKeyAndIndex() {
+      local fileName=${1}
+      local key=${2}
+      local i=${3}
+      if [[ ! "${i}" ]]; then
+          i=1
+      fi
+
+      local value=$(cat "${fileName}" | grep "\"${key}\":" | head "-${i}" | tail -1 | sed -E "s/.*\"${key}\".*\"(.*)\".*/\1/")
+      echo "${value}"
+    }
+
+    local target1="$(_getJsonValueForKeyAndIndex "./firebase.json" "target" 1)"
+    ${CONST_Firebase} target:apply hosting "${target1}" "${target1}"
+
+    local target2="$(_getJsonValueForKeyAndIndex "./firebase.json" "target" 2)"
+    ${CONST_Firebase} target:apply hosting "${target2}" "${target2}"
 
     ${CONST_Firebase} deploy --only hosting
     throwWarning "Error while deploying hosting"

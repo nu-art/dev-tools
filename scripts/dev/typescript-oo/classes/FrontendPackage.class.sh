@@ -7,6 +7,10 @@ FrontendPackage() {
     [[ ! "$(array_contains "${folderName}" "${ts_deploy[@]}")" ]] && return
 
     logInfo "Deploying: ${folderName}"
+
+    ${CONST_Firebase} target:apply hosting ir-q-messaging-dev ir-q-messaging-dev
+    ${CONST_Firebase} target:apply hosting pwa-msg-dev pwa-msg-dev
+
     ${CONST_Firebase} deploy --only hosting
     throwWarning "Error while deploying hosting"
     logInfo "Deployed: ${folderName}"

@@ -79,7 +79,7 @@ InstallerDMG() {
 
   _run() {
     logInfo "Installing ${label}"
-    sleep 1s
+    sleep 1
     rsync -a "${volumeToInstall}"/*.app /Applications/
     throwError "Error copying *.app into application folder"
   }

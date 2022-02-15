@@ -111,6 +111,7 @@ buildWorkspace() {
   #  breakpoint "before running workspace"
 
   #  workspace.toLog
+  workspace.installGlobalPackages
   workspace.setEnvironment
   local buildStep="${startFromStep}"
   for (( ; buildStep < ${#buildSteps[@]}; buildStep++)); do

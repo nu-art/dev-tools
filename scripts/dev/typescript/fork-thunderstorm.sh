@@ -210,14 +210,14 @@ sayHello() {
   signatureThunderstorm
   logInfo "Let's fork thunderstorm...."
   logInfo
-  sleep 2s
+  sleep 2
 
   logWarning "If you are not familiar with Firebase or git... please educate yourself!"
   logWarning "Bellow is a link to a video tutorial on how to fork Thunderstorm:"
   logWarning
   logWarning "   https://future-link-here"
   logWarning
-  sleep 5s
+  sleep 5
 }
 
 start() {

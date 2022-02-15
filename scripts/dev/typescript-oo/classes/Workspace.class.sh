@@ -2,6 +2,9 @@
 CONST_TS_VER_JSON="version-thunderstorm.json"
 CONST_APP_VER_JSON="version-app.json"
 CONST_TS_ENV_FILE=".ts_env"
+CONST_Version_Typescript=latest
+CONST_Version_ESlint=latest
+CONST_Version_FirebaseTools=latest
 
 Workspace() {
 
@@ -143,8 +146,8 @@ Workspace() {
     $(resolveCommand firebase) use "${firebaseProject}"
 
     this.apps.forEach setEnvironment
-    echo "env=\"${envType}\"" > "${CONST_TS_ENV_FILE}"
-    [[ "${fallbackEnv}" ]] && echo "env=\"${fallbackEnv}\"" >> "${CONST_TS_ENV_FILE}"
+    echo "env=\"${envType}\"" >"${CONST_TS_ENV_FILE}"
+    [[ "${fallbackEnv}" ]] && echo "env=\"${fallbackEnv}\"" >>"${CONST_TS_ENV_FILE}"
   }
 
   _assertNoCyclicImport() {
@@ -174,12 +177,15 @@ Workspace() {
     this.active.forEach clean
   }
 
-  _install() {
+  _installGlobalPackages() {
     if [[ "${ts_installGlobals}" ]]; then
       logInfo "Installing global packages..."
-      npm i -g typescript@latest eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest sort-json@latest tsc-watch@latest
+      npm i -g typescript@${CONST_Version_Typescript} eslint@${CONST_Version_ESlint} tslint@latest firebase-tools@${CONST_Version_FirebaseTools} sort-package-json@latest sort-json@latest tsc-watch@latest
+      storeFirebasePath
     fi
+  }
 
+  _install() {
     if [[ "${ts_installPackages}" ]]; then
       logInfo
       bannerInfo "Install"

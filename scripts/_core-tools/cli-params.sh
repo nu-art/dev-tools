@@ -47,7 +47,7 @@ installBash() {
 
   if [[ "${output}" =~ "brew: command not found" ]]; then
     logInfo "So... a new computer... ?? installing homebrew ;)"
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   fi
 }
 

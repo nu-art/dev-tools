@@ -152,6 +152,10 @@ extractParams() {
       exit 2
       ;;
 
+    "--install-globals" | "-ig")
+      ts_installGlobals=true
+      ;;
+
     "--install" | "-i")
       #DOC: Will run 'npm install' in all project packages
       #DOC: Will perform --link

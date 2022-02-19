@@ -54,6 +54,7 @@ abstract class BasePipeline<T extends BasePipeline>
 	}
 
 	void run() {
+		printEnvParams(Var_CleanWorkspace)
 		setDisplayName()
 		workflow.run()
 	}

@@ -29,6 +29,10 @@ class SlackModule
 		buildModule = getModule(BuildModule.class)
 	}
 
+	void setToken(String token) {
+		this.token = token
+	}
+
 	void disable() {
 		this.enabled = false
 	}

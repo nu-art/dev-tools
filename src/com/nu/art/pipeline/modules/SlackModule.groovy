@@ -14,7 +14,7 @@ class SlackModule
 
 	private String token = "slack-token"
 	private Var_Creds SlackToken
-	private String team
+	private String teamDomain
 	private String onSuccess
 	private String defaultChannel
 	private BuildModule buildModule
@@ -34,8 +34,8 @@ class SlackModule
 		this.token = token
 	}
 
-	void setTeam(String team) {
-		this.team = team
+	void setTeam(String teamDomain) {
+		this.teamDomain = teamDomain
 	}
 
 	void disable() {
@@ -79,7 +79,7 @@ class SlackModule
 			.replaceAll(/<br>/, "\n")
 			.replaceAll(/<\/br>/, "\n")
 
-		workflow.script.slackSend(color: color, team: team, channel: channelName, message: finalMessage, tokenCredentialId: SlackToken.id)
+		workflow.script.slackSend(color: color, teamDomain: teamDomain, channel: channelName, message: finalMessage, tokenCredentialId: SlackToken.id)
 	}
 
 	@Override

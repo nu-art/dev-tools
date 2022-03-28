@@ -2,7 +2,7 @@
 
 boilerplateRepo="git@github.com:nu-art-js/thunderstorm.git"
 
-buildSteps=(purge clean install link generate compile lint test publish launch deploy)
+buildSteps=(printDependencyTree purge clean install link generate compile lint test publish launch deploy)
 
 allowedBranchesForPromotion=(
   master

@@ -12,6 +12,7 @@ class SlackModule
 	extends WorkflowModule
 	implements OnPipelineListener {
 
+	private String token = "slack-token"
 	private Var_Creds SlackToken
 	private String onSuccess
 	private String defaultChannel
@@ -24,7 +25,7 @@ class SlackModule
 	}
 
 	void _init() {
-		setTokenCredentialsId("slack-token")
+		setTokenCredentialsId(this.token)
 		buildModule = getModule(BuildModule.class)
 	}
 

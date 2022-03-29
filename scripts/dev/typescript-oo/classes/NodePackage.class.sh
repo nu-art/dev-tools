@@ -162,7 +162,10 @@ NodePackage() {
 
     for folder in "${folders[@]}"; do
       [[ "${folder}" == "test" ]] && continue
+
+      local absoluteSourcesFolder="$(pwd)/src/${folder}"
       local absoluteOutputDir="$(pwd)/${outputDir}"
+
       logInfo "Compiling($(tsc -v)): ${folderName}/${folder}"
       if [[ "${ts_watch}" ]]; then
 
@@ -174,7 +177,8 @@ NodePackage() {
 
         [[ "${parts[2]}" ]] && execute "pkill -P ${parts[2]}"
 
-        tsc-watch -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]} --onSuccess "bash ../relaunch-backend.sh" &
+        local command="bash ../relaunch-backend.sh ${absoluteSourcesFolder} ${absoluteOutputDir}"
+        tsc-watch -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]} --onSuccess "${command}" &
 
         local _pid="${folderName} ${folder} $!"
         logInfo "${_pid}"
@@ -185,8 +189,8 @@ NodePackage() {
         # figure out the rest of the dirs...
       fi
 
-      _cd "./src/${folder}"
-        find . -name '*.scss' | cpio -pdm "${absoluteOutputDir}"
+      _cd "${absoluteSourcesFolder}"
+      find . -name '*.scss' | cpio -pdm "${absoluteOutputDir}" > /dev/null
       _cd-
     done
   }

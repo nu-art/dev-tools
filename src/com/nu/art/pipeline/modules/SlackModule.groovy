@@ -79,7 +79,7 @@ class SlackModule
 			.replaceAll(/<br>/, "\n")
 			.replaceAll(/<\/br>/, "\n")
 
-		workflow.script.slackSend(color: color, teamDomain: teamDomain, channel: channelName, message: finalMessage, tokenCredentialId: SlackToken.id)
+		workflow.script.slackSend(botUser: true, color: color, teamDomain: teamDomain, channel: channelName, message: finalMessage, tokenCredentialId: SlackToken.id)
 	}
 
 	@Override

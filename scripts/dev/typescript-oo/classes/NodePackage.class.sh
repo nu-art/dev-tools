@@ -162,6 +162,7 @@ NodePackage() {
 
     for folder in "${folders[@]}"; do
       [[ "${folder}" == "test" ]] && continue
+      local absoluteOutputDir="$(pwd)/${outputDir}"
       logInfo "Compiling($(tsc -v)): ${folderName}/${folder}"
       if [[ "${ts_watch}" ]]; then
 
@@ -183,6 +184,10 @@ NodePackage() {
         throwWarning "Error compiling: ${module}/${folder}"
         # figure out the rest of the dirs...
       fi
+
+      _cd "./src/${folder}"
+        find . -name '*.scss' | cpio -pdm "${absoluteOutputDir}"
+      _cd-
     done
   }
 

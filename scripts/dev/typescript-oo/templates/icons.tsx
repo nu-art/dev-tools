@@ -27,7 +27,7 @@ class RenderIcon
 		 display: inline-block;
 		`;
 
-		return <span {...this.props.props} className={`${iconStyle} ${this.props.props?.className}`}/>;
+		return <span {...this.props.props} className={`${iconStyle} clickable ${this.props.props?.className}`}/>;
 	}
 }
 

@@ -54,6 +54,7 @@ abstract class BasePipeline<T extends BasePipeline>
 	}
 
 	void run() {
+		printEnvParams(Var_CleanWorkspace)
 		setDisplayName()
 		workflow.run()
 	}
@@ -67,7 +68,7 @@ abstract class BasePipeline<T extends BasePipeline>
 	}
 
 	void cleanup() {
-		if (Var_CleanWorkspace.get())
+		if ("true" == Var_CleanWorkspace.get())
 			workflow.deleteWorkspace()
 	}
 }

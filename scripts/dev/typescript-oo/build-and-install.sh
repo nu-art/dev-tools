@@ -1,4 +1,7 @@
 #!/bin/bash
+export LANG=en_US.UTF-8
+export LC_ALL=$LANG
+
 source ./dev-tools/scripts/git/_core.sh
 source ./dev-tools/scripts/firebase/core.sh
 source ./dev-tools/scripts/node/_source.sh

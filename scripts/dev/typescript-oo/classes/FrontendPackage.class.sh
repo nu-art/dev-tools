@@ -77,7 +77,7 @@ FrontendPackage() {
       local height=$(cat "${file}" | grep -E 'svg.*height="[0-9\.]+' | sed -E 's/^.*svg.*height="([0-9\.]+)(px)?".*$/\1/')
       local varName=$(echo "${file}" | sed -E 's/icon__(.*).svg/\1/')
       declaration="${declaration}\\nconst ${varName}: IconData = {ratio: ${height} / ${width},  value: require('@res/icons/${file}')};"
-      usage="${usage}\\n\t${varName}: (color?: string, width?: number, props?: HTMLAttributes<HTMLSpanElement>) => iconsRenderer(${varName}, color, width, props),"
+      usage="${usage}\\n\t${varName}: (props: IconAttributes) => iconsRenderer(${varName}, props),"
     done
 
     deleteFile "../${CONST_FrontendIconsFile}"

@@ -1,6 +1,5 @@
-import * as React from "react";
-import {css} from "emotion";
-import {HTMLAttributes} from "react";
+import * as React from 'react';
+import {HTMLAttributes} from 'react';
 
 export type IconStyle = {
 	color: string;
@@ -8,41 +7,29 @@ export type IconStyle = {
 	height: number;
 }
 
-type Props = {
-	iconStyle: IconStyle
+type IconAttributes = HTMLAttributes<HTMLSpanElement>;
+type Props = IconAttributes & {
 	icon: string
-	props?: HTMLAttributes<HTMLSpanElement>
 }
 
 class RenderIcon
 	extends React.Component<Props> {
 	render() {
-		const iconStyle = css`
-		 width: ${this.props.iconStyle.width}px;
-		 height: ${this.props.iconStyle.height}px;
-		 background: ${this.props.iconStyle.color};
-		 -webkit-mask-image: url(${this.props.icon});
-		 mask-image: url(${this.props.icon});
-		 mask-size: cover;
-		 display: inline-block;
-		`;
-
-		return <span {...this.props.props} className={`${iconStyle} clickable ${this.props.props?.className}`}/>;
+		return <span {...this.props} className={`icon--default ${this.props.className}`}
+								 style={{WebkitMaskImage: `url(${this.props.icon})`, maskImage: `url(${this.props.icon})`}}/>;
 	}
 }
-
 
 export type IconData = {
 	ratio: number,
 	value: string
 }
 
-export const iconsRenderer = (key: IconData, color?: string, width: number = 24, props?: HTMLAttributes<HTMLSpanElement>) => {
-	return <RenderIcon icon={key.value} iconStyle={{color: color || "#000000", height: width * key.ratio, width: width}} props={props}/>
+export const iconsRenderer = (key: IconData, props: IconAttributes) => {
+	return <RenderIcon {...props} icon={key.value}/>;
 };
 
-
-ICONS_DECLARATION
+ICONS_DECLARATION;
 
 export const ICONS = {
 	ICONS_USAGE

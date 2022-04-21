@@ -15,8 +15,8 @@ type Props = IconAttributes & {
 class RenderIcon
 	extends React.Component<Props> {
 	render() {
-		return <span {...this.props} className={`icon--default ${this.props.className}`}
-								 style={{WebkitMaskImage: `url(${this.props.icon})`, maskImage: `url(${this.props.icon})`}}/>;
+		return <div {...this.props} className={`icon--default ${this.props.className}`}
+								style={{WebkitMaskImage: `url(${this.props.icon})`, maskImage: `url(${this.props.icon})`}}/>;
 	}
 }
 
@@ -25,7 +25,7 @@ export type IconData = {
 	value: string
 }
 
-export const iconsRenderer = (key: IconData, props: IconAttributes) => {
+export const iconsRenderer = (key: IconData, props?: IconAttributes) => {
 	return <RenderIcon {...props} icon={key.value}/>;
 };
 

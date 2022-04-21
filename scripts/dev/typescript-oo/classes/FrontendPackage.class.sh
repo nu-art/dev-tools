@@ -24,18 +24,18 @@ FrontendPackage() {
     npm run build
     throwWarning "Error compiling: ${folderName}"
 
-#    for lib in ${@}; do
-#      [[ "${lib}" == "${_this}" ]] && break
-#      local libPath="$("${lib}.path")"
-#      local libFolderName="$("${lib}.folderName")"
-#      local libPackageName="$("${lib}.packageName")"
-#
-#      [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
-#
-#      local backendDependencyPath="./.dependencies/${libFolderName}"
-#      createDir "${backendDependencyPath}"
-#      cp -rf "${libPath}/${libFolderName}/${outputDir}"/* "${backendDependencyPath}/"
-#    done
+    #    for lib in ${@}; do
+    #      [[ "${lib}" == "${_this}" ]] && break
+    #      local libPath="$("${lib}.path")"
+    #      local libFolderName="$("${lib}.folderName")"
+    #      local libPackageName="$("${lib}.packageName")"
+    #
+    #      [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
+    #
+    #      local backendDependencyPath="./.dependencies/${libFolderName}"
+    #      createDir "${backendDependencyPath}"
+    #      cp -rf "${libPath}/${libFolderName}/${outputDir}"/* "${backendDependencyPath}/"
+    #    done
   }
 
   _launch() {
@@ -77,7 +77,7 @@ FrontendPackage() {
       local height=$(cat "${file}" | grep -E 'svg.*height="[0-9\.]+' | sed -E 's/^.*svg.*height="([0-9\.]+)(px)?".*$/\1/')
       local varName=$(echo "${file}" | sed -E 's/icon__(.*).svg/\1/')
       declaration="${declaration}\\nconst ${varName}: IconData = {ratio: ${height} / ${width},  value: require('@res/icons/${file}')};"
-      usage="${usage}\\n\t${varName}: (props: IconAttributes) => iconsRenderer(${varName}, props),"
+      usage="${usage}\\n\t${varName}: (props?: IconAttributes) => iconsRenderer(${varName}, props),"
     done
 
     deleteFile "../${CONST_FrontendIconsFile}"

@@ -127,7 +127,7 @@ Workspace() {
     bannerInfo "Set Environment: ${envType}"
     [[ "${fallbackEnv}" ]] && logWarning " -- Fallback env: ${fallbackEnv}"
 
-    $(resolveCommand firebase) login
+    $(resolveCommand firebase) login --interactive
 
     copyConfigFile "./.config/firebase-ENV_TYPE.json" "firebase.json" "${envType}" "${fallbackEnv}"
     copyConfigFile "./.config/.firebaserc-ENV_TYPE" ".firebaserc" "${envType}" "${fallbackEnv}"

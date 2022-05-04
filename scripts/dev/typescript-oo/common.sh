@@ -15,6 +15,7 @@ copyConfigFile() {
 
   for env in ${envs[@]}; do
     local envConfigFile=${filePattern//ENV_TYPE/${env}}
+    logDebug "${envConfigFile} from env: ${env}"
     [[ ! -e "${envConfigFile}" ]] && continue
 
     logDebug "Setting ${targetFile} from env: ${env}"

@@ -218,7 +218,6 @@ NodePackage() {
 
   _test() {
     [[ ! -e "./src/test/tsconfig.json" ]] && logVerbose "./src/test/tsconfig.json was not found... skipping test phase" && return 0
-    [[ "${testServiceAccount}" ]] && [[ ! -e "${testServiceAccount}" ]] && throwError "Service account cannot be resolved from path: ${testServiceAccount}" 2
 
     export GOOGLE_APPLICATION_CREDENTIALS="${testServiceAccount}"
     logInfo "Testing: ${folderName}"

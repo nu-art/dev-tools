@@ -15,7 +15,7 @@ class SlackModule
 	private String token = "slack-token"
 	private Var_Creds SlackToken
 	private String teamDomain
-	private String onSuccess
+	private String onSuccess = ""
 	private String defaultChannel
 	private BuildModule buildModule
 	private boolean enabled = true
@@ -47,7 +47,7 @@ class SlackModule
 	}
 
 	void setOnSuccess(String onSuccess) {
-		this.onSuccess = onSuccess
+		this.onSuccess += "\n$onSuccess"
 	}
 
 	void setTokenCredentialsId(String tokenCredentialId) {

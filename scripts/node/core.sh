@@ -56,11 +56,10 @@ installAndUseNvmIfNeeded() {
   [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh" # This loads nvm
   if [[ ! $(assertNVM) ]] && [[ "v$(cat .nvmrc | head -1)" != "$(nvm current)" ]]; then
 
-    local npmVersion="$(cat .nvmrc | head -1)"
-    nvm uninstall --delete-prefix "v${npmVersion}" --silent
     # shellcheck disable=SC2076
-    [[ ! "${(nvm ls | grep "v${npmVersion}") | head -1}" =~ "v$(cat .nvmrc | head -1)" ]] && echo "nvm install" && nvm install
-    nvm use --delete-prefix "v${npmVersion}" --silent
+    nvm uninstall --delete-prefix "v$(cat .nvmrc | head -1)" --silent
+    [[ ! "${(nvm ls | grep "v$(cat .nvmrc | head -1)") | head -1}" =~ "v$(cat .nvmrc | head -1)" ]] && echo "nvm install" && nvm install
+    nvm use --delete-prefix "v$(cat .nvmrc | head -1)" --silent
     echo "nvm use" && nvm use
   fi
 }

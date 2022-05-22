@@ -59,7 +59,7 @@ installAndUseNvmIfNeeded() {
 #    nvm deactivate
 #    nvm uninstall v16.13.0
     # shellcheck disable=SC2076
-    [[ ! "${(nvm ls | grep "v$(cat .nvmrc | head -1)") | head -1}" =~ "v$(cat .nvmrc | head -1)" ]] && echo "nvm install" && nvm install
+    [[ ! "$(nvm ls | grep "v$(cat .nvmrc | head -1)") | head -1" =~ "v$(cat .nvmrc | head -1)" ]] && echo "nvm install" && nvm install
     nvm use --delete-prefix "v$(cat .nvmrc | head -1)" --silent
     echo "nvm use" && nvm use
   fi

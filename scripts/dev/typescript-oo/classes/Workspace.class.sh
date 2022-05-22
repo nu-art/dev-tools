@@ -179,6 +179,7 @@ Workspace() {
   _installGlobalPackages() {
     if [[ "${ts_installGlobals}" ]]; then
       logInfo "Installing global packages..."
+      rm -rf /var/lib/jenkins/.nvm/versions/node/v16.13.0/lib/node_modules/.typescript-4f2mhipd
       npm i -g typescript@${CONST_Version_Typescript} eslint@${CONST_Version_ESlint} tslint@latest firebase-tools@${CONST_Version_FirebaseTools} sort-package-json@latest sort-json@latest tsc-watch@latest
       storeFirebasePath
     fi

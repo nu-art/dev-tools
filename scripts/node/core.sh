@@ -56,8 +56,8 @@ installAndUseNvmIfNeeded() {
   [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh" # This loads nvm
   if [[ ! $(assertNVM) ]] && [[ "v$(cat .nvmrc | head -1)" != "$(nvm current)" ]]; then
 
-    nvm deactivate
-    nvm uninstall v16.13.0
+#    nvm deactivate
+#    nvm uninstall v16.13.0
     # shellcheck disable=SC2076
     [[ ! "$(nvm ls | grep "v$(cat .nvmrc | head -1)") | head -1" =~ "v$(cat .nvmrc | head -1)" ]] && echo "nvm install" && nvm install
     nvm use --delete-prefix "v$(cat .nvmrc | head -1)" --silent

@@ -49,6 +49,7 @@ params=(
   ts_installPackages
   ts_compile
   ts_watch
+  ts_cleanENV
   ts_link
   ts_linkThunderstorm
   ts_lint
@@ -184,6 +185,12 @@ extractParams() {
       ts_generate+=($(regexParam "--generate|-g" "${paramValue}"))
       ts_link=
       ts_compile=
+      ;;
+
+    "--clean-env" | "-cenv")
+      #DOC: Would link dependencies between project packages
+
+      ts_cleanENV=true
       ;;
 
     "--link" | "-ln")

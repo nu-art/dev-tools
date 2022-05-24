@@ -106,6 +106,18 @@ Workspace() {
     exit 0
   }
 
+  _cleanEnv() {
+    [[ ! "${ts_cleanENV}" ]] && return
+
+    logInfo
+    bannerInfo "Clean ENV"
+
+    nvm deactivate
+    nvm uninstall "v$(cat .nvmrc | head -1)"
+
+    exit 0
+  }
+
   _prepareToPublish() {
     [[ ! "${ts_publish}" ]] && return
 
@@ -145,8 +157,8 @@ Workspace() {
     [[ "${firebaseProject}" ]] && $(resolveCommand firebase) use "${firebaseProject}"
 
     this.apps.forEach setEnvironment
-    echo "env=\"${envType}\"" >"${CONST_TS_ENV_FILE}"
-    [[ "${fallbackEnv}" ]] && echo "env=\"${fallbackEnv}\"" >>"${CONST_TS_ENV_FILE}"
+    echo "env=\"${envType}\"" > "${CONST_TS_ENV_FILE}"
+    [[ "${fallbackEnv}" ]] && echo "env=\"${fallbackEnv}\"" >> "${CONST_TS_ENV_FILE}"
   }
 
   _assertNoCyclicImport() {

@@ -46,15 +46,12 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 	}
 
 	T checkout(Closure postCheckout) {
-		if (repo)
-			addStage("checkout", {
-				getRepo().cloneRepo()
-				getRepo().cloneSCM()
-				if (postCheckout)
-					postCheckout()
-			})
-		if (docker)
-			addStage("launch-docker", { docker.launch() })
+		if (repo) addStage("checkout", {
+			getRepo().cloneRepo()
+			getRepo().cloneSCM()
+			if (postCheckout) postCheckout()
+		})
+		if (docker) addStage("launch-docker", { docker.launch() })
 		return (T) this
 	}
 
@@ -109,18 +106,15 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 	}
 
 	String _sh(String command, readOutput = false) {
-		if (docker)
-			return docker.sh(command, "${VarConsts.Var_Workspace.get()}/${repo.getOutputFolder()}")
+		if (docker) return docker.sh(command, "${VarConsts.Var_Workspace.get()}/${repo.getOutputFolder()}")
 
 		return repo.sh(command, readOutput)
 	}
 
 	protected String getVersion(String path) {
-		if (!path)
-			path = "${repo.getOutputFolder()}/version-app.json"
+		if (!path) path = "${repo.getOutputFolder()}/version-app.json"
 		String pathToFile = getModule(BuildModule.class).pathToFile(path)
-		if (!workflow.fileExists(pathToFile))
-			return null
+		if (!workflow.fileExists(pathToFile)) return null
 
 		String fileContent = workflow.readFile(pathToFile)
 		VersionApp versionApp = Utils.parseJson(fileContent) as VersionApp
@@ -130,16 +124,15 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 	void setDisplayName() {
 		def version = getVersion() ? " - v${getVersion()}" : ""
 		def branch = ""
-		if (repo)
-			branch = " - ${repo.getBranch()}"
+		if (repo) branch = " - ${repo.getBranch()}"
 		getModule(BuildModule.class).setDisplayName("#${VarConsts.Var_BuildNumber.get()}: ${getName()}${branch}${version}")
 	}
 
 	@Override
 	void cleanup() {
-		if (docker)
-			docker.kill()
+		if (docker) docker.kill()
 
+		_sh("bash build-and-install.sh --clean-env --debug")
 		super.cleanup()
 	}
 }

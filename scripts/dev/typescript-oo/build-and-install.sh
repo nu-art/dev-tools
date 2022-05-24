@@ -123,20 +123,6 @@ buildWorkspace() {
 
     "workspace.${buildSteps[${buildStep}]}"
   done
-
-  #  workspace.purge
-  #  workspace.clean
-  #  workspace.install
-  #  workspace.link
-  #  workspace.generate
-  #  workspace.compile
-  #  workspace.lint
-  #  workspace.test
-  #
-  #  workspace.publish
-  #  workspace.launch
-  #  workspace.deploy
-
 }
 
 buildWorkspace

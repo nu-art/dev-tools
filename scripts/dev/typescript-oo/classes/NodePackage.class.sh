@@ -88,6 +88,8 @@ NodePackage() {
     npm install
     throwError "Error installing module"
 
+    npm audit
+
     trap - SIGINT
 
     restorePackageJson "${folderName}"

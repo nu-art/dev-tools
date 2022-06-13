@@ -76,7 +76,7 @@ string_match() {
 
 ## @function: string_replace(match, replaceWith, string, delimiter?)
 ##
-## @description: Replaces all occurences of a substring in a given string matching a regexp
+## @description: Replaces all occurrences of a substring in a given string matching a regexp
 ##
 ## @return: The new edited string
 string_replaceAll() {

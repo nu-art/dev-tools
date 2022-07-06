@@ -3,6 +3,7 @@
 boilerplateRepo="git@github.com:nu-art-js/thunderstorm.git"
 
 allowedBranchesForPromotion=(
+  prod
   master
   staging
   dev

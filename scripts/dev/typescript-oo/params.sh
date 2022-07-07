@@ -305,6 +305,7 @@ extractParams() {
     "--deploy" | "-d")
       ts_deploy+=(${backendApps[@]})
       ts_deploy+=(${frontendApps[@]})
+      ts_copySecrets=true
       ts_link=true
       ;;
 
@@ -317,7 +318,7 @@ extractParams() {
 
     "--deploy-backend" | "-db")
       #DOC: Will add the app-backend to the deploy list
-
+      ts_copySecrets=true
       ts_deploy+=(app-backend)
       ts_link=true
       ;;

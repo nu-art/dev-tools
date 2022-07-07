@@ -2,6 +2,7 @@
 CONST_TS_VER_JSON="version-thunderstorm.json"
 CONST_APP_VER_JSON="version-app.json"
 CONST_TS_ENV_FILE=".ts_env"
+CONST_DOT_ENV_FILE=".env"
 
 Workspace() {
 
@@ -129,8 +130,8 @@ Workspace() {
 
     $(resolveCommand firebase) login
 
-    copyConfigFile "./.config/firebase-ENV_TYPE.json" "firebase.json" "${envType}" "${fallbackEnv}"
-    copyConfigFile "./.config/.firebaserc-ENV_TYPE" ".firebaserc" "${envType}" "${fallbackEnv}"
+    copyConfigFile "./.config/firebase-ENV_TYPE.json" "firebase.json" true "${envType}" "${fallbackEnv}"
+    copyConfigFile "./.config/.firebaserc-ENV_TYPE" ".firebaserc" true "${envType}" "${fallbackEnv}"
 
     local firebaseProject="$(getJsonValueForKey .firebaserc default)"
     verifyFirebaseProjectIsAccessible "${firebaseProject}"
@@ -233,6 +234,14 @@ Workspace() {
     bannerInfo "Launch"
 
     this.apps.forEach launch
+  }
+
+  _copySecrets() {
+    [[ ! "${ts_copySecrets}" ]] && return
+    logInfo
+    bannerInfo "Copy Secrets"
+
+    this.apps.forEach copySecrets
   }
 
   _deploy() {

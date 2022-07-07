@@ -10,8 +10,9 @@ CONST_FrontendColorsFile="colors.ts"
 copyConfigFile() {
   local filePattern=${1}
   local targetFile=${2}
+  local fail=${3}
 
-  local envs=(${@:3})
+  local envs=(${@:4})
 
   for env in ${envs[@]}; do
     local envConfigFile=${filePattern//ENV_TYPE/${env}}
@@ -21,6 +22,10 @@ copyConfigFile() {
     cp "${envConfigFile}" "${targetFile}"
     return 0
   done
+
+  if((!fail)); then
+    return 0
+  fi
 
   throwError "Could not find a match for target file: ${targetFile} in envs: ${envs[@]}" 2
 }

@@ -114,6 +114,7 @@ buildWorkspace() {
   workspace.lint
   workspace.test
 
+  workspace.copySecrets
   workspace.publish
   workspace.launch
   workspace.deploy

@@ -102,7 +102,7 @@ Workspace() {
 
     assertRepoIsClean() {
       logDebug "Asserting main repo readiness to promote a version..."
-      gitAssertBranch master staging
+      gitAssertBranch prod master staging
       gitAssertRepoClean
       gitFetchRepo
       gitAssertNoCommitsToPull

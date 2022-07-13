@@ -1,7 +1,11 @@
 #!/bin/bash
 CONST_DOT_ENV_FILE=".env"
 
+
+logInfo "exporting PATH variable"
 source ~/.bashrc
+PATH="/usr/bin:$PATH"
+
 
 BackendPackage() {
   extends class NodePackage

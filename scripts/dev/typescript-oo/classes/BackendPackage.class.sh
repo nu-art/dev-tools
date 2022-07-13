@@ -1,7 +1,7 @@
 #!/bin/bash
 CONST_DOT_ENV_FILE=".env"
 
-PATH="/usr/bin:$PATH"
+source ~/.bashrc
 
 BackendPackage() {
   extends class NodePackage

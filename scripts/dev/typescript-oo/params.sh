@@ -218,6 +218,11 @@ extractParams() {
       #NOTE: MUST have ThunderstormHome env variable defined and point to the Thunderstorm sample project
 
       [[ ! "${ThunderstormHome}" ]] && throwError "ThunderstormHome must be defined as an Environment variable" 2
+
+      if [[ "$(string_startsWith "${ThunderstormHome}" "./")" ]]; then
+        ThunderstormHome="$(pwd)$(string_substring "${ThunderstormHome}" 1)"
+      fi
+
       ts_link=true
       ts_linkThunderstorm=true
       ;;

@@ -5,6 +5,7 @@ ts_debug=
 ts_dependencies=
 ts_purge=
 ts_clean=
+ts_generateDocs=
 ts_installGlobals=
 ts_installPackages=
 ts_compile=true
@@ -36,6 +37,7 @@ ts_testsToRun=()
 ts_activeLibs=()
 ts_LogLevel=${LOG_LEVEL__INFO}
 PATH_ESLintConfigFile="${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/utils/.eslintrc.js"
+PATH_TypeDocConfigFile="${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/utils/typedoc.json"
 
 params=(
   envType
@@ -53,6 +55,7 @@ params=(
   ts_link
   ts_linkThunderstorm
   ts_lint
+  ts_generateDocs
   ts_runTests
   ts_publish
   ts_fileToExecute
@@ -197,6 +200,12 @@ extractParams() {
       #DOC: Would link dependencies between project packages
 
       ts_link=true
+      ;;
+
+    "--generate-docs" | "-doc" | "-docs")
+      #DOC: Would link dependencies between project packages
+
+      ts_generateDocs=true
       ;;
 
     "--link-only" | "-lo")

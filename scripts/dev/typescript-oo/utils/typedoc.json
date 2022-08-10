@@ -1,0 +1,11 @@
+{
+  "label": "FROM DEV-TOOLS",
+  "tsconfig": "src/main/tsconfig.json",
+  "entryPointStrategy": "resolve",
+  "out": "docs",
+  "logLevel": "Error",
+  "categorizeByGroup": true,
+  "entryPoints": [
+    "src/main/index.ts"
+  ]
+}

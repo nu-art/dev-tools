@@ -19,6 +19,12 @@ NodePackage() {
       [[ -e "./${folderName}/.eslintrc.js" ]] && silent="true"
       file_copyToFolder "${PATH_ESLintConfigFile}" "./${folderName}" ${silent}
     fi
+
+    if { [[ -e "./${folderName}/.typedoc.json" ]] && [[ "$(cat "./${folderName}/.typedoc.json" | grep "FROM DEV-TOOLS")" ]]; } || [[ ! -e "./${folderName}/.typedoc.json" ]]; then
+      local silent
+      [[ -e "./${folderName}/.typedoc.json" ]] && silent="true"
+      file_copyToFolder "${PATH_TypeDocConfigFile}" "./${folderName}" ${silent}
+    fi
   }
 
   _printDependencyTree() {
@@ -216,6 +222,10 @@ NodePackage() {
         throwError "Error while linting: ${module}/${folder}"
       fi
     done
+  }
+
+  _generateDocs() {
+    typedoc --options typedoc.json
   }
 
   _test() {

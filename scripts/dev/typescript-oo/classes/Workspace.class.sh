@@ -188,10 +188,19 @@ Workspace() {
     this.active.forEach clean
   }
 
+  _generateDocs() {
+    [[ ! "${ts_generateDocs}" ]] && return
+
+    logInfo
+    bannerInfo "Generating docs"
+
+    this.active.forEach generateDocs
+  }
+
   _installGlobalPackages() {
     if [[ "${ts_installGlobals}" ]]; then
       logInfo "Installing global packages..."
-      npm i -g typescript@${CONST_Version_Typescript} eslint@${CONST_Version_ESlint} tslint@latest firebase-tools@${CONST_Version_FirebaseTools} sort-package-json@latest sort-json@latest tsc-watch@latest
+      npm i -g typescript@${CONST_Version_Typescript} eslint@${CONST_Version_ESlint} tslint@latest firebase-tools@${CONST_Version_FirebaseTools} sort-package-json@latest sort-json@latest tsc-watch@latest typedoc@latest
       storeFirebasePath
     fi
   }

@@ -11,6 +11,7 @@ buildSteps=(
   link
   generate
   compile
+  generateDocs
   lint
   test
   publish

@@ -19,12 +19,6 @@ NodePackage() {
       [[ -e "./${folderName}/.eslintrc.js" ]] && silent="true"
       file_copyToFolder "${PATH_ESLintConfigFile}" "./${folderName}" ${silent}
     fi
-
-    if { [[ -e "./${folderName}/.typedoc.json" ]] && [[ "$(cat "./${folderName}/.typedoc.json" | grep "FROM DEV-TOOLS")" ]]; } || [[ ! -e "./${folderName}/.typedoc.json" ]]; then
-      local silent
-      [[ -e "./${folderName}/.typedoc.json" ]] && silent="true"
-      file_copyToFolder "${PATH_TypeDocConfigFile}" "./${folderName}" ${silent}
-    fi
   }
 
   _printDependencyTree() {
@@ -225,7 +219,7 @@ NodePackage() {
   }
 
   _generateDocs() {
-    typedoc --options typedoc.json
+    typedoc --basePath "$(pwd)" --entryPoints ./src/main/index.ts --tsconfig ./src/main/tsconfig.json --options "${PATH_TypeDocConfigFile}" --out ./docs
   }
 
   _test() {

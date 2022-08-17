@@ -219,6 +219,8 @@ NodePackage() {
   }
 
   _generateDocs() {
+    logInfo "Generating docs: ${folderName}"
+
     typedoc --basePath "$(pwd)" --entryPoints ./src/main/index.ts --tsconfig ./src/main/tsconfig.json --options "${PATH_TypeDocConfigFile}" --out ./docs
   }
 

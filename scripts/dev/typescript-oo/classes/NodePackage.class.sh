@@ -231,9 +231,7 @@ NodePackage() {
     [[ -e "./src/main/tsconfig.json" ]] && tsConfig="./src/main/tsconfig.json"
     [[ -e "./tsconfig.json" ]] && tsConfig="./tsconfig.json"
 
-    echo     typedoc --basePath "$(pwd)" --entryPoints ${entryPoints[*]}g --tsconfig ${tsConfig} --options "${PATH_TypeDocConfigFile}" --out ./docs
-
-    typedoc --basePath "$(pwd)" --entryPoints ${entryPoints[*]} --tsconfig ./src/main/tsconfig.json --options "${PATH_TypeDocConfigFile}" --out ./docs
+    typedoc --cleanOutputDir --basePath "$(pwd)" --entryPoints ${entryPoints[*]} --tsconfig ./src/main/tsconfig.json --options "${PATH_TypeDocConfigFile}" --out ./docs
   }
 
   _test() {

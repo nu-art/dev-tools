@@ -221,7 +221,19 @@ NodePackage() {
   _generateDocs() {
     logInfo "Generating docs: ${folderName}"
 
-    typedoc --basePath "$(pwd)" --entryPoints ./src/main/index.ts --tsconfig ./src/main/tsconfig.json --options "${PATH_TypeDocConfigFile}" --out ./docs
+    local entryPoints=()
+    [[ -e "./src/main/backend.ts" ]] && entryPoints+=("./src/main/backend.ts")
+    [[ -e "./src/main/frontend.ts" ]] && entryPoints+=("./src/main/frontend.ts")
+    [[ -e "./src/main/index.ts" ]] && entryPoints+=("./src/main/index.ts")
+    [[ -e "./src/main/index.tsx" ]] && entryPoints+=("./src/main/index.tsx")
+    local tsConfig
+
+    [[ -e "./src/main/tsconfig.json" ]] && tsConfig="./src/main/tsconfig.json"
+    [[ -e "./tsconfig.json" ]] && tsConfig="./tsconfig.json"
+
+    echo     typedoc --basePath "$(pwd)" --entryPoints ${entryPoints[*]}g --tsconfig ${tsConfig} --options "${PATH_TypeDocConfigFile}" --out ./docs
+
+    typedoc --basePath "$(pwd)" --entryPoints ${entryPoints[*]} --tsconfig ./src/main/tsconfig.json --options "${PATH_TypeDocConfigFile}" --out ./docs
   }
 
   _test() {

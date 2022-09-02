@@ -17,7 +17,7 @@ class GitRepo {
 		if (config.trackSubmodules)
 			command.gsui()
 
-		gitModule.logDebug("clonning repo(GIT): ${config.url}")
+		gitModule.logDebug("cloning repo(GIT): ${config.url}")
 		gitModule.logDebug("${command.script}")
 		gitModule.sh(command.script)
 		gitModule.gitStatusSave(this)
@@ -30,7 +30,7 @@ class GitRepo {
 		String url = config.url.replace(".git", "")
 		String outputFolder = config.url.replace(".git", "").substring(url.lastIndexOf("/") + 1)
 
-		gitModule.logDebug("clonning repo(SCM): ${config.url}")
+		gitModule.logDebug("cloning repo(SCM): ${config.url}")
 
 		gitModule.workflow.script.checkout changelog: config.changelog,
 			scm: [

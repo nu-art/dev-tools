@@ -15,17 +15,17 @@ class ProjectGitConfig {
 		this.scm = scm
 	}
 
-	setHttpUrl(String httpUrl) {
+	public setHttpUrl(String httpUrl) {
 		this.httpUrl = httpUrl
 		return this
 	}
 
-	setGitRepoUri(String gitRepoUri) {
+	public setGitRepoUri(String gitRepoUri) {
 		this.gitRepoUri = gitRepoUri
 		return this
 	}
 
-	setSCM(String scm) {
+	public setSCM(String scm) {
 		this.scm = scm
 		return this
 	}

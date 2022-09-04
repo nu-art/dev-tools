@@ -148,7 +148,7 @@ class GitCli
 	}
 
 	void execute(output = false) {
-		repo.executeCommand(this, output)
+		repo.sh(this, output)
 	}
 
 	GitCli skipSubmodules(skipSubmodules = true) {

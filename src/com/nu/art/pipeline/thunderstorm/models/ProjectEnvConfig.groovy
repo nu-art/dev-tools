@@ -13,4 +13,14 @@ class ProjectEnvConfig {
 		this.webAppUrl = webAppUrl
 		this.firebaseProjectUrl = firebaseProjectUrl
 	}
+
+	setWebAppUrl(String webAppUrl) {
+		this.webAppUrl = webAppUrl
+		return this
+	}
+
+	setFirebaseProjectUrl(String firebaseProjectUrl) {
+		this.firebaseProjectUrl = firebaseProjectUrl
+		return this
+	}
 }

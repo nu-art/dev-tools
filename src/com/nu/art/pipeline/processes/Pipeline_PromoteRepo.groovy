@@ -29,8 +29,8 @@ abstract class Pipeline_PromoteRepo<T extends Pipeline_PromoteRepo>
 		this("promote", "version-app.json")
 	}
 
-	Pipeline_PromoteRepo(String relativePathToVersionFile) {
-		this("promote", relativePathToVersionFile)
+	Pipeline_PromoteRepo(String name) {
+		this(name, "version-app.json")
 	}
 
 	Pipeline_PromoteRepo(String name, String relativePathToVersionFile) {

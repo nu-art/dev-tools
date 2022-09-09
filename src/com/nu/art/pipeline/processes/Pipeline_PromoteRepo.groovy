@@ -23,8 +23,19 @@ abstract class Pipeline_PromoteRepo<T extends Pipeline_PromoteRepo>
 		Env_Promote
 	]
 
+	String relativePathToVersionFile
+
 	Pipeline_PromoteRepo() {
-		super("promote", GitModule.class)
+		this("promote", "version-app.json")
+	}
+
+	Pipeline_PromoteRepo(String relativePathToVersionFile) {
+		this("promote", relativePathToVersionFile)
+	}
+
+	Pipeline_PromoteRepo(String name, String relativePathToVersionFile) {
+		super(name, GitModule.class)
+		this.relativePathToVersionFile = relativePathToVersionFile
 	}
 
 	abstract void saveVersion(String path, String version)
@@ -41,7 +52,7 @@ abstract class Pipeline_PromoteRepo<T extends Pipeline_PromoteRepo>
 			String toBranch = Env_ToBranch.get()
 
 			GitRepo repo = getModule(GitModule.class).create(Env_RepoUrl.get()).setBranch(fromBranch).build()
-			String pathToVersionFile = "${repo.getOutputFolder()}/version-app.json"
+			String pathToVersionFile = "${repo.getOutputFolder()}/${this.relativePathToVersionFile}"
 
 			repo.cloneRepo()
 			GitCli

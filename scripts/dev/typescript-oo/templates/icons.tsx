@@ -1,38 +1,25 @@
 import * as React from 'react';
-import {HTMLAttributes} from 'react';
+import {ElementType, HTMLAttributes} from 'react';
+import {_className} from '@nu-art/thunderstorm/frontend';
+import {_keys} from '@nu-art/ts-common';
 
-export type IconStyle = {
-	color: string;
-	width: number;
-	height: number;
-}
-
-type IconAttributes = HTMLAttributes<HTMLSpanElement>;
-type Props = IconAttributes & {
-	icon: string
-}
-
-class RenderIcon
-	extends React.Component<Props> {
-	render() {
-		return <div {...this.props} className={`icon--default ${this.props.className}`}
-								style={{WebkitMaskImage: `url(${this.props.icon})`, maskImage: `url(${this.props.icon})`}}/>;
-	}
-}
-
-export type IconData = {
-	ratio: number,
-	value: string
-}
-
-export const iconsRenderer = (key: IconData, props?: IconAttributes) => {
-	return <RenderIcon {...props} icon={key.value}/>;
-};
 
 ICONS_DECLARATION;
 
-export const ICONS = {
+type IconAttributes = HTMLAttributes<HTMLSpanElement>;
+
+// const genIcon = (Icon: ElementType) =>
+// 	(props: IconAttributes) => <div {...props} className={_className('icon--wrapper', props.className)}><Icon/></div>;
+const genIcon = (Icon: ElementType) =>
+	(props: IconAttributes) => <Icon/>;
+
+const AllIcons = {
 	ICONS_USAGE
 };
 
-export type IconsType = typeof ICONS
+export type IconsType = typeof AllIcons
+export type IconKey = keyof IconsType
+
+export const ICONS: IconsType = AllIcons;
+export const ICON_KEYS: IconKey[] = _keys(AllIcons);
+

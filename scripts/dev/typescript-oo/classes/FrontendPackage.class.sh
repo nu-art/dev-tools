@@ -89,11 +89,10 @@ FrontendPackage() {
     local declaration=""
     local usage=""
     for file in "${files[@]}"; do
-      local width=$(cat "${file}" | grep -E 'svg.*width="[0-9\.]+' | sed -E 's/^.*svg.*width="([0-9\.]+)(px)?".*$/\1/')
-      local height=$(cat "${file}" | grep -E 'svg.*height="[0-9\.]+' | sed -E 's/^.*svg.*height="([0-9\.]+)(px)?".*$/\1/')
       local varName=$(echo "${file}" | sed -E 's/icon__(.*).svg/\1/')
-      declaration="${declaration}\\nconst ${varName}: IconData = {ratio: ${height} / ${width},  value: require('@res/icons/${file}')};"
-      usage="${usage}\\n\t${varName}: (props?: IconAttributes) => iconsRenderer(${varName}, props),"
+
+      declaration="${declaration}\\nimport {ReactComponent as ${varName}} from '@res/icons/${file}';"
+      usage="${usage}\\n\t${varName}: <${varName}/>,"
     done
 
     deleteFile "../${CONST_FrontendIconsFile}"
@@ -127,8 +126,6 @@ FrontendPackage() {
     _pushd "${CONST_FrontendFontsPath}"
     local files=($(ls | grep .*\.ttf))
 
-    local globals=""
-    local declaration=""
     local usage=""
     local varName=""
     for file in "${files[@]}"; do
@@ -136,15 +133,11 @@ FrontendPackage() {
       varName="${varName,,}"
       varName=$(echo "${varName}" | sed -E 's/(.*).ttf/\1/')
 
-      declaration="${declaration}\\nconst ${varName} = require('@res/fonts/${file}');"
-      globals="${globals}\\n@font-face { font-family: ${varName}; src: url(\${${varName}}) }"
       usage="${usage}\\n\t${varName}: (text: string, color?: string, size?: number) => fontRenderer(text, '${varName}', color, size),"
     done
 
     deleteFile "../${CONST_FrontendFontsFile}"
     copyFileToFolder "${_pwd}/../dev-tools/scripts/dev/typescript-oo/templates/${CONST_FrontendFontsFile}" ../
-    file_replaceLine "FONTS_DECLARATION" "${declaration}" "../${CONST_FrontendFontsFile}"
-    file_replaceLine "FONTS_GLOBAL" "${globals}" "../${CONST_FrontendFontsFile}"
     file_replaceLine "FONTS_USAGE" "${usage}" "../${CONST_FrontendFontsFile}"
 
     _popd

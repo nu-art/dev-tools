@@ -16,6 +16,7 @@ abstract class BasePipeline<T extends BasePipeline>
 
 	protected final String name
 	protected Var_Creds[] creds = []
+	protected String[] sshCreds = []
 
 	BasePipeline(String name, Class<? extends WorkflowModule>... modules) {
 		super(defaultModules + modules)
@@ -29,6 +30,11 @@ abstract class BasePipeline<T extends BasePipeline>
 
 	T setRequiredCredentials(Var_Creds... creds) {
 		this.creds = creds
+		return (T) this
+	}
+
+	T setRequiredSSHCredentials(String... sshCreds) {
+		this.sshCreds = sshCreds
 		return (T) this
 	}
 
@@ -68,7 +74,6 @@ abstract class BasePipeline<T extends BasePipeline>
 	}
 
 	void cleanup() {
-		if ("true" == Var_CleanWorkspace.get())
-			workflow.deleteWorkspace()
+		if ("true" == Var_CleanWorkspace.get()) workflow.deleteWorkspace()
 	}
 }

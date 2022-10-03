@@ -56,16 +56,19 @@ class Workflow
 		workflow.start()
 
 
-		script.ansiColor('xterm') {
-			script.sshagent(credentials: Arrays.asList(pipeline.sshCreds)) {
-				script.withCredentials(pipeline.creds.collect { param -> param.toCredential(script) }) {
-					workflow.script.wrap([$class: 'BuildUser']) {
-						pipeline.pipeline()
-						pipeline.run()
-					}
-				}
-			}
+		Closure cl = {
+			pipeline.pipeline()
+			pipeline.run()
 		}
+
+		script.ansiColor('xterm') {
+//			script.sshagent(credentials: Arrays.asList(pipeline.sshCreds)) {
+			script.withCredentials(pipeline.creds.collect { param -> param.toCredential(script) }) {
+				workflow.script.wrap([$class: 'BuildUser']) cl
+			}
+//			}
+		}
+
 		return pipeline
 	}
 

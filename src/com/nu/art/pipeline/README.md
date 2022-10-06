@@ -7,11 +7,11 @@
 * Pipeline Utility Steps
 * SSH Agent Plugin
 
-##Idea Libs
+## Idea Libs
 
 * com.nu-art-software:nu-art-core:1.2.59
 * com.nu-art-software:belog:1.2.59
-* com.nu-art-software:reflection:1.2.31
+* com.nu-art-software:reflection:1.2.59
 * com.nu-art-software:module-manager:1.2.59
 * org.jenkins-ci.main:jenkins-core:1.538
 * org.jenkins-ci.plugins:git:4.4.1
@@ -21,3 +21,8 @@
 * org.jenkins-ci.plugins.workflow:workflow-cps:2.83
 * org.jenkins-ci.plugins.workflow:workflow-job:2.40
 * org.jenkins-ci.plugins.workflow:workflow-scm-step:2.6
+* org.jenkins-ci.plugins:ssh-agent:295.v9ca_a_1c7cc3a_a_
+
+## Maven Repo for Jenkins
+
+* https://repo.jenkins-ci.org/releases

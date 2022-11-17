@@ -35,8 +35,7 @@ class Pipeline_ThunderstormWebApp<T extends Pipeline_ThunderstormWebApp>
 	}
 
 	void _deploy() {
-		_sh("""cat \"\${GOOGLE_APPLICATION_CREDENTIALS}\"
-					 bash build-and-install.sh --deploy --quick-deploy --no-git  --debug""")
+		_sh("bash build-and-install.sh --deploy --quick-deploy --no-git  --debug")
 	}
 
 	@Override

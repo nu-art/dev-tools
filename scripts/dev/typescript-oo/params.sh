@@ -321,7 +321,7 @@ extractParams() {
 
     "--launch-frontend" | "-lf")
       #DOC: Will add the app-frontend to the launch list
-      ts_launch+=(app-frontend)
+      ts_launch+=(${frontendApps[@]})
       ;;
 
     "--launch-backend" | "-lb")

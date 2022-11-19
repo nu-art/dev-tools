@@ -92,7 +92,7 @@ Workspace() {
       saveState
 
       _pushd "$("${item}.path")/$("${item}.folderName")"
-      "${item}.${command}" "${@:3}"
+      [[ "${item}.${command}" ]] && "${item}.${command}" "${@:3}"
       (($? > 0)) && throwError "Error executing command: ${item}.${command}"
       _popd
     done
@@ -264,7 +264,7 @@ Workspace() {
     logInfo
     bannerInfo "Launch"
 
-    this.apps.forEach launch
+    this.active.forEach launch
   }
 
   _deploy() {

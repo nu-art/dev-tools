@@ -5,6 +5,7 @@ FrontendPackage() {
 
   _deploy() {
     [[ ! "$(array_contains "${folderName}" "${ts_deploy[@]}")" ]] && return
+    [[ ! "$(array_contains "${folderName}" "${deployableApps[@]}")" ]] && return
 
     logInfo "Deploying: ${folderName}"
     ${CONST_Firebase} deploy --only hosting

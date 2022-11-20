@@ -58,6 +58,11 @@ frontendApps=(
   app-frontend
 )
 
+deployableApps=(
+  app-backend
+  app-frontend
+)
+
 executableApps=(
   app
 )

@@ -6,6 +6,7 @@ BackendPackage() {
 
   _deploy() {
     [[ ! "$(array_contains "${folderName}" "${ts_deploy[@]}")" ]] && return
+    [[ ! "$(array_contains "${folderName}" "${deployableApps[@]}")" ]] && return
 
     if [[ -e "${FOLDER_Config}/firestore.indexes.json" ]]; then
       ${CONST_Firebase}

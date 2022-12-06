@@ -37,6 +37,7 @@ tsLibs=(
   storm
   live-docs
   user-account
+  ts-workspace
   permissions
   push-pub-sub
   jira

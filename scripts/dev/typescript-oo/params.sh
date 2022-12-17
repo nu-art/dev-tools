@@ -14,6 +14,7 @@ ts_linkThunderstorm=
 ts_lint=
 ts_runTests=
 ts_publish=
+ts_debugFunction=
 ts_fileToExecute="index.js"
 
 checkCircularImports=
@@ -53,6 +54,7 @@ params=(
   ts_runTests
   ts_publish
   ts_fileToExecute
+  ts_debugFunction
   "ts_generate[@]"
   "ts_launch[@]"
   "ts_deploy[@]"
@@ -275,6 +277,11 @@ extractParams() {
     "--launch="* | "-l="*)
       #DOC: It will add the provided App to the launch list
       ts_launch+=($(regexParam "--launch|-l" "${paramValue}"))
+      ;;
+
+    "--debug-function" | "-dbf")
+      #DOC: It will add the provided App to the launch list
+      ts_debugFunction=true
       ;;
 
     "--file="* | "-f="*)

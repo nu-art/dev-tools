@@ -55,7 +55,11 @@ BackendPackage() {
     [[ ! "$(array_contains "${folderName}" "${ts_launch[@]}")" ]] && return
 
     logInfo "Launching: ${folderName}"
-    npm run launch
+    if [[ "${ts_debugFunction}" ]]; then
+      npm run debug
+    else
+      npm run launch
+    fi
   }
 
   _clean() {

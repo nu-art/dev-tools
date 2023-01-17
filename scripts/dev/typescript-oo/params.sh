@@ -204,7 +204,7 @@ extractParams() {
       ts_link=true
       ;;
 
-    "--generate-docs" | "-doc" | "-docs")
+    "--generate-docs" | "-docs")
       #DOC: Would link dependencies between project packages
 
       ts_generateDocs=true

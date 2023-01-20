@@ -73,7 +73,11 @@ BackendPackage() {
     fi
 
     logInfo "Launching: ${folderName}"
-    npm run launch
+    if [[ "${ts_debugBackend}" == "--debug" ]]; then
+      npm run debug
+    else
+      npm run launch
+    fi
   }
 
   _clean() {

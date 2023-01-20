@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ts_debug=
+ts_debugBackend=
 
 ts_dependencies=
 ts_purge=
@@ -64,6 +65,7 @@ params=(
   "ts_deploy[@]"
   "ts_activeLibs[@]"
   "ts_testsToRun[@]"
+  ts_debugBackend
   checkCircularImports
   newVersion
   promoteThunderstormVersion
@@ -202,7 +204,7 @@ extractParams() {
       ts_link=true
       ;;
 
-    "--generate-docs" | "-doc" | "-docs")
+    "--generate-docs" | "-docs")
       #DOC: Would link dependencies between project packages
 
       ts_generateDocs=true
@@ -326,6 +328,12 @@ extractParams() {
 
     "--launch-backend" | "-lb")
       #DOC: Will add the app-backend to the launch list
+      ts_launch+=(app-backend)
+      ;;
+
+    "--debug-backend" | "-lbd")
+      #DOC: Will add the app-backend to the launch list
+      ts_debugBackend="--debug"
       ts_launch+=(app-backend)
       ;;
 

@@ -89,17 +89,20 @@ FrontendPackage() {
 
     local declaration=""
     local usage=""
+    local usageV4=""
     for file in "${files[@]}"; do
       local varName=$(echo "${file}" | sed -E 's/icon__(.*).svg/\1/')
 
-      declaration="${declaration}\\nimport {ReactComponent as ${varName}} from '@res/icons/${file}';"
-      usage="${usage}\\n\t${varName}: <${varName}/>,"
+      declaration="${declaration}\\nimport ${varName}Url, {ReactComponent as ${varName}} from '@res/icons/${file}';"
+      usage="${usage}\\n\t${varName}: genIcon(${varName}),"
+      usageV4="${usageV4}\\n\t${varName}: genIconV4(${varName}Url),"
     done
 
     deleteFile "../${CONST_FrontendIconsFile}"
     copyFileToFolder "${_pwd}/../dev-tools/scripts/dev/typescript-oo/templates/${CONST_FrontendIconsFile}" ../
     file_replaceLine "ICONS_DECLARATION" "${declaration}" "../${CONST_FrontendIconsFile}"
     file_replaceLine "ICONS_USAGE" "${usage}" "../${CONST_FrontendIconsFile}"
+    file_replaceLine "ICONS_V4_USAGE" "${usageV4}" "../${CONST_FrontendIconsFile}"
     _popd
   }
 

@@ -237,19 +237,19 @@ NodePackage() {
   _test() {
     [[ ! -e "./src/test/tsconfig.json" ]] && logVerbose "./src/test/tsconfig.json was not found... skipping test phase" && return 0
 
-    export GOOGLE_APPLICATION_CREDENTIALS="${testServiceAccount}"
     logInfo "Testing: ${folderName}"
 
-    deleteDir "${outputTestDir}"
     tsc -p ./src/test/tsconfig.json --outDir "${outputTestDir}"
     throwError "Error while compiling tests in:  ${folderName}"
 
+    copyFileToFolder "${Path_RootRunningDir}/.firebaserc" "${outputTestDir}/test"
+    copyFileToFolder "${Path_RootRunningDir}/firebase.json" "${outputTestDir}/test"
     copyFileToFolder package.json "${outputTestDir}/test"
-    throwError "Error while compiling tests in:  ${folderName}"
+    throwError "Error while copying package.json to tests folder:  ${folderName}"
 
-    logInfo "${folderName} - Linting tests..."
-    tslint --project ./src/test/tsconfig.json
-    throwError "Error while linting tests in:  ${folderName}"
+#    logInfo "${folderName} - Linting tests..."
+#    tslint --project ./src/test/tsconfig.json
+#    throwError "Error while linting tests in:  ${folderName}"
 
     logInfo "${folderName} - Running tests..."
 
@@ -257,8 +257,19 @@ NodePackage() {
     for testToRun in "${ts_testsToRun[@]}"; do
       testsToRun+=("--test=${testToRun}")
     done
-    node "${outputTestDir}/test/test" "--service-account=${testServiceAccount}" "${testsToRun[@]}"
-    throwError "Error while running tests in:  ${folderName}"
+
+    if [[ ${#ts_testsToRun[@]} == 0 ]]; then
+      ts_testsToRun=("./**/*.js")
+    fi
+
+    export TESTS_TO_RUN="${ts_testsToRun[*]}"
+    _cd "${outputTestDir}/test"
+      firebase emulators:exec 'npm run test'
+      local error=$?
+    _cd-
+
+    throwError "Error while running tests in:  ${folderName}" $error
+
   }
 
   _canPublish() {

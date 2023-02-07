@@ -31,6 +31,7 @@ tsLibs=(
   ts-common
   testelot
   neural
+  google-services
   firebase
   thunderstorm
   db-api-generator
@@ -44,7 +45,6 @@ tsLibs=(
   bug-report
   github
   file-upload
-  google-services
 )
 
 projectLibs=(

@@ -22,15 +22,17 @@ alias deploy-prod='bash build-and-install.sh -se=prod --setup -df -db'
 
 alias bai='baiImpl'
 function baiImpl() {
-    if [[ -e build-and-install.sh ]]; then
-        bash build-and-install.sh ${@} --debug
-        return
-    fi
+  if [[ -e build-and-install.sh ]]; then
+    bash build-and-install.sh ${@} --debug
+    return
+  fi
 
-    local runningFolder=$(pwd | sed -E "s/.*\/(.*)$/\1/g")
-    cd ..
-        bash build-and-install.sh "${@}" -up=${runningFolder} --debug
-    cd ${runningFolder}
+  local runningFolder=$(pwd | sed -E "s/.*\/(.*)$/\1/g")
+  cd ..
+  trap "echo BREAK" SIGINT
+    bash build-and-install.sh "${@}" -up=${runningFolder} --debug
+  trap - SIGINT
+  cd ${runningFolder}
 }
 
 # Git Scripts
@@ -39,18 +41,18 @@ function gitcommitpush() {
 }
 
 function updateSubmoduleToLatest() {
-        local repo=$1
-        local branch=${2-master}
+  local repo=$1
+  local branch=${2-master}
 
-        if [[ ! "${repo}" ]]; then
-                echo "need to specify submodule repo name"
-                return
-        fi
+  if [[ ! "${repo}" ]]; then
+    echo "need to specify submodule repo name"
+    return
+  fi
 
-        cd ${repo}
-                git checkout ${branch}
-                git pull
-        cd ..
+  cd ${repo}
+    git checkout ${branch}
+    git pull
+  cd ..
 }
 
 alias grh='git reset --hard'

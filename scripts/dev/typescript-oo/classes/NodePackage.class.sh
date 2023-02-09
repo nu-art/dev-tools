@@ -242,34 +242,26 @@ NodePackage() {
     tsc -p ./src/test/tsconfig.json --outDir "${outputTestDir}"
     throwError "Error while compiling tests in:  ${folderName}"
 
-    copyFileToFolder "${Path_RootRunningDir}/.firebaserc" "${outputTestDir}/test"
-    copyFileToFolder "${Path_RootRunningDir}/firebase.json" "${outputTestDir}/test"
-    copyFileToFolder package.json "${outputTestDir}/test"
-    throwError "Error while copying package.json to tests folder:  ${folderName}"
-
 #    logInfo "${folderName} - Linting tests..."
 #    tslint --project ./src/test/tsconfig.json
 #    throwError "Error while linting tests in:  ${folderName}"
 
     logInfo "${folderName} - Running tests..."
 
-    local testsToRun=()
-    for testToRun in "${ts_testsToRun[@]}"; do
-      testsToRun+=("--test=${testToRun}")
-    done
-
-    if [[ ${#ts_testsToRun[@]} == 0 ]]; then
-      ts_testsToRun=("./**/*.js")
-    fi
-
-    export TESTS_TO_RUN="${ts_testsToRun[*]}"
-    _cd "${outputTestDir}/test"
-      firebase emulators:exec 'npm run test'
-      local error=$?
+#    local testsToRun=()
+#    for testToRun in "${ts_testsToRun[@]}"; do
+#      testsToRun+=("--test=${testToRun}")
+#    done
+#
+#    if [[ ${#ts_testsToRun[@]} == 0 ]]; then
+#      ts_testsToRun=("./**/*.js")
+#    fi
+#
+#    export TESTS_TO_RUN="${ts_testsToRun[*]}"
+    _cd..
+      ${CONST_Firebase} emulators:exec "npm run --prefix ${folderName} test"
     _cd-
-
     throwError "Error while running tests in:  ${folderName}" $error
-
   }
 
   _canPublish() {

@@ -260,6 +260,7 @@ NodePackage() {
 #    export TESTS_TO_RUN="${ts_testsToRun[*]}"
     _cd..
       ${CONST_Firebase} emulators:exec "npm run --prefix ${folderName} test"
+      local error=$?
     _cd-
     throwError "Error while running tests in:  ${folderName}" $error
   }

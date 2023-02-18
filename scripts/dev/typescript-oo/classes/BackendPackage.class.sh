@@ -5,6 +5,7 @@ BackendPackage() {
   extends class NodePackage
 
   _deploy() {
+    [[ ! "$(array_contains "${folderName}" "${ts_activeLibs[@]}")" ]] && return
     [[ ! "$(array_contains "${folderName}" "${ts_deploy[@]}")" ]] && return
     [[ ! "$(array_contains "${folderName}" "${deployableApps[@]}")" ]] && return
 

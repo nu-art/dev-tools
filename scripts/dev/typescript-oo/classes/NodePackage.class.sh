@@ -237,29 +237,10 @@ NodePackage() {
   _test() {
     [[ ! -e "./src/test/tsconfig.json" ]] && logVerbose "./src/test/tsconfig.json was not found... skipping test phase" && return 0
 
-    logInfo "Testing: ${folderName}"
-
-    tsc -p ./src/test/tsconfig.json --outDir "${outputTestDir}"
-    throwError "Error while compiling tests in:  ${folderName}"
-
-#    logInfo "${folderName} - Linting tests..."
-#    tslint --project ./src/test/tsconfig.json
-#    throwError "Error while linting tests in:  ${folderName}"
-
     logInfo "${folderName} - Running tests..."
 
-#    local testsToRun=()
-#    for testToRun in "${ts_testsToRun[@]}"; do
-#      testsToRun+=("--test=${testToRun}")
-#    done
-#
-#    if [[ ${#ts_testsToRun[@]} == 0 ]]; then
-#      ts_testsToRun=("./**/*.js")
-#    fi
-#
-#    export TESTS_TO_RUN="${ts_testsToRun[*]}"
     _cd..
-      ${CONST_Firebase} emulators:exec "npm run --prefix ${folderName} test"
+      npm run --prefix "${folderName}" run-tests
       local error=$?
     _cd-
     throwError "Error while running tests in:  ${folderName}" $error

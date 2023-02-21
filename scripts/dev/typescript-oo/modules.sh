@@ -29,7 +29,6 @@ allowedBranchesForPromotion=(
 
 tsLibs=(
   ts-common
-  testelot
   neural
   google-services
   firebase

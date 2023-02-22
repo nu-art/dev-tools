@@ -38,7 +38,7 @@ ts_testsToRun=()
 ts_activeLibs=()
 ts_LogLevel=${LOG_LEVEL__INFO}
 PATH_ESLintConfigFile="${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/utils/.eslintrc.js"
-PATH_TypeDocConfigFile="../dev-tools/scripts/dev/typescript-oo/utils/typedoc.json"
+PATH_TypeDocConfigFile="${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/utils/typedoc.json"
 
 params=(
   envType

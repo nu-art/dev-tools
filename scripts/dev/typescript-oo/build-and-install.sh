@@ -25,6 +25,12 @@ source "${BASH_SOURCE%/*}/params.sh"
 [[ -e ".scripts/signature.sh" ]] && source .scripts/signature.sh
 [[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh
 
+ts_allProjectPackages=()
+ts_allProjectPackages+=(${executableApps[@]})
+ts_allProjectPackages+=(${frontendApps[@]})
+ts_allProjectPackages+=(${backendApps[@]})
+ts_allProjectPackages+=(${projectLibs[@]})
+
 #signature
 extractParams "$@"
 

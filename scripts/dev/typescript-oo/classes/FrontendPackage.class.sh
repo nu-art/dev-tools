@@ -59,19 +59,7 @@ FrontendPackage() {
   }
 
   _link() {
-
     this.NodePackage.link ${@}
-
-    if [[ "${ts_linkThunderstorm}" ]] && [[ -e "./node_modules/react" ]]; then
-      deleteDir "./node_modules/react"
-      [[ -e "./node_modules/react}" ]] && rm -if "./node_modules/react"
-
-      origin="${ThunderstormHome}/thunderstorm/node_modules/react"
-      target="./node_modules/react"
-
-      logWarning "ln -s ${origin} ${target}"
-      ln -s ${origin} ${target}
-    fi
   }
 
   _generate() {

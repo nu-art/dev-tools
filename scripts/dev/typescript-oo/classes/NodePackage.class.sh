@@ -110,6 +110,23 @@ NodePackage() {
       [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
       this.linkLib "${lib}"
     done
+
+    if [[ "${ts_linkThunderstorm}" ]] &&
+       [[ "${folderName}" != "thunderstorm" ]] &&
+       [[ $(array_contains "${folderName}" "${ts_allProjectPackages[@]}" ) ]] &&
+       [[ -e "./node_modules/react" ]]; then
+
+      deleteDir "./node_modules/react"
+      [[ -e "./node_modules/react}" ]] && rm -if "./node_modules/react"
+
+      origin="${ThunderstormHome}/thunderstorm/node_modules/react"
+      target="./node_modules/react"
+
+      logWarning "ln -s ${origin} ${target}"
+      ln -s ${origin} ${target}
+    fi
+
+
     return 0
   }
 

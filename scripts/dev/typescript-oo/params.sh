@@ -309,8 +309,11 @@ extractParams() {
 
       #        ==== Apps ====
     "--launch="* | "-l="*)
+      local packageName="$(regexParam "--launch|-l" "${paramValue}")"
+
       #DOC: It will add the provided App to the launch list
-      ts_launch+=($(regexParam "--launch|-l" "${paramValue}"))
+      ts_launch+=(${packageName})
+      ts_activeLibs+=(${packageName})
       ;;
 
     "--file="* | "-f="*)
@@ -324,11 +327,13 @@ extractParams() {
     "--launch-frontend" | "-lf")
       #DOC: Will add the app-frontend to the launch list
       ts_launch+=(${frontendApps[@]})
+      ts_activeLibs+=(${frontendApps[@]})
       ;;
 
     "--launch-backend" | "-lb")
       #DOC: Will add the app-backend to the launch list
       ts_launch+=(app-backend)
+      ts_activeLibs+=(${backendApps[@]})
       ;;
 
     "--debug-backend" | "-lbd")

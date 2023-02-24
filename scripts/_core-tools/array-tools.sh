@@ -88,3 +88,21 @@ array_setVariable() {
   local values="${*:2}"
   eval "${arrayVarName}=(${values})"
 }
+
+## @function: array_map(fromArrayVarName toArrayVarName mapper)
+##
+## @description: will call map on every item in the original array and will set a new array with the mapped values
+##
+##
+array_map() {
+  local fromArrayVarName=${1}
+  local toArrayVarName=${2}
+  local mapper=${3}
+
+  local temp=()
+  for beforeItem in $(eval "echo \${${fromArrayVarName}[@]}"); do
+    temp+=("$(${mapper} "${beforeItem}")")
+  done
+
+  array_setVariable "${toArrayVarName}" ${temp[@]}
+}

@@ -38,6 +38,18 @@ arraySetVarTest1() {
   echo "${zevel[@]}"
 }
 
+arrayMapperTest1() {
+  mapper() {
+    local input=${1}
+    string_replaceAll "-" "_" "${input}"
+  }
+
+  local pah=("valu-e1" "val--ue-2")
+  array_map pah zevel mapper
+  echo "${zevel[@]}"
+}
+
 assertCommand "value1 value2" "arrayRemoveTest1"
 assertCommand "value1 value2" "arrayRemoveTest2"
 assertCommand "value1 value2" "arraySetVarTest1"
+assertCommand "valu_e1 val__ue_2" "arrayMapperTest1"

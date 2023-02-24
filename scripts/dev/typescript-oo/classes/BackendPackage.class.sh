@@ -44,6 +44,17 @@ BackendPackage() {
       local backendDependencyPath="./.dependencies/${libFolderName}"
       createDir "${backendDependencyPath}"
       cp -rf "${libPath}/${libFolderName}/${outputDir}"/* "${backendDependencyPath}/"
+
+      for projectLib in ${ts_projectLibs[@]}; do
+        logDebug "projectLib: ${projectLib} ==> lib: ${lib}"
+        [[ "${projectLib}" == "${lib}" ]] && break
+
+        local nestedLibFolderName="$("${projectLib}.folderName")"
+        local nestedLibPackageName="$("${projectLib}.packageName")"
+        [[ ! "$(cat "${backendDependencyPath}/package.json" | grep "${nestedLibPackageName}")" ]] && continue
+
+        file_replace "\"${nestedLibPackageName}\": \".?0\.0\.1\"" "\"${nestedLibPackageName}\": \"file:.dependencies/${nestedLibFolderName}\"" "${backendDependencyPath}/package.json" "" "%"
+      done
     done
   }
 

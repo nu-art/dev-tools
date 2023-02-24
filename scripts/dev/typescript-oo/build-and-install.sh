@@ -25,11 +25,19 @@ source "${BASH_SOURCE%/*}/params.sh"
 [[ -e ".scripts/signature.sh" ]] && source .scripts/signature.sh
 [[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh
 
+escapeFolderName() {
+  local folderName=${1}
+  string_replaceAll "-" "_" "${folderName}"
+}
+
 ts_allProjectPackages=()
 ts_allProjectPackages+=(${executableApps[@]})
 ts_allProjectPackages+=(${frontendApps[@]})
 ts_allProjectPackages+=(${backendApps[@]})
 ts_allProjectPackages+=(${projectLibs[@]})
+
+
+array_map projectLibs ts_projectLibs escapeFolderName
 
 #signature
 extractParams "$@"
@@ -79,7 +87,7 @@ buildWorkspace() {
 
         watchProcessIds+=("${watchLine}")
       done
-      ref=$(string_replaceAll "-" "_" "${lib}")
+      ref=$(escapeFolderName "${lib}")
 
       _logWarning "new ${className} ${ref}"
       new "${className}" "${ref}"

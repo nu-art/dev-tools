@@ -210,6 +210,7 @@ NodePackage() {
 
       _cd "${absoluteSourcesFolder}"
       find . -name '*.scss' | cpio -pdm "${absoluteOutputDir}" > /dev/null
+      find . -name '*.svg' | cpio -pdm "${absoluteOutputDir}" > /dev/null
       _cd-
     done
   }

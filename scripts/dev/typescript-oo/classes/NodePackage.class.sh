@@ -196,7 +196,7 @@ NodePackage() {
 
         [[ "${parts[2]}" ]] && execute "pkill -P ${parts[2]}"
 
-        local command="bash ../relaunch-backend.sh ${absoluteSourcesFolder} ${absoluteOutputDir}"
+        local command="bash ../relaunch-backend.sh ${absoluteSourcesFolder} ${absoluteOutputDir} ${folderName} ${Path_RootRunningDir}"
         tsc-watch -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]} --onSuccess "${command}" &
 
         local _pid="${folderName} ${folder} $!"

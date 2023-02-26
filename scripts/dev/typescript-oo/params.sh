@@ -274,6 +274,15 @@ extractParams() {
 
       ;;
 
+    "--watch-libs" | "-wl")
+      # FUTURE: will build and listen for changes in the libraries
+      ts_watch=true
+      ts_compile=true
+      ts_activeLibs+=("${projectLibs[@]}")
+
+      CONST_BuildWatchFile="$(pwd)/.trash/watch.txt"
+      ;;
+
       #        ==== TEST ====
     "--test" | "-t")
       #DOC: Run the tests in all the project packages

@@ -23,25 +23,29 @@ WorkspaceV2() {
 
     if [[ ! "${thunderstormVersion}" ]]; then
       thunderstormVersion=$(getVersionName "./${CONST_TS_VER_JSON}")
-    else
-      local currentThunderstormVersion=${appVersion}
-      [[ "${promoteThunderstormVersion}" ]] && thunderstormVersion="$(promoteVersion "${versionName}" "${promoteThunderstormVersion}")"
+    fi
+
+    if [[ "${promoteThunderstormVersion}" ]]; then
+      local currentThunderstormVersion=${thunderstormVersion}
+      [[ "${promoteThunderstormVersion}" ]] && thunderstormVersion="$(promoteVersion "${currentThunderstormVersion}" "${promoteThunderstormVersion}")"
       if [[ "${currentThunderstormVersion}" != "${thunderstormVersion}" ]]; then
-        assertRepoForVersionPromotion
         logInfo "Promoting thunderstorm: ${currentThunderstormVersion} => ${thunderstormVersion}"
+        this.assertRepoForVersionPromotion "${thunderstormVersion}"
         setVersionName "${thunderstormVersion}" CONST_TS_VER_JSON
       fi
     fi
 
     if [[ ! "${appVersion}" ]]; then
       appVersion=$(getVersionName "${CONST_APP_VER_JSON}")
-    else
+    fi
+
+    if [[ "${promoteAppVersion}" ]]; then
       local currentAppVersion=${appVersion}
-      [[ "${promoteAppVersion}" ]] && appVersion="$(promoteVersion "${versionName}" "${promoteAppVersion}")"
+      [[ "${promoteAppVersion}" ]] && appVersion="$(promoteVersion "${appVersion}" "${promoteAppVersion}")"
 
       if [[ "${currentAppVersion}" != "${appVersion}" ]]; then
-        assertRepoForVersionPromotion
         logInfo "Promoting app version: ${currentAppVersion} => ${appVersion}"
+        this.assertRepoForVersionPromotion "${appVersion}"
         setVersionName "${appVersion}" CONST_APP_VER_JSON
       fi
     fi
@@ -53,7 +57,7 @@ WorkspaceV2() {
   _assertRepoForVersionPromotion() {
     logDebug "Asserting repo readiness to promote a version..."
     [[ "${noGit}" ]] && return
-    [[ $(gitAssertTagExists "v${appVersion}") ]] && throwError "Tag already exists: v${appVersion}" 2
+    [[ $(gitAssertTagExists "v${1}") ]] && throwError "Tag already exists: v${1}" 2
 
     gitAssertBranch "${allowedBranchesForPromotion[@]}"
     gitFetchRepo

@@ -36,7 +36,6 @@ ts_allProjectPackages+=(${frontendApps[@]})
 ts_allProjectPackages+=(${backendApps[@]})
 ts_allProjectPackages+=(${projectLibs[@]})
 
-
 array_map projectLibs ts_projectLibs escapeFolderName
 
 #signature
@@ -56,7 +55,7 @@ buildWorkspace() {
   installAndUseNvmIfNeeded
   storeFirebasePath
 
-  new Workspace workspace
+  new WorkspaceV2 workspace
   workspace.appVersion = "${appVersion}"
   workspace.prepare
 

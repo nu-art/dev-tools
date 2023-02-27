@@ -109,13 +109,13 @@ buildWorkspace() {
   }
 
   [[ "${ThunderstormHome}" ]] && [[ "${ts_linkThunderstorm}" ]] && _pushd "${ThunderstormHome}"
-  createPackages NodePackage "$(workspace.thunderstormVersion)" "${tsLibs[@]}"
+  createPackages NodePackageV2 "$(workspace.thunderstormVersion)" "${tsLibs[@]}"
   [[ "${ThunderstormHome}" ]] && [[ "${ts_linkThunderstorm}" ]] && _popd
 
-  createPackages NodePackage "$(workspace.appVersion)" "${projectLibs[@]}"
+  createPackages NodePackageV2 "$(workspace.appVersion)" "${projectLibs[@]}"
   createPackages ExecutablePackage "$(workspace.appVersion)" "${executableApps[@]}"
-  createPackages FrontendPackage "$(workspace.appVersion)" "${frontendApps[@]}"
-  createPackages BackendPackage "$(workspace.appVersion)" "${backendApps[@]}"
+  createPackages FrontendPackageV2 "$(workspace.appVersion)" "${frontendApps[@]}"
+  createPackages BackendPackageV2 "$(workspace.appVersion)" "${backendApps[@]}"
 
   ((${#_activeLibs[@]} == 0)) && _activeLibs=(${_allLibs[@]})
 

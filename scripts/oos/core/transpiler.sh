@@ -294,7 +294,7 @@ transpile_GetMemberNames() {
 }
 
 transpile_GetParentsClasses() {
-  echo -e "${1}" | grep -E "extends class [a-zA-Z].*" | sed -E "s/.*extends class ([a-zA-Z][a-zA-Z_]{1,}).*$/\1/g"
+  echo -e "${1}" | grep -E "extends class [a-zA-Z0-9].*" | sed -E "s/.*extends class ([a-zA-Z0-9][a-zA-Z0-9_]{1,}).*$/\1/g"
 }
 
 transpile_GetStaticMemberNames() {
@@ -302,5 +302,5 @@ transpile_GetStaticMemberNames() {
 }
 
 transpile_GetMethodsNames() {
-  echo -e "${1}" | grep -E ".*_.*() ?\{$" | sed -E "s/ *_([a-zA-Z][a-zA-Z_\.]{1,})\(\) ?\{$/\1/g"
+  echo -e "${1}" | grep -E ".*_.*() ?\{$" | sed -E "s/ *_([a-zA-Z0-9][a-zA-Z0-9_\.]{1,})\(\) ?\{$/\1/g"
 }

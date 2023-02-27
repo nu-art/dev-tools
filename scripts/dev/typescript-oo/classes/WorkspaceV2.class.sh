@@ -31,12 +31,12 @@ WorkspaceV2() {
       if [[ "${currentThunderstormVersion}" != "${thunderstormVersion}" ]]; then
         logInfo "Promoting thunderstorm: ${currentThunderstormVersion} => ${thunderstormVersion}"
         this.assertRepoForVersionPromotion "${thunderstormVersion}"
-        setVersionName "${thunderstormVersion}" CONST_TS_VER_JSON
+        setVersionName "${thunderstormVersion}" "./${CONST_TS_VER_JSON}"
       fi
     fi
 
     if [[ ! "${appVersion}" ]]; then
-      appVersion=$(getVersionName "${CONST_APP_VER_JSON}")
+      appVersion=$(getVersionName "./${CONST_APP_VER_JSON}")
     fi
 
     if [[ "${promoteAppVersion}" ]]; then
@@ -46,7 +46,7 @@ WorkspaceV2() {
       if [[ "${currentAppVersion}" != "${appVersion}" ]]; then
         logInfo "Promoting app version: ${currentAppVersion} => ${appVersion}"
         this.assertRepoForVersionPromotion "${appVersion}"
-        setVersionName "${appVersion}" CONST_APP_VER_JSON
+        setVersionName "${appVersion}" "./${CONST_APP_VER_JSON}"
       fi
     fi
 

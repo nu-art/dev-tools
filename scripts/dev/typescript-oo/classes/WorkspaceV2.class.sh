@@ -8,7 +8,10 @@ CONST_Version_FirebaseTools=latest
 
 WorkspaceV2() {
 
+  declare currentThunderstormVersion
   declare thunderstormVersion
+
+  declare currentAppVersion
   declare appVersion
 
   declare -a tsLibs
@@ -26,11 +29,11 @@ WorkspaceV2() {
     fi
 
     if [[ "${promoteThunderstormVersion}" ]]; then
-      local currentThunderstormVersion=${thunderstormVersion}
+      currentThunderstormVersion=${thunderstormVersion}
       [[ "${promoteThunderstormVersion}" ]] && thunderstormVersion="$(promoteVersion "${currentThunderstormVersion}" "${promoteThunderstormVersion}")"
       if [[ "${currentThunderstormVersion}" != "${thunderstormVersion}" ]]; then
         logInfo "Promoting thunderstorm: ${currentThunderstormVersion} => ${thunderstormVersion}"
-        this.assertRepoForVersionPromotion "${thunderstormVersion}"
+        this.assertRepoForVersionPromotion "${currentThunderstormVersion}"
         setVersionName "${thunderstormVersion}" "./${CONST_TS_VER_JSON}"
       fi
     fi
@@ -40,7 +43,7 @@ WorkspaceV2() {
     fi
 
     if [[ "${promoteAppVersion}" ]]; then
-      local currentAppVersion=${appVersion}
+      currentAppVersion=${appVersion}
       [[ "${promoteAppVersion}" ]] && appVersion="$(promoteVersion "${appVersion}" "${promoteAppVersion}")"
 
       if [[ "${currentAppVersion}" != "${appVersion}" ]]; then
@@ -274,15 +277,14 @@ WorkspaceV2() {
 
     this.apps.forEach deploy
 
-    logInfo "Deployed Apps: $(getVersionName "${CONST_APP_VER_JSON}") => ${appVersion}"
-
     [[ "${noGit}" ]] && return
 
-    gitTag "v${appVersion}" "Promoted apps to: v${appVersion}"
+    logInfo "Deployed Apps: ${currentAppVersion} => ${appVersion}"
+    gitTag "v${currentAppVersion}" "Promoted apps to: v${appVersion}"
     gitPushTags
     throwError "Error pushing promotion tag"
 
-    gitNoConflictsAddCommitPush "Thunderstorm" "$(gitGetCurrentBranch)" "published version v${thunderstormVersion}"
+    gitNoConflictsAddCommitPush "Branch" "$(gitGetCurrentBranch)" "published version v${appVersion}"
   }
 
   _publish() {
@@ -294,13 +296,10 @@ WorkspaceV2() {
     this.tsLibs.forEach canPublish
     this.tsLibs.forEach publish
 
-    local versionName="$(getVersionName "${CONST_TS_VER_JSON}")"
-    logInfo "Promoted thunderstorm packages: ${versionName} => ${thunderstormVersion}"
-    setVersionName "${thunderstormVersion}" "${CONST_TS_VER_JSON}"
-
     [[ "${noGit}" ]] && return
 
-    gitTag "v${thunderstormVersion}" "Promoted thunderstorm to: v${thunderstormVersion}"
+    logInfo "Promoted thunderstorm packages: ${currentThunderstormVersion} => ${thunderstormVersion}"
+    gitTag "v${currentThunderstormVersion}" "Promoted thunderstorm to: v${thunderstormVersion}"
     gitPushTags
     throwError "Error pushing promotion tag"
 

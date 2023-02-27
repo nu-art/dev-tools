@@ -29,6 +29,21 @@ BackendPackageV2() {
     logInfo "Compiling: ${folderName}"
 
     [[ -e "${Path_RootRunningDir}/version-app.json" ]] && copyFileToFolder "${Path_RootRunningDir}/version-app.json" "./src/main" && copyFileToFolder "${Path_RootRunningDir}/version-app.json" "./dist"
+    copyFileToFolder "./package.json" "${outputDir}"
+
+    for lib in ${@}; do
+      [[ "${lib}" == "${_this}" ]] && break
+      local libPath="$("${lib}.path")"
+      local libFolderName="$("${lib}.folderName")"
+      local libPackageName="$("${lib}.packageName")"
+
+      [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
+
+      local backendDependencyPath="./.dependencies/${libFolderName}"
+      createDir "${backendDependencyPath}"
+      cp -rf "${libPath}/${libFolderName}/${outputDir}"/* "${backendDependencyPath}/"
+      file_replace "\"${libPackageName}\": \".*\"" "\"${libPackageName}\": \"file:.dependencies/${libFolderName}\"" "${outputDir}/package.json" "" "%"
+    done
 
     npm run build
     throwWarning "Error compiling: ${folderName}"

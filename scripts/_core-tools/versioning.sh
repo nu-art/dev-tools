@@ -103,7 +103,9 @@ getVersionFileName() {
 
 getVersionName() {
   local versionFile=$(getVersionFileName "${1}")
-  getJsonValueForKey "${versionFile}" "version"
+  local version="$(getJsonValueForKey "${versionFile}" "version")"
+  [[ ! ${version} ]] && throwError "${1} MUST contain JSON with version property, and value x.y.z" 2
+  echo "${version}"
 }
 
 getPackageName() {

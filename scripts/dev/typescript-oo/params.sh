@@ -140,6 +140,14 @@ extractParams() {
       ts_activeLibs+=("${lib}")
       ;;
 
+    "--project-libs" | "-pl")
+      #DOC: Would ONLY run the script in the context of the project libs
+
+      ts_activeLibs+=("${projectLibs[@]}")
+      ts_activeLibs+=("${frontendApps[@]}")
+      ts_activeLibs+=("${backendApps[@]}")
+      ;;
+
     "--set-env="* | "-se="*)
       #DOC: Will set the .config-${environment}.json as the current .config.json and prepare it as base 64 for local usage
       #PARAM=environment

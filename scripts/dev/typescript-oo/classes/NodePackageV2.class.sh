@@ -144,17 +144,19 @@ NodePackageV2() {
           [[ "${parts[1]}" == "${folder}" ]] && break
         done
 
-        [[ "${parts[2]}" ]] && execute "pkill -P ${parts[2]}"
-
-        local command="bash ../relaunch-backend.sh ${absoluteSourcesFolder} ${absoluteOutputDir} ${folderName} ${Path_RootRunningDir}"
-        tsc-watch -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]} --onSuccess "${command}" &
-
-        local _pid="${folderName} ${folder} $!"
-        logInfo "${_pid}"
-        newWatchIds+=("${_pid}")
+        if [[ -e "./src/${folder}/tsconfig.json" ]]; then
+          [[ "${parts[2]}" ]] && execute "pkill -P ${parts[2]}"
+          local command="bash ../relaunch-backend.sh ${absoluteSourcesFolder} ${absoluteOutputDir} ${folderName} ${Path_RootRunningDir}"
+          tsc-watch -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]} --onSuccess "${command}" &
+          local _pid="${folderName} ${folder} $!"
+          logInfo "${_pid}"
+          newWatchIds+=("${_pid}")
+         fi
       else
-        tsc -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]}
-        throwWarning "Error compiling: ${module}/${folder}"
+        if [[ -e "./src/${folder}/tsconfig.json" ]]; then
+            tsc -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]}
+            throwWarning "Error compiling: ${module}/${folder}"
+        fi
 
         local tsVersion="$(string_replace "~" "" "$(workspace.thunderstormVersion)")"
         local appVersion="$(string_replace "~" "" "$(workspace.appVersion)")"

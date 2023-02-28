@@ -156,13 +156,15 @@ NodePackageV2() {
         tsc -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]}
         throwWarning "Error compiling: ${module}/${folder}"
 
+        local tsVersion="$(string_replace "~" "" "$(workspace.thunderstormVersion)")"
+        local appVersion="$(string_replace "~" "" "$(workspace.appVersion)")"
         copyFileToFolder ./package.json "${outputDir}"
         if [[ $(array_contains "${folderName}" ${tsLibs[@]}) ]]; then
-          file_replace "\"version\": \".*\"" "\"version\": \"$(string_substring "$(workspace.thunderstormVersion)" 1)\"" "${outputDir}/package.json" "" "%"
+          file_replace "\"version\": \".*\"" "\"version\": \"${tsVersion}\"" "${outputDir}/package.json" "" "%"
         fi
 
         if [[ $(array_contains "${folderName}" ${projectLibs[@]}) ]]; then
-          file_replace "\"version\": \".*\"" "\"version\": \"$(workspace.appVersion)\"" "${outputDir}/package.json" "" "%"
+          file_replace "\"version\": \".*\"" "\"version\": \"${appVersion}\"" "${outputDir}/package.json" "" "%"
         fi
 
         for lib in ${@}; do
@@ -172,11 +174,11 @@ NodePackageV2() {
 
           local libFolderName="$("${lib}.folderName")"
           if [[ $(array_contains "${libFolderName}" ${tsLibs[@]}) ]]; then
-            file_replace "\"${libPackageName}\": \".*\"" "\"${libPackageName}\": \"$(workspace.thunderstormVersion)\"" "${outputDir}/package.json" "" "%"
+            file_replace "\"${libPackageName}\": \".*\"" "\"${libPackageName}\": \"${tsVersion}\"" "${outputDir}/package.json" "" "%"
           fi
 
           if [[ $(array_contains "${libFolderName}" ${projectLibs[@]}) ]]; then
-            file_replace "\"${libPackageName}\": \".*\"" "\"${libPackageName}\": \"$(workspace.appVersion)\"" "${outputDir}/package.json" "" "%"
+            file_replace "\"${libPackageName}\": \".*\"" "\"${libPackageName}\": \"${appVersion}\"" "${outputDir}/package.json" "" "%"
           fi
         done
       fi

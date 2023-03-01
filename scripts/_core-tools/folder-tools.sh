@@ -46,7 +46,7 @@ createFolder() {
   [[ -e "${pathToDir}" ]] || [[ -d "${pathToDir}" ]] || [[ -L "${pathToDir}" ]] && return
   [[ -f "${pathToDir}" ]] && throwError "Path already exists as file: $(pwd)/${pathToDir}"
 
-  executeCommand "mkdir -p \"${pathToDir}\"" "Creating folder: ${pathToDir}" "${2}"
+  executeSilent "mkdir -p \"${pathToDir}\"" "Creating folder: ${pathToDir}" "${2}"
 }
 
 clearDir() {
@@ -60,7 +60,7 @@ clearFolder() {
   [[ -f "${pathToDir}" ]] && throwError "Path is as file: $(pwd)/${pathToDir}"
 
   _pushd "${pathToDir}"
-  execute "rm -rf *" "Deleting folder content: ${pathToDir}" "${2}"
+  executeSilent "rm -rf *" "Deleting folder content: ${pathToDir}" "${2}"
   _popd
 }
 
@@ -74,7 +74,7 @@ deleteDir() {
   [[ -f "${pathToDir}" ]] && throwError "Path is as file: $(pwd)/${pathToDir}"
   [[ ! -e "${pathToDir}" ]] && [[ ! -d "${pathToDir}" ]] && [[ ! -L "${pathToDir}" ]] && return
 
-  execute "rm -rf \"${pathToDir}\"" "Deleting folder: ${pathToDir}" "${2}"
+  executeSilent "rm -rf \"${pathToDir}\"" "Deleting folder: ${pathToDir}" "${2}"
 }
 
 _cd() {

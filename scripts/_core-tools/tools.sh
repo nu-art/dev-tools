@@ -75,6 +75,33 @@ execute() {
   return ${errorCode}
 }
 
+executeSilent() {
+  local command=$1
+  local message=$2
+  local ignoreError=$3
+
+  if [[ "${message}" ]]; then
+    _logDebug "${message}"
+  else
+    _logDebug "${command}"
+  fi
+
+  if [[ "${message}" ]]; then
+    _logVerbose "  ${command}"
+  fi
+
+  local errorCode=
+  eval "${command}"
+  errorCode=$?
+
+  if [[ "${ignoreError}" == "true" ]]; then
+    _logVerbose
+    throwError "${message}" ${errorCode}
+  fi
+
+  return ${errorCode}
+}
+
 executeCommand() {
   local command=$1
   local message=${2:-${command}}

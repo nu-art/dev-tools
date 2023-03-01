@@ -410,8 +410,7 @@ extractParams() {
       noGit=true
       ;;
 
-    "--debug-transpiler")
-      CONST_Debug=true
+    "--debug-transpiler" | "-dt")
       setDebugLog true
       ts_debug=true
       ((ts_LogLevel > LOG_LEVEL__DEBUG)) && ts_LogLevel=${LOG_LEVEL__DEBUG}

@@ -40,7 +40,9 @@ BackendPackageV2() {
       [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
 
       local backendDependencyPath="./.dependencies/${libFolderName}"
+      deleteDir "${backendDependencyPath}"
       createDir "${backendDependencyPath}"
+      _logWarning "Copying "${libPath}/${libFolderName}/${outputDir}" => ${backendDependencyPath}"
       cp -rf "${libPath}/${libFolderName}/${outputDir}"/* "${backendDependencyPath}/"
       file_replace "\"${libPackageName}\": \".*\"" "\"${libPackageName}\": \"file:.dependencies/${libFolderName}\"" "${outputDir}/package.json" "" "%"
     done

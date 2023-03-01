@@ -104,12 +104,49 @@ NodePackageV2() {
   _link() {
     local lib=
     createFolder "${outputDir}"
-    #    copyFileToFolder package.json "${outputDir}"
 
-    #    logDebug "Setting version '${version}' to module: ${folderName}"
-    #    setVersionName "${version}" "${outputDir}/package.json"
+    for lib in ${@}; do
+      [[ "${lib}" == "${_this}" ]] && break
+      local libPackageName="$("${lib}.packageName")"
+
+      [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
+      this.linkLib "${lib}"
+    done
+
+    if [[ "${ts_linkThunderstorm}" ]] &&
+      [[ "${folderName}" != "thunderstorm" ]] &&
+      [[ $(array_contains "${folderName}" "${ts_allProjectPackages[@]}") ]] &&
+      [[ -e "./node_modules/react" ]]; then
+
+      deleteDir "./node_modules/react"
+      [[ -e "./node_modules/react}" ]] && rm -if "./node_modules/react"
+
+      origin="${ThunderstormHome}/thunderstorm/node_modules/react"
+      target="./node_modules/react"
+
+      logWarning "ln -s ${origin} ${target}"
+      ln -s ${origin} ${target}
+    fi
 
     return 0
+  }
+
+  _linkLib() {
+    local lib=${1}
+    local libPackageName="$("${lib}.packageName")"
+    local libFolderName="$("${lib}.folderName")"
+    local libVersion="$("${lib}.version")"
+    local libPath="$("${lib}.path")"
+
+    logDebug "Linking ${lib} (${libPackageName}) => ${folderName}"
+    local target="$(pwd)/node_modules/${libPackageName}"
+    local origin="${libPath}/${libFolderName}/${outputDir}"
+
+    createDir "${target}"
+    deleteDir "${target}"
+    logVerbose "ln -s ${origin} ${target}"
+    ln -s "${origin}" "${target}"
+    throwError "Error symlink dependency: ${libPackageName}"
   }
 
   _clean() {
@@ -151,11 +188,11 @@ NodePackageV2() {
           local _pid="${folderName} ${folder} $!"
           logInfo "${_pid}"
           newWatchIds+=("${_pid}")
-         fi
+        fi
       else
         if [[ -e "./src/${folder}/tsconfig.json" ]]; then
-            tsc -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]}
-            throwWarning "Error compiling: ${module}/${folder}"
+          tsc -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]}
+          throwWarning "Error compiling: ${module}/${folder}"
         fi
 
         local tsVersion="$(string_replace "~" "" "$(workspace.thunderstormVersion)")"

@@ -266,6 +266,7 @@ NodePackageV2() {
   }
 
   _test() {
+    [[ ! "$(cat ./pacakage.json | grep "\"run-tests\": \"")" ]] && return 0
     [[ ! -e "./src/test/tsconfig.json" ]] && logVerbose "./src/test/tsconfig.json was not found... skipping test phase" && return 0
 
     logInfo "${folderName} - Running tests..."

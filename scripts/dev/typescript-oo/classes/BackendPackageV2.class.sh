@@ -9,12 +9,8 @@ BackendPackageV2() {
     [[ ! "$(array_contains "${folderName}" "${ts_deploy[@]}")" ]] && return
     [[ ! "$(array_contains "${folderName}" "${deployableApps[@]}")" ]] && return
 
-    if [[ -e "${FOLDER_Config}/firestore.indexes.json" ]]; then
-      ${CONST_Firebase}
-    fi
-
     logInfo "Deploying: ${folderName}"
-    ${CONST_Firebase} deploy --only functions --deubg
+    ${CONST_Firebase} --debug deploy --only functions
     throwWarning "Error while deploying functions"
     logInfo "Deployed: ${folderName}"
   }

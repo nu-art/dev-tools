@@ -83,6 +83,7 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 
 	protected void _install() {
 		_sh("bash build-and-install.sh --install --no-build --link --debug")
+		_sh("bash build-and-install.sh --print-env")
 	}
 
 	protected void _clean() {

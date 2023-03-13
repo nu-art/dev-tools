@@ -97,7 +97,7 @@ extractParams() {
       #DOC: Will print the current versions of the important tools
 
       printNpmPackageVersion typescript
-      printNpmPackageVersion tslint
+      printNpmPackageVersion eslint
       printNpmPackageVersion firebase-tools
       printNpmPackageVersion sort-package-json
 

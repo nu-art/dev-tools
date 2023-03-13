@@ -14,7 +14,7 @@ BackendPackageV2() {
     fi
 
     logInfo "Deploying: ${folderName}"
-    ${CONST_Firebase} deploy --only functions
+    ${CONST_Firebase} deploy --only functions --deubg
     throwWarning "Error while deploying functions"
     logInfo "Deployed: ${folderName}"
   }

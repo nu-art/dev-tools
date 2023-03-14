@@ -1,10 +1,11 @@
 #!/bin/bash
 
-source "${BASH_SOURCE%/*}/../../core/transpiler.sh"
-source "${BASH_SOURCE%/*}/clouds.sh"
+DIR1=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+source "${DIR1}/../../core/transpiler.sh"
+source "${DIR1}/clouds.sh"
 
 CONST_Debug=true
-addTranspilerClassPath "${BASH_SOURCE%/*}/../../graphics"
+addTranspilerClassPath "${DIR1}/../../graphics"
 
 run() {
   new Canvas2D canvas
@@ -39,8 +40,8 @@ run() {
 
 runEngine() {
   createEngine() {
-    new Engine2DS engine
-    new Canvas2DS canvas
+    new Engine2D engine
+    new Canvas2D canvas
     canvas.width = 100
     canvas.height = 20
     engine.canvas = canvas

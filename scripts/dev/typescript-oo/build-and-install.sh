@@ -5,6 +5,7 @@ export LC_ALL=$LANG
 source ./dev-tools/scripts/git/_core.sh
 source ./dev-tools/scripts/firebase/core.sh
 source ./dev-tools/scripts/node/_source.sh
+source ./dev-tools/scripts/node/pnpm.sh
 source ./dev-tools/scripts/oos/core/transpiler.sh
 
 Path_RootRunningDir="$(pwd)"
@@ -14,12 +15,12 @@ Path_BuildState="${Path_OutputDir}/build-state.txt"
 #CONST_Debug="true"
 setErrorOutputFile "${Path_RootRunningDir}/error_message.txt"
 # shellcheck source=./common.sh
-source "${BASH_SOURCE%/*}/common.sh"
+source "${BASH_SOURCE%/*}/_core/common.sh"
 # shellcheck source=./modules.sh
-source "${BASH_SOURCE%/*}/modules.sh"
+source "${BASH_SOURCE%/*}/_core/modules.sh"
 
 # shellcheck source=./params.sh
-source "${BASH_SOURCE%/*}/params.sh"
+source "${BASH_SOURCE%/*}/_core/params.sh"
 
 [[ -e ".scripts/setup.sh" ]] && source .scripts/setup.sh
 [[ -e ".scripts/signature.sh" ]] && source .scripts/signature.sh
@@ -52,10 +53,10 @@ saveState() {
 }
 
 buildWorkspace() {
-  installAndUseNvmIfNeeded
+  pnpm.install
   storeFirebasePath
 
-  new WorkspaceV2 workspace
+  new WorkspaceV3 workspace
   workspace.appVersion = "${appVersion}"
   workspace.prepare
 

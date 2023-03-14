@@ -18,27 +18,21 @@
 #  limitations under the License.
 
 #!/bin/bash
-DIR_CoreTools=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+source "${DIR}/../_tests.sh"
+source "${DIR}/../node/pnpm.sh"
+test.pnpm.install() {
+  pnpm.install ${1} > /dev/null 2>&1
+  pnpm.install ${1} > /dev/null 2>&1
+  pnpm.version
+}
 
-CHAR_TAB="$(printf '\t')"
+test.pnpm.install-uninstall-install() {
+  pnpm.install > /dev/null 2>&1
+  pnpm.uninstall > /dev/null 2>&1
+  pnpm.install 7.29.0 > /dev/null 2>&1
+  pnpm.version
+}
 
-source ${DIR_CoreTools}/colors.sh
-source ${DIR_CoreTools}/logger.sh
-source ${DIR_CoreTools}/time.sh
-source ${DIR_CoreTools}/signature.sh
-source ${DIR_CoreTools}/spinner.sh
-
-source ${DIR_CoreTools}/tools.sh
-source ${DIR_CoreTools}/error-handling.sh
-source ${DIR_CoreTools}/cli-params.sh
-source ${DIR_CoreTools}/folder-filters.sh
-source ${DIR_CoreTools}/file-tools.sh
-source ${DIR_CoreTools}/folder-tools.sh
-source ${DIR_CoreTools}/array-tools.sh
-source ${DIR_CoreTools}/string-tools.sh
-source ${DIR_CoreTools}/number-tools.sh
-source ${DIR_CoreTools}/versioning.sh
-source ${DIR_CoreTools}/help-tools.sh
-source ${DIR_CoreTools}/prompt-tools.sh
-source ${DIR_CoreTools}/shell.sh
-source ${DIR_CoreTools}/debugger.sh
+assertCommand "7.29.1" "test.pnpm.install"
+assertCommand "7.29.0" "test.pnpm.install-uninstall-install"

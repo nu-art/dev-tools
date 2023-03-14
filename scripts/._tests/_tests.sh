@@ -50,13 +50,14 @@ assert() {
 assertCommand() {
   local expected=${1}
   local toEval=${2}
-  local actual=$(${toEval})
   local label=${3}
 
+  logDebug "${toEval}"
+  local actual=$(${toEval})
   assert "${expected}" "${actual}"
   result=$?
-  [[ ${result} == "1" ]] && logWarning "${label} ${toEval} => ${actual} ... expected: ${expected}"
-  [[ ${result} == "0" ]] && logVerbose "${toEval} => ${actual}"
+  [[ ${result} == "1" ]] && logError "  fail - ${label} ${toEval} => ${actual} ... expected: ${expected}"
+  [[ ${result} == "0" ]] && logInfo "   pass - ${toEval} => ${actual}"
 }
 
 printSummary() {

@@ -57,10 +57,17 @@ NodePackageV3() {
     array.map envVars cleanEnvVar
     array.filterDuplicates envVars
 
+    assertExistingVar() {
+      local envVar="${1}"
+      local version="${!envVar}"
+      [[ "${version}" == "" ]] && throwError "no value defined for version key '${envVar}'" 2
+    }
+
+    array.forEach envVars assertExistingVar
+
     replaceWithVersion() {
       local envVar="${1}"
       local version="${!envVar}"
-      [[ ! ${version} ]] && throwError "no value defined for version key '${envVar}'"
       file.replaceAll ".${envVar}" "${version}" "${packageJson}" %
     }
 

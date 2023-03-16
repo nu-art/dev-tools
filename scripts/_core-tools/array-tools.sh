@@ -111,6 +111,6 @@ array.forEach() {
   local mapper=${2}
 
   for beforeItem in $(eval "echo \${${arrayName}[@]}"); do
-    temp+=("$(${mapper} "${beforeItem}")")
+    ${mapper} "${beforeItem}"
   done
 }

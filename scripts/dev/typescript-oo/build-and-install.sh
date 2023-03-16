@@ -13,7 +13,7 @@ Path_OutputDir=".trash"
 Path_BuildState="${Path_OutputDir}/build-state.txt"
 
 # setLogLevel $LOG_LEVEL__VERBOSE
-# CONST_Debug="true"
+ CONST_Debug="true"
 
 setErrorOutputFile "${Path_RootRunningDir}/error_message.txt"
 # shellcheck source=./common.sh

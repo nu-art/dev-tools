@@ -12,7 +12,9 @@ Path_RootRunningDir="$(pwd)"
 Path_OutputDir=".trash"
 Path_BuildState="${Path_OutputDir}/build-state.txt"
 
-CONST_Debug="true"
+# setLogLevel $LOG_LEVEL__VERBOSE
+# CONST_Debug="true"
+
 setErrorOutputFile "${Path_RootRunningDir}/error_message.txt"
 # shellcheck source=./common.sh
 source "${BASH_SOURCE%/*}/_core/common.sh"
@@ -36,9 +38,8 @@ ts_allProjectPackages+=(${executableApps[@]})
 ts_allProjectPackages+=(${frontendApps[@]})
 ts_allProjectPackages+=(${backendApps[@]})
 ts_allProjectPackages+=(${projectLibs[@]})
-
-array.map projectLibs ts_projectLibs escapeFolderName
 array_setVariable ts_projectLibs ${projectLibs[@]}
+array.map ts_projectLibs escapeFolderName
 
 #signature
 extractParams "$@"
@@ -115,8 +116,8 @@ buildWorkspace() {
 
   createPackages NodePackageV3 "$(workspace.appVersion)" "${projectLibs[@]}"
   createPackages ExecutablePackage "$(workspace.appVersion)" "${executableApps[@]}"
-  createPackages FrontendPackageV2 "$(workspace.appVersion)" "${frontendApps[@]}"
-  createPackages BackendPackageV2 "$(workspace.appVersion)" "${backendApps[@]}"
+  createPackages FrontendPackageV3 "$(workspace.appVersion)" "${frontendApps[@]}"
+  createPackages BackendPackageV3 "$(workspace.appVersion)" "${backendApps[@]}"
 
   ((${#_activeLibs[@]} == 0)) && _activeLibs=(${_allLibs[@]})
 

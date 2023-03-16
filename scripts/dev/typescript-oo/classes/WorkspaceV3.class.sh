@@ -94,6 +94,7 @@ WorkspaceV3() {
       startFromPackage=${p}
       saveState
 
+      #      logDebug "$("${item}.folderName")"
       _pushd "$("${item}.path")/$("${item}.folderName")"
       [[ "${item}.${command}" ]] && "${item}.${command}" "${@:3}"
       (($? > 0)) && throwError "Error executing command: ${item}.${command}"
@@ -179,6 +180,7 @@ WorkspaceV3() {
     logInfo
     bannerInfo "Purge"
 
+    file.delete "${Path_RootRunningDir}/.pnpm-lock.yaml"
     this.active.forEach purge
   }
 

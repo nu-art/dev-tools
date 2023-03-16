@@ -36,6 +36,7 @@ setDebugLogFile() {
   CONST_Debug=true
   deleteFile "${CONST_DebugFile}"
 }
+
 setDebugLog() {
   CONST_Debug=${1}
 }

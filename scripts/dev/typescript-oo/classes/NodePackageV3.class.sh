@@ -40,10 +40,12 @@ NodePackageV3() {
   }
 
   _install() {
-    logDebug "${folderName}"
+    logInfo "Pre-Installing: ${folderName}"
+
     local packageJson="./package.json"
     file.delete "${packageJson}" -n
     file.copy "./__package.json" "." "package.json" -n
+
     envVars=()
     envVars+=($(file.findMatches "${packageJson}" '"(\$.*?)"'))
 
@@ -59,13 +61,10 @@ NodePackageV3() {
       local envVar="${1}"
       local version="${!envVar}"
 
-      _logError "${envVar} => ${version}"
       file.replaceAll ".${envVar}" "${version}" "${packageJson}" %
     }
 
     array.forEach envVars replaceWithVersion
-
-    logInfo "${envVars[*]}"
   }
 
   _link() {
@@ -136,31 +135,7 @@ NodePackageV3() {
           throwWarning "Error compiling: ${module}/${folder}"
         fi
 
-        local tsVersion="$(string_replace "~" "" "$(workspace.thunderstormVersion)")"
-        local appVersion="$(string_replace "~" "" "$(workspace.appVersion)")"
         copyFileToFolder ./package.json "${outputDir}"
-        if [[ $(array_contains "${folderName}" ${tsLibs[@]}) ]]; then
-          file_replace "\"version\": \".*\"" "\"version\": \"${tsVersion}\"" "${outputDir}/package.json" "" "%"
-        fi
-
-        if [[ $(array_contains "${folderName}" ${projectLibs[@]}) ]]; then
-          file_replace "\"version\": \".*\"" "\"version\": \"${appVersion}\"" "${outputDir}/package.json" "" "%"
-        fi
-
-        for lib in ${@}; do
-          [[ "${lib}" == "${_this}" ]] && break
-          local libPackageName="$("${lib}.packageName")"
-          [[ ! "$(cat "${outputDir}/package.json" | grep "${libPackageName}")" ]] && continue
-
-          local libFolderName="$("${lib}.folderName")"
-          if [[ $(array_contains "${libFolderName}" ${tsLibs[@]}) ]]; then
-            file_replace "\"${libPackageName}\": \".*\"" "\"${libPackageName}\": \"${tsVersion}\"" "${outputDir}/package.json" "" "%"
-          fi
-
-          if [[ $(array_contains "${libFolderName}" ${projectLibs[@]}) ]]; then
-            file_replace "\"${libPackageName}\": \".*\"" "\"${libPackageName}\": \"${appVersion}\"" "${outputDir}/package.json" "" "%"
-          fi
-        done
       fi
       _cd "${absoluteSourcesFolder}"
       find . -name '*.scss' | cpio -pdm "${absoluteOutputDir}" > /dev/null

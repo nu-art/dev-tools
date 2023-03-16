@@ -29,7 +29,7 @@ pnpm.uninstall() {
 }
 
 pnpm.installPackages() {
-  pnpm install "${@}"
+  pnpm install -f "${@}"
 }
 
 pnpm.removePackages() {

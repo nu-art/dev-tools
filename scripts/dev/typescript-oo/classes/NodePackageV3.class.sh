@@ -60,7 +60,7 @@ NodePackageV3() {
     replaceWithVersion() {
       local envVar="${1}"
       local version="${!envVar}"
-
+      [[ ! ${version} ]] && throwError "no value defined for version key '${envVar}'"
       file.replaceAll ".${envVar}" "${version}" "${packageJson}" %
     }
 

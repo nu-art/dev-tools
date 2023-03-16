@@ -9,7 +9,7 @@ GLOBAL_TranspilerPaths=("${BASH_SOURCE%/*}")
 setTranspilerOutput() {
   local output=
   if [[ "$(string_startsWith "${1}" "./")" ]]; then
-    output="$(pwd)$(string_substring "${1}" 1)"
+    output="$(pwd)$(string.substring "${1}" 1)"
   elif [[ "$(string_startsWith "${1}" "/")" ]]; then
     output=${1}
   else

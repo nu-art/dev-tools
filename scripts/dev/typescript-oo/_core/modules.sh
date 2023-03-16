@@ -24,12 +24,10 @@ allowedBranchesForPromotion=(
   prod
   staging
   dev
-  move-to-ir
 )
 
 tsLibs=(
   ts-common
-  neural
   google-services
   firebase
   thunderstorm

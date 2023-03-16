@@ -38,6 +38,12 @@ arraySetVarTest1() {
   echo "${zevel[@]}"
 }
 
+test.array.filterDuplicates() {
+  pah=("value1" "value2" "value2" "value2" "value3" "value2" "value1")
+  array.filterDuplicates pah
+  echo "${pah[@]}"
+}
+
 arrayMapperTest1() {
   mapper() {
     local input=${1}
@@ -45,10 +51,11 @@ arrayMapperTest1() {
   }
 
   local pah=("valu-e1" "val--ue-2")
-  array_map pah zevel mapper
+  array.map pah zevel mapper
   echo "${zevel[@]}"
 }
 
+assertCommand "value1 value2 value3" "test.array.filterDuplicates"
 assertCommand "value1 value2" "arrayRemoveTest1"
 assertCommand "value1 value2" "arrayRemoveTest2"
 assertCommand "value1 value2" "arraySetVarTest1"

@@ -41,12 +41,12 @@ string_startsWith() {
   [[ "${string:0:${#expected}}" == "${expected}" ]] && echo "true"
 }
 
-## @function: string_substring(string, fromIndex, length?)
+## @function: string.substring(string, fromIndex, length?)
 ##
 ## @description: Substring out of the given string from and to the provided indices
 ##
 ## @return: The substring between the given indices
-string_substring() {
+string.substring() {
   local string="${1}"
   local fromIndex=${2}
   local length=${3}

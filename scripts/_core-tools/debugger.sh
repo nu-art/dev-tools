@@ -60,9 +60,9 @@ breakpoint() {
     local pos=${#_input}
 
     while true; do
-      local start="$(string_substring "${input}" 0 ${pos})"
-      local mid="$(string_substring "${input}" ${pos} 1)"
-      local end="$(string_substring "${input}" $((pos + 1)))"
+      local start="$(string.substring "${input}" 0 ${pos})"
+      local mid="$(string.substring "${input}" ${pos} 1)"
+      local end="$(string.substring "${input}" $((pos + 1)))"
       [[ "${mid}" == "" ]] && mid=" "
 
       _input="${start}${On_Cyan}${mid}${NoColor}${end}"
@@ -95,8 +95,8 @@ breakpoint() {
         read -rsn1 mode # get 1 character
         deleteTerminalLine
         ((pos == 0)) && continue
-        start="$(string_substring "${input}" 0 $((pos)))"
-        end="$(string_substring "${input}" $((pos + 1)))"
+        start="$(string.substring "${input}" 0 $((pos)))"
+        end="$(string.substring "${input}" $((pos + 1)))"
         input="${start}${end}"
         ;;
 
@@ -114,8 +114,8 @@ breakpoint() {
 
       $'\177')
         ((pos == 0)) && continue
-        start="$(string_substring "${input}" 0 $((pos - 1)))"
-        end="$(string_substring "${input}" $((pos)))"
+        start="$(string.substring "${input}" 0 $((pos - 1)))"
+        end="$(string.substring "${input}" $((pos)))"
         input="${start}${end}"
 
         pos=$((pos - 1))
@@ -143,8 +143,8 @@ breakpoint() {
           fi
           echo
         else
-          start="$(string_substring "${input}" 0 ${pos})"
-          end="$(string_substring "${input}" $((pos)))"
+          start="$(string.substring "${input}" 0 ${pos})"
+          end="$(string.substring "${input}" $((pos)))"
           input="${start}${mode}${end}"
           wipCommand="${input}"
           pos=$((pos + 1))

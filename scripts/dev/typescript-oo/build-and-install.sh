@@ -12,7 +12,7 @@ Path_RootRunningDir="$(pwd)"
 Path_OutputDir=".trash"
 Path_BuildState="${Path_OutputDir}/build-state.txt"
 
-#CONST_Debug="true"
+CONST_Debug="true"
 setErrorOutputFile "${Path_RootRunningDir}/error_message.txt"
 # shellcheck source=./common.sh
 source "${BASH_SOURCE%/*}/_core/common.sh"
@@ -37,7 +37,8 @@ ts_allProjectPackages+=(${frontendApps[@]})
 ts_allProjectPackages+=(${backendApps[@]})
 ts_allProjectPackages+=(${projectLibs[@]})
 
-array_map projectLibs ts_projectLibs escapeFolderName
+array.map projectLibs ts_projectLibs escapeFolderName
+array_setVariable ts_projectLibs ${projectLibs[@]}
 
 #signature
 extractParams "$@"
@@ -77,7 +78,7 @@ buildWorkspace() {
 
     for lib in "${libs[@]}"; do
       [[ ! -e "${lib}" ]] && continue
-      [[ ! -e "${lib}/package.json" ]] && continue
+      [[ ! -e "${lib}/__package.json" ]] && continue
 
       _logWarning "processing ${lib}"
       local watchProcessIds=()
@@ -109,10 +110,10 @@ buildWorkspace() {
   }
 
   [[ "${ThunderstormHome}" ]] && [[ "${ts_linkThunderstorm}" ]] && _pushd "${ThunderstormHome}"
-  createPackages NodePackageV2 "$(workspace.thunderstormVersion)" "${tsLibs[@]}"
+  createPackages NodePackageV3 "$(workspace.thunderstormVersion)" "${tsLibs[@]}"
   [[ "${ThunderstormHome}" ]] && [[ "${ts_linkThunderstorm}" ]] && _popd
 
-  createPackages NodePackageV2 "$(workspace.appVersion)" "${projectLibs[@]}"
+  createPackages NodePackageV3 "$(workspace.appVersion)" "${projectLibs[@]}"
   createPackages ExecutablePackage "$(workspace.appVersion)" "${executableApps[@]}"
   createPackages FrontendPackageV2 "$(workspace.appVersion)" "${frontendApps[@]}"
   createPackages BackendPackageV2 "$(workspace.appVersion)" "${backendApps[@]}"

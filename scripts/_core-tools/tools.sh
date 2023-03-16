@@ -53,14 +53,22 @@ execute() {
   local message=$2
   local ignoreError=$3
 
-  if [[ "${message}" ]]; then
-    logDebug "${message}"
-  else
-    logDebug "${command}"
-  fi
+  [[ ! "${message}" ]] && message="${command}"
+
+  local silent
+  local noLogs
+  local ignoreError
+
+  [[ "${ignoreError}" == "-s" ]] && silent=true
+  [[ "${ignoreError}" == "-n" ]] && noLogs=true
+  [[ "${ignoreError}" ]] && [[ "${ignoreError}" != "-s" ]] && [[ "${ignoreError}" != "-n" ]] && ignoreError=true
+
+  [[ ! "${noLogs}" ]] && [[ ! "${silent}" ]] && logDebug "${message}"
+  [[ ! "${noLogs}" ]] && [[ "${silent}" ]] && _logDebug "${message}"
 
   if [[ "${message}" ]]; then
-    logVerbose "  ${command}"
+    [[ ! "${noLogs}" ]] && [[ ! "${silent}" ]] && logVerbose "  ${command}"
+    [[ ! "${noLogs}" ]] && [[ "${silent}" ]] && _logVerbose "  ${command}"
   fi
 
   local errorCode=

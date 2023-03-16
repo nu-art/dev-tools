@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NodePackage() {
+NodePackageV3() {
 
   declare path
   declare watch
@@ -13,7 +13,7 @@ NodePackage() {
   declare -a newWatchIds
 
   _prepare() {
-    packageName="$(getJsonValueForKey "${folderName}/package.json" "name")"
+    packageName="$(getJsonValueForKey "${folderName}/__package.json" "name")"
     if { [[ -e "./${folderName}/.eslintrc.js" ]] && [[ "$(cat "./${folderName}/.eslintrc.js" | grep "FROM DEV-TOOLS")" ]]; } || { [[ ! -e "./${folderName}/.eslintrc.js" ]] && [[ ! -e "./${folderName}/tslint.json" ]]; }; then
       local silent
       [[ -e "./${folderName}/.eslintrc.js" ]] && silent="true"
@@ -40,93 +40,35 @@ NodePackage() {
   }
 
   _install() {
-    local libs=(${@})
+    logDebug "${folderName}"
+    local packageJson="./package.json"
+    file.delete "${packageJson}" -n
+    file.copy "./__package.json" "." "package.json" -n
+    envVars=()
+    envVars+=($(file.findMatches "${packageJson}" '"(\$.*?)"'))
 
-    backupPackageJson() {
-      cp package.json _package.json
-      throwError "Error backing up package.json in module: ${1}"
+    cleanEnvVar() {
+      local length=$((${#1} - 3))
+      string.substring "${1}" 2 ${length}
     }
 
-    restorePackageJson() {
-      trap 'restorePackageJson' SIGINT
-      rm package.json
-      throwError "Error restoring package.json in module: ${1}"
+    array.map envVars cleanEnvVar
+    array.filterDuplicates envVars
 
-      mv _package.json package.json
-      throwError "Error restoring package.json in module: ${1}"
-      trap - SIGINT
+    replaceWithVersion() {
+      local envVar="${1}"
+      local version="${!envVar}"
+
+      _logError "${envVar} => ${version}"
+      file.replaceAll ".${envVar}" "${version}" "${packageJson}" %
     }
 
-    cleanPackageJson() {
-      local i
-      for lib in "${libs[@]}"; do
-        [[ "${lib}" == "${_this}" ]] && break
+    array.forEach envVars replaceWithVersion
 
-        local libPackageName="$("${lib}.packageName")"
-        file_replace "^.*${libPackageName}.*$" "" package.json "" "%"
-      done
-    }
-
-    deleteFile package-lock.json
-    deleteDir "./node_modules/@nu-art"
-    deleteDir "./node_modules/@intuitionrobotics"
-    for lib in "${libs[@]}"; do
-      [[ "${lib}" == "${_this}" ]] && break
-
-      local libPackageName="$("${lib}.packageName")"
-      deleteDir "./node_modules/${libPackageName}"
-    done
-
-    backupPackageJson "${folderName}"
-    cleanPackageJson
-
-    trap 'restorePackageJson' SIGINT
-
-    logInfo "Installing: ${folderName}"
-    logInfo
-
-    npm install
-    throwError "Error installing module"
-
-    npm audit
-
-    trap - SIGINT
-
-    restorePackageJson "${folderName}"
+    logInfo "${envVars[*]}"
   }
 
   _link() {
-    local lib=
-    createFolder "${outputDir}"
-    copyFileToFolder package.json "${outputDir}"
-
-    logDebug "Setting version '${version}' to module: ${folderName}"
-    setVersionName "${version}" "${outputDir}/package.json"
-
-    for lib in ${@}; do
-      [[ "${lib}" == "${_this}" ]] && break
-      local libPackageName="$("${lib}.packageName")"
-
-      [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
-      this.linkLib "${lib}"
-    done
-
-    if [[ "${ts_linkThunderstorm}" ]] &&
-       [[ "${folderName}" != "thunderstorm" ]] &&
-       [[ $(array_contains "${folderName}" "${ts_allProjectPackages[@]}" ) ]] &&
-       [[ -e "./node_modules/react" ]]; then
-
-      deleteDir "./node_modules/react"
-      [[ -e "./node_modules/react}" ]] && rm -if "./node_modules/react"
-
-      origin="${ThunderstormHome}/thunderstorm/node_modules/react"
-      target="./node_modules/react"
-
-      logWarning "ln -s ${origin} ${target}"
-      ln -s ${origin} ${target}
-    fi
-
-
     return 0
   }
 
@@ -146,19 +88,6 @@ NodePackage() {
     logVerbose "ln -s ${origin} ${target}"
     ln -s "${origin}" "${target}"
     throwError "Error symlink dependency: ${libPackageName}"
-
-    local moduleVersion="$(string_replace "([0-9]+\\.[0-9]+\\.)[0-9]+" "\10" "${libVersion}")"
-    logVerbose "Updating dependency version to ${libPackageName} => ${moduleVersion}"
-
-    logInfo "libPackageName: ${libPackageName}"
-    logInfo "moduleVersion: ${moduleVersion}"
-    logInfo "outputDir: ${outputDir}"
-    logInfo "pwd: $(pwd)"
-
-    local match="\"${libPackageName}\": \".0\\.0\\.1\""
-    local replacement="\"${libPackageName}\": \"~${moduleVersion}\""
-    file.replaceAll "${match}" "${replacement}" "${outputDir}/package.json" "%"
-    throwError "Error updating version of dependency in package.json"
   }
 
   _clean() {
@@ -187,27 +116,52 @@ NodePackage() {
 
       logInfo "Compiling($(tsc -v)): ${folderName}/${folder}"
       if [[ "${ts_watch}" ]]; then
-
         local parts=
         for watchLine in "${watchIds[@]}"; do
           parts=(${watchLine[@]})
           [[ "${parts[1]}" == "${folder}" ]] && break
         done
 
-        [[ "${parts[2]}" ]] && execute "pkill -P ${parts[2]}"
-
-        local command="bash ../relaunch-backend.sh ${absoluteSourcesFolder} ${absoluteOutputDir} ${folderName} ${Path_RootRunningDir}"
-        tsc-watch -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]} --onSuccess "${command}" &
-
-        local _pid="${folderName} ${folder} $!"
-        logInfo "${_pid}"
-        newWatchIds+=("${_pid}")
+        if [[ -e "./src/${folder}/tsconfig.json" ]]; then
+          [[ "${parts[2]}" ]] && execute "pkill -P ${parts[2]}"
+          local command="bash ../relaunch-backend.sh ${absoluteSourcesFolder} ${absoluteOutputDir} ${folderName} ${Path_RootRunningDir}"
+          tsc-watch -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]} --onSuccess "${command}" &
+          local _pid="${folderName} ${folder} $!"
+          logInfo "${_pid}"
+          newWatchIds+=("${_pid}")
+        fi
       else
-        tsc -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]}
-        throwWarning "Error compiling: ${module}/${folder}"
-        # figure out the rest of the dirs...
-      fi
+        if [[ -e "./src/${folder}/tsconfig.json" ]]; then
+          tsc -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]}
+          throwWarning "Error compiling: ${module}/${folder}"
+        fi
 
+        local tsVersion="$(string_replace "~" "" "$(workspace.thunderstormVersion)")"
+        local appVersion="$(string_replace "~" "" "$(workspace.appVersion)")"
+        copyFileToFolder ./package.json "${outputDir}"
+        if [[ $(array_contains "${folderName}" ${tsLibs[@]}) ]]; then
+          file_replace "\"version\": \".*\"" "\"version\": \"${tsVersion}\"" "${outputDir}/package.json" "" "%"
+        fi
+
+        if [[ $(array_contains "${folderName}" ${projectLibs[@]}) ]]; then
+          file_replace "\"version\": \".*\"" "\"version\": \"${appVersion}\"" "${outputDir}/package.json" "" "%"
+        fi
+
+        for lib in ${@}; do
+          [[ "${lib}" == "${_this}" ]] && break
+          local libPackageName="$("${lib}.packageName")"
+          [[ ! "$(cat "${outputDir}/package.json" | grep "${libPackageName}")" ]] && continue
+
+          local libFolderName="$("${lib}.folderName")"
+          if [[ $(array_contains "${libFolderName}" ${tsLibs[@]}) ]]; then
+            file_replace "\"${libPackageName}\": \".*\"" "\"${libPackageName}\": \"${tsVersion}\"" "${outputDir}/package.json" "" "%"
+          fi
+
+          if [[ $(array_contains "${libFolderName}" ${projectLibs[@]}) ]]; then
+            file_replace "\"${libPackageName}\": \".*\"" "\"${libPackageName}\": \"${appVersion}\"" "${outputDir}/package.json" "" "%"
+          fi
+        done
+      fi
       _cd "${absoluteSourcesFolder}"
       find . -name '*.scss' | cpio -pdm "${absoluteOutputDir}" > /dev/null
       find . -name '*.svg' | cpio -pdm "${absoluteOutputDir}" > /dev/null
@@ -253,13 +207,14 @@ NodePackage() {
   }
 
   _test() {
+    [[ ! "$(cat ./pacakage.json | grep "\"run-tests\": \"")" ]] && return 0
     [[ ! -e "./src/test/tsconfig.json" ]] && logVerbose "./src/test/tsconfig.json was not found... skipping test phase" && return 0
 
     logInfo "${folderName} - Running tests..."
 
     _cd..
-      npm run --prefix "${folderName}" run-tests
-      local error=$?
+    npm run --prefix "${folderName}" run-tests
+    local error=$?
     _cd-
     throwError "Error while running tests in:  ${folderName}" $error
   }

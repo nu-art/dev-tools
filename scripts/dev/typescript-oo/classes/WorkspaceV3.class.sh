@@ -53,6 +53,9 @@ WorkspaceV3() {
       fi
     fi
 
+    THUNDERSTORM_SDK_VERSION="${thunderstormVersion}"
+    APP_VERSION="${appVersion}"
+
     logInfo "Thunderstorm version: ${thunderstormVersion}"
     logInfo "App version: ${appVersion}"
   }
@@ -209,6 +212,7 @@ WorkspaceV3() {
     [[ ! "${ts_installPackages}" ]] && return 0
     logInfo
     bannerInfo "Install"
+    this.active.forEach install "${allLibs[@]}"
 
     pnpm.installPackages
   }
@@ -219,7 +223,7 @@ WorkspaceV3() {
     logInfo
     bannerInfo "Link"
 
-#    this.active.forEach link "${allLibs[@]}"
+    #    this.active.forEach link "${allLibs[@]}"
   }
 
   _compile() {

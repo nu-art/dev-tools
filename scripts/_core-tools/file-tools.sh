@@ -90,7 +90,7 @@ file_replace() {
   local delimiter="${5:-/}"
 
   local regexp="s${delimiter}${matchPattern}${delimiter}${replaceWith}${delimiter}${flags}"
-  _logWarning "${regexp}"
+  #  _logWarning "${regexp}"
   if [[ $(isMacOS) ]]; then
     sed -i '' -E "${regexp}" "${file}"
   else

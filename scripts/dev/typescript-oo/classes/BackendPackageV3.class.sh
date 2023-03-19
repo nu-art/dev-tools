@@ -35,7 +35,7 @@ BackendPackageV3() {
 
       [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
 
-      local backendDependencyPath="./.dependencies/${libFolderName}"
+      local backendDependencyPath="./${outputDir}/.dependencies/${libFolderName}"
       createDir "${backendDependencyPath}"
       cp -rf "${libPath}/${libFolderName}/${outputDir}"/* "${backendDependencyPath}/"
 

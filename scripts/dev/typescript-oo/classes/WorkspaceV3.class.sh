@@ -20,10 +20,19 @@ WorkspaceV3() {
   declare -a apps
   declare -a allLibs
 
-  _prepare() {
-    [[ ! -e "${CONST_TS_VER_JSON}" ]] && throwError "MUST add ${CONST_TS_VER_JSON} to project root" 2
-    [[ ! -e "${CONST_APP_VER_JSON}" ]] && throwError "MUST add ${CONST_APP_VER_JSON} to project root" 2
+  _readConfigProp() {
+    local prop=${1}
+    local defaultValue=${2}
 
+    [[ ! -e "${CONST_TS_ENV_FILE}" ]] && echo "${defaultValue}" && return 0
+
+    local value=$(cat "${CONST_TS_ENV_FILE}" | grep -E "${prop}=" | sed -E "s/^${prop}=\"(.*)\"$/\1/")
+    [[ ! "${value}" ]] && value=${defaultValue}
+    echo "${value}"
+  }
+
+  _setThunderstormVersion() {
+    [[ ! -e "${CONST_TS_VER_JSON}" ]] && throwError "MUST add ${CONST_TS_VER_JSON} to project root" 2
     if [[ ! "${thunderstormVersion}" ]]; then
       thunderstormVersion=$(getVersionName "./${CONST_TS_VER_JSON}")
     fi
@@ -38,6 +47,12 @@ WorkspaceV3() {
       fi
     fi
 
+    THUNDERSTORM_SDK_VERSION="${thunderstormVersion}"
+    logInfo "Thunderstorm version: ${THUNDERSTORM_SDK_VERSION}"
+  }
+
+  _setAppVersion() {
+    [[ ! -e "${CONST_APP_VER_JSON}" ]] && throwError "MUST add ${CONST_APP_VER_JSON} to project root" 2
     if [[ ! "${appVersion}" ]]; then
       appVersion=$(getVersionName "./${CONST_APP_VER_JSON}")
     fi
@@ -53,11 +68,46 @@ WorkspaceV3() {
       fi
     fi
 
-    THUNDERSTORM_SDK_VERSION="${thunderstormVersion}"
     APP_VERSION="${appVersion}"
+    logInfo "App version: ${APP_VERSION}"
+  }
 
-    logInfo "Thunderstorm version: ${thunderstormVersion}"
-    logInfo "App version: ${appVersion}"
+  _setWorkspaceFile() {
+    file.delete ./pnpm-workspace.yaml
+
+    [[ ! "${ts_linkThunderstorm}" ]] && ts_linkThunderstorm=$(this.readConfigProp ts-sources)
+
+    if [[ "${ts_linkThunderstorm}" == "true" ]]; then
+      logInfo "Running with Thunderstorm..."
+      file.copy ./.config/pnpm-workspace.ts.yaml . pnpm-workspace.yaml
+    else
+      file.copy ./.config/pnpm-workspace.yaml . pnpm-workspace.yaml
+      ts_linkThunderstorm=
+    fi
+  }
+
+  _setEnv() {
+    local newEnv="${envType}"
+    if [[ ! "${newEnv}" ]]; then
+      envType=$(this.readConfigProp env local)
+      fallbackEnv=$(this.readConfigProp fb-env "")
+    fi
+
+    [[ "${envType}" != "local" ]] && compilerFlags+=(--sourceMap false)
+    logInfo "Env: ${envType}"
+    [[ "${fallbackEnv}" ]] && logWarning " -- Fallback env: ${fallbackEnv}"
+  }
+
+  _prepare() {
+    this.setThunderstormVersion
+    this.setAppVersion
+    this.setWorkspaceFile
+    this.setEnv
+
+    echo "env=\"${envType}\"" > "${CONST_TS_ENV_FILE}"
+    [[ "${fallbackEnv}" ]] && echo "fb-env=\"${fallbackEnv}\"" >> "${CONST_TS_ENV_FILE}"
+    [[ "${ts_linkThunderstorm}" ]] && echo "ts-sources=\"${ts_linkThunderstorm}\"" >> "${CONST_TS_ENV_FILE}"
+
   }
 
   _assertRepoForVersionPromotion() {
@@ -138,19 +188,7 @@ WorkspaceV3() {
   }
 
   _setEnvironment() {
-    if [[ ! "${envType}" ]]; then
-      [[ ! -e "${CONST_TS_ENV_FILE}" ]] && throwError "Please run ${0} --set-env=<env>" 2
-      envType=$(cat ${CONST_TS_ENV_FILE} | grep -E "env=" | sed -E "s/^env=\"(.*)\"$/\1/")
-      [[ ! "${envType}" ]] && envType=dev
-      return
-    fi
-
-    [[ "${envType}" == "NONE" ]] && return
-    [[ "${envType}" ]] && [[ "${envType}" != "dev" ]] && compilerFlags+=(--sourceMap false)
-
-    logInfo
-    bannerInfo "Set Environment: ${envType}"
-    [[ "${fallbackEnv}" ]] && logWarning " -- Fallback env: ${fallbackEnv}"
+    bannerInfo "Set Environment"
 
     copyConfigFile "./.config/firebase-ENV_TYPE.json" "firebase.json" "${envType}" "${fallbackEnv}"
     copyConfigFile "./.config/.firebaserc-ENV_TYPE" ".firebaserc" "${envType}" "${fallbackEnv}"
@@ -161,8 +199,6 @@ WorkspaceV3() {
     [[ "${firebaseProject}" ]] && $(resolveCommand firebase) use "${firebaseProject}"
 
     this.apps.forEach setEnvironment
-    echo "env=\"${envType}\"" > "${CONST_TS_ENV_FILE}"
-    [[ "${fallbackEnv}" ]] && echo "env=\"${fallbackEnv}\"" >> "${CONST_TS_ENV_FILE}"
   }
 
   _assertNoCyclicImport() {
@@ -180,6 +216,7 @@ WorkspaceV3() {
     logInfo
     bannerInfo "Purge"
 
+    file.delete "${Path_RootRunningDir}/.ts_env"
     file.delete "${Path_RootRunningDir}/.pnpm-lock.yaml"
     this.active.forEach purge
   }

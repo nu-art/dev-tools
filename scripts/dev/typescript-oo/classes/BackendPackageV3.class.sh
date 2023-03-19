@@ -24,8 +24,8 @@ BackendPackageV3() {
   _compile() {
     logInfo "Compiling: ${folderName}"
 
-    [[ -e "${Path_RootRunningDir}/version-app.json" ]] && copyFileToFolder "${Path_RootRunningDir}/version-app.json" "./src/main" && copyFileToFolder "${Path_RootRunningDir}/version-app.json" "./dist"
-    copyFileToFolder "./package.json" "${outputDir}"
+    [[ -e "${Path_RootRunningDir}/version-app.json" ]] && file.copy "${Path_RootRunningDir}/version-app.json" "./src/main" && file.copy "${Path_RootRunningDir}/version-app.json" "./dist"
+    file.copy "./package.json" "${outputDir}"
 
     npm run build
     throwWarning "Error compiling: ${folderName}"

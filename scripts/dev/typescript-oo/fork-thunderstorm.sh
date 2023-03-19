@@ -7,7 +7,7 @@ source ./dev-tools/scripts/node/_source.sh
 source "${BASH_SOURCE%/*}/modules.sh"
 [[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh
 
-installAndUseNvmIfNeeded
+nvm.installAndUseNvmIfNeeded
 storeFirebasePath
 
 const_BoilerplateFirebaseProject=thunderstorm-staging
@@ -245,5 +245,5 @@ start() {
   echo "The Firebase project location: ${firebaseProjectLocation}"
 }
 
-installAndUseNvmIfNeeded
+nvm.installAndUseNvmIfNeeded
 start "$@"

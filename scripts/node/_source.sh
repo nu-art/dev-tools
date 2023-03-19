@@ -18,4 +18,6 @@
 #  limitations under the License.
 
 #!/bin/bash
-source ${BASH_SOURCE%/*}/core.sh
+source ${BASH_SOURCE%/*}/nvm.sh
+source ${BASH_SOURCE%/*}/npm.sh
+source ${BASH_SOURCE%/*}/pnpm.sh

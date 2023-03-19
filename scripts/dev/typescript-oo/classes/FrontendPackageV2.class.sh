@@ -16,8 +16,8 @@ FrontendPackageV2() {
 
   _setEnvironment() {
     #    TODO: iterate on all source folders
-    logDebug "Setting ${folderName} env: ${envType}"
-    copyConfigFile "./.config/config-ENV_TYPE.ts" "./src/main/config.ts" "${envType}" "${fallbackEnv}"
+    logDebug "Setting ${folderName} env: ${ts_envType}"
+    copyConfigFile "./.config/config-ENV_TYPE.ts" "./src/main/config.ts" "${ts_envType}" "${fallbackEnv}"
   }
 
   _compile() {
@@ -25,7 +25,7 @@ FrontendPackageV2() {
 
     [[ -e "${Path_RootRunningDir}/version-app.json" ]] && copyFileToFolder "${Path_RootRunningDir}/version-app.json" "./src/main"
 
-    ENV=${envType} npm run build
+    ENV=${ts_envType} npm run build
     throwWarning "Error compiling: ${folderName}"
   }
 

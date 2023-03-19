@@ -17,8 +17,8 @@ BackendPackageV2() {
 
   _setEnvironment() {
     #    TODO: iterate on all source folders
-    logDebug "Setting ${folderName} env: ${envType}"
-    copyConfigFile "./.config/config-ENV_TYPE.ts" "./src/main/config.ts" "${envType}" "${fallbackEnv}"
+    logDebug "Setting ${folderName} env: ${ts_envType}"
+    copyConfigFile "./.config/config-ENV_TYPE.ts" "./src/main/config.ts" "${ts_envType}" "${fallbackEnv}"
   }
 
   _compile() {

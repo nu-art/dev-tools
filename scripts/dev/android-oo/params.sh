@@ -16,7 +16,7 @@ __activeLibs=()
 __LogLevel=${LOG_LEVEL__INFO}
 
 params=(
-  envType
+  ts_envType
   ThunderstormHome
   printEnv
   testServiceAccount
@@ -95,7 +95,7 @@ extractParams() {
     "--set-env="* | "-se="*)
       #DOC: Will set the .config-${environment}.json as the current .config.json and prepare it as base 64 for local usage
       #PARAM=environment
-      envType=$(regexParam "--set-env|-se" "${paramValue}")
+      ts_envType=$(regexParam "--set-env|-se" "${paramValue}")
       ;;
 
     "--fallback-env="* | "-fe="*)

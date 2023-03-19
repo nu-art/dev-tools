@@ -134,22 +134,22 @@ WorkspaceV2() {
   }
 
   _setEnvironment() {
-    if [[ ! "${envType}" ]]; then
+    if [[ ! "${ts_envType}" ]]; then
       [[ ! -e "${CONST_TS_ENV_FILE}" ]] && throwError "Please run ${0} --set-env=<env>" 2
-      envType=$(cat ${CONST_TS_ENV_FILE} | grep -E "env=" | sed -E "s/^env=\"(.*)\"$/\1/")
-      [[ ! "${envType}" ]] && envType=dev
+      ts_envType=$(cat ${CONST_TS_ENV_FILE} | grep -E "env=" | sed -E "s/^env=\"(.*)\"$/\1/")
+      [[ ! "${ts_envType}" ]] && ts_envType=dev
       return
     fi
 
-    [[ "${envType}" == "NONE" ]] && return
-    [[ "${envType}" ]] && [[ "${envType}" != "dev" ]] && compilerFlags+=(--sourceMap false)
+    [[ "${ts_envType}" == "NONE" ]] && return
+    [[ "${ts_envType}" ]] && [[ "${ts_envType}" != "dev" ]] && compilerFlags+=(--sourceMap false)
 
     logInfo
-    bannerInfo "Set Environment: ${envType}"
+    bannerInfo "Set Environment: ${ts_envType}"
     [[ "${fallbackEnv}" ]] && logWarning " -- Fallback env: ${fallbackEnv}"
 
-    copyConfigFile "./.config/firebase-ENV_TYPE.json" "firebase.json" "${envType}" "${fallbackEnv}"
-    copyConfigFile "./.config/.firebaserc-ENV_TYPE" ".firebaserc" "${envType}" "${fallbackEnv}"
+    copyConfigFile "./.config/firebase-ENV_TYPE.json" "firebase.json" "${ts_envType}" "${fallbackEnv}"
+    copyConfigFile "./.config/.firebaserc-ENV_TYPE" ".firebaserc" "${ts_envType}" "${fallbackEnv}"
 
     local firebaseProject="$(getJsonValueForKey .firebaserc default)"
     [[ "${firebaseProject}" ]] && $(resolveCommand firebase) login
@@ -157,7 +157,7 @@ WorkspaceV2() {
     [[ "${firebaseProject}" ]] && $(resolveCommand firebase) use "${firebaseProject}"
 
     this.apps.forEach setEnvironment
-    echo "env=\"${envType}\"" > "${CONST_TS_ENV_FILE}"
+    echo "env=\"${ts_envType}\"" > "${CONST_TS_ENV_FILE}"
     [[ "${fallbackEnv}" ]] && echo "env=\"${fallbackEnv}\"" >> "${CONST_TS_ENV_FILE}"
   }
 
@@ -273,7 +273,7 @@ WorkspaceV2() {
     logInfo
     bannerInfo "Deploy"
 
-    [[ ! "${envType}" ]] && throwError "MUST set env while deploying!!" 2
+    [[ ! "${ts_envType}" ]] && throwError "MUST set env while deploying!!" 2
 
     this.apps.forEach deploy
 

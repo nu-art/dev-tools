@@ -91,6 +91,10 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 	}
 
 	protected void _compile() {
+	//	String fromCommit = getRepo().getCurrentCommit()
+	//	String toCommit = getModule(GitModule.class).gitStatus(getRepo())?.commitId
+	//  HERE CAN OPTIMIZE
+
 		_sh("bash build-and-install.sh --debug")
 	}
 

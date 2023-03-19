@@ -27,6 +27,31 @@ BackendPackageV3() {
     [[ -e "${Path_RootRunningDir}/version-app.json" ]] && file.copy "${Path_RootRunningDir}/version-app.json" "./src/main" && file.copy "${Path_RootRunningDir}/version-app.json" "./dist"
     file.copy "./package.json" "${outputDir}"
 
+    for lib in ${@}; do
+      [[ "${lib}" == "${_this}" ]] && break
+      local libPath="$("${lib}.path")"
+      local libFolderName="$("${lib}.folderName")"
+      local libPackageName="$("${lib}.packageName")"
+
+      [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
+
+      local backendDependencyPath="./.dependencies/${libFolderName}"
+      createDir "${backendDependencyPath}"
+      cp -rf "${libPath}/${libFolderName}/${outputDir}"/* "${backendDependencyPath}/"
+
+      file_replace "\"${libPackageName}\": \"${APP_VERSION}\"" "\"${libPackageName}\": \"file:.dependencies/${libFolderName}\"" "${outputDir}/package.json" "" "%"
+
+      for projectLib in ${ts_projectLibs[@]}; do
+        [[ "${projectLib}" == "${lib}" ]] && break
+
+        local nestedLibFolderName="$("${projectLib}.folderName")"
+        local nestedLibPackageName="$("${projectLib}.packageName")"
+        [[ ! "$(cat "${backendDependencyPath}/package.json" | grep "${nestedLibPackageName}")" ]] && continue
+
+        file_replace "\"${nestedLibPackageName}\": \"${APP_VERSION}\"" "\"${nestedLibPackageName}\": \"file:.dependencies/${nestedLibFolderName}\"" "${backendDependencyPath}/package.json" "" "%"
+      done
+    done
+
     npm run build
     throwWarning "Error compiling: ${folderName}"
   }

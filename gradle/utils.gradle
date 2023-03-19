@@ -55,7 +55,7 @@ Object resolveDependency(String artifactId, String groupId, String version, Stri
     if (file.exists())
         try {
             return project(":$projectName")
-        } catch (e) {
+        } catch (e:any) {
             System.err.println("Error while resolving project: :${projectName}")
             e.printStackTrace()
             return "${groupId}:${artifactId}:${version}"

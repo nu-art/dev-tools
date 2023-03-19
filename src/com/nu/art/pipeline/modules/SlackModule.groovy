@@ -12,8 +12,10 @@ class SlackModule
 	extends WorkflowModule
 	implements OnPipelineListener {
 
+	private String token = "slack-token"
 	private Var_Creds SlackToken
-	private String onSuccess
+	private String teamDomain
+	private String onSuccess = ""
 	private String defaultChannel
 	private BuildModule buildModule
 	private boolean enabled = true
@@ -24,8 +26,16 @@ class SlackModule
 	}
 
 	void _init() {
-		setTokenCredentialsId("slack-token")
+		setTokenCredentialsId(this.token)
 		buildModule = getModule(BuildModule.class)
+	}
+
+	void setToken(String token) {
+		this.token = token
+	}
+
+	void setTeam(String teamDomain) {
+		this.teamDomain = teamDomain
 	}
 
 	void disable() {
@@ -37,7 +47,7 @@ class SlackModule
 	}
 
 	void setOnSuccess(String onSuccess) {
-		this.onSuccess = onSuccess
+		this.onSuccess += "\n$onSuccess"
 	}
 
 	void setTokenCredentialsId(String tokenCredentialId) {
@@ -56,7 +66,7 @@ class SlackModule
 		if (!enabled)
 			return
 
-		String email = VarConsts.Var_UserEmail.get()
+		String email = VarConsts.Var_User.get()
 		String preMessage = ""
 		preMessage += "<${VarConsts.Var_BuildUrl.get()}|*${buildModule.getDisplayName()}*>"
 		preMessage += workflow.currentStage != Workflow.Stage_Started ? " after: ${buildModule.getDurationAsString()}" : ""
@@ -69,7 +79,7 @@ class SlackModule
 			.replaceAll(/<br>/, "\n")
 			.replaceAll(/<\/br>/, "\n")
 
-		workflow.script.slackSend(color: color, channel: channelName, message: finalMessage, tokenCredentialId: SlackToken.id)
+		workflow.script.slackSend(botUser: true, color: color, teamDomain: teamDomain, channel: channelName, message: finalMessage, tokenCredentialId: SlackToken.id)
 	}
 
 	@Override

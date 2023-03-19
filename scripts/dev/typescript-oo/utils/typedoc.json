@@ -1,0 +1,7 @@
+{
+  "entryPointStrategy": "resolve",
+  "logLevel": "Warn",
+  "categorizeByGroup": true,
+  "excludeNotDocumented": true,
+  "out": "docs"
+}

@@ -14,6 +14,11 @@ NodePackage() {
 
   _prepare() {
     packageName="$(getJsonValueForKey "${folderName}/package.json" "name")"
+    if { [[ -e "./${folderName}/.eslintrc.js" ]] && [[ "$(cat "./${folderName}/.eslintrc.js" | grep "FROM DEV-TOOLS")" ]]; } || { [[ ! -e "./${folderName}/.eslintrc.js" ]] && [[ ! -e "./${folderName}/tslint.json" ]]; }; then
+      local silent
+      [[ -e "./${folderName}/.eslintrc.js" ]] && silent="true"
+      file_copyToFolder "${PATH_ESLintConfigFile}" "./${folderName}" ${silent}
+    fi
   }
 
   _printDependencyTree() {
@@ -83,6 +88,8 @@ NodePackage() {
     npm install
     throwError "Error installing module"
 
+    npm audit
+
     trap - SIGINT
 
     restorePackageJson "${folderName}"
@@ -103,6 +110,23 @@ NodePackage() {
       [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
       this.linkLib "${lib}"
     done
+
+    if [[ "${ts_linkThunderstorm}" ]] &&
+       [[ "${folderName}" != "thunderstorm" ]] &&
+       [[ $(array_contains "${folderName}" "${ts_allProjectPackages[@]}" ) ]] &&
+       [[ -e "./node_modules/react" ]]; then
+
+      deleteDir "./node_modules/react"
+      [[ -e "./node_modules/react}" ]] && rm -if "./node_modules/react"
+
+      origin="${ThunderstormHome}/thunderstorm/node_modules/react"
+      target="./node_modules/react"
+
+      logWarning "ln -s ${origin} ${target}"
+      ln -s ${origin} ${target}
+    fi
+
+
     return 0
   }
 
@@ -133,7 +157,7 @@ NodePackage() {
 
     local match="\"${libPackageName}\": \".0\\.0\\.1\""
     local replacement="\"${libPackageName}\": \"~${moduleVersion}\""
-    file_replaceAll "${match}" "${replacement}" "${outputDir}/package.json" "%"
+    file.replaceAll "${match}" "${replacement}" "${outputDir}/package.json" "%"
     throwError "Error updating version of dependency in package.json"
   }
 
@@ -157,6 +181,10 @@ NodePackage() {
 
     for folder in "${folders[@]}"; do
       [[ "${folder}" == "test" ]] && continue
+
+      local absoluteSourcesFolder="$(pwd)/src/${folder}"
+      local absoluteOutputDir="$(pwd)/${outputDir}"
+
       logInfo "Compiling($(tsc -v)): ${folderName}/${folder}"
       if [[ "${ts_watch}" ]]; then
 
@@ -168,7 +196,8 @@ NodePackage() {
 
         [[ "${parts[2]}" ]] && execute "pkill -P ${parts[2]}"
 
-        tsc-watch -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]} --onSuccess "bash ../relaunch-backend.sh" &
+        local command="bash ../relaunch-backend.sh ${absoluteSourcesFolder} ${absoluteOutputDir} ${folderName} ${Path_RootRunningDir}"
+        tsc-watch -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]} --onSuccess "${command}" &
 
         local _pid="${folderName} ${folder} $!"
         logInfo "${_pid}"
@@ -178,6 +207,11 @@ NodePackage() {
         throwWarning "Error compiling: ${module}/${folder}"
         # figure out the rest of the dirs...
       fi
+
+      _cd "${absoluteSourcesFolder}"
+      find . -name '*.scss' | cpio -pdm "${absoluteOutputDir}" > /dev/null
+      find . -name '*.svg' | cpio -pdm "${absoluteOutputDir}" > /dev/null
+      _cd-
     done
   }
 
@@ -192,7 +226,7 @@ NodePackage() {
       if [[ -e ".eslintrc.js" ]]; then
         logInfo "ES Linting: ${folderName}/${folder}"
         eslint --ext .ts --ext .tsx "./src/${folder}"
-        throwError "Error while ES linting: ${module}/${folder}"
+        [[ "$?" == "1" ]] && throwError "Error while ES linting: ${module}/${folder}" 2
 
       elif [[ -e "tslint.json" ]]; then
         logInfo "Linting: ${folderName}/${folder}"
@@ -202,32 +236,32 @@ NodePackage() {
     done
   }
 
+  _generateDocs() {
+    logInfo "Generating docs: ${folderName}"
+
+    local entryPoints=()
+    [[ -e "./src/main/backend/index.ts" ]] && entryPoints+=("./src/main/backend/index.ts")
+    [[ -e "./src/main/frontend/index.ts" ]] && entryPoints+=("./src/main/frontend/index.ts")
+    [[ -e "./src/main/index.ts" ]] && entryPoints+=("./src/main/index.ts")
+    [[ -e "./src/main/index.tsx" ]] && entryPoints+=("./src/main/index.tsx")
+    local tsConfig
+
+    [[ -e "./src/main/tsconfig.json" ]] && tsConfig="./src/main/tsconfig.json"
+    [[ -e "./tsconfig.json" ]] && tsConfig="./tsconfig.json"
+
+    echo typedoc --cleanOutputDir --basePath "$(pwd)" --tsconfig "${tsConfig}" --options "${PATH_TypeDocConfigFile}" ${entryPoints[*]}
+  }
+
   _test() {
     [[ ! -e "./src/test/tsconfig.json" ]] && logVerbose "./src/test/tsconfig.json was not found... skipping test phase" && return 0
-    [[ "${testServiceAccount}" ]] && [[ ! -e "${testServiceAccount}" ]] && throwError "Service account cannot be resolved from path: ${testServiceAccount}" 2
-
-    export GOOGLE_APPLICATION_CREDENTIALS="${testServiceAccount}"
-    logInfo "Testing: ${folderName}"
-
-    deleteDir "${outputTestDir}"
-    tsc -p ./src/test/tsconfig.json --outDir "${outputTestDir}"
-    throwError "Error while compiling tests in:  ${folderName}"
-
-    copyFileToFolder package.json "${outputTestDir}/test"
-    throwError "Error while compiling tests in:  ${folderName}"
-
-    logInfo "${folderName} - Linting tests..."
-    tslint --project ./src/test/tsconfig.json
-    throwError "Error while linting tests in:  ${folderName}"
 
     logInfo "${folderName} - Running tests..."
 
-    local testsToRun=()
-    for testToRun in "${ts_testsToRun[@]}"; do
-      testsToRun+=("--test=${testToRun}")
-    done
-    node "${outputTestDir}/test/test" "--service-account=${testServiceAccount}" "${testsToRun[@]}"
-    throwError "Error while running tests in:  ${folderName}"
+    _cd..
+      npm run --prefix "${folderName}" run-tests
+      local error=$?
+    _cd-
+    throwError "Error while running tests in:  ${folderName}" $error
   }
 
   _canPublish() {

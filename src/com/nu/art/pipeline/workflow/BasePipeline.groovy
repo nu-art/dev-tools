@@ -9,11 +9,14 @@ import com.nu.art.pipeline.workflow.variables.Var_Env
 abstract class BasePipeline<T extends BasePipeline>
 	extends WorkflowModulesPack {
 
+	public Var_Env Var_CleanWorkspace = new Var_Env("CLEAN_WORKSPACE")
+
 	private static Class<? extends WorkflowModule>[] defaultModules = [BuildModule.class]
 	protected final Workflow workflow = Workflow.workflow
 
 	protected final String name
 	protected Var_Creds[] creds = []
+	protected String[] sshCreds = []
 
 	BasePipeline(String name, Class<? extends WorkflowModule>... modules) {
 		super(defaultModules + modules)
@@ -27,6 +30,11 @@ abstract class BasePipeline<T extends BasePipeline>
 
 	T setRequiredCredentials(Var_Creds... creds) {
 		this.creds = creds
+		return (T) this
+	}
+
+	T setRequiredSSHCredentials(String... sshCreds) {
+		this.sshCreds = sshCreds
 		return (T) this
 	}
 
@@ -52,6 +60,7 @@ abstract class BasePipeline<T extends BasePipeline>
 	}
 
 	void run() {
+		printEnvParams(Var_CleanWorkspace)
 		setDisplayName()
 		workflow.run()
 	}
@@ -65,6 +74,6 @@ abstract class BasePipeline<T extends BasePipeline>
 	}
 
 	void cleanup() {
-		workflow.deleteWorkspace()
+		if ("true" == Var_CleanWorkspace.get()) workflow.deleteWorkspace()
 	}
 }

@@ -8,7 +8,6 @@ __compile=true
 __runTests=
 __publish=
 
-
 __generate=()
 __launch=()
 __deploy=()
@@ -160,7 +159,7 @@ extractParams() {
       [[ ! "${ThunderstormHome}" ]] && throwError "ThunderstormHome must be defined as an Environment variable" 2
       linkDependencies=true
       linkThunderstorm=true
-    ;;
+      ;;
 
     "--thunderstorm-home="* | "-th="*)
       #DOC: Will link the output folder of the libraries of thunderstorm that exists under the give path
@@ -239,7 +238,7 @@ extractParams() {
 
     "--launch-frontend" | "-lf")
       #DOC: Will add the app-frontend to the launch list
-      __launch+=(app-frontend)
+      __launch+=(${frontendApps[@]})
       ;;
 
     "--launch-backend" | "-lb")

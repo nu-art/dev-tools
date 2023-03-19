@@ -44,12 +44,20 @@ installAndUseNvmIfNeeded() {
     bannerInfo "Installing NVM"
 
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+
+    if [[ -e "~/.zshrc" ]]; then
+      echo 'export NVM_DIR="$HOME/.nvm"' >>~/.zshrc
+      echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm' >>~/.zshrc
+      echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion' >>~/.zshrc
+    fi
   fi
 
   # shellcheck source=./$HOME/.nvm
   [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh" # This loads nvm
   if [[ ! $(assertNVM) ]] && [[ "v$(cat .nvmrc | head -1)" != "$(nvm current)" ]]; then
 
+#    nvm deactivate
+#    nvm uninstall v16.13.0
     # shellcheck disable=SC2076
     [[ ! "$(nvm ls | grep "v$(cat .nvmrc | head -1)") | head -1" =~ "v$(cat .nvmrc | head -1)" ]] && echo "nvm install" && nvm install
     nvm use --delete-prefix "v$(cat .nvmrc | head -1)" --silent
@@ -69,5 +77,5 @@ printNodePackadeTree() {
   local output=${1}
   logDebug "${module} - Printing dependency tree..."
   createDir "${output}"
-  npm list > "${output}/${module}.txt"
+  npm list >"${output}/${module}.txt"
 }

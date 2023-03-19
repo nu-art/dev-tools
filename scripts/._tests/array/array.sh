@@ -38,6 +38,25 @@ arraySetVarTest1() {
   echo "${zevel[@]}"
 }
 
+test.array.filterDuplicates() {
+  pah=("value1" "value2" "value2" "value2" "value3" "value2" "value1")
+  array.filterDuplicates pah
+  echo "${pah[@]}"
+}
+
+arrayMapperTest1() {
+  mapper() {
+    local input=${1}
+    string_replaceAll "-" "_" "${input}"
+  }
+
+  local pah=("valu-e1" "val--ue-2")
+  array.map pah zevel mapper
+  echo "${zevel[@]}"
+}
+
+assertCommand "value1 value2 value3" "test.array.filterDuplicates"
 assertCommand "value1 value2" "arrayRemoveTest1"
 assertCommand "value1 value2" "arrayRemoveTest2"
 assertCommand "value1 value2" "arraySetVarTest1"
+assertCommand "valu_e1 val__ue_2" "arrayMapperTest1"

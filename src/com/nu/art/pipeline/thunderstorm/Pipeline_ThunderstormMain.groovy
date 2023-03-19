@@ -24,10 +24,6 @@ class Pipeline_ThunderstormMain<T extends Pipeline_ThunderstormMain>
 	}
 
 	@Override
-	void cleanup() {
-	}
-
-	@Override
 	void pipeline() {
 		checkout({
 			getModule(SlackModule.class).setOnSuccess(getRepo().getChangeLog().toSlackMessage())
@@ -36,7 +32,7 @@ class Pipeline_ThunderstormMain<T extends Pipeline_ThunderstormMain>
 		install()
 		clean()
 		build()
-//		test()
+		test()
 
 		publish()
 		deploy()

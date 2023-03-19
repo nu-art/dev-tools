@@ -50,13 +50,34 @@ assert() {
 assertCommand() {
   local expected=${1}
   local toEval=${2}
-  local actual=$(${toEval})
-  local label=${3}
+  local prepare=${3}
+  local cleanup=${4}
+  logDebug "${toEval}"
 
+  local cleanupResult=0
+  local prepareResult=0
+
+  if [[ -e ${prepare} ]]; then
+    ${prepare}
+    prepareResult=$?
+    [[ ${prepareResult} != "0" ]] && logError "  fail - to prepare: ${toEval} with error code ${prepareResult}"
+  fi
+
+  local actual=$(${toEval})
   assert "${expected}" "${actual}"
   result=$?
-  [[ ${result} == "1" ]] && logWarning "${label} ${toEval} => ${actual} ... expected: ${expected}"
-  [[ ${result} == "0" ]] && logVerbose "${toEval} => ${actual}"
+
+  if [[ -e ${cleanup} ]]; then
+    ${cleanup}
+    cleanupResult=$?
+    [[ ${cleanupResult} != "0" ]] && logError "  fail - to cleanup: ${toEval} with error code ${cleanupResult}"
+  fi
+
+  if [[ ${prepareResult} == "0" ]] && [[ ${cleanupResult} == "0" ]] && [[ ${result} == "0" ]]; then
+    logInfo "   pass - ${toEval} => ${actual}"
+  else
+    logError "  fail - ${toEval} => ${actual} ... expected: ${expected}"
+  fi
 }
 
 printSummary() {

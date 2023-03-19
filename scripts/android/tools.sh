@@ -51,6 +51,6 @@ waitForDevice() {
     fi
 
     logWarning "${message}... ${wait}s  " true
-    sleep 1s
+    sleep 1
     waitForDevice ${deviceId} ${wait} ${3}
 }

@@ -2,6 +2,9 @@
 CONST_TS_VER_JSON="version-thunderstorm.json"
 CONST_APP_VER_JSON="version-app.json"
 CONST_TS_ENV_FILE=".ts_env"
+CONST_Version_Typescript=latest
+CONST_Version_ESlint=latest
+CONST_Version_FirebaseTools=latest
 
 Workspace() {
 
@@ -81,19 +84,37 @@ Workspace() {
     local command=${1}
     [[ ! "${command}" ]] && throwError "No command specified" 2
     local items=(${2})
+    local p="${startFromPackage}"
 
-    for item in "${items[@]}"; do
+    for (( ; p < ${#items[@]}; p++)); do
+      item=${items[${p}]}
+      startFromPackage=${p}
+      saveState
+
       _pushd "$("${item}.path")/$("${item}.folderName")"
-      "${item}.${command}" "${@:3}"
+      [[ "${item}.${command}" ]] && "${item}.${command}" "${@:3}"
       (($? > 0)) && throwError "Error executing command: ${item}.${command}"
       _popd
     done
+    startFromPackage=0
   }
 
   _printDependencyTree() {
     [[ ! "${ts_dependencies}" ]] && return
 
     this.active.forEach printDependencyTree
+    exit 0
+  }
+
+  _cleanEnv() {
+    [[ ! "${ts_cleanENV}" ]] && return
+
+    logInfo
+    bannerInfo "Clean ENV"
+
+    nvm deactivate
+    nvm uninstall "v$(cat .nvmrc | head -1)"
+
     exit 0
   }
 
@@ -127,14 +148,13 @@ Workspace() {
     bannerInfo "Set Environment: ${envType}"
     [[ "${fallbackEnv}" ]] && logWarning " -- Fallback env: ${fallbackEnv}"
 
-    $(resolveCommand firebase) login
-
     copyConfigFile "./.config/firebase-ENV_TYPE.json" "firebase.json" "${envType}" "${fallbackEnv}"
     copyConfigFile "./.config/.firebaserc-ENV_TYPE" ".firebaserc" "${envType}" "${fallbackEnv}"
 
     local firebaseProject="$(getJsonValueForKey .firebaserc default)"
-    verifyFirebaseProjectIsAccessible "${firebaseProject}"
-    $(resolveCommand firebase) use "${firebaseProject}"
+    [[ "${firebaseProject}" ]] && $(resolveCommand firebase) login
+    [[ "${firebaseProject}" ]] && verifyFirebaseProjectIsAccessible "${firebaseProject}"
+    [[ "${firebaseProject}" ]] && $(resolveCommand firebase) use "${firebaseProject}"
 
     this.apps.forEach setEnvironment
     echo "env=\"${envType}\"" > "${CONST_TS_ENV_FILE}"
@@ -168,12 +188,24 @@ Workspace() {
     this.active.forEach clean
   }
 
-  _install() {
+  _generateDocs() {
+    [[ ! "${ts_generateDocs}" ]] && return
+
+    logInfo
+    bannerInfo "Generating docs"
+
+    this.active.forEach generateDocs
+  }
+
+  _installGlobalPackages() {
     if [[ "${ts_installGlobals}" ]]; then
       logInfo "Installing global packages..."
-      npm i -g typescript@4.1 eslint@latest tslint@latest firebase-tools@latest sort-package-json@latest sort-json@latest tsc-watch@latest
+      npm i -g typescript@${CONST_Version_Typescript} eslint@${CONST_Version_ESlint} tslint@latest firebase-tools@${CONST_Version_FirebaseTools} sort-package-json@latest sort-json@latest tsc-watch@latest typedoc@latest
+      storeFirebasePath
     fi
+  }
 
+  _install() {
     if [[ "${ts_installPackages}" ]]; then
       logInfo
       bannerInfo "Install"
@@ -202,8 +234,8 @@ Workspace() {
     for lib in "${allLibs[@]}"; do
       local length=$("${lib}.newWatchIds.length")
       ((length == 0)) && continue
-      for ((i = 0; i < length; i++)); do
-        local var="${lib}_newWatchIds[${i}]"
+      for ((watchId = 0; watchId < length; watchId++)); do
+        local var="${lib}_newWatchIds[${watchId}]"
         echo -e "${!var}" >> "${CONST_BuildWatchFile}"
       done
     done
@@ -232,7 +264,7 @@ Workspace() {
     logInfo
     bannerInfo "Launch"
 
-    this.apps.forEach launch
+    this.active.forEach launch
   }
 
   _deploy() {

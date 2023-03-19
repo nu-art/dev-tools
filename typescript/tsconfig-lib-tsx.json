@@ -1,6 +1,9 @@
 {
   "extends": "./tsconfig-lib-ts.json",
+  "esModuleInterop": true,
+  "module": "ES2020",
   "compilerOptions": {
+    "target": "es2017",
     "jsx": "react",
     "lib": [
       "es5",

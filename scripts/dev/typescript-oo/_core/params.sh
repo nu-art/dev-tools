@@ -1,10 +1,12 @@
 #!/bin/bash
 
 ts_debug=
+ts_debugBackend=
 
 ts_dependencies=
 ts_purge=
 ts_clean=
+ts_generateDocs=
 ts_installGlobals=
 ts_installPackages=
 ts_compile=true
@@ -15,11 +17,12 @@ ts_lint=
 ts_runTests=
 ts_publish=
 ts_fileToExecute="index.js"
+startFromStep=0
+startFromPackage=0
 
 checkCircularImports=
 
 envType=
-
 promoteThunderstormVersion=
 promoteAppVersion=
 newAppVersion=
@@ -34,6 +37,8 @@ ts_deploy=()
 ts_testsToRun=()
 ts_activeLibs=()
 ts_LogLevel=${LOG_LEVEL__INFO}
+PATH_ESLintConfigFile="${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/utils/.eslintrc.js"
+PATH_TypeDocConfigFile="${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/utils/typedoc.json"
 
 params=(
   envType
@@ -47,9 +52,11 @@ params=(
   ts_installPackages
   ts_compile
   ts_watch
+  ts_cleanENV
   ts_link
   ts_linkThunderstorm
   ts_lint
+  ts_generateDocs
   ts_runTests
   ts_publish
   ts_fileToExecute
@@ -58,12 +65,14 @@ params=(
   "ts_deploy[@]"
   "ts_activeLibs[@]"
   "ts_testsToRun[@]"
+  ts_debugBackend
   checkCircularImports
   newVersion
   promoteThunderstormVersion
   version
   promoteAppVersion
-
+  startFromStep
+  startFromPackage
 )
 
 extractParams() {
@@ -88,7 +97,7 @@ extractParams() {
       #DOC: Will print the current versions of the important tools
 
       printNpmPackageVersion typescript
-      printNpmPackageVersion tslint
+      printNpmPackageVersion eslint
       printNpmPackageVersion firebase-tools
       printNpmPackageVersion sort-package-json
 
@@ -117,12 +126,26 @@ extractParams() {
       ;;
 
       #        ==== BUILD ====
+    "--continue" | "-con")
+      #DOC: Will pick up where last build process failed
+      startFromStep=$(cat "${Path_BuildState}" | head -1)
+      startFromPackage=$(cat "${Path_BuildState}" | tail -1)
+      ;;
+
     "--use-package="* | "-up="*)
       #DOC: Would ONLY run the script in the context of the specified project packages
       #PARAM=project-package-folder
 
       local lib=$(regexParam "--use-package|-up" "${paramValue}")
       ts_activeLibs+=("${lib}")
+      ;;
+
+    "--project-libs" | "-pl")
+      #DOC: Would ONLY run the script in the context of the project libs
+
+      ts_activeLibs+=("${projectLibs[@]}")
+      ts_activeLibs+=("${frontendApps[@]}")
+      ts_activeLibs+=("${backendApps[@]}")
       ;;
 
     "--set-env="* | "-se="*)
@@ -141,6 +164,10 @@ extractParams() {
       #WARNING: --setup / -s are deprecated... use --install or -i
       logWarning "--setup / -s are deprecated... use --install or -i"
       exit 2
+      ;;
+
+    "--install-globals" | "-ig")
+      ts_installGlobals=true
       ;;
 
     "--install" | "-i")
@@ -173,10 +200,22 @@ extractParams() {
       ts_compile=
       ;;
 
+    "--clean-env" | "-cenv")
+      #DOC: Would link dependencies between project packages
+
+      ts_cleanENV=true
+      ;;
+
     "--link" | "-ln")
       #DOC: Would link dependencies between project packages
 
       ts_link=true
+      ;;
+
+    "--generate-docs" | "-docs")
+      #DOC: Would link dependencies between project packages
+
+      ts_generateDocs=true
       ;;
 
     "--link-only" | "-lo")
@@ -198,6 +237,11 @@ extractParams() {
       #NOTE: MUST have ThunderstormHome env variable defined and point to the Thunderstorm sample project
 
       [[ ! "${ThunderstormHome}" ]] && throwError "ThunderstormHome must be defined as an Environment variable" 2
+
+      if [[ "$(string_startsWith "${ThunderstormHome}" "./")" ]]; then
+        ThunderstormHome="$(pwd)$(string.substring "${ThunderstormHome}" 1)"
+      fi
+
       ts_link=true
       ts_linkThunderstorm=true
       ;;
@@ -238,6 +282,15 @@ extractParams() {
 
       ;;
 
+    "--watch-libs" | "-wl")
+      # FUTURE: will build and listen for changes in the libraries
+      ts_watch=true
+      ts_compile=true
+      ts_activeLibs+=("${projectLibs[@]}")
+
+      CONST_BuildWatchFile="$(pwd)/.trash/watch.txt"
+      ;;
+
       #        ==== TEST ====
     "--test" | "-t")
       #DOC: Run the tests in all the project packages
@@ -273,8 +326,11 @@ extractParams() {
 
       #        ==== Apps ====
     "--launch="* | "-l="*)
+      local packageName="$(regexParam "--launch|-l" "${paramValue}")"
+
       #DOC: It will add the provided App to the launch list
-      ts_launch+=($(regexParam "--launch|-l" "${paramValue}"))
+      ts_launch+=(${packageName})
+      ts_activeLibs+=(${packageName})
       ;;
 
     "--file="* | "-f="*)
@@ -287,38 +343,54 @@ extractParams() {
 
     "--launch-frontend" | "-lf")
       #DOC: Will add the app-frontend to the launch list
-      ts_launch+=(app-frontend)
+      ts_launch+=(${frontendApps[@]})
+      ts_activeLibs+=(${frontendApps[@]})
       ;;
 
     "--launch-backend" | "-lb")
       #DOC: Will add the app-backend to the launch list
+      ts_launch+=(app-backend)
+      ts_activeLibs+=(${backendApps[@]})
+      ;;
+
+    "--debug-backend" | "-lbd")
+      #DOC: Will add the app-backend to the launch list
+      ts_debugBackend="--debug"
       ts_launch+=(app-backend)
       ;;
 
     "--deploy" | "-d")
       ts_deploy+=(${backendApps[@]})
       ts_deploy+=(${frontendApps[@]})
+      ts_activeLibs+=(${backendApps[@]})
+      ts_activeLibs+=(${frontendApps[@]})
+
       ts_link=true
       ;;
 
     "--deploy="* | "-d="*)
       #DOC: Will add the provided App to the deploy list
+      local packageName="$(regexParam "--deploy|-d" "${paramValue}")"
+      ts_deploy+=("${packageName}")
+      ts_activeLibs+=("${packageName}")
 
-      ts_deploy+=($(regexParam "--deploy|-d" "${paramValue}"))
       ts_link=true
       ;;
 
     "--deploy-backend" | "-db")
       #DOC: Will add the app-backend to the deploy list
 
-      ts_deploy+=(app-backend)
+      ts_deploy+=(${backendApps[@]})
+      ts_activeLibs+=(${backendApps[@]})
+
       ts_link=true
       ;;
 
     "--deploy-frontend" | "-df")
       #DOC: Will add the app-frontend to the deploy list
 
-      ts_deploy+=(app-frontend)
+      ts_deploy+=(${frontendApps[@]})
+      ts_activeLibs+=(${frontendApps[@]})
       ts_link=true
       ;;
 
@@ -338,8 +410,7 @@ extractParams() {
       noGit=true
       ;;
 
-    "--debug-transpiler")
-      CONST_Debug=true
+    "--debug-transpiler" | "-dt")
       setDebugLog true
       ts_debug=true
       ((ts_LogLevel > LOG_LEVEL__DEBUG)) && ts_LogLevel=${LOG_LEVEL__DEBUG}
@@ -372,8 +443,11 @@ extractParams() {
     "--quick-deploy" | "-qd")
       #DOC: Will deploy both frontend & backend, without any other lifecycle action
       #WARNING: Use only if you REALLY understand the lifecycle of the project and script!!
-      ts_deploy+=(app-backend)
-      ts_deploy+=(app-frontend)
+      if [[ "${#ts_deploy[@]}" == 0 ]]; then
+        ts_deploy+=(app-backend)
+        ts_deploy+=(app-frontend)
+      fi
+
       ts_lint=
       ts_compile=
       ts_runTests=

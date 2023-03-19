@@ -15,9 +15,7 @@ import com.nu.art.pipeline.workflow.variables.VarConsts
 import com.nu.art.pipeline.workflow.variables.Var_Creds
 import com.nu.art.pipeline.workflow.variables.Var_Env
 import com.nu.art.reflection.tools.ReflectiveTools
-import hudson.model.Job
 import hudson.model.Result
-import jenkins.model.Jenkins
 import org.jenkinsci.plugins.workflow.cps.CpsScript
 import org.jenkinsci.plugins.workflow.steps.FlowInterruptedException
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
@@ -42,7 +40,7 @@ class Workflow
 		VarConsts.Var_JenkinsHome = Var_Env.create("JENKINS_HOME")
 		VarConsts.Var_JobName = Var_Env.create("JOB_NAME")
 		VarConsts.Var_BuildNumber = Var_Env.create("BUILD_NUMBER")
-		VarConsts.Var_UserEmail = Var_Env.create("BUILD_USER_EMAIL")
+		VarConsts.Var_User = Var_Env.create("BUILD_USER_EMAIL")
 		VarConsts.Var_BuildUrl = Var_Env.create("BUILD_URL")
 		VarConsts.Var_Workspace = Var_Env.create("WORKSPACE", { script.pwd() })
 
@@ -59,13 +57,16 @@ class Workflow
 
 
 		script.ansiColor('xterm') {
-			script.withCredentials(pipeline.creds.collect { param -> param.toCredential(script) }) {
-				workflow.script.wrap([$class: 'BuildUser']) {
-					pipeline.pipeline()
-					pipeline.run()
-				}
+//			script.sshagent(credentials: Arrays.asList(pipeline.sshCreds)) {
+				script.withCredentials(pipeline.creds.collect { param -> param.toCredential(script) }) {
+					workflow.script.wrap([$class: 'BuildUser']) {
+						pipeline.pipeline()
+						pipeline.run()
+					}
+//				}
 			}
 		}
+
 		return pipeline
 	}
 
@@ -92,6 +93,14 @@ class Workflow
 
 	void start() {
 		addStage(Stage_Started, {
+			logDebug("Default run env var values:")
+			logDebug("JenkinsHome: " + VarConsts.Var_JenkinsHome.get())
+			logDebug("JobName: " + VarConsts.Var_JobName.get())
+			logDebug("BuildNumber: " + VarConsts.Var_BuildNumber.get())
+			logDebug("UserEmail: " + VarConsts.Var_User.get())
+			logDebug("BuildUrl: " + VarConsts.Var_BuildUrl.get())
+			logDebug("Workspace: " + VarConsts.Var_Workspace.get())
+
 			this.dispatchEvent("Pipeline Started Event", OnPipelineListener.class, { listener -> listener.onPipelineStarted() } as WorkflowProcessor<OnPipelineListener>)
 		})
 	}

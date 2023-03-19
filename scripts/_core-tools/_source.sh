@@ -18,26 +18,27 @@
 #  limitations under the License.
 
 #!/bin/bash
-DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+DIR_CoreTools=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 CHAR_TAB="$(printf '\t')"
 
-source ${DIR}/colors.sh
-source ${DIR}/logger.sh
-source ${DIR}/time.sh
-source ${DIR}/signature.sh
-source ${DIR}/spinner.sh
+source ${DIR_CoreTools}/colors.sh
+source ${DIR_CoreTools}/logger.sh
+source ${DIR_CoreTools}/time.sh
+source ${DIR_CoreTools}/signature.sh
+source ${DIR_CoreTools}/spinner.sh
 
-source ${DIR}/tools.sh
-source ${DIR}/error-handling.sh
-source ${DIR}/cli-params.sh
-source ${DIR}/folder-filters.sh
-source ${DIR}/file-tools.sh
-source ${DIR}/folder-tools.sh
-source ${DIR}/array-tools.sh
-source ${DIR}/string-tools.sh
-source ${DIR}/number-tools.sh
-source ${DIR}/versioning.sh
-source ${DIR}/help-tools.sh
-source ${DIR}/prompt-tools.sh
-source ${DIR}/debugger.sh
+source ${DIR_CoreTools}/tools.sh
+source ${DIR_CoreTools}/error-handling.sh
+source ${DIR_CoreTools}/cli-params.sh
+source ${DIR_CoreTools}/folder-filters.sh
+source ${DIR_CoreTools}/file-tools.sh
+source ${DIR_CoreTools}/folder-tools.sh
+source ${DIR_CoreTools}/array-tools.sh
+source ${DIR_CoreTools}/string-tools.sh
+source ${DIR_CoreTools}/number-tools.sh
+source ${DIR_CoreTools}/versioning.sh
+source ${DIR_CoreTools}/help-tools.sh
+source ${DIR_CoreTools}/prompt-tools.sh
+source ${DIR_CoreTools}/shell.sh
+source ${DIR_CoreTools}/debugger.sh

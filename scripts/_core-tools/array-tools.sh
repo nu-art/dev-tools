@@ -55,24 +55,6 @@ array_remove() {
   done
 }
 
-## @function: array_filterDuplicates(...list)
-##
-## @description: filters duplicated items in the list
-##
-## @return: a filtered list with every item existing only once in it
-array_filterDuplicates() {
-  local list=("${@}")
-  local filteredList=()
-
-  for item in "${list[@]}"; do
-    [[ $(array_contains "${item}" "${filteredList[@]}") ]] && continue
-
-    filteredList+=("${item}")
-  done
-
-  echo "${filteredList[@]}"
-}
-
 ## @function: array_isArray(arrayVarName)
 ##
 ## @description: will check if the ver name supplied is of type array
@@ -87,4 +69,48 @@ array_setVariable() {
   local arrayVarName="${1}"
   local values="${*:2}"
   eval "${arrayVarName}=(${values})"
+}
+
+## @function: array.filterDuplicates(...list)
+##
+## @description: filters duplicated items in the list
+##
+## @return: a filtered list with every item existing only once in it
+array.filterDuplicates() {
+  local arrayName=${1}
+
+  local temp=()
+  for item in $(eval "echo \${${arrayName}[@]}"); do
+    [[ $(array_contains "${item}" "${temp[@]}") ]] && continue
+
+    temp+=("${item}")
+  done
+
+  array_setVariable "${arrayName}" ${temp[@]}
+}
+
+## @function: array.map(fromArrayVarName toArrayVarName mapper)
+##
+## @description: will call map on every item in the original array and will set a new array with the mapped values
+##
+##
+array.map() {
+  local arrayName=${1}
+  local mapper=${2}
+
+  local temp=()
+  for beforeItem in $(eval "echo \${${arrayName}[@]}"); do
+    temp+=("$(${mapper} "${beforeItem}")")
+  done
+
+  array_setVariable "${arrayName}" ${temp[@]}
+}
+
+array.forEach() {
+  local arrayName=${1}
+  local mapper=${2}
+
+  for beforeItem in $(eval "echo \${${arrayName}[@]}"); do
+    ${mapper} "${beforeItem}"
+  done
 }

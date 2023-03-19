@@ -2,6 +2,8 @@ package com.nu.art.pipeline.thunderstorm
 
 import com.nu.art.pipeline.modules.SlackModule
 import com.nu.art.pipeline.modules.git.GitModule
+import com.nu.art.pipeline.thunderstorm.models.ProjectEnvConfig
+import com.nu.art.pipeline.thunderstorm.models.ProjectGitConfig
 import com.nu.art.pipeline.workflow.WorkflowModule
 import com.nu.art.pipeline.workflow.variables.Var_Env
 
@@ -10,11 +12,9 @@ class Pipeline_ThunderstormWebProject<T extends Pipeline_ThunderstormWebProject>
 
 	public Var_Env Env_Branch = new Var_Env("BRANCH_NAME")
 
-	String httpUrl
-	String gitRepoUri
+	ProjectGitConfig gitConfig
 	def envProjects = [:]
 	String slackChannel
-	boolean scm
 
 	Pipeline_ThunderstormWebProject(String name, String slackChannel, Class<? extends WorkflowModule>... modules) {
 		super(name, modules)
@@ -26,16 +26,20 @@ class Pipeline_ThunderstormWebProject<T extends Pipeline_ThunderstormWebProject>
 		String branch = Env_Branch.get()
 		getModule(SlackModule.class).setDefaultChannel(this.slackChannel)
 
-		setRepo(getModule(GitModule.class)
-			.create(gitRepoUri)
-			.setTrackSCM(scm)
+
+		GitModule gitModule = getModule(GitModule.class)
+		setRepo(gitModule
+			.create(gitConfig.gitRepoUri)
+			.setTrackSCM(gitConfig.scm)
 			.setBranch(branch)
 			.build())
 
+
+		ProjectEnvConfig envConfig = envProjects.get(branch) as ProjectEnvConfig
 		String links = ("" +
-			"<https://${envProjects.get(branch)}.firebaseapp.com|WebApp> | " +
-			"<https://console.firebase.google.com/project/${envProjects.get(branch)}|Firebase> | " +
-			"<${this.httpUrl}|Github>").toString()
+			"<${envConfig.webAppUrl}|WebApp> | " +
+			"<${envConfig.firebaseProjectUrl}|Firebase> | " +
+			"<${gitConfig.httpUrl}|Github>").toString()
 
 		getModule(SlackModule.class).setOnSuccess(links)
 
@@ -44,13 +48,19 @@ class Pipeline_ThunderstormWebProject<T extends Pipeline_ThunderstormWebProject>
 	}
 
 	void setGitRepoId(String repoId, boolean scm = false) {
-		this.httpUrl = "https://github.com/${repoId}".toString()
-		this.gitRepoUri = "git@github.com:${repoId}.git".toString()
-		this.scm = scm
+		setProjectGitConfig(new ProjectGitConfig(repoId, scm))
+	}
+
+	void setProjectGitConfig(ProjectGitConfig gitConfig) {
+		this.gitConfig = gitConfig
 	}
 
 	void declareEnv(String env, String projectId) {
-		envProjects.put(env, projectId)
+		declareEnv(env, new ProjectEnvConfig(projectId))
+	}
+
+	void declareEnv(String env, ProjectEnvConfig envConfig) {
+		envProjects.put(env, envConfig)
 	}
 
 	@Override
@@ -62,7 +72,7 @@ class Pipeline_ThunderstormWebProject<T extends Pipeline_ThunderstormWebProject>
 		install()
 		clean()
 		build()
-//		test()
+		test()
 
 		deploy()
 	}

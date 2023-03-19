@@ -10,6 +10,7 @@ class JobTrigger
 	String name
 	Workflow workflow
 	def params = []
+	boolean wait = true
 
 	JobTrigger(Workflow workflow, String name) {
 		this.name = name
@@ -28,9 +29,10 @@ class JobTrigger
 		return this.addParam(JobParam.Param_Boolean, key.toString(), value)
 	}
 
-//	JobTrigger addBoolean(Var_Env envVar) {
-//		return this.addParam(JobParam.Param_Boolean, envVar.varName, envVar.get())
-//	}
+	JobTrigger setWait(boolean wait) {
+		this.wait = wait
+		return this
+	}
 
 	private <T> JobTrigger addParam(JobParam<T> type, String key, T value) {
 		params += [$class: type.key, name: key, value: value.toString()]
@@ -38,7 +40,7 @@ class JobTrigger
 	}
 
 	RunWrapper run() {
-		RunWrapper result = workflow.script.build job: name, parameters: params
+		RunWrapper result = workflow.script.build job: name, parameters: params, wait: wait
 		return result
 	}
 }

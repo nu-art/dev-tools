@@ -27,6 +27,12 @@ class BuildModule
 		}
 	}
 
+	void printCauses() {
+		Run build = workflow.getCurrentBuild().rawBuild
+		List<Cause> causes = build.getCauses()
+		causes.forEach { logInfo("scm: ${it}") }
+	}
+
 	TriggerCause[] getTriggerCause(String causeType) {
 		return triggers.findAll { it.type == causeType }
 	}

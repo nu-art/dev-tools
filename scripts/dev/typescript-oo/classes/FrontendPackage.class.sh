@@ -4,7 +4,9 @@ FrontendPackage() {
   extends class NodePackage
 
   _deploy() {
+    [[ ! "$(array_contains "${folderName}" "${ts_activeLibs[@]}")" ]] && return
     [[ ! "$(array_contains "${folderName}" "${ts_deploy[@]}")" ]] && return
+    [[ ! "$(array_contains "${folderName}" "${deployableApps[@]}")" ]] && return
 
     logInfo "Deploying: ${folderName}"
     ${CONST_Firebase} deploy --only hosting
@@ -21,28 +23,34 @@ FrontendPackage() {
   _compile() {
     logInfo "Compiling: ${folderName}"
 
+    [[ -e "${Path_RootRunningDir}/version-app.json" ]] && copyFileToFolder "${Path_RootRunningDir}/version-app.json" "./src/main"
+
+    for lib in ${@}; do
+      [[ "${lib}" == "${_this}" ]] && break
+      local libPath="$("${lib}.path")"
+      local libFolderName="$("${lib}.folderName")"
+      local libPackageName="$("${lib}.packageName")"
+
+      [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
+
+      local backendDependencyPath="./.dependencies/${libFolderName}"
+      createDir "${backendDependencyPath}"
+      cp -rf "${libPath}/${libFolderName}/${outputDir}"/* "${backendDependencyPath}/"
+
+      for projectLib in ${ts_projectLibs[@]}; do
+        logDebug "projectLib: ${projectLib} ==> lib: ${lib}"
+        [[ "${projectLib}" == "${lib}" ]] && break
+
+        local nestedLibFolderName="$("${projectLib}.folderName")"
+        local nestedLibPackageName="$("${projectLib}.packageName")"
+        [[ ! "$(cat "${backendDependencyPath}/package.json" | grep "${nestedLibPackageName}")" ]] && continue
+
+        file_replace "\"${nestedLibPackageName}\": \".?0\.0\.1\"" "\"${nestedLibPackageName}\": \"file:.dependencies/${nestedLibFolderName}\"" "${backendDependencyPath}/package.json" "" "%"
+      done
+    done
+
     npm run build
     throwWarning "Error compiling: ${folderName}"
-
-#    for lib in ${@}; do
-#      [[ "${lib}" == "${_this}" ]] && break
-#      local libPath="$("${lib}.path")"
-#      local libFolderName="$("${lib}.folderName")"
-#      local libPackageName="$("${lib}.packageName")"
-#
-#      [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
-#
-#      local backendDependencyPath="./.dependencies/${libFolderName}"
-#      createDir "${backendDependencyPath}"
-#      cp -rf "${libPath}/${libFolderName}/${outputDir}"/* "${backendDependencyPath}/"
-#    done
-  }
-
-  _lint() {
-    logInfo "Linting: ${folderName}"
-
-    npm run lint
-    throwWarning "Error linting: ${folderName}"
   }
 
   _launch() {
@@ -59,6 +67,10 @@ FrontendPackage() {
     fi
 
     this.NodePackage.install ${@}
+  }
+
+  _link() {
+    this.NodePackage.link ${@}
   }
 
   _generate() {
@@ -79,18 +91,20 @@ FrontendPackage() {
 
     local declaration=""
     local usage=""
+    local usageV4=""
     for file in "${files[@]}"; do
-      local width=$(cat "${file}" | grep -E 'svg.*width="[0-9]+' | sed -E 's/^.*svg.*width="([0-9]+)(px)?".*$/\1/')
-      local height=$(cat "${file}" | grep -E 'svg.*height="[0-9]+' | sed -E 's/^.*svg.*height="([0-9]+)(px)?".*$/\1/')
       local varName=$(echo "${file}" | sed -E 's/icon__(.*).svg/\1/')
-      declaration="${declaration}\\nconst ${varName}: IconData = {ratio: ${height} / ${width},  value: require('@res/icons/${file}')};"
-      usage="${usage}\\n\t${varName}: (color?: string, width?: number, props?: HTMLAttributes<HTMLSpanElement>) => iconsRenderer(${varName}, color, width, props),"
+
+      declaration="${declaration}\\nimport ${varName}Url, {ReactComponent as ${varName}} from '@res/icons/${file}';"
+      usage="${usage}\\n\t${varName}: genIcon(${varName}),"
+      usageV4="${usageV4}\\n\t${varName}: genIconV4(${varName}Url),"
     done
 
     deleteFile "../${CONST_FrontendIconsFile}"
     copyFileToFolder "${_pwd}/../dev-tools/scripts/dev/typescript-oo/templates/${CONST_FrontendIconsFile}" ../
     file_replaceLine "ICONS_DECLARATION" "${declaration}" "../${CONST_FrontendIconsFile}"
     file_replaceLine "ICONS_USAGE" "${usage}" "../${CONST_FrontendIconsFile}"
+    file_replaceLine "ICONS_V4_USAGE" "${usageV4}" "../${CONST_FrontendIconsFile}"
     _popd
   }
 
@@ -118,8 +132,6 @@ FrontendPackage() {
     _pushd "${CONST_FrontendFontsPath}"
     local files=($(ls | grep .*\.ttf))
 
-    local globals=""
-    local declaration=""
     local usage=""
     local varName=""
     for file in "${files[@]}"; do
@@ -127,15 +139,11 @@ FrontendPackage() {
       varName="${varName,,}"
       varName=$(echo "${varName}" | sed -E 's/(.*).ttf/\1/')
 
-      declaration="${declaration}\\nconst ${varName} = require('@res/fonts/${file}');"
-      globals="${globals}\\n@font-face { font-family: ${varName}; src: url(\${${varName}}) }"
       usage="${usage}\\n\t${varName}: (text: string, color?: string, size?: number) => fontRenderer(text, '${varName}', color, size),"
     done
 
     deleteFile "../${CONST_FrontendFontsFile}"
     copyFileToFolder "${_pwd}/../dev-tools/scripts/dev/typescript-oo/templates/${CONST_FrontendFontsFile}" ../
-    file_replaceLine "FONTS_DECLARATION" "${declaration}" "../${CONST_FrontendFontsFile}"
-    file_replaceLine "FONTS_GLOBAL" "${globals}" "../${CONST_FrontendFontsFile}"
     file_replaceLine "FONTS_USAGE" "${usage}" "../${CONST_FrontendFontsFile}"
 
     _popd

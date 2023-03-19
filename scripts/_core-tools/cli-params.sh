@@ -47,7 +47,9 @@ installBash() {
 
   if [[ "${output}" =~ "brew: command not found" ]]; then
     logInfo "So... a new computer... ?? installing homebrew ;)"
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    echo 'eval $(/opt/homebrew/bin/brew shellenv)' >> /Users/$USER/.zprofile
+    eval $(/opt/homebrew/bin/brew shellenv)
   fi
 }
 
@@ -90,7 +92,7 @@ printDebugParams() {
   logDebug "--"
   logInfo "----------- DEBUG -----------"
   logVerbose
-  sleep 3s
+  sleep 3
 }
 
 printCommand() {

@@ -41,12 +41,12 @@ string_startsWith() {
   [[ "${string:0:${#expected}}" == "${expected}" ]] && echo "true"
 }
 
-## @function: string_substring(string, fromIndex, length?)
+## @function: string.substring(string, fromIndex, length?)
 ##
 ## @description: Substring out of the given string from and to the provided indices
 ##
 ## @return: The substring between the given indices
-string_substring() {
+string.substring() {
   local string="${1}"
   local fromIndex=${2}
   local length=${3}
@@ -76,7 +76,7 @@ string_match() {
 
 ## @function: string_replace(match, replaceWith, string, delimiter?)
 ##
-## @description: Replaces all occurences of a substring in a given string matching a regexp
+## @description: Replaces all occurrences of a substring in a given string matching a regexp
 ##
 ## @return: The new edited string
 string_replaceAll() {
@@ -116,7 +116,7 @@ string_join() {
 string_generateHex() {
   local length="${1}"
   local hex=""
-  for ((i = 0; i < length; i++)); do
+  for ((charAt = 0; charAt < length; charAt++)); do
     hex="${hex}$(printf "%x" "$(number_random 16)")"
   done
 

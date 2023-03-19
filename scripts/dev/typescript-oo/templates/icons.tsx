@@ -1,51 +1,35 @@
-import * as React from "react";
-import {css} from "emotion";
-import {HTMLAttributes} from "react";
-
-export type IconStyle = {
-	color: string;
-	width: number;
-	height: number;
-}
-
-type Props = {
-	iconStyle: IconStyle
-	icon: string
-	props?: HTMLAttributes<HTMLSpanElement>
-}
-
-class RenderIcon
-	extends React.Component<Props> {
-	render() {
-		const iconStyle = css`
-		 width: ${this.props.iconStyle.width}px;
-		 height: ${this.props.iconStyle.height}px;
-		 background: ${this.props.iconStyle.color};
-		 -webkit-mask-image: url(${this.props.icon});
-		 mask-image: url(${this.props.icon});
-		 mask-size: cover;
-		 display: inline-block;
-		`;
-
-		return <span {...this.props.props} className={`${iconStyle} ${this.props.props?.className}`}/>;
-	}
-}
+import * as React from 'react';
+import {ElementType, HTMLAttributes} from 'react';
+import {_className} from '@nu-art/thunderstorm/frontend';
+import {_keys} from '@nu-art/ts-common';
 
 
-export type IconData = {
-	ratio: number,
-	value: string
-}
+ICONS_DECLARATION;
 
-export const iconsRenderer = (key: IconData, color?: string, width: number = 24, props?: HTMLAttributes<HTMLSpanElement>) => {
-	return <RenderIcon icon={key.value} iconStyle={{color: color || "#000000", height: width * key.ratio, width: width}} props={props}/>
-};
+const genIcon = (Icon: ElementType) =>
+	(props: HTMLAttributes<HTMLSpanElement>) => <div {...props} className={_className('ll_v_c match_height flex__justify-center ts-icon', props.className)}>
+		<Icon/>
+	</div>;
 
+const genIconV4 = (icon: ElementType) =>
+	(props: HTMLAttributes<HTMLDivElement>) => {
+		const className = _className('ts-icon__v4', props.className);
+		return <div {...props} className={className} style={{WebkitMaskImage: `url(${icon})`, maskImage: `url(${icon})`}}/>;
+	};
 
-ICONS_DECLARATION
-
-export const ICONS = {
+const AllIcons = {
 	ICONS_USAGE
 };
 
-export type IconsType = typeof ICONS
+const AllIconsV4 = {
+
+	ICONS_V4_USAGE
+};
+
+export type IconsType = typeof AllIcons
+export type IconKey = keyof IconsType
+
+export const ICONS: IconsType = AllIcons;
+export const ICONSV4: typeof AllIconsV4 = AllIconsV4;
+export const ICON_KEYS: IconKey[] = _keys(AllIcons);
+

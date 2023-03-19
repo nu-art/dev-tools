@@ -1,5 +1,6 @@
 package com.nu.art.pipeline.workflow.logs
 
+import com.cloudbees.groovy.cps.NonCPS
 import com.nu.art.belog.LoggerClient
 import com.nu.art.belog.consts.LogLevel
 import com.nu.art.core.tools.ExceptionTools

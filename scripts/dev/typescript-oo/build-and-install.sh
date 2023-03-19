@@ -1,37 +1,64 @@
 #!/bin/bash
+export LANG=en_US.UTF-8
+export LC_ALL=$LANG
+
 source ./dev-tools/scripts/git/_core.sh
 source ./dev-tools/scripts/firebase/core.sh
 source ./dev-tools/scripts/node/_source.sh
+source ./dev-tools/scripts/node/pnpm.sh
 source ./dev-tools/scripts/oos/core/transpiler.sh
 
-setErrorOutputFile "$(pwd)/error_message.txt"
+Path_RootRunningDir="$(pwd)"
+Path_OutputDir=".trash"
+Path_BuildState="${Path_OutputDir}/build-state.txt"
 
+# setLogLevel $LOG_LEVEL__VERBOSE
+ CONST_Debug="true"
+
+setErrorOutputFile "${Path_RootRunningDir}/error_message.txt"
 # shellcheck source=./common.sh
-source "${BASH_SOURCE%/*}/common.sh"
+source "${BASH_SOURCE%/*}/_core/common.sh"
 # shellcheck source=./modules.sh
-source "${BASH_SOURCE%/*}/modules.sh"
+source "${BASH_SOURCE%/*}/_core/modules.sh"
 
 # shellcheck source=./params.sh
-source "${BASH_SOURCE%/*}/params.sh"
+source "${BASH_SOURCE%/*}/_core/params.sh"
 
 [[ -e ".scripts/setup.sh" ]] && source .scripts/setup.sh
 [[ -e ".scripts/signature.sh" ]] && source .scripts/signature.sh
 [[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh
 
+escapeFolderName() {
+  local folderName=${1}
+  string_replaceAll "-" "_" "${folderName}"
+}
+
+ts_allProjectPackages=()
+ts_allProjectPackages+=(${executableApps[@]})
+ts_allProjectPackages+=(${frontendApps[@]})
+ts_allProjectPackages+=(${backendApps[@]})
+ts_allProjectPackages+=(${projectLibs[@]})
+array_setVariable ts_projectLibs ${projectLibs[@]}
+array.map ts_projectLibs escapeFolderName
+
 #signature
 extractParams "$@"
 
-CONST_RunningFolder="$(folder_getRunningPath 1)"
-#setTranspilerOutput "${CONST_RunningFolder}"
-setTranspilerOutput ".trash/bai"
-addTranspilerClassPath "${CONST_RunningFolder}/classes"
+CONST_RealPathOfThisScriptFile="$(folder_getRunningPath 1)"
+#setTranspilerOutput "${CONST_RealPathOfThisScriptFile}"
+setTranspilerOutput "${Path_OutputDir}/bai"
+addTranspilerClassPath "${CONST_RealPathOfThisScriptFile}/classes"
+
+saveState() {
+  echo "${startFromStep}" > "${Path_BuildState}"
+  echo "${startFromPackage}" >> "${Path_BuildState}"
+}
 
 buildWorkspace() {
-
-  installAndUseNvmIfNeeded
+  pnpm.install
   storeFirebasePath
 
-  new Workspace workspace
+  new WorkspaceV3 workspace
   workspace.appVersion = "${appVersion}"
   workspace.prepare
 
@@ -52,7 +79,7 @@ buildWorkspace() {
 
     for lib in "${libs[@]}"; do
       [[ ! -e "${lib}" ]] && continue
-      [[ ! -e "${lib}/package.json" ]] && continue
+      [[ ! -e "${lib}/__package.json" ]] && continue
 
       _logWarning "processing ${lib}"
       local watchProcessIds=()
@@ -62,7 +89,7 @@ buildWorkspace() {
 
         watchProcessIds+=("${watchLine}")
       done
-      ref=$(string_replaceAll "-" "_" "${lib}")
+      ref=$(escapeFolderName "${lib}")
 
       _logWarning "new ${className} ${ref}"
       new "${className}" "${ref}"
@@ -84,13 +111,13 @@ buildWorkspace() {
   }
 
   [[ "${ThunderstormHome}" ]] && [[ "${ts_linkThunderstorm}" ]] && _pushd "${ThunderstormHome}"
-  createPackages NodePackage "$(workspace.thunderstormVersion)" "${tsLibs[@]}"
+  createPackages NodePackageV3 "$(workspace.thunderstormVersion)" "${tsLibs[@]}"
   [[ "${ThunderstormHome}" ]] && [[ "${ts_linkThunderstorm}" ]] && _popd
 
-  createPackages NodePackage "$(workspace.appVersion)" "${projectLibs[@]}"
+  createPackages NodePackageV3 "$(workspace.appVersion)" "${projectLibs[@]}"
   createPackages ExecutablePackage "$(workspace.appVersion)" "${executableApps[@]}"
-  createPackages FrontendPackage "$(workspace.appVersion)" "${frontendApps[@]}"
-  createPackages BackendPackage "$(workspace.appVersion)" "${backendApps[@]}"
+  createPackages FrontendPackageV3 "$(workspace.appVersion)" "${frontendApps[@]}"
+  createPackages BackendPackageV3 "$(workspace.appVersion)" "${backendApps[@]}"
 
   ((${#_activeLibs[@]} == 0)) && _activeLibs=(${_allLibs[@]})
 
@@ -103,21 +130,15 @@ buildWorkspace() {
   #  breakpoint "before running workspace"
 
   #  workspace.toLog
+  workspace.installGlobalPackages
   workspace.setEnvironment
+  local buildStep="${startFromStep}"
+  for (( ; buildStep < ${#buildSteps[@]}; buildStep++)); do
+    startFromStep=${buildStep}
+    saveState
 
-  workspace.purge
-  workspace.clean
-  workspace.install
-  workspace.link
-  workspace.generate
-  workspace.compile
-  workspace.lint
-  workspace.test
-
-  workspace.publish
-  workspace.launch
-  workspace.deploy
-
+    "workspace.${buildSteps[${buildStep}]}"
+  done
 }
 
 buildWorkspace

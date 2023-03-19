@@ -19,13 +19,6 @@
 
 #!/bin/bash
 
-deleteFile() {
-  local pathToFile=${1}
-  [[ ! -e "${pathToFile}" ]] && return
-
-  execute "rm ${pathToFile}" "Deleting file: ${pathToFile}"
-}
-
 renameFiles() {
   local rootFolder=${1}
   local matchPattern=${2}
@@ -38,12 +31,31 @@ renameFiles() {
   done
 }
 
-## @function: file_replaceAll(match, replaceWith, file, delimiter?)
+## @function: file_copy(origin, targetFolder, silent)
+##
+## @description: Copies the origin file to the target folder
+##
+## @return: void
+file_copyToFolder() {
+  local origin="${1}"
+  local targetFolder="${2}"
+  local silent="${3}"
+
+  [[ ! -e "${targetFolder}" ]] && createDir "${targetFolder}"
+
+  if [[ "${silent}" ]]; then
+    cp "${origin}" "${targetFolder}"
+  else
+    execute "cp \"${origin}\" \"${targetFolder}\"" "Copying file: ${origin} => ${targetFolder}" "${2}"
+  fi
+}
+
+## @function: file.replaceAll(match, replaceWith, file, delimiter?)
 ##
 ## @description: Replaces all substrings matching the provided regexp in the given file
 ##
 ## @return: void
-file_replaceAll() {
+file.replaceAll() {
   file_replace "$1" "$2" "$3" g "${4}"
 }
 
@@ -77,10 +89,12 @@ file_replace() {
   local flags="${4}"
   local delimiter="${5:-/}"
 
+  local regexp="s${delimiter}${matchPattern}${delimiter}${replaceWith}${delimiter}${flags}"
+  #  _logWarning "${regexp}"
   if [[ $(isMacOS) ]]; then
-    sed -i '' -E "s${delimiter}${matchPattern}${delimiter}${replaceWith}${delimiter}${flags}" "${file}"
+    sed -i '' -E "${regexp}" "${file}"
   else
-    sed -i -E "s${delimiter}${matchPattern}${delimiter}${replaceWith}${delimiter}${flags}" "${file}"
+    sed -i -E "${regexp}" "${file}"
   fi
 }
 
@@ -97,4 +111,62 @@ file_replaceLine() {
   local end="$(echo -e "${fileContent}" | sed -n "$((matchedLine + 1)),$((totalLines))p")"
   fileContent="${start}\n${replacement}\n${end}"
   echo -e "${fileContent}" > "${file}"
+}
+
+## @function: file.copy(pathToFile, targetFolder, newFileName, silent)
+##
+## @description: Copies the origin file to the target folder
+##
+## @return: void
+file.copy() {
+  local pathToFile="${1}"
+  local targetFolder="${2}"
+  local newFileName="${3}"
+  local silent="${4}"
+
+  #  local originFileName=$(file.getFilenameAndExt "${pathToFile}")
+  [[ ! -e "${pathToFile}" ]] && throwError "No such file ${pathToFile}" 2
+  [[ ! -e "${targetFolder}" ]] && createDir "${targetFolder}"
+
+  local targetFile="${targetFolder}/${newFileName}"
+
+  execute "cp \"${pathToFile}\" \"${targetFile}\"" "Copying file: ${pathToFile} => ${targetFile}" "${silent}"
+}
+
+## @function: file.delete(pathToFile, log)
+##
+## @description: Copies the origin file to the target folder
+##
+## @return: void
+file.delete() {
+  local pathToFile="${1}"
+  [[ ! -e "${pathToFile}" ]] && return
+
+  execute "rm ${pathToFile}" "Deleting file: ${pathToFile}" ${2}
+}
+
+deleteFile() {
+  file.delete "${1}"
+}
+
+## @function: file.getFilenameAndExt(pathToFile)
+##
+## @description: given a path to file, will return the file name
+##
+## @return: void
+file.getFilenameAndExt() {
+  local pathToFile="${1}"
+
+  if [[ $(isMacOS) ]]; then
+    echo "${pathToFile}" | sed '' "s/.*\///"
+  else
+    echo "${pathToFile}" | sed "s/.*\///"
+  fi
+}
+
+file.findMatches() {
+  local pathToFile="${1}"
+  local pattern="${2}"
+
+  cat "${pathToFile}" | grep -Eo "${pattern}"
 }

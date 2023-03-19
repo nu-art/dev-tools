@@ -27,6 +27,9 @@ BackendPackageV3() {
     [[ -e "${Path_RootRunningDir}/version-app.json" ]] && file.copy "${Path_RootRunningDir}/version-app.json" "./src/main" && file.copy "${Path_RootRunningDir}/version-app.json" "./dist"
     file.copy "./package.json" "${outputDir}"
 
+    file_replace "\"main\": \"\.?/?${outputDir}/" '"main": "' "${outputDir}/package.json" "" "%"
+    file_replace "\"types\": \"\.?/?${outputDir}/" '"types": "' "${outputDir}/package.json" "" "%"
+
     for lib in ${@}; do
       [[ "${lib}" == "${_this}" ]] && break
       local libPath="$("${lib}.path")"

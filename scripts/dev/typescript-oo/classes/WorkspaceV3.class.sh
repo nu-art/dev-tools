@@ -216,7 +216,6 @@ WorkspaceV3() {
     logInfo
     bannerInfo "Purge"
 
-    file.delete "${Path_RootRunningDir}/.ts_env"
     file.delete "${Path_RootRunningDir}/.pnpm-lock.yaml"
     this.active.forEach purge
   }

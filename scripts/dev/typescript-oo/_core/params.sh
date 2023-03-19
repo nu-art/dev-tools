@@ -96,10 +96,10 @@ extractParams() {
     "--print-env")
       #DOC: Will print the current versions of the important tools
 
-      printNpmPackageVersion typescript
-      printNpmPackageVersion eslint
-      printNpmPackageVersion firebase-tools
-      printNpmPackageVersion sort-package-json
+      npm.printPackageVersion typescript
+      npm.printPackageVersion eslint
+      npm.printPackageVersion firebase-tools
+      npm.printPackageVersion sort-package-json
 
       logDebug "node version: $(node -v)"
       logDebug "npm version: $(npm -v)"
@@ -246,15 +246,10 @@ extractParams() {
       ts_linkThunderstorm=true
       ;;
 
-    "--thunderstorm-home="* | "-th="*)
-      #DOC: Will link the output folder of the libraries of thunderstorm that exists under the give path
-      #PARAM=path-to-thunderstorm-folder
+    "--no-thunderstorm" | "-nth")
+      #DOC: Will remove the linkage and dependency on thunderstorm sources
 
-      ts_link=true
-      ts_linkThunderstorm=true
-
-      local temp=$(regexParam "--thunderstorm-home|-th" "${paramValue}")
-      [[ "${temp}" ]] && ThunderstormHome="${temp}"
+      ts_linkThunderstorm=false
       ;;
 
     "--lint")
@@ -280,6 +275,15 @@ extractParams() {
       ts_compile=true
       CONST_BuildWatchFile="$(pwd)/.trash/watch.txt"
 
+      ;;
+
+    "--watch-libs" | "-wl")
+      # FUTURE: will build and listen for changes in the libraries
+      ts_watch=true
+      ts_compile=true
+      ts_activeLibs+=("${projectLibs[@]}")
+
+      CONST_BuildWatchFile="$(pwd)/.trash/watch.txt"
       ;;
 
     "--watch-libs" | "-wl")

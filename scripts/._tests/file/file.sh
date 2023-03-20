@@ -50,5 +50,11 @@ test.file.findMatches() {
   echo "${toRet[@]}"
 }
 
-assertCommand "ZE ZEVEL" "test.file.copy" "test.file.prepare" "test.file.cleanup"
-assertCommand '"$ZEVEL" "$ZEVEL"' "test.file.findMatches" "test.file.prepare" "test.file.cleanup"
+test.file.pathToFile() {
+  local pathToFile="$(file.pathToFile "/pah/zevel/male.ashpa")"
+  echo "${pathToFile}"
+}
+
+assertCommand '/pah/zevel' "test.file.pathToFile"
+#assertCommand "ZE ZEVEL" "test.file.copy" "test.file.prepare" "test.file.cleanup"
+#assertCommand '"$ZEVEL" "$ZEVEL"' "test.file.findMatches" "test.file.prepare" "test.file.cleanup"

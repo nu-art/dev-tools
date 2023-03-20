@@ -126,9 +126,9 @@ file.copy() {
 
   #  local originFileName=$(file.getFilenameAndExt "${pathToFile}")
   [[ ! -e "${pathToFile}" ]] && throwError "No such file ${pathToFile}" 2
-  [[ ! -e "${targetFolder}" ]] && createDir "${targetFolder}"
-
-  local targetFile="${targetFolder}/${newFileName}"
+  [[ ${targetFolder} ]] && [[ ! -e "${targetFolder}" ]] && createDir "${targetFolder}"
+  [[ ${targetFolder} ]] && targetFolder="${targetFolder}/"
+  local targetFile="${targetFolder}${newFileName}"
 
   execute "cp \"${pathToFile}\" \"${targetFile}\"" "Copying file: ${pathToFile} => ${targetFile}" "${silent}"
 }
@@ -156,12 +156,19 @@ deleteFile() {
 ## @return: void
 file.getFilenameAndExt() {
   local pathToFile="${1}"
+  local FILE="$(basename "${pathToFile}")"
+  echo "${FILE}"
+}
 
-  if [[ $(isMacOS) ]]; then
-    echo "${pathToFile}" | sed '' "s/.*\///"
-  else
-    echo "${pathToFile}" | sed "s/.*\///"
-  fi
+## @function: file.pathToFile(pathToFile)
+##
+## @description: given a path to file, will return the file name
+##
+## @return: void
+file.pathToFile() {
+  local pathToFile="${1}"
+  local DIR="$(dirname "${pathToFile}")"
+  echo "${DIR}"
 }
 
 file.findMatches() {

@@ -258,6 +258,9 @@ WorkspaceV3() {
     [[ ! "${ts_installPackages}" ]] && return 0
     logInfo
     bannerInfo "Install"
+
+    node.replaceVarsWithValues
+
     this.active.forEach install "${allLibs[@]}"
 
     pnpm.installPackages

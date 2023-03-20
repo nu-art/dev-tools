@@ -13,10 +13,11 @@ pnpm.install() {
   curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION="${version}" bash -
 
   local fileToSource="$(shell.getFileRC)"
-  cat "${fileToSource}"
   echo >> "${fileToSource}"
   echo "echo 'PAH ZEVEL 2'" >> "${fileToSource}"
   echo "source ${fileToSource}"
+  cat "${fileToSource}"
+
   source "${fileToSource}"
   echo "${PNPM_HOME}/pnpm"
 }

@@ -35,6 +35,7 @@ class Pipeline_ThunderstormWebApp<T extends Pipeline_ThunderstormWebApp>
 	}
 
 	void _deploy() {
+		_sh("bash build-and-install.sh --print-env")
 		_sh("bash build-and-install.sh --deploy --quick-deploy --no-git  --debug")
 	}
 

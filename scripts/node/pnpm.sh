@@ -14,7 +14,8 @@ pnpm.install() {
 
   local fileToSource="$(shell.getFileRC)"
   echo "source ${fileToSource}"
-  source ${fileToSource}
+  cat "${fileToSource}"
+  source "${fileToSource}"
 }
 
 pnpm.isInstalled() {

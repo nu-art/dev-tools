@@ -8,7 +8,7 @@ pnpm.install() {
     pnpm.uninstall
   fi
 
-  curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION="${version}" sh -
+  curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION="${version}" bash -
   source "$(shell.getFileRC)"
 }
 

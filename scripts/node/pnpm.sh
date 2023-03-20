@@ -8,6 +8,8 @@ pnpm.install() {
     pnpm.uninstall
   fi
 
+  [[ ! -e "${HOME}/.bashrc" ]] && touch "${HOME}/.bashrc"
+
   curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION="${version}" bash -
   source "$(shell.getFileRC)"
 }

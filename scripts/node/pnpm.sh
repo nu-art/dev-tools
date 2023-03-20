@@ -9,7 +9,7 @@ pnpm.install() {
   fi
 
   [[ ! -e "${HOME}/.bashrc" ]] && touch "${HOME}/.bashrc"
-
+  SHELL ["/bin/bash", "-ec"]
   curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION="${version}" bash -
   source "$(shell.getFileRC)"
 }

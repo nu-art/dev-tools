@@ -20,9 +20,8 @@ pnpm.install() {
   cat "${fileToSource}"
 
   echo "------------------------------"
-  echo "sourcing: ${fileToSource}"
-  source "${fileToSource}"
-  echo "sourced: ${fileToSource}"
+  echo "sourcing: ${fileToSource}_"
+  [[ -e "${fileToSource}_" ]] && source "${fileToSource}_"
   echo "${PNPM_HOME}/pnpm"
 }
 

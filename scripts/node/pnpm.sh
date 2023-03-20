@@ -11,11 +11,12 @@ pnpm.install() {
   [[ ! -e "${HOME}/.bashrc" ]] && touch "${HOME}/.bashrc"
 
   curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION="${version}" bash -
-
   local fileToSource="$(shell.getFileRC)"
-  echo "source ${fileToSource}"
+  echo "echo 'PAH ZEVEL'" >> "${fileToSource}"
   cat "${fileToSource}"
+  echo "source ${fileToSource}"
   source "${fileToSource}"
+  echo "${PNPM_HOME}/pnpm"
 }
 
 pnpm.isInstalled() {
@@ -27,7 +28,7 @@ pnpm.isInstalled() {
 }
 
 pnpm.version() {
-  pnpm --version
+  "${PNPM_HOME}/pnpm" --version
 }
 
 pnpm.uninstall() {
@@ -35,9 +36,9 @@ pnpm.uninstall() {
 }
 
 pnpm.installPackages() {
-  pnpm install -f "${@}"
+  "${PNPM_HOME}/pnpm" install -f "${@}"
 }
 
 pnpm.removePackages() {
-  pnpm remove "${@}"
+  "${PNPM_HOME}/pnpm" remove "${@}"
 }

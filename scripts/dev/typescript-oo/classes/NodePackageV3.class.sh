@@ -117,6 +117,9 @@ NodePackageV3() {
       _cd "${absoluteSourcesFolder}"
       find . -name '*.scss' | cpio -pdm "${absoluteOutputDir}" > /dev/null
       find . -name '*.svg' | cpio -pdm "${absoluteOutputDir}" > /dev/null
+      find . -name '*.png' | cpio -pdm "${absoluteOutputDir}" > /dev/null
+      find . -name '*.jpg' | cpio -pdm "${absoluteOutputDir}" > /dev/null
+      find . -name '*.jpeg' | cpio -pdm "${absoluteOutputDir}" > /dev/null
       _cd-
     done
   }

@@ -224,7 +224,6 @@ WorkspaceV3() {
     bannerInfo "Purge"
 
     deleteFolder node_modules
-    file.delete "${Path_RootRunningDir}/.pnpm-lock.yaml"
     this.active.forEach purge
   }
 
@@ -262,7 +261,7 @@ WorkspaceV3() {
     node.replaceVarsWithValues
 
     this.active.forEach install "${allLibs[@]}"
-
+    file.delete "${Path_RootRunningDir}/.pnpm-lock.yaml"
     pnpm.installPackages
   }
 

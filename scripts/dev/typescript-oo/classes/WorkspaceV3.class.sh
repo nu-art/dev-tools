@@ -187,7 +187,7 @@ WorkspaceV3() {
     local currentEnv=$(this.readConfigProp env)
     local newEnv=${ts_envType}
     echo "${currentEnv} => ${newEnv}"
-    if [[ "${currentEnv}" != "${newEnv}" ]]; then
+    if [[ "${currentEnv}" != "${newEnv}" ]] || [[ "${newEnv}" ]]; then
       [[ ! ${ts_envType} ]] && ts_envType=local
       bannerInfo "Set Environment"
       file.delete "${CONST_TS_ENV_FILE}"
@@ -223,6 +223,7 @@ WorkspaceV3() {
     logInfo
     bannerInfo "Purge"
 
+    file.delete ".ts_env"
     deleteFolder node_modules
     this.active.forEach purge
   }

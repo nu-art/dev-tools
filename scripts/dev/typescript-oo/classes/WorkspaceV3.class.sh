@@ -87,23 +87,10 @@ WorkspaceV3() {
     fi
   }
 
-  _setEnv() {
-    if [[ ! ${ts_envType} ]]; then
-      ts_envType=$(this.readConfigProp env)
-      fallbackEnv=$(this.readConfigProp fb-env "")
-    fi
-
-    [[ "${ts_envType}" != "local" ]] && compilerFlags+=(--sourceMap false)
-
-    logInfo "Env: ${ts_envType}"
-    [[ "${fallbackEnv}" ]] && logWarning " -- Fallback env: ${fallbackEnv}"
-  }
-
   _prepare() {
     this.setThunderstormVersion
     this.setAppVersion
     this.setWorkspaceFile
-    this.setEnv
   }
 
   _assertRepoForVersionPromotion() {
@@ -185,23 +172,29 @@ WorkspaceV3() {
 
   _setEnvironment() {
     local currentEnv=$(this.readConfigProp env)
-    local newEnv=${ts_envType}
-    echo "${currentEnv} => ${newEnv}"
-    if [[ "${currentEnv}" != "${newEnv}" ]] || [[ "${newEnv}" ]]; then
-      [[ ! ${ts_envType} ]] && ts_envType=local
-      bannerInfo "Set Environment"
-      file.delete "${CONST_TS_ENV_FILE}"
 
-      copyConfigFile "./.config/firebase-ENV_TYPE.json" "firebase.json" "${ts_envType}" "${fallbackEnv}"
-      copyConfigFile "./.config/.firebaserc-ENV_TYPE" ".firebaserc" "${ts_envType}" "${fallbackEnv}"
+    if [[ ! ${ts_envType} ]]; then
+      ts_envType=$(this.readConfigProp env)
+      fallbackEnv=$(this.readConfigProp fb-env "")
+    fi
 
+    logWarning
+    [[ "${currentEnv}" != "${ts_envType}" ]] && bannerWarning "Set Environment: ${currentEnv} => ${ts_envType}"
+    [[ "${currentEnv}" == "${ts_envType}" ]] && bannerWarning "Running with Environment: ${ts_envType}"
+    [[ "${fallbackEnv}" ]] && logWarning " -- Fallback env: ${fallbackEnv}"
+
+    copyConfigFile "./.config/firebase-ENV_TYPE.json" "firebase.json" "${ts_envType}" "${fallbackEnv}"
+    copyConfigFile "./.config/.firebaserc-ENV_TYPE" ".firebaserc" "${ts_envType}" "${fallbackEnv}"
+    if [[ "${currentEnv}" != "${ts_envType}" ]]; then
       local firebaseProject="$(getJsonValueForKey .firebaserc default)"
       [[ "${firebaseProject}" ]] && $(resolveCommand firebase) login
       [[ "${firebaseProject}" ]] && verifyFirebaseProjectIsAccessible "${firebaseProject}"
       [[ "${firebaseProject}" ]] && $(resolveCommand firebase) use "${firebaseProject}"
-
-      this.apps.forEach setEnvironment
     fi
+
+    this.apps.forEach setEnvironment
+
+    [[ "${ts_envType}" != "local" ]] && compilerFlags+=(--sourceMap false)
 
     echo "env=\"${ts_envType}\"" > "${CONST_TS_ENV_FILE}"
     [[ "${fallbackEnv}" ]] && echo "fb-env=\"${fallbackEnv}\"" >> "${CONST_TS_ENV_FILE}"

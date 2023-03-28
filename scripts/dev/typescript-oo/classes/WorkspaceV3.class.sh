@@ -178,6 +178,7 @@ WorkspaceV3() {
       fallbackEnv=$(this.readConfigProp fb-env "")
     fi
 
+    [[ ! "${ts_envType}" ]] && ts_envType=local
     logWarning
     [[ "${currentEnv}" != "${ts_envType}" ]] && bannerWarning "Set Environment: ${currentEnv} => ${ts_envType}"
     [[ "${currentEnv}" == "${ts_envType}" ]] && bannerWarning "Running with Environment: ${ts_envType}"

@@ -32,7 +32,7 @@ WorkspaceV3() {
   }
 
   _setThunderstormVersion() {
-    [[ "${ts_linkThunderstorm}" ]] && CONST_TS_VER_JSON="./_thunderstorm/${CONST_TS_VER_JSON}"
+    [[ "${ts_linkThunderstorm}" == "true" ]] && CONST_TS_VER_JSON="./_thunderstorm/${CONST_TS_VER_JSON}"
     [[ ! -e "${CONST_TS_VER_JSON}" ]] && throwError "MUST add ${CONST_TS_VER_JSON} to project root" 2
     if [[ ! "${thunderstormVersion}" ]]; then
       thunderstormVersion=$(getVersionName "./${CONST_TS_VER_JSON}")
@@ -171,6 +171,9 @@ WorkspaceV3() {
   }
 
   _setEnvironment() {
+    [[ "${ts_purge}" ]] && file.delete "${CONST_TS_ENV_FILE}"
+
+
     local currentEnv=$(this.readConfigProp env)
 
     if [[ ! ${ts_envType} ]]; then
@@ -217,7 +220,6 @@ WorkspaceV3() {
     logInfo
     bannerInfo "Purge"
 
-    file.delete ".ts_env"
     deleteFolder node_modules
     this.active.forEach purge
   }

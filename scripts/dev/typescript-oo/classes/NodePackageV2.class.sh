@@ -87,7 +87,6 @@ NodePackageV2() {
     }
 
     deleteFile package-lock.json
-    logWarning HERE "${ts_linkThunderstorm}"
     if [[ "${ts_linkThunderstorm}" ]]; then
       manipulateForInstall
     else

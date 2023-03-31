@@ -55,9 +55,9 @@ saveState() {
 }
 
 buildWorkspace() {
-  [[ "${USER,,}" != "jenkins" ]] && nvm.uninstall
+  #  [[ "${USER,,}" != "jenkins" ]] && nvm.uninstall
   nvm.installAndUseNvmIfNeeded
-  pnpm.uninstall
+  #  pnpm.uninstall
   pnpm.install
 
   new WorkspaceV3 workspace

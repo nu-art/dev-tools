@@ -71,8 +71,12 @@ nvm.installVersion() {
 nvm.isVersionInstalled() {
   local requiredNodeVersion="${1}"
   [[ ! "${requiredNodeVersion}" ]] && requiredNodeVersion="$(nvm.requiredVersion)"
+  local foundVersion="$(nvm ls | grep "v${requiredNodeVersion}") | head -1"
 
-  if [[ "$(nvm ls | grep "v${requiredNodeVersion}") | head -1" == "v${requiredNodeVersion}" ]]; then
+  logInfo "foundVersion=${foundVersion}"
+  logInfo "requiredNodeVersion=${requiredNodeVersion}"
+
+  if [[ ${foundVersion} == "v${requiredNodeVersion}" ]]; then
     return 0
   else
     return 2

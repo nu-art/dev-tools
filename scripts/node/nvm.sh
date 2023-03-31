@@ -1,34 +1,82 @@
+CONST__FILE_NVMRC=".nvmrc"
+
 nvm.installAndUseNvmIfNeeded() {
-  NVM_DIR="$HOME/.nvm"
-  if [[ ! -d "${NVM_DIR}" ]]; then
-    logInfo
-    bannerInfo "Installing NVM"
+  nvm.prepare
+  nvm.source
+  [[ $(nvm.isInstalled) ]] && echo "$? nvm.install"
+  [[ $(nvm.isVersionInstalled) ]] && nvm.installVersion
+  nvm.use
+}
 
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+nvm.prepare() {
+  export NVM_DIR="$HOME/.nvm"
+}
 
-    if [[ -e "~/.zshrc" ]]; then
-      echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.zshrc
-      echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm' >> ~/.zshrc
-      echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion' >> ~/.zshrc
-    fi
-  fi
+nvm.isInstalled() {
+  [[ -d "${NVM_DIR}" ]] && return 0
+}
 
+nvm.uninstall() {
+  [[ $(nvm.isInstalled) ]] && folder.delete "${NVM_DIR}"
+}
+
+# shellcheck disable=SC2120
+nvm.install() {
+  local version="${1:-"0.35.3"}"
+
+  logInfo
+  bannerInfo "NVM - Installing v${version}"
+
+  curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v${version}/install.sh" | bash
+
+  local shellRCFile="$(shell.getFileRC)"
+  [[ -e "${shellRCFile}" ]] && [[ "$(cat "${shellRCFile}" | grep 'NVM_DIR')" != "" ]] && return 0
+
+  echo 'export NVM_DIR="$HOME/.nvm"' >> "${shellRCFile}"
+  echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm' >> "${shellRCFile}"
+  echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion' >> "${shellRCFile}"
+  logInfo "NVM - Installed"
+}
+
+nvm.source() {
   # shellcheck source=./$HOME/.nvm
   [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh" # This loads nvm
-  if [[ ! $(nvm.assert) ]] && [[ "v$(cat .nvmrc | head -1)" != "$(nvm current)" ]]; then
-
-    #    nvm deactivate
-    #    nvm uninstall v16.13.0
-    # shellcheck disable=SC2076
-    [[ ! "$(nvm ls | grep "v$(cat .nvmrc | head -1)") | head -1" =~ "v$(cat .nvmrc | head -1)" ]] && echo "nvm install" && nvm install
-    nvm use --delete-prefix "v$(cat .nvmrc | head -1)" --silent
-    echo "nvm use" && nvm use
-  fi
 }
 
 nvm.assert() {
-  [[ ! $(isFunction nvm) ]] && throwError "NVM Does not exist.. Script should have installed it.. let's figure this out"
-  [[ -s ".nvmrc" ]] && return 0
+  [[ ! $(isFunction nvm) ]] && throwError "NVM - Installation was not found" 404
+}
 
-  return 1
+nvm.activeVersion() {
+  nvm.assert
+  nvm current
+}
+
+nvm.requiredVersion() {
+  [[ ! -e "${CONST__FILE_NVMRC}" ]] && throwError "NVM - ${CONST__FILE_NVMRC} file was not found" 404
+  cat "${CONST__FILE_NVMRC}" | head -1
+}
+
+nvm.installVersion() {
+  logInfo "NVM - Install required version"
+  nvm.assert
+  nvm install
+}
+
+# shellcheck disable=SC2120
+nvm.isVersionInstalled() {
+  local requiredNodeVersion="${1}"
+  [[ ! "${requiredNodeVersion}" ]] && requiredNodeVersion="$(nvm.requiredVersion)"
+
+  if [[ "$(nvm ls | grep "v${requiredNodeVersion}") | head -1" == "v${requiredNodeVersion}" ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+nvm.use() {
+  logInfo "NVM - Use required version"
+  nvm use --delete-prefix "v${requiredNodeVersion}" --silent
+  nvm use
 }

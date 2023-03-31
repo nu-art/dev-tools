@@ -113,8 +113,8 @@ function start() {
   prompt_yesOrNo ok "Melding submodules (y/n)... '${submodulesToMeld[*]}'" n
   [[ "${ok}" == "n" ]] && throwError "Aborting..." 2
 
-  deleteDir "${outputFolder}"
-  createDir "${outputFolder}"
+  folder.delete "${outputFolder}"
+  folder.create "${outputFolder}"
 
   for submodule in "${submodulesToMeld[@]}"; do
     gitDeinitSubmodule "${submodule}"

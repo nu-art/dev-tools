@@ -23,7 +23,7 @@ FrontendPackageV3() {
   _compile() {
     logInfo "Compiling: ${folderName}"
 
-    [[ -e "${Path_RootRunningDir}/version-app.json" ]] && copyFileToFolder "${Path_RootRunningDir}/version-app.json" "./src/main"
+    [[ -e "${Path_RootRunningDir}/version-app.json" ]] && folder.copyFile "${Path_RootRunningDir}/version-app.json" "./src/main"
 
     ENV=${ts_envType} npm run build
     throwWarning "Error compiling: ${folderName}"
@@ -38,7 +38,7 @@ FrontendPackageV3() {
 
   _install() {
     if [[ ! -e "./.config/ssl/server-key.pem" ]]; then
-      createDir "./.config/ssl"
+      folder.create "./.config/ssl"
       bash ../dev-tools/scripts/utils/generate-ssl-cert.sh --output=./.config/ssl
     fi
 
@@ -77,7 +77,7 @@ FrontendPackageV3() {
     done
 
     deleteFile "../${CONST_FrontendIconsFile}"
-    copyFileToFolder "${_pwd}/../dev-tools/scripts/dev/typescript-oo/templates/${CONST_FrontendIconsFile}" ../
+    folder.copyFile "${_pwd}/../dev-tools/scripts/dev/typescript-oo/templates/${CONST_FrontendIconsFile}" ../
     file_replaceLine "ICONS_DECLARATION" "${declaration}" "../${CONST_FrontendIconsFile}"
     file_replaceLine "ICONS_USAGE" "${usage}" "../${CONST_FrontendIconsFile}"
     file_replaceLine "ICONS_V4_USAGE" "${usageV4}" "../${CONST_FrontendIconsFile}"
@@ -97,7 +97,7 @@ FrontendPackageV3() {
     done <<< "$declaration"
 
     deleteFile "${colorsFile}"
-    copyFileToFolder "${_pwd}/../dev-tools/scripts/dev/typescript-oo/templates/${CONST_FrontendColorsFile}" "${CONST_FrontendColorsPath}"
+    folder.copyFile "${_pwd}/../dev-tools/scripts/dev/typescript-oo/templates/${CONST_FrontendColorsFile}" "${CONST_FrontendColorsPath}"
     file_replaceLine "COLORS_DECLARATION" "${declaration}" "${colorsFile}"
     file_replaceLine "COLORS_USAGE" "${usage}" "${colorsFile}"
   }
@@ -119,7 +119,7 @@ FrontendPackageV3() {
     done
 
     deleteFile "../${CONST_FrontendFontsFile}"
-    copyFileToFolder "${_pwd}/../dev-tools/scripts/dev/typescript-oo/templates/${CONST_FrontendFontsFile}" ../
+    folder.copyFile "${_pwd}/../dev-tools/scripts/dev/typescript-oo/templates/${CONST_FrontendFontsFile}" ../
     file_replaceLine "FONTS_USAGE" "${usage}" "../${CONST_FrontendFontsFile}"
 
     _popd

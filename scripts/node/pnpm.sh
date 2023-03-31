@@ -1,23 +1,21 @@
 #!/bin/bash
 
 pnpm.install() {
-  local version="${1:-"8.0.0"}"
+  local version="${1:-"8.1.0"}"
   if pnpm.isInstalled; then
     [[ "${version}" == "$(pnpm.version)" ]] && return 0
 
     pnpm.uninstall
   fi
 
+  bannerInfo "PNPM - Installing v${version}"
   curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION="${version}" bash -
   source "$(shell.getFileRC)"
+  logInfo "PNPM - Installed"
 }
 
 pnpm.isInstalled() {
-  if [[ -e "$PNPM_HOME" ]]; then
-    return 0
-  fi
-
-  return 2
+  [[ -d "${PNPM_HOME}" ]] && return 0
 }
 
 pnpm.version() {
@@ -25,10 +23,13 @@ pnpm.version() {
 }
 
 pnpm.uninstall() {
-  rm -rf "$PNPM_HOME"
+  bannerInfo "PNPM - Uninstalling..."
+  rm -rf "${PNPM_HOME}"
+  logInfo "PNPM - Uninstalled"
 }
 
 pnpm.installPackages() {
+  logInfo "PNPM - Installing package"
   pnpm install -f --no-frozen-lockfile "${@}"
 }
 

@@ -24,7 +24,7 @@ BackendPackage() {
   _compile() {
     logInfo "Compiling: ${folderName}"
 
-    [[ -e "${Path_RootRunningDir}/version-app.json" ]] && copyFileToFolder "${Path_RootRunningDir}/version-app.json" "./src/main" && copyFileToFolder "${Path_RootRunningDir}/version-app.json" "./dist"
+    [[ -e "${Path_RootRunningDir}/version-app.json" ]] && folder.copyFile "${Path_RootRunningDir}/version-app.json" "./src/main" && folder.copyFile "${Path_RootRunningDir}/version-app.json" "./dist"
 
     npm run build
     throwWarning "Error compiling: ${folderName}"
@@ -38,7 +38,7 @@ BackendPackage() {
       [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
 
       local backendDependencyPath="./.dependencies/${libFolderName}"
-      createDir "${backendDependencyPath}"
+      folder.create "${backendDependencyPath}"
       cp -rf "${libPath}/${libFolderName}/${outputDir}"/* "${backendDependencyPath}/"
 
       for projectLib in ${ts_projectLibs[@]}; do
@@ -65,19 +65,19 @@ BackendPackage() {
 
     logInfo "Prepare indexes and rules: ${folderName}"
     if [[ ! -e "${FOLDER_Config}/database.rules.json" ]]; then
-      copyFileToFolder "${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/templates/firebase_config/database.rules.json" "${FOLDER_Config}"
+      folder.copyFile "${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/templates/firebase_config/database.rules.json" "${FOLDER_Config}"
     fi
 
     if [[ ! -e "${FOLDER_Config}/firestore.indexes.json" ]]; then
-      copyFileToFolder "${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/templates/firebase_config/firestore.indexes.json" "${FOLDER_Config}"
+      folder.copyFile "${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/templates/firebase_config/firestore.indexes.json" "${FOLDER_Config}"
     fi
 
     if [[ ! -e "${FOLDER_Config}/firestore.rules" ]]; then
-      copyFileToFolder "${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/templates/firebase_config/firestore.rules" "${FOLDER_Config}"
+      folder.copyFile "${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/templates/firebase_config/firestore.rules" "${FOLDER_Config}"
     fi
 
     if [[ ! -e "${FOLDER_Config}/storage.rules" ]]; then
-      copyFileToFolder "${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/templates/firebase_config/storage.rules" "${FOLDER_Config}"
+      folder.copyFile "${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/templates/firebase_config/storage.rules" "${FOLDER_Config}"
     fi
 
     logInfo "Launching: ${folderName}"
@@ -90,6 +90,6 @@ BackendPackage() {
 
   _clean() {
     this.NodePackage.clean
-    deleteDir ".dependencies"
+    folder.delete ".dependencies"
   }
 }

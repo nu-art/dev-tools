@@ -1,11 +1,12 @@
 #!/bin/bash
-storeFirebasePath() {
+firebase.setPath() {
   CONST_Firebase=$(resolveCommand firebase)
 }
 
 verifyFirebaseProjectIsAccessible() {
   local firebaseProject=${1}
 
+  logWarning "CONST_Firebase=${CONST_Firebase}"
   logDebug "Verifying You are logged in to firebase tools... command '${CONST_Firebase} login'"
   [[ "${USER,,}" != "jenkins" ]] && ${CONST_Firebase} login
   logDebug

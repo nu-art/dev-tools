@@ -8,7 +8,7 @@ source "${BASH_SOURCE%/*}/modules.sh"
 [[ -e ".scripts/modules.sh" ]] && source .scripts/modules.sh
 
 nvm.installAndUseNvmIfNeeded
-storeFirebasePath
+firebase.setPath
 
 const_BoilerplateFirebaseProject=thunderstorm-staging
 const_BoilerplateLocation=us-central1
@@ -120,7 +120,7 @@ promptForLocalPathForFork() {
     yesOrNoQuestion_new deleteLocalFolder "Folder already exists and need to be deleted: ${localPath}\n Delete Folder? [Y/n]" ${deleteLocalFolder}
     case "${deleteLocalFolder}" in
     [y])
-      deleteFolder ${localPath}
+      folder.delete ${localPath}
       ;;
 
     [n])
@@ -163,7 +163,7 @@ uploadDefaultConfigToFirebase() {
 }
 
 forkThunderstorm() {
-  createDir "${const_LogFolder}"
+  folder.create "${const_LogFolder}"
   local forkingOutput="${const_LogFolder}/${firebaseProject}_forking_${const_Timestamp}.log.txt"
   logInfo "Forking Thunderstorm boilerplate into...  ${repoUrl}"
   bash ./dev-tools/scripts/git/git-fork.sh --to=${repoUrl} --output=${localPath} "> ${forkingOutput}"

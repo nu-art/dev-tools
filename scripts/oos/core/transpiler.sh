@@ -17,23 +17,23 @@ setTranspilerOutput() {
   fi
 
   _logInfo "Setting output: ${output}"
-  [[ ! -e "${output}" ]] && createDir "${output}"
+  [[ ! -e "${output}" ]] && folder.create "${output}"
 
   GLOBAL_TranspilerOutput="${output}/output"
-  createDir "${GLOBAL_TranspilerOutput}" > /dev/null
+  folder.create "${GLOBAL_TranspilerOutput}" > /dev/null
 
   GLOBAL_TranspilerOutputClasses="${GLOBAL_TranspilerOutput}/classes"
   GLOBAL_TranspilerOutputTemplate="${GLOBAL_TranspilerOutput}/template"
   GLOBAL_TranspilerOutputInstances="${GLOBAL_TranspilerOutput}/instances"
 
-  createDir "${GLOBAL_TranspilerOutputClasses}" > /dev/null
-  clearDir "${GLOBAL_TranspilerOutputClasses}" > /dev/null
+  folder.create "${GLOBAL_TranspilerOutputClasses}" > /dev/null
+  folder.clear "${GLOBAL_TranspilerOutputClasses}" > /dev/null
 
-  createDir "${GLOBAL_TranspilerOutputTemplate}" > /dev/null
-  clearDir "${GLOBAL_TranspilerOutputClasses}" > /dev/null
+  folder.create "${GLOBAL_TranspilerOutputTemplate}" > /dev/null
+  folder.clear "${GLOBAL_TranspilerOutputClasses}" > /dev/null
 
-  createDir "${GLOBAL_TranspilerOutputInstances}" > /dev/null
-  clearDir "${GLOBAL_TranspilerOutputInstances}" > /dev/null
+  folder.create "${GLOBAL_TranspilerOutputInstances}" > /dev/null
+  folder.clear "${GLOBAL_TranspilerOutputInstances}" > /dev/null
 }
 
 addTranspilerClassPath() {

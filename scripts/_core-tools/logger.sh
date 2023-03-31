@@ -76,7 +76,7 @@ setLogFile() {
   local logsFolder="$(pwd)/${relativePathToLogFolder}"
   local dateTimeFormatted=$(date +%Y-%m-%d--%H-%M-%S)
 
-  [[ ! -d "${logsFolder}" ]] && createDir "${logsFolder}"
+  [[ ! -d "${logsFolder}" ]] && folder.create "${logsFolder}"
 
   logFile="${logsFolder}/${logFilePrefix}-log-${dateTimeFormatted}.txt"
   echo > "${logFile}"

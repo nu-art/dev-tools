@@ -23,7 +23,7 @@ NodePackageV3() {
 
   _printDependencyTree() {
     logInfo "Dependencies: ${folderName}"
-    createDir "../.trash/dependencies"
+    folder.create "../.trash/dependencies"
     npm list > "../.trash/dependencies/${folderName}.txt"
   }
 
@@ -35,7 +35,7 @@ NodePackageV3() {
 
   _purge() {
     logInfo "Purging: ${folderName}"
-    deleteDir node_modules
+    folder.delete node_modules
     [[ -e "package-lock.json" ]] && rm package-lock.json
   }
 
@@ -59,8 +59,8 @@ NodePackageV3() {
     local target="$(pwd)/node_modules/${libPackageName}"
     local origin="${libPath}/${libFolderName}/${outputDir}"
 
-    createDir "${target}"
-    deleteDir "${target}"
+    folder.create "${target}"
+    folder.delete "${target}"
     logVerbose "ln -s ${origin} ${target}"
     ln -s "${origin}" "${target}"
     throwError "Error symlink dependency: ${libPackageName}"
@@ -72,11 +72,11 @@ NodePackageV3() {
     [[ ! "${outputTestDir}" ]] && throwError "No test output directory specified" 2
     [[ ! "${outputDir}" ]] && throwError "No output directory specified" 2
 
-    createFolder "${outputDir}"
-    clearFolder "${outputDir}"
+    folder.create "${outputDir}"
+    folder.clear "${outputDir}"
 
-    createFolder "${outputTestDir}"
-    clearFolder "${outputTestDir}"
+    folder.create "${outputTestDir}"
+    folder.clear "${outputTestDir}"
   }
 
   _compile() {
@@ -112,7 +112,7 @@ NodePackageV3() {
           throwWarning "Error compiling: ${module}/${folder}"
         fi
 
-        copyFileToFolder ./package.json "${outputDir}"
+        folder.copyFile ./package.json "${outputDir}"
       fi
       _cd "${absoluteSourcesFolder}"
       find . -name '*.scss' | cpio -pdm "${absoluteOutputDir}" > /dev/null

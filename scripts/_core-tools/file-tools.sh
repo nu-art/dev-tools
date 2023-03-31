@@ -41,7 +41,7 @@ file_copyToFolder() {
   local targetFolder="${2}"
   local silent="${3}"
 
-  [[ ! -e "${targetFolder}" ]] && createDir "${targetFolder}"
+  [[ ! -e "${targetFolder}" ]] && folder.create "${targetFolder}"
 
   if [[ "${silent}" ]]; then
     cp "${origin}" "${targetFolder}"
@@ -126,7 +126,7 @@ file.copy() {
 
   #  local originFileName=$(file.getFilenameAndExt "${pathToFile}")
   [[ ! -e "${pathToFile}" ]] && throwError "No such file ${pathToFile}" 2
-  [[ ${targetFolder} ]] && [[ ! -e "${targetFolder}" ]] && createDir "${targetFolder}"
+  [[ ${targetFolder} ]] && [[ ! -e "${targetFolder}" ]] && folder.create "${targetFolder}"
   [[ ${targetFolder} ]] && targetFolder="${targetFolder}/"
   local targetFile="${targetFolder}${newFileName}"
 

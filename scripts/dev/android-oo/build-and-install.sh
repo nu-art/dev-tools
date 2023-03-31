@@ -11,7 +11,7 @@ source "${BASH_SOURCE%/*}/params.sh"
 #signature
 extractParams "$@"
 
-CONST_RunningFolder="$(folder_getRunningPath 1)"
+CONST_RunningFolder="$(folder.getRunningPath 1)"
 #setTranspilerOutput "${CONST_RunningFolder}"
 setTranspilerOutput ".trash/bai"
 addTranspilerClassPath "${CONST_RunningFolder}/classes"

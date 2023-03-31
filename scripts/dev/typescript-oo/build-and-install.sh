@@ -44,7 +44,7 @@ array.map ts_projectLibs escapeFolderName
 #signature
 extractParams "$@"
 
-CONST_RealPathOfThisScriptFile="$(folder_getRunningPath 1)"
+CONST_RealPathOfThisScriptFile="$(folder.getRunningPath 1)"
 #setTranspilerOutput "${CONST_RealPathOfThisScriptFile}"
 setTranspilerOutput "${Path_OutputDir}/bai"
 addTranspilerClassPath "${CONST_RealPathOfThisScriptFile}/classes"
@@ -55,10 +55,10 @@ saveState() {
 }
 
 buildWorkspace() {
+  [[ "${USER,,}" != "jenkins" ]] && nvm.uninstall
   nvm.installAndUseNvmIfNeeded
   pnpm.uninstall
   pnpm.install
-  storeFirebasePath
 
   new WorkspaceV3 workspace
   workspace.appVersion = "${appVersion}"
@@ -133,6 +133,7 @@ buildWorkspace() {
 
   #  workspace.toLog
   workspace.installGlobalPackages
+  firebase.setPath
   workspace.setEnvironment
   local buildStep="${startFromStep}"
   for (( ; buildStep < ${#buildSteps[@]}; buildStep++)); do

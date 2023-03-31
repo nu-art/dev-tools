@@ -219,7 +219,7 @@ WorkspaceV3() {
     logInfo
     bannerInfo "Purge"
 
-    deleteFolder node_modules
+    folder.delete node_modules
     this.active.forEach purge
   }
 
@@ -244,8 +244,8 @@ WorkspaceV3() {
   _installGlobalPackages() {
     if [[ "${ts_installGlobals}" ]]; then
       logInfo "Installing global packages..."
-      npm i -g typescript@${CONST_Version_Typescript} eslint@${CONST_Version_ESlint} tslint@latest firebase-tools@${CONST_Version_FirebaseTools} sort-package-json@latest sort-json@latest tsc-watch@latest typedoc@latest
-      storeFirebasePath
+      npm i -g typescript@${CONST_Version_Typescript} eslint@${CONST_Version_ESlint} firebase-tools@${CONST_Version_FirebaseTools} sort-package-json@latest sort-json@latest
+      firebase.setPath
     fi
   }
 

@@ -85,7 +85,7 @@ InstallerDMG() {
   }
 
   _unmount() {
-    [[ ! "${requiresMount}" ]] && deleteFolder "${volumeToInstall}" && return
+    [[ ! "${requiresMount}" ]] && folder.delete "${volumeToInstall}" && return
 
     logInfo "Unmouting ${label}"
     hdiutil detach -quiet "${volumeToInstall}"

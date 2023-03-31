@@ -510,7 +510,7 @@ dependenciesImpl() {
     fi
 
     local outputPath="${trashFolder}/tree"
-    createDir "${outputPath}"
+    folder.create "${outputPath}"
     local dateTimeFormatted=`date +%Y-%m-%d--%H-%M-%S`
 
     local outputFile=${outputPath}/${dateTimeFormatted}.txt

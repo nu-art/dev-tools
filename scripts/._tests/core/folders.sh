@@ -21,7 +21,7 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source "${DIR}/../_tests.sh"
 
-createFolder pah
-createFolder "zevel 3"
+folder.create pah
+folder.create "zevel 3"
 iterateOverFolders listFolders echo
 printSummary

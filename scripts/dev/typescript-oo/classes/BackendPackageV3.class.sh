@@ -39,7 +39,7 @@ BackendPackageV3() {
       [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
 
       local backendDependencyPath="./${outputDir}/.dependencies/${libFolderName}"
-      createDir "${backendDependencyPath}"
+      folder.create "${backendDependencyPath}"
       cp -rf "${libPath}/${libFolderName}/${outputDir}"/* "${backendDependencyPath}/"
 
       file_replace "\"${libPackageName}\": \"${APP_VERSION}\"" "\"${libPackageName}\": \"file:.dependencies/${libFolderName}\"" "${outputDir}/package.json" "" "%"
@@ -70,19 +70,19 @@ BackendPackageV3() {
 
     logInfo "Prepare indexes and rules: ${folderName}"
     if [[ ! -e "${FOLDER_Config}/database.rules.json" ]]; then
-      copyFileToFolder "${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/templates/firebase_config/database.rules.json" "${FOLDER_Config}"
+      folder.copyFile "${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/templates/firebase_config/database.rules.json" "${FOLDER_Config}"
     fi
 
     if [[ ! -e "${FOLDER_Config}/firestore.indexes.json" ]]; then
-      copyFileToFolder "${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/templates/firebase_config/firestore.indexes.json" "${FOLDER_Config}"
+      folder.copyFile "${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/templates/firebase_config/firestore.indexes.json" "${FOLDER_Config}"
     fi
 
     if [[ ! -e "${FOLDER_Config}/firestore.rules" ]]; then
-      copyFileToFolder "${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/templates/firebase_config/firestore.rules" "${FOLDER_Config}"
+      folder.copyFile "${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/templates/firebase_config/firestore.rules" "${FOLDER_Config}"
     fi
 
     if [[ ! -e "${FOLDER_Config}/storage.rules" ]]; then
-      copyFileToFolder "${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/templates/firebase_config/storage.rules" "${FOLDER_Config}"
+      folder.copyFile "${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/templates/firebase_config/storage.rules" "${FOLDER_Config}"
     fi
 
     logInfo "Launching: ${folderName}"
@@ -95,6 +95,6 @@ BackendPackageV3() {
 
   _clean() {
     this.NodePackageV3.clean
-    deleteDir ".dependencies"
+    folder.delete ".dependencies"
   }
 }

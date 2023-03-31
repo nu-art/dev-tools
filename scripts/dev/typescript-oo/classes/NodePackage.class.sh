@@ -23,7 +23,7 @@ NodePackage() {
 
   _printDependencyTree() {
     logInfo "Dependencies: ${folderName}"
-    createDir "../.trash/dependencies"
+    folder.create "../.trash/dependencies"
     npm list > "../.trash/dependencies/${folderName}.txt"
   }
 
@@ -35,7 +35,7 @@ NodePackage() {
 
   _purge() {
     logInfo "Purging: ${folderName}"
-    deleteDir node_modules
+    folder.delete node_modules
     [[ -e "package-lock.json" ]] && rm package-lock.json
   }
 
@@ -68,13 +68,13 @@ NodePackage() {
     }
 
     deleteFile package-lock.json
-    deleteDir "./node_modules/@nu-art"
-    deleteDir "./node_modules/@intuitionrobotics"
+    folder.delete "./node_modules/@nu-art"
+    folder.delete "./node_modules/@intuitionrobotics"
     for lib in "${libs[@]}"; do
       [[ "${lib}" == "${_this}" ]] && break
 
       local libPackageName="$("${lib}.packageName")"
-      deleteDir "./node_modules/${libPackageName}"
+      folder.delete "./node_modules/${libPackageName}"
     done
 
     backupPackageJson "${folderName}"
@@ -97,8 +97,8 @@ NodePackage() {
 
   _link() {
     local lib=
-    createFolder "${outputDir}"
-    copyFileToFolder package.json "${outputDir}"
+    folder.create "${outputDir}"
+    folder.copyFile package.json "${outputDir}"
 
     logDebug "Setting version '${version}' to module: ${folderName}"
     setVersionName "${version}" "${outputDir}/package.json"
@@ -116,7 +116,7 @@ NodePackage() {
        [[ $(array_contains "${folderName}" "${ts_allProjectPackages[@]}" ) ]] &&
        [[ -e "./node_modules/react" ]]; then
 
-      deleteDir "./node_modules/react"
+      folder.delete "./node_modules/react"
       [[ -e "./node_modules/react}" ]] && rm -if "./node_modules/react"
 
       origin="${ThunderstormHome}/thunderstorm/node_modules/react"
@@ -141,8 +141,8 @@ NodePackage() {
     local target="$(pwd)/node_modules/${libPackageName}"
     local origin="${libPath}/${libFolderName}/${outputDir}"
 
-    createDir "${target}"
-    deleteDir "${target}"
+    folder.create "${target}"
+    folder.delete "${target}"
     logVerbose "ln -s ${origin} ${target}"
     ln -s "${origin}" "${target}"
     throwError "Error symlink dependency: ${libPackageName}"
@@ -167,11 +167,11 @@ NodePackage() {
     [[ ! "${outputTestDir}" ]] && throwError "No test output directory specified" 2
     [[ ! "${outputDir}" ]] && throwError "No output directory specified" 2
 
-    createFolder "${outputDir}"
-    clearFolder "${outputDir}"
+    folder.create "${outputDir}"
+    folder.clear "${outputDir}"
 
-    createFolder "${outputTestDir}"
-    clearFolder "${outputTestDir}"
+    folder.create "${outputTestDir}"
+    folder.clear "${outputTestDir}"
   }
 
   _compile() {

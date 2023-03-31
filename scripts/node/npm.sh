@@ -34,6 +34,6 @@ printNodePackageTree() {
   local module=$(getRunningDir)
   local output=${1}
   logDebug "${module} - Printing dependency tree..."
-  createDir "${output}"
+  folder.create "${output}"
   npm list > "${output}/${module}.txt"
 }

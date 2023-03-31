@@ -22,25 +22,21 @@ getRunningDir() {
   echo "${PWD##*/}"
 }
 
-folder_getRunningPath() {
+folder.getRunningPath() {
   cd "$(dirname "${BASH_SOURCE[${1:-1}]}")" && pwd
 }
 
-copyFileToFolder() {
+folder.copyFile() {
   local origin="${1}"
   local target="${2}"
 
-  [[ ! -e "${target}" ]] && createDir "${target}"
+  [[ ! -e "${target}" ]] && folder.create "${target}"
 
   cp "${origin}" "${target}"
   execute "cp \"${origin}\" \"${target}\"" "Copying file: ${origin} => ${target}" "${2}"
 }
 
-createDir() {
-  createFolder $@
-}
-
-createFolder() {
+folder.create() {
   local pathToDir="${1}"
 
   [[ -e "${pathToDir}" ]] || [[ -d "${pathToDir}" ]] || [[ -L "${pathToDir}" ]] && return
@@ -49,11 +45,7 @@ createFolder() {
   executeSilent "mkdir -p \"${pathToDir}\"" "Creating folder: ${pathToDir}" "${2}"
 }
 
-clearDir() {
-  clearFolder "$@"
-}
-
-clearFolder() {
+folder.clear() {
   local pathToDir=${1}
 
   [[ ! -e "${pathToDir}" ]] && return
@@ -64,11 +56,7 @@ clearFolder() {
   _popd
 }
 
-deleteFolder() {
-  deleteDir "$@"
-}
-
-deleteDir() {
+folder.delete() {
   local pathToDir="${1}"
 
   [[ -f "${pathToDir}" ]] && throwError "Path is as file: $(pwd)/${pathToDir}"

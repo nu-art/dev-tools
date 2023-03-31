@@ -23,7 +23,7 @@ NodePackageV2() {
 
   _printDependencyTree() {
     logInfo "Dependencies: ${folderName}"
-    createDir "../.trash/dependencies"
+    folder.create "../.trash/dependencies"
     npm list > "../.trash/dependencies/${folderName}.txt"
   }
 
@@ -35,7 +35,7 @@ NodePackageV2() {
 
   _purge() {
     logInfo "Purging: ${folderName}"
-    deleteDir node_modules
+    folder.delete node_modules
     [[ -e "package-lock.json" ]] && rm package-lock.json
   }
 
@@ -102,7 +102,7 @@ NodePackageV2() {
 
   _link() {
     local lib=
-    createFolder "${outputDir}"
+    folder.create "${outputDir}"
 
     for lib in ${@}; do
       [[ "${lib}" == "${_this}" ]] && break
@@ -117,7 +117,7 @@ NodePackageV2() {
       [[ $(array_contains "${folderName}" "${ts_allProjectPackages[@]}") ]] &&
       [[ -e "./node_modules/react" ]]; then
 
-      deleteDir "./node_modules/react"
+      folder.delete "./node_modules/react"
       [[ -e "./node_modules/react}" ]] && rm -if "./node_modules/react"
 
       origin="${ThunderstormHome}/thunderstorm/node_modules/react"
@@ -141,8 +141,8 @@ NodePackageV2() {
     local target="$(pwd)/node_modules/${libPackageName}"
     local origin="${libPath}/${libFolderName}/${outputDir}"
 
-    createDir "${target}"
-    deleteDir "${target}"
+    folder.create "${target}"
+    folder.delete "${target}"
     logVerbose "ln -s ${origin} ${target}"
     ln -s "${origin}" "${target}"
     throwError "Error symlink dependency: ${libPackageName}"
@@ -154,11 +154,11 @@ NodePackageV2() {
     [[ ! "${outputTestDir}" ]] && throwError "No test output directory specified" 2
     [[ ! "${outputDir}" ]] && throwError "No output directory specified" 2
 
-    createFolder "${outputDir}"
-    clearFolder "${outputDir}"
+    folder.create "${outputDir}"
+    folder.clear "${outputDir}"
 
-    createFolder "${outputTestDir}"
-    clearFolder "${outputTestDir}"
+    folder.create "${outputTestDir}"
+    folder.clear "${outputTestDir}"
   }
 
   _compile() {
@@ -196,7 +196,7 @@ NodePackageV2() {
 
         local tsVersion="$(string_replace "~" "" "$(workspace.thunderstormVersion)")"
         local appVersion="$(string_replace "~" "" "$(workspace.appVersion)")"
-        copyFileToFolder ./package.json "${outputDir}"
+        folder.copyFile ./package.json "${outputDir}"
         if [[ $(array_contains "${folderName}" ${tsLibs[@]}) ]]; then
           file_replace "\"version\": \".*\"" "\"version\": \"${tsVersion}\"" "${outputDir}/package.json" "" "%"
         fi

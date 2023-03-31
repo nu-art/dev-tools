@@ -173,7 +173,6 @@ WorkspaceV3() {
   _setEnvironment() {
     [[ "${ts_purge}" ]] && file.delete "${CONST_TS_ENV_FILE}"
 
-
     local currentEnv=$(this.readConfigProp env)
 
     if [[ ! ${ts_envType} ]]; then
@@ -260,6 +259,7 @@ WorkspaceV3() {
     this.active.forEach install "${allLibs[@]}"
     file.delete "${Path_RootRunningDir}/.pnpm-lock.yaml"
     pnpm.installPackages
+    throwError "Error Installing project"
   }
 
   _link() {

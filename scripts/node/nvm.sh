@@ -1,9 +1,10 @@
 CONST__FILE_NVMRC=".nvmrc"
 
 nvm.installAndUseNvmIfNeeded() {
-  nvm.prepare
-  nvm.source
-  [[ $(nvm.isInstalled) ]] && echo "$? nvm.install"
+  echo nvm.prepare && nvm.prepare
+  echo nvm.source && nvm.prepare
+
+  [[ $(nvm.isInstalled) ]] && nvm.install
   [[ $(nvm.isVersionInstalled) ]] && nvm.installVersion
   nvm.use
 }

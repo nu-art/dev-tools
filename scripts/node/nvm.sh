@@ -4,7 +4,7 @@ nvm.installAndUseNvmIfNeeded() {
   echo nvm.prepare && nvm.prepare
   echo nvm.source && nvm.prepare
 
-  [[ $(nvm.isInstalled) ]] && nvm.install
+  [[ ! $(nvm.isInstalled) ]] && nvm.install
   [[ $(nvm.isVersionInstalled) ]] && nvm.installVersion
   nvm.use
 }
@@ -72,7 +72,7 @@ nvm.isVersionInstalled() {
   if [[ "$(nvm ls | grep "v${requiredNodeVersion}") | head -1" == "v${requiredNodeVersion}" ]]; then
     return 0
   else
-    return 1
+    return 2
   fi
 }
 

@@ -56,6 +56,7 @@ saveState() {
 
 buildWorkspace() {
   nvm.installAndUseNvmIfNeeded
+  pnpm.uninstall
   pnpm.install
   storeFirebasePath
 

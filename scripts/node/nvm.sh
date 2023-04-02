@@ -5,8 +5,8 @@ nvm.installAndUseNvmIfNeeded() {
 
   [[ ! $(nvm.isInstalled) ]] && nvm.install
 
-  echo nvm.source && nvm.prepare
-  echo nvm.source && nvm.source
+  nvm.prepare
+  nvm.source
 
   [[ $(nvm.isVersionInstalled) ]] && nvm.installVersion
   nvm.use

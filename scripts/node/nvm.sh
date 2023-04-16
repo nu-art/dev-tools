@@ -16,7 +16,7 @@ nvm.prepare() {
 }
 
 nvm.isInstalled() {
-  [[ -d "${NVM_DIR}" ]] && return 0
+  [[ ! -d "${NVM_DIR}" ]] && return 1
 }
 
 nvm.uninstall() {

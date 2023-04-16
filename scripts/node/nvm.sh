@@ -12,18 +12,15 @@ nvm.installAndUseNvmIfNeeded() {
 }
 
 nvm.prepare() {
-  cd $HOME
-  ls
-  cd -
   export NVM_DIR="$HOME/.nvm"
 }
 
 nvm.isInstalled() {
-  [[ ! -d $NVM_DIR ]] && return 1
+  [[ ! -d "${NVM_DIR}" ]] && return 1
 }
 
 nvm.uninstall() {
-  [[ $(nvm.isInstalled) -eq 0 ]] && folder.delete $NVM_DIR
+  [[ $(nvm.isInstalled) -eq 0 ]] && folder.delete "${NVM_DIR}"
 }
 
 # shellcheck disable=SC2120

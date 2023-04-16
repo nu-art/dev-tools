@@ -12,6 +12,8 @@ nvm.installAndUseNvmIfNeeded() {
 }
 
 nvm.prepare() {
+  echo "######## Home is this ########"
+  echo $HOME
   export NVM_DIR="$HOME/.nvm"
 }
 

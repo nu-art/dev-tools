@@ -2,7 +2,8 @@
 
 pnpm.install() {
   local version="${1:-"8.1.0"}"
-  if pnpm.isInstalled; then
+
+  if [[ $(pnpm.isInstalled) -eq 0 ]]; then
     [[ "${version}" == "$(pnpm.version)" ]] && return 0
 
     pnpm.uninstall

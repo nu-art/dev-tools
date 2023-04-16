@@ -1,14 +1,13 @@
 CONST__FILE_NVMRC=".nvmrc"
 
 nvm.installAndUseNvmIfNeeded() {
-  echo nvm.prepare && nvm.prepare
-
-  [[ ! $(nvm.isInstalled) ]] && nvm.install
+  nvm.prepare
+  [[ $(nvm.isInstalled) -ne 0 ]] && nvm.install
 
   nvm.prepare
   nvm.source
 
-  [[ $(nvm.isVersionInstalled) ]] && nvm.installVersion
+  [[ $(nvm.isVersionInstalled) -ne 0 ]] && nvm.installVersion
   nvm.use
 }
 
@@ -21,7 +20,7 @@ nvm.isInstalled() {
 }
 
 nvm.uninstall() {
-  [[ $(nvm.isInstalled) ]] && folder.delete "${NVM_DIR}"
+  [[ $(nvm.isInstalled) -eq 0 ]] && folder.delete "${NVM_DIR}"
 }
 
 # shellcheck disable=SC2120
@@ -44,7 +43,7 @@ nvm.install() {
 
 nvm.source() {
   # shellcheck source=./$HOME/.nvm
-  [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh" # This loads nvm
+  [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh" # This loads nvm
 }
 
 nvm.assert() {
@@ -71,12 +70,9 @@ nvm.installVersion() {
 nvm.isVersionInstalled() {
   local requiredNodeVersion="${1}"
   [[ ! "${requiredNodeVersion}" ]] && requiredNodeVersion="$(nvm.requiredVersion)"
-  local foundVersion="$(nvm ls | grep "v${requiredNodeVersion}") | head -1"
+  local foundVersion="$(nvm ls | grep "v${requiredNodeVersion}" | head -1)"
 
-  logInfo "foundVersion=${foundVersion}"
-  logInfo "requiredNodeVersion=${requiredNodeVersion}"
-
-  if [[ ${foundVersion} == "v${requiredNodeVersion}" ]]; then
+  if [[ "${foundVersion}" ]]; then
     return 0
   else
     return 2

@@ -2,12 +2,12 @@ CONST__FILE_NVMRC=".nvmrc"
 
 nvm.installAndUseNvmIfNeeded() {
   nvm.prepare
-  [[ $(nvm.isInstalled) -ne 0 ]] && nvm.install
+  [[ $(nvm.isInstalled) != "true" ]] && nvm.install
 
   nvm.prepare
   nvm.source
 
-  [[ $(nvm.isVersionInstalled) -ne 0 ]] && nvm.installVersion
+  [[ $(nvm.isVersionInstalled) != "true" ]] && nvm.installVersion
   nvm.use
 }
 
@@ -16,11 +16,11 @@ nvm.prepare() {
 }
 
 nvm.isInstalled() {
-  [[ ! -d "${NVM_DIR}" ]] && return 1
+  [[ ! -d "${NVM_DIR}" ]] && echo "true"
 }
 
 nvm.uninstall() {
-  [[ $(nvm.isInstalled) -eq 0 ]] && folder.delete "${NVM_DIR}"
+  [[ $(nvm.isInstalled) == "true" ]] && folder.delete "${NVM_DIR}"
 }
 
 # shellcheck disable=SC2120
@@ -72,11 +72,7 @@ nvm.isVersionInstalled() {
   [[ ! "${requiredNodeVersion}" ]] && requiredNodeVersion="$(nvm.requiredVersion)"
   local foundVersion="$(nvm ls | grep "v${requiredNodeVersion}" | head -1)"
 
-  if [[ "${foundVersion}" ]]; then
-    return 0
-  else
-    return 2
-  fi
+  [[ "${foundVersion}" ]] && echo "true"
 }
 
 nvm.use() {

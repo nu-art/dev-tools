@@ -16,7 +16,7 @@ nvm.prepare() {
 }
 
 nvm.isInstalled() {
-  [[ ! -d "${NVM_DIR}" ]] && echo "true"
+  [[ -d "${NVM_DIR}" ]] && echo "true"
 }
 
 nvm.uninstall() {

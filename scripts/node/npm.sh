@@ -41,5 +41,10 @@ printNodePackageTree() {
 npm.queryVersion() {
   local packageName="${1}"
   local version="${2}"
-  npm view "${packageName}@${version}" version | tail -1 |  sed -E "s/.*'([0-9.]+)'/\1/"
+  local resolvedVersion=$(npm view "${packageName}@${version}" version | tail -1 |  sed -E "s/.*'([0-9.]+)'/\1/" 2>&1)
+  if [[ "${resolvedVersion}" == "" ]]; then
+    echo "${version}"
+  else
+    echo "${resolvedVersion}"
+  fi
 }

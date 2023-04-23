@@ -8,7 +8,10 @@ CONST_Version_FirebaseTools=latest
 
 Workspace() {
 
+  declare currentThunderstormVersion
   declare thunderstormVersion
+
+  declare currentAppVersion
   declare appVersion
 
   declare -a tsLibs
@@ -17,50 +20,84 @@ Workspace() {
   declare -a apps
   declare -a allLibs
 
-  _prepare() {
-    [[ -e "${CONST_TS_VER_JSON}" ]] && thunderstormVersion=$(getVersionName "${CONST_TS_VER_JSON}")
+  _readConfigProp() {
+    local prop=${1}
+    local defaultValue=${2}
 
-    this.setAppsVersion
-    this.setThunderstormVersion
+    [[ ! -e "${CONST_TS_ENV_FILE}" ]] && echo "${defaultValue}" && return 0
 
-  }
-
-  _setAppsVersion() {
-    if [[ ! "${appVersion}" ]]; then
-      local tempVersion=$(getVersionName ${CONST_APP_VER_JSON})
-      local splitVersion=(${tempVersion//./ })
-      for ((arg = 0; arg < 3; arg += 1)); do
-        [[ ! "${splitVersion[${arg}]}" ]] && splitVersion[${arg}]=0
-      done
-      appVersion=$(string_join "." "${splitVersion[@]}")
-      return
-    fi
-
-    [[ "$(getVersionName "${CONST_APP_VER_JSON}")" == "${appVersion}" ]] && return
-    logInfo "Promoting Apps: $(getVersionName "${CONST_APP_VER_JSON}") => ${appVersion}"
-
-    logDebug "Asserting repo readiness to promote a version..."
-    [[ "${noGit}" ]] && return
-    [[ $(gitAssertTagExists "v${appVersion}") ]] && throwError "Tag already exists: v${appVersion}" 2
-
-    gitAssertBranch "${allowedBranchesForPromotion[@]}"
-    gitFetchRepo
-    gitAssertRepoClean
-    gitAssertNoCommitsToPull
+    local value=$(cat "${CONST_TS_ENV_FILE}" | grep -E "${prop}=" | sed -E "s/^${prop}=\"(.*)\"$/\1/")
+    [[ ! "${value}" ]] && value=${defaultValue}
+    echo "${value}"
   }
 
   _setThunderstormVersion() {
-    [[ ! "${promoteThunderstormVersion}" ]] && return
+    [[ "${ts_linkThunderstorm}" == "true" ]] && CONST_TS_VER_JSON="./_thunderstorm/${CONST_TS_VER_JSON}"
+    [[ ! -e "${CONST_TS_VER_JSON}" ]] && throwError "MUST add ${CONST_TS_VER_JSON} to project root" 2
+    if [[ ! "${thunderstormVersion}" ]]; then
+      thunderstormVersion=$(getVersionName "./${CONST_TS_VER_JSON}")
+    fi
 
-    local versionName="$(getVersionName "${CONST_TS_VER_JSON}")"
-    thunderstormVersion="$(promoteVersion "${versionName}" "${promoteThunderstormVersion}")"
+    if [[ "${promoteThunderstormVersion}" ]]; then
+      currentThunderstormVersion=${thunderstormVersion}
+      [[ "${promoteThunderstormVersion}" ]] && thunderstormVersion="$(promoteVersion "${currentThunderstormVersion}" "${promoteThunderstormVersion}")"
+      if [[ "${currentThunderstormVersion}" != "${thunderstormVersion}" ]]; then
+        logInfo "Promoting thunderstorm: ${currentThunderstormVersion} => ${thunderstormVersion}"
+        this.assertRepoForVersionPromotion "${currentThunderstormVersion}"
+        setVersionName "${thunderstormVersion}" "./${CONST_TS_VER_JSON}"
+      fi
+    fi
 
-    logInfo "Promoting thunderstorm packages: ${versionName} => ${thunderstormVersion}"
+    local latestVersion=$(npm.queryVersion "@nu-art/ts-common" "${thunderstormVersion}")
+    THUNDERSTORM_SDK_VERSION="${latestVersion}"
+    logInfo "Thunderstorm version: ${THUNDERSTORM_SDK_VERSION}"
+  }
 
+  _setAppVersion() {
+    [[ ! -e "${CONST_APP_VER_JSON}" ]] && throwError "MUST add ${CONST_APP_VER_JSON} to project root" 2
+    if [[ ! "${appVersion}" ]]; then
+      appVersion=$(getVersionName "./${CONST_APP_VER_JSON}")
+    fi
+
+    if [[ "${promoteAppVersion}" ]]; then
+      currentAppVersion=${appVersion}
+      [[ "${promoteAppVersion}" ]] && appVersion="$(promoteVersion "${appVersion}" "${promoteAppVersion}")"
+
+      if [[ "${currentAppVersion}" != "${appVersion}" ]]; then
+        logInfo "Promoting app version: ${currentAppVersion} => ${appVersion}"
+        this.assertRepoForVersionPromotion "${appVersion}"
+        setVersionName "${appVersion}" "./${CONST_APP_VER_JSON}"
+      fi
+    fi
+
+    APP_VERSION="${appVersion}"
+    logInfo "App version: ${APP_VERSION}"
+  }
+
+  _setWorkspaceFile() {
+    file.delete ./pnpm-workspace.yaml
+
+    [[ ! "${ts_linkThunderstorm}" ]] && ts_linkThunderstorm=$(this.readConfigProp ts-sources)
+
+    if [[ "${ts_linkThunderstorm}" == "true" ]]; then
+      logInfo "Running with Thunderstorm..."
+      file.copy ./.config/pnpm-workspace.ts.yaml . pnpm-workspace.yaml
+    else
+      file.copy ./.config/pnpm-workspace.yaml . pnpm-workspace.yaml
+      ts_linkThunderstorm=
+    fi
+  }
+
+  _prepare() {
+    this.setThunderstormVersion
+    this.setAppVersion
+    this.setWorkspaceFile
+  }
+
+  _assertRepoForVersionPromotion() {
     logDebug "Asserting repo readiness to promote a version..."
-
     [[ "${noGit}" ]] && return
-    [[ $(gitAssertTagExists "${thunderstormVersion}") ]] && throwError "Tag already exists: v${thunderstormVersion}" 2
+    [[ $(gitAssertTagExists "v${1}") ]] && throwError "Tag already exists: v${1}" 2
 
     gitAssertBranch "${allowedBranchesForPromotion[@]}"
     gitFetchRepo
@@ -91,6 +128,7 @@ Workspace() {
       startFromPackage=${p}
       saveState
 
+      #      logDebug "$("${item}.folderName")"
       _pushd "$("${item}.path")/$("${item}.folderName")"
       [[ "${item}.${command}" ]] && "${item}.${command}" "${@:3}"
       (($? > 0)) && throwError "Error executing command: ${item}.${command}"
@@ -123,7 +161,7 @@ Workspace() {
 
     assertRepoIsClean() {
       logDebug "Asserting main repo readiness to promote a version..."
-      gitAssertBranch prod master staging
+      gitAssertBranch master staging
       gitAssertRepoClean
       gitFetchRepo
       gitAssertNoCommitsToPull
@@ -134,31 +172,37 @@ Workspace() {
   }
 
   _setEnvironment() {
-    if [[ ! "${ts_envType}" ]]; then
-      [[ ! -e "${CONST_TS_ENV_FILE}" ]] && throwError "Please run ${0} --set-env=<env>" 2
-      ts_envType=$(cat ${CONST_TS_ENV_FILE} | grep -E "env=" | sed -E "s/^env=\"(.*)\"$/\1/")
-      [[ ! "${ts_envType}" ]] && ts_envType=dev
-      return
+    [[ "${ts_purge}" ]] && file.delete "${CONST_TS_ENV_FILE}"
+
+    local currentEnv=$(this.readConfigProp env)
+
+    if [[ ! ${ts_envType} ]]; then
+      ts_envType=$(this.readConfigProp env)
+      fallbackEnv=$(this.readConfigProp fb-env "")
     fi
 
-    [[ "${ts_envType}" == "NONE" ]] && return
-    [[ "${ts_envType}" ]] && [[ "${ts_envType}" != "dev" ]] && compilerFlags+=(--sourceMap false)
-
-    logInfo
-    bannerInfo "Set Environment: ${ts_envType}"
+    [[ ! "${ts_envType}" ]] && ts_envType=local
+    logWarning
+    [[ "${currentEnv}" != "${ts_envType}" ]] && bannerWarning "Set Environment: ${currentEnv} => ${ts_envType}"
+    [[ "${currentEnv}" == "${ts_envType}" ]] && bannerWarning "Running with Environment: ${ts_envType}"
     [[ "${fallbackEnv}" ]] && logWarning " -- Fallback env: ${fallbackEnv}"
 
     copyConfigFile "./.config/firebase-ENV_TYPE.json" "firebase.json" "${ts_envType}" "${fallbackEnv}"
     copyConfigFile "./.config/.firebaserc-ENV_TYPE" ".firebaserc" "${ts_envType}" "${fallbackEnv}"
-
-    local firebaseProject="$(getJsonValueForKey .firebaserc default)"
-    [[ "${firebaseProject}" ]] && $(resolveCommand firebase) login
-    [[ "${firebaseProject}" ]] && verifyFirebaseProjectIsAccessible "${firebaseProject}"
-    [[ "${firebaseProject}" ]] && $(resolveCommand firebase) use "${firebaseProject}"
+    if [[ "${currentEnv}" != "${ts_envType}" ]]; then
+      local firebaseProject="$(getJsonValueForKey .firebaserc default)"
+      [[ "${firebaseProject}" ]] && $(resolveCommand firebase) login
+      [[ "${firebaseProject}" ]] && verifyFirebaseProjectIsAccessible "${firebaseProject}"
+      [[ "${firebaseProject}" ]] && $(resolveCommand firebase) use "${firebaseProject}"
+    fi
 
     this.apps.forEach setEnvironment
+
+    [[ "${ts_envType}" != "local" ]] && compilerFlags+=(--sourceMap false)
+
     echo "env=\"${ts_envType}\"" > "${CONST_TS_ENV_FILE}"
-    [[ "${fallbackEnv}" ]] && echo "env=\"${fallbackEnv}\"" >> "${CONST_TS_ENV_FILE}"
+    [[ "${fallbackEnv}" ]] && echo "fb-env=\"${fallbackEnv}\"" >> "${CONST_TS_ENV_FILE}"
+    [[ "${ts_linkThunderstorm}" ]] && echo "ts-sources=\"${ts_linkThunderstorm}\"" >> "${CONST_TS_ENV_FILE}"
   }
 
   _assertNoCyclicImport() {
@@ -176,6 +220,7 @@ Workspace() {
     logInfo
     bannerInfo "Purge"
 
+    folder.delete node_modules
     this.active.forEach purge
   }
 
@@ -200,18 +245,22 @@ Workspace() {
   _installGlobalPackages() {
     if [[ "${ts_installGlobals}" ]]; then
       logInfo "Installing global packages..."
-      npm i -g typescript@${CONST_Version_Typescript} eslint@${CONST_Version_ESlint} tslint@latest firebase-tools@${CONST_Version_FirebaseTools} sort-package-json@latest sort-json@latest tsc-watch@latest typedoc@latest
+      npm i -g typescript@${CONST_Version_Typescript} eslint@${CONST_Version_ESlint} firebase-tools@${CONST_Version_FirebaseTools} sort-package-json@latest sort-json@latest
       firebase.setPath
     fi
   }
 
   _install() {
-    if [[ "${ts_installPackages}" ]]; then
-      logInfo
-      bannerInfo "Install"
+    [[ ! "${ts_installPackages}" ]] && return 0
+    logInfo
+    bannerInfo "Install"
 
-      this.active.forEach install "${allLibs[@]}"
-    fi
+    node.replaceVarsWithValues
+
+    this.active.forEach install "${allLibs[@]}"
+    file.delete "${Path_RootRunningDir}/.pnpm-lock.yaml"
+    pnpm.installPackages
+    throwError "Error Installing project"
   }
 
   _link() {
@@ -220,7 +269,7 @@ Workspace() {
     logInfo
     bannerInfo "Link"
 
-    this.active.forEach link "${allLibs[@]}"
+    #    this.active.forEach link "${allLibs[@]}"
   }
 
   _compile() {
@@ -277,15 +326,14 @@ Workspace() {
 
     this.apps.forEach deploy
 
-    logInfo "Deployed Apps: $(getVersionName "${CONST_APP_VER_JSON}") => ${appVersion}"
-
     [[ "${noGit}" ]] && return
 
-    gitTag "v${appVersion}" "Promoted apps to: v${appVersion}"
+    logInfo "Deployed Apps: ${currentAppVersion} => ${appVersion}"
+    gitTag "v${currentAppVersion}" "Promoted apps to: v${appVersion}"
     gitPushTags
     throwError "Error pushing promotion tag"
 
-    gitNoConflictsAddCommitPush "Thunderstorm" "$(gitGetCurrentBranch)" "published version v${thunderstormVersion}"
+    gitNoConflictsAddCommitPush "Branch" "$(gitGetCurrentBranch)" "published version v${appVersion}"
   }
 
   _publish() {
@@ -297,13 +345,10 @@ Workspace() {
     this.tsLibs.forEach canPublish
     this.tsLibs.forEach publish
 
-    local versionName="$(getVersionName "${CONST_TS_VER_JSON}")"
-    logInfo "Promoted thunderstorm packages: ${versionName} => ${thunderstormVersion}"
-    setVersionName "${thunderstormVersion}" "${CONST_TS_VER_JSON}"
-
     [[ "${noGit}" ]] && return
 
-    gitTag "v${thunderstormVersion}" "Promoted thunderstorm to: v${thunderstormVersion}"
+    logInfo "Promoted thunderstorm packages: ${currentThunderstormVersion} => ${thunderstormVersion}"
+    gitTag "v${currentThunderstormVersion}" "Promoted thunderstorm to: v${thunderstormVersion}"
     gitPushTags
     throwError "Error pushing promotion tag"
 

@@ -10,7 +10,7 @@ BackendPackage() {
     [[ ! "$(array_contains "${folderName}" "${deployableApps[@]}")" ]] && return
 
     logInfo "Deploying: ${folderName}"
-    ${CONST_Firebase} deploy --only functions
+    ${CONST_Firebase} --debug deploy --only functions
     throwWarning "Error while deploying functions"
     logInfo "Deployed: ${folderName}"
   }
@@ -24,10 +24,11 @@ BackendPackage() {
   _compile() {
     logInfo "Compiling: ${folderName}"
 
-    [[ -e "${Path_RootRunningDir}/version-app.json" ]] && folder.copyFile "${Path_RootRunningDir}/version-app.json" "./src/main" && folder.copyFile "${Path_RootRunningDir}/version-app.json" "./dist"
+    [[ -e "${Path_RootRunningDir}/version-app.json" ]] && file.copy "${Path_RootRunningDir}/version-app.json" "./src/main" && file.copy "${Path_RootRunningDir}/version-app.json" "./dist"
+    file.copy "./package.json" "${outputDir}"
 
-    npm run build
-    throwWarning "Error compiling: ${folderName}"
+    file_replace "\"main\": \"\.?/?${outputDir}/" '"main": "' "${outputDir}/package.json" "" "%"
+    file_replace "\"types\": \"\.?/?${outputDir}/" '"types": "' "${outputDir}/package.json" "" "%"
 
     for lib in ${@}; do
       [[ "${lib}" == "${_this}" ]] && break
@@ -37,21 +38,25 @@ BackendPackage() {
 
       [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
 
-      local backendDependencyPath="./.dependencies/${libFolderName}"
+      local backendDependencyPath="./${outputDir}/.dependencies/${libFolderName}"
       folder.create "${backendDependencyPath}"
       cp -rf "${libPath}/${libFolderName}/${outputDir}"/* "${backendDependencyPath}/"
 
+      file_replace "\"${libPackageName}\": \"${APP_VERSION}\"" "\"${libPackageName}\": \"file:.dependencies/${libFolderName}\"" "${outputDir}/package.json" "" "%"
+
       for projectLib in ${ts_projectLibs[@]}; do
-        logDebug "projectLib: ${projectLib} ==> lib: ${lib}"
         [[ "${projectLib}" == "${lib}" ]] && break
 
         local nestedLibFolderName="$("${projectLib}.folderName")"
         local nestedLibPackageName="$("${projectLib}.packageName")"
         [[ ! "$(cat "${backendDependencyPath}/package.json" | grep "${nestedLibPackageName}")" ]] && continue
 
-        file_replace "\"${nestedLibPackageName}\": \".?0\.0\.1\"" "\"${nestedLibPackageName}\": \"file:.dependencies/${nestedLibFolderName}\"" "${backendDependencyPath}/package.json" "" "%"
+        file_replace "\"${nestedLibPackageName}\": \"${APP_VERSION}\"" "\"${nestedLibPackageName}\": \"file:.dependencies/${nestedLibFolderName}\"" "${backendDependencyPath}/package.json" "" "%"
       done
     done
+
+    npm run build
+    throwWarning "Error compiling: ${folderName}"
   }
 
   _generate() {

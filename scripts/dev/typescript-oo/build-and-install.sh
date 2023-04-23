@@ -60,7 +60,7 @@ buildWorkspace() {
   #  pnpm.uninstall
   pnpm.install
 
-  new WorkspaceV3 workspace
+  new Workspace workspace
   workspace.appVersion = "${appVersion}"
   workspace.prepare
 
@@ -113,13 +113,13 @@ buildWorkspace() {
   }
 
   [[ "${ThunderstormHome}" ]] && [[ "${ts_linkThunderstorm}" ]] && _pushd "${ThunderstormHome}"
-  createPackages NodePackageV3 "$(workspace.thunderstormVersion)" "${tsLibs[@]}"
+  createPackages NodePackage "$(workspace.thunderstormVersion)" "${tsLibs[@]}"
   [[ "${ThunderstormHome}" ]] && [[ "${ts_linkThunderstorm}" ]] && _popd
 
-  createPackages NodePackageV3 "$(workspace.appVersion)" "${projectLibs[@]}"
+  createPackages NodePackage "$(workspace.appVersion)" "${projectLibs[@]}"
   createPackages ExecutablePackage "$(workspace.appVersion)" "${executableApps[@]}"
-  createPackages FrontendPackageV3 "$(workspace.appVersion)" "${frontendApps[@]}"
-  createPackages BackendPackageV3 "$(workspace.appVersion)" "${backendApps[@]}"
+  createPackages FrontendPackage "$(workspace.appVersion)" "${frontendApps[@]}"
+  createPackages BackendPackage "$(workspace.appVersion)" "${backendApps[@]}"
 
   ((${#_activeLibs[@]} == 0)) && _activeLibs=(${_allLibs[@]})
 

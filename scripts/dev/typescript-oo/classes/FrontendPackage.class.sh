@@ -9,6 +9,7 @@ FrontendPackage() {
     [[ ! "$(array_contains "${folderName}" "${deployableApps[@]}")" ]] && return
 
     logInfo "Deploying: ${folderName}"
+    ${CONST_Firebase} use
     ${CONST_Firebase} deploy --only hosting
     throwWarning "Error while deploying hosting"
     logInfo "Deployed: ${folderName}"
@@ -25,31 +26,7 @@ FrontendPackage() {
 
     [[ -e "${Path_RootRunningDir}/version-app.json" ]] && folder.copyFile "${Path_RootRunningDir}/version-app.json" "./src/main"
 
-    for lib in ${@}; do
-      [[ "${lib}" == "${_this}" ]] && break
-      local libPath="$("${lib}.path")"
-      local libFolderName="$("${lib}.folderName")"
-      local libPackageName="$("${lib}.packageName")"
-
-      [[ ! "$(cat package.json | grep "${libPackageName}")" ]] && continue
-
-      local backendDependencyPath="./.dependencies/${libFolderName}"
-      folder.create "${backendDependencyPath}"
-      cp -rf "${libPath}/${libFolderName}/${outputDir}"/* "${backendDependencyPath}/"
-
-      for projectLib in ${ts_projectLibs[@]}; do
-        logDebug "projectLib: ${projectLib} ==> lib: ${lib}"
-        [[ "${projectLib}" == "${lib}" ]] && break
-
-        local nestedLibFolderName="$("${projectLib}.folderName")"
-        local nestedLibPackageName="$("${projectLib}.packageName")"
-        [[ ! "$(cat "${backendDependencyPath}/package.json" | grep "${nestedLibPackageName}")" ]] && continue
-
-        file_replace "\"${nestedLibPackageName}\": \".?0\.0\.1\"" "\"${nestedLibPackageName}\": \"file:.dependencies/${nestedLibFolderName}\"" "${backendDependencyPath}/package.json" "" "%"
-      done
-    done
-
-    npm run build
+    ENV=${ts_envType} npm run build
     throwWarning "Error compiling: ${folderName}"
   }
 

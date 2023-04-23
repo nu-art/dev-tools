@@ -33,4 +33,6 @@ node.replaceVarsWithValues() {
   }
 
   array.forEach envVars replaceWithVersion
+
+  cat "${packageJson}"
 }

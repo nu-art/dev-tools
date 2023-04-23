@@ -37,3 +37,9 @@ printNodePackageTree() {
   folder.create "${output}"
   npm list > "${output}/${module}.txt"
 }
+
+npm.queryVersion() {
+  local packageName="${1}"
+  local version="${2}"
+  npm view "${packageName}@${version}" version | tail -1 |  sed -E "s/.*'([0-9.]+)'/\1/"
+}

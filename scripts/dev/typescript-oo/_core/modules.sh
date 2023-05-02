@@ -29,6 +29,7 @@ allowedBranchesForPromotion=(
 
 tsLibs=(
   ts-common
+  ts-styles
   google-services
   firebase
   thunderstorm

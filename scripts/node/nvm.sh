@@ -77,6 +77,7 @@ nvm.isVersionInstalled() {
 
 nvm.use() {
   logInfo "NVM - Use required version"
+  logWarning "  nvm use --delete-prefix \"v${requiredNodeVersion}\" --silent"
   nvm use --delete-prefix "v${requiredNodeVersion}" --silent
   nvm use
 }

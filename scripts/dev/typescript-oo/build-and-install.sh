@@ -134,7 +134,7 @@ buildWorkspace() {
   #  workspace.toLog
   workspace.installGlobalPackages
   firebase.setPath
-  workspace.setEnvironment
+  workspace.setupEnv
   local buildStep="${startFromStep}"
   for (( ; buildStep < ${#buildSteps[@]}; buildStep++)); do
     startFromStep=${buildStep}

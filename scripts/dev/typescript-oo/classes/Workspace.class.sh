@@ -121,7 +121,7 @@ Workspace() {
     local command=${1}
     [[ ! "${command}" ]] && throwError "No command specified" 2
     local items=(${2})
-    local p="${startFromPackage}"
+    local p=${startFromPackage}
 
     for (( ; p < ${#items[@]}; p++)); do
       item=${items[${p}]}
@@ -171,7 +171,7 @@ Workspace() {
     assertRepoIsClean
   }
 
-  _setEnvironment() {
+  _setupEnv() {
     [[ "${ts_purge}" ]] && file.delete "${CONST_TS_ENV_FILE}"
 
     local currentEnv=$(this.readConfigProp env)
@@ -195,14 +195,15 @@ Workspace() {
       [[ "${firebaseProject}" ]] && verifyFirebaseProjectIsAccessible "${firebaseProject}"
       [[ "${firebaseProject}" ]] && $(resolveCommand firebase) use "${firebaseProject}"
     fi
-
-    this.apps.forEach setEnvironment
-
     [[ "${ts_envType}" != "local" ]] && compilerFlags+=(--sourceMap false)
 
     echo "env=\"${ts_envType}\"" > "${CONST_TS_ENV_FILE}"
     [[ "${fallbackEnv}" ]] && echo "fb-env=\"${fallbackEnv}\"" >> "${CONST_TS_ENV_FILE}"
     [[ "${ts_linkThunderstorm}" ]] && echo "ts-sources=\"${ts_linkThunderstorm}\"" >> "${CONST_TS_ENV_FILE}"
+  }
+
+  _setEnvironment() {
+    this.apps.forEach setEnvironment
   }
 
   _assertNoCyclicImport() {

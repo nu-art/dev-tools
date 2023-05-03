@@ -3,6 +3,7 @@
 boilerplateRepo="git@github.com:nu-art-js/thunderstorm.git"
 
 buildSteps=(
+  setEnvironment
   printDependencyTree
   cleanEnv
   purge

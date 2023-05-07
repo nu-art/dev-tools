@@ -75,7 +75,7 @@ promptForRepoUrl() {
 
 promptForFirebaseProject() {
   promptUserForInput firebaseProject "Please enter the Firebase Project you will be using:" ${firebaseProject}
-  verifyFirebaseProjectIsAccessible ${firebaseProject}
+  firebase.verifyAccessToProject ${firebaseProject}
   local status=$?
   if [[ "${status}" == "2" ]]; then
     logWarning "Please open another terminal and run 'firebase login' and follow the instruction... \nOnce logged in return to this terminal press enter"

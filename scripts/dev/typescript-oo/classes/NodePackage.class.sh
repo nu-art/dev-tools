@@ -21,6 +21,11 @@ NodePackage() {
     fi
   }
 
+  _checkCyclicImports() {
+    logInfo "Cyclic imports: ${folderName}"
+    npx madge --image "./imports-${folderName}.svg" --circular ./${outputDir}
+  }
+
   _printDependencyTree() {
     logInfo "Dependencies: ${folderName}"
     folder.create "../.trash/dependencies"

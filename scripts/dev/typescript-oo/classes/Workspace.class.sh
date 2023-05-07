@@ -144,6 +144,13 @@ Workspace() {
     exit 0
   }
 
+  _checkCyclicImports() {
+    [[ ! "${ts_checkImports}" ]] && return
+
+    this.active.forEach checkCyclicImports
+    exit 0
+  }
+
   _cleanEnv() {
     [[ ! "${ts_cleanENV}" ]] && return
 
@@ -191,9 +198,9 @@ Workspace() {
     copyConfigFile "./.config/.firebaserc-ENV_TYPE" ".firebaserc" "${ts_envType}" "${fallbackEnv}"
     if [[ "${currentEnv}" != "${ts_envType}" ]]; then
       local firebaseProject="$(getJsonValueForKey .firebaserc default)"
-      [[ "${firebaseProject}" ]] && $(resolveCommand firebase) login
-      [[ "${firebaseProject}" ]] && verifyFirebaseProjectIsAccessible "${firebaseProject}"
-      [[ "${firebaseProject}" ]] && $(resolveCommand firebase) use "${firebaseProject}"
+      [[ "${firebaseProject}" ]] && firebase.login
+      [[ "${firebaseProject}" ]] && firebase.verifyAccessToProject "${firebaseProject}"
+      [[ "${firebaseProject}" ]] && firebase.use "${firebaseProject}"
     fi
     [[ "${ts_envType}" != "local" ]] && compilerFlags+=(--sourceMap false)
 

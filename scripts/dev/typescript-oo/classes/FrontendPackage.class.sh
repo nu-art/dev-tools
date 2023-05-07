@@ -9,9 +9,8 @@ FrontendPackage() {
     [[ ! "$(array_contains "${folderName}" "${deployableApps[@]}")" ]] && return
 
     logInfo "Deploying: ${folderName}"
-    ${CONST_Firebase} use
-    ${CONST_Firebase} deploy --only hosting
-    throwWarning "Error while deploying hosting"
+    firebase.deploy.hosting
+
     logInfo "Deployed: ${folderName}"
   }
 

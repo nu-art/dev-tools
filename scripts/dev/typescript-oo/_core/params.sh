@@ -4,6 +4,7 @@ ts_debug=
 ts_debugBackend=
 
 ts_dependencies=
+ts_checkImports=
 ts_purge=
 ts_clean=
 ts_generateDocs=
@@ -46,6 +47,7 @@ params=(
   printEnv
   testServiceAccount
   ts_dependencies
+  ts_checkImports
   ts_purge
   ts_clean
   ts_installGlobals
@@ -91,6 +93,12 @@ extractParams() {
       #DOC: Will print the projects packages dependencie tree into the .trash folder
 
       ts_dependencies=true
+      ;;
+
+    "--check-cyclic-imports" | "-cci")
+      #DOC: will check for cyclic imports and render an svg with the import graph
+
+      ts_checkImports=true
       ;;
 
     "--print-env")

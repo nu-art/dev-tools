@@ -10,8 +10,7 @@ BackendPackage() {
     [[ ! "$(array_contains "${folderName}" "${deployableApps[@]}")" ]] && return
 
     logInfo "Deploying: ${folderName}"
-    ${CONST_Firebase} --debug deploy --only functions
-    throwWarning "Error while deploying functions"
+    firebase.deploy.functions
     logInfo "Deployed: ${folderName}"
   }
 
@@ -29,7 +28,6 @@ BackendPackage() {
 
     file_replace "\"main\": \"\.?/?${outputDir}/" '"main": "' "${outputDir}/package.json" "" "%"
     file_replace "\"types\": \"\.?/?${outputDir}/" '"types": "' "${outputDir}/package.json" "" "%"
-
     for lib in ${@}; do
       [[ "${lib}" == "${_this}" ]] && break
       local libPath="$("${lib}.path")"
@@ -42,16 +40,17 @@ BackendPackage() {
       folder.create "${backendDependencyPath}"
       cp -rf "${libPath}/${libFolderName}/${outputDir}"/* "${backendDependencyPath}/"
 
-      file_replace "\"${libPackageName}\": \"${APP_VERSION}\"" "\"${libPackageName}\": \"file:.dependencies/${libFolderName}\"" "${outputDir}/package.json" "" "%"
+      file_replace "\"${libPackageName}\": \".*\"" "\"${libPackageName}\": \"file:.dependencies/${libFolderName}\"" "${outputDir}/package.json" "" "%"
 
-      for projectLib in ${ts_projectLibs[@]}; do
+      for projectLib in ${@}; do
         [[ "${projectLib}" == "${lib}" ]] && break
 
         local nestedLibFolderName="$("${projectLib}.folderName")"
         local nestedLibPackageName="$("${projectLib}.packageName")"
         [[ ! "$(cat "${backendDependencyPath}/package.json" | grep "${nestedLibPackageName}")" ]] && continue
+        logWarning "libs ${projectLib} => ${lib}"
 
-        file_replace "\"${nestedLibPackageName}\": \"${APP_VERSION}\"" "\"${nestedLibPackageName}\": \"file:.dependencies/${nestedLibFolderName}\"" "${backendDependencyPath}/package.json" "" "%"
+        file_replace "\"${nestedLibPackageName}\": \".*\"" "\"${nestedLibPackageName}\": \"file:.dependencies/${nestedLibFolderName}\"" "${backendDependencyPath}/package.json" "" "%"
       done
     done
 

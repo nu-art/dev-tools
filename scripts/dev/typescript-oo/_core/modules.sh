@@ -12,6 +12,7 @@ buildSteps=(
   link
   generate
   compile
+  checkCyclicImports
   generateDocs
   lint
   test

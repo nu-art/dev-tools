@@ -48,7 +48,6 @@ BackendPackage() {
         local nestedLibFolderName="$("${projectLib}.folderName")"
         local nestedLibPackageName="$("${projectLib}.packageName")"
         [[ ! "$(cat "${backendDependencyPath}/package.json" | grep "${nestedLibPackageName}")" ]] && continue
-        logWarning "libs ${projectLib} => ${lib}"
 
         file_replace "\"${nestedLibPackageName}\": \".*\"" "\"${nestedLibPackageName}\": \"file:.dependencies/${nestedLibFolderName}\"" "${backendDependencyPath}/package.json" "" "%"
       done

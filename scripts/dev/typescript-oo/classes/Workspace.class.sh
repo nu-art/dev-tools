@@ -2,7 +2,7 @@
 CONST_TS_VER_JSON="version-thunderstorm.json"
 CONST_APP_VER_JSON="version-app.json"
 CONST_TS_ENV_FILE=".ts_env"
-CONST_Version_Typescript=latest
+CONST_Version_Typescript="5.0.4"
 CONST_Version_ESlint=latest
 CONST_Version_FirebaseTools=latest
 

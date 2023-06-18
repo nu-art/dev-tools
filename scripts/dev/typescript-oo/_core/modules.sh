@@ -36,13 +36,12 @@ tsLibs=(
   firebase
   thunderstorm
   db-api-generator
-  storm
+  slack
   live-docs
   user-account
   ts-workspace
   permissions
   push-pub-sub
-  jira
   bug-report
   github
   file-upload

@@ -91,9 +91,11 @@ NodePackage() {
 
     for folder in "${folders[@]}"; do
       [[ "${folder}" == "test" ]] && continue
+      local rootDir="./src/${folder}"
+      local distFolder="${outputDir}"
 
       local absoluteSourcesFolder="$(pwd)/src/${folder}"
-      local absoluteOutputDir="$(pwd)/${outputDir}"
+      local absoluteOutputDir="$(pwd)/${distFolder}"
 
       logInfo "Compiling($(tsc -v)): ${folderName}/${folder}"
       if [[ "${ts_watch}" ]]; then
@@ -106,18 +108,18 @@ NodePackage() {
         if [[ -e "./src/${folder}/tsconfig.json" ]]; then
           [[ "${parts[2]}" ]] && execute "pkill -P ${parts[2]}"
           local command="bash ../relaunch-backend.sh ${absoluteSourcesFolder} ${absoluteOutputDir} ${folderName} ${Path_RootRunningDir}"
-          tsc-watch -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]} --onSuccess "${command}" &
+          tsc-watch -p "./src/${folder}/tsconfig.json" --rootDir "${rootDir}" --outDir "${distFolder}" ${compilerFlags[@]} --onSuccess "${command}" &
           local _pid="${folderName} ${folder} $!"
           logInfo "${_pid}"
           newWatchIds+=("${_pid}")
         fi
       else
         if [[ -e "./src/${folder}/tsconfig.json" ]]; then
-          tsc -p "./src/${folder}/tsconfig.json" --rootDir "./src/${folder}" --outDir "${outputDir}" ${compilerFlags[@]}
+          tsc -p "./src/${folder}/tsconfig.json" --rootDir "${rootDir}" --outDir "${distFolder}" ${compilerFlags[@]}
           throwWarning "Error compiling: ${module}/${folder}"
         fi
 
-        folder.copyFile ./package.json "${outputDir}"
+        folder.copyFile ./package.json "${distFolder}"
       fi
       _cd "${absoluteSourcesFolder}"
       find . -name '*.scss' | cpio -pdm "${absoluteOutputDir}" > /dev/null

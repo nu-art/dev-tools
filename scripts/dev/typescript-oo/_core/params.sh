@@ -310,6 +310,9 @@ extractParams() {
       #NOTE: Running this way expecting the "testServiceAccount" variable to be defined gloabally
 
       [[ ! "${testServiceAccount}" ]] && throwError "MUST specify the path to the testServiceAccount in the .scripts/modules.sh in your project"
+
+      ts_compile=
+      ts_envType=test
       ts_runTests=true
       ;;
 

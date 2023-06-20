@@ -1,7 +1,7 @@
 #!/bin/bash
 
 pnpm.install() {
-  local version="${1:-"8.3.1"}"
+  local version="${1:-"8.6.2"}"
 
   if [[ $(pnpm.isInstalled) -eq 0 ]]; then
     [[ "${version}" == "$(pnpm.version)" ]] && return 0

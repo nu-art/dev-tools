@@ -42,6 +42,7 @@ tsLibs=(
   ts-workspace
   permissions
   push-pub-sub
+  jira
   bug-report
   github
   file-upload

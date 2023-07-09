@@ -229,7 +229,7 @@ Workspace() {
 		bannerInfo "Purge"
 
 		folder.delete node_modules
-		[[ "${ts_linkThunderstorm}" == "true" ]] && folder.delete "./${ThunderstormHome}/node_modules"
+		[[ "${ts_linkThunderstorm}" == "true" ]] && folder.delete "${ThunderstormHome}/node_modules" d
 
 		this.active.forEach purge
 	}

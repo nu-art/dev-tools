@@ -40,6 +40,7 @@ ts_activeLibs=()
 ts_LogLevel=${LOG_LEVEL__INFO}
 PATH_ESLintConfigFile="${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/utils/.eslintrc.js"
 PATH_TypeDocConfigFile="${Path_RootRunningDir}/dev-tools/scripts/dev/typescript-oo/utils/typedoc.json"
+CONST_BuildWatchFile="$(pwd)/.trash/watch.txt"
 
 params=(
   ts_envType
@@ -282,8 +283,6 @@ extractParams() {
       # FUTURE: will build and listen for changes in the libraries
       ts_watch=true
       ts_compile=true
-      CONST_BuildWatchFile="$(pwd)/.trash/watch.txt"
-
       ;;
 
     "--watch-libs" | "-wl")
@@ -291,17 +290,14 @@ extractParams() {
       ts_watch=true
       ts_compile=true
       ts_activeLibs+=("${projectLibs[@]}")
-
-      CONST_BuildWatchFile="$(pwd)/.trash/watch.txt"
       ;;
 
-    "--watch-libs" | "-wl")
+    "--watch-ts" | "-wts")
       # FUTURE: will build and listen for changes in the libraries
       ts_watch=true
       ts_compile=true
-      ts_activeLibs+=("${projectLibs[@]}")
-
-      CONST_BuildWatchFile="$(pwd)/.trash/watch.txt"
+      ts_linkThunderstorm=true
+      ts_activeLibs+=("${tsLibs[@]}")
       ;;
 
       #        ==== TEST ====

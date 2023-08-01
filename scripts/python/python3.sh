@@ -56,8 +56,6 @@ python3.uninstallPackages() {
 
 python3.run() {
 	local pathToMainFile=${1}
-	export PORT=4444
 	export PYTHONPATH=.
 	python3 "${pathToMainFile}" ${@:2}
 }
-ß

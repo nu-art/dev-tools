@@ -10,7 +10,7 @@ pnpm.install() {
   fi
 
   bannerInfo "PNPM - Installing v${version}"
-  curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION="${version}" bash -
+  wget -qO- https://get.pnpm.io/install.sh | env PNPM_VERSION="${version}" bash -
   source "$(shell.getFileRC)"
   logInfo "PNPM - Installed"
 }

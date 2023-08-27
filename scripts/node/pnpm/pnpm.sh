@@ -10,8 +10,11 @@ pnpm.install() {
   fi
 
   bannerInfo "PNPM - Installing v${version}"
-  wget -qO- https://get.pnpm.io/install.sh | env PNPM_VERSION="${version}" bash -
+
+  export PNPM_VERSION=${version}
+  bash ${BASH_SOURCE%/*}/install.sh
   source "$(shell.getFileRC)"
+
   logInfo "PNPM - Installed"
 }
 

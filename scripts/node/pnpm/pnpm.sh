@@ -1,7 +1,7 @@
 #!/bin/bash
 
 pnpm.install() {
-  local version="${1:-"8.6.2"}"
+  local version="${1:-"8.7.0"}"
 
   if [[ $(pnpm.isInstalled) -eq 0 ]]; then
     [[ "${version}" == "$(pnpm.version)" ]] && return 0
@@ -10,8 +10,11 @@ pnpm.install() {
   fi
 
   bannerInfo "PNPM - Installing v${version}"
-  curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION="${version}" bash -
+
+  export PNPM_VERSION=${version}
+  bash ${BASH_SOURCE%/*}/install.sh
   source "$(shell.getFileRC)"
+
   logInfo "PNPM - Installed"
 }
 

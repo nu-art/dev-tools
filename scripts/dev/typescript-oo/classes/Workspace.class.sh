@@ -36,6 +36,11 @@ Workspace() {
 		[[ ! -e "${CONST_TS_VER_JSON}" ]] && throwError "MUST add ${CONST_TS_VER_JSON} to project root" 2
 		if [[ ! "${thunderstormVersion}" ]]; then
 			thunderstormVersion=$(getVersionName "./${CONST_TS_VER_JSON}")
+			if [[ "${ts_linkThunderstorm}" == "true" ]]; then
+				THUNDERSTORM_SDK_VERSION="${thunderstormVersion}"
+				logInfo "Thunderstorm version: ${THUNDERSTORM_SDK_VERSION}"
+				return
+			fi
 		fi
 
 		if [[ "${promoteThunderstormVersion}" ]]; then

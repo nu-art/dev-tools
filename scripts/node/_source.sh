@@ -22,4 +22,4 @@ source ${BASH_SOURCE%/*}/firebase.sh
 source ${BASH_SOURCE%/*}/node.sh
 source ${BASH_SOURCE%/*}/nvm.sh
 source ${BASH_SOURCE%/*}/npm.sh
-source ${BASH_SOURCE%/*}/pnpm.sh
+source ${BASH_SOURCE%/*}/pnpm/pnpm.sh

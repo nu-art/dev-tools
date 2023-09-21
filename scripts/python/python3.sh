@@ -14,9 +14,11 @@ python3.install() {
     python3 -m ensurepip --upgrade
     logInfo "Python3 - Installed ${version}"
   else
-    apt-get update
+    apt update
+    apt upgrade
     bannerInfo "Python3 - Installing v${version}"
-    apt-get install python${version}
+    apt install python${version}
+    apt install python${version}-venv
     python3 -m ensurepip --upgrade
     logInfo "Python3 - Installed ${version}"
   fi

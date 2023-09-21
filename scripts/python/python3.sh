@@ -14,14 +14,14 @@ python3.install() {
     python3 -m ensurepip --upgrade
     logInfo "Python3 - Installed ${version}"
   else
-    apt update
-    apt upgrade
     add-apt-repository ppa:deadsnakes/ppa
-    apt install build-essential checkinstall
-    apt install libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev
+    apt-get update
+    apt-get upgrade
+    apt-get -y install build-essential checkinstall
+    apt-get -y install libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev
     bannerInfo "Python3 - Installing v${version}"
-    apt install python${version}
-    apt install python${version}-venv
+    apt-get -y install python${version}
+    apt-get -y install python${version}-venv
     python3 -m ensurepip --upgrade
     logInfo "Python3 - Installed ${version}"
   fi

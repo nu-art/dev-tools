@@ -16,6 +16,9 @@ python3.install() {
   else
     apt update
     apt upgrade
+    add-apt-repository ppa:deadsnakes/ppa
+    apt install build-essential checkinstall
+    apt install libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev
     bannerInfo "Python3 - Installing v${version}"
     apt install python${version}
     apt install python${version}-venv

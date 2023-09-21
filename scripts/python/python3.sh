@@ -7,11 +7,19 @@ python3.install() {
 		[[ "$(python3.version)" =~ ${version} ]] && return 0
 	fi
 
-	brew update
-	bannerInfo "Python3 - Installing v${version}"
-	brew install python@${version}
-	python3 -m ensurepip --upgrade
-	logInfo "Python3 - Installed ${version}"
+  if [[ $(isMacOS) ]]; then
+    brew update
+    bannerInfo "Python3 - Installing v${version}"
+    brew install python@${version}
+    python3 -m ensurepip --upgrade
+    logInfo "Python3 - Installed ${version}"
+  else
+    apt-get update
+    bannerInfo "Python3 - Installing v${version}"
+    apt-get install python${version}
+    python3 -m ensurepip --upgrade
+    logInfo "Python3 - Installed ${version}"
+  fi
 }
 
 python3.isInstalled() {

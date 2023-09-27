@@ -5,7 +5,7 @@ export LC_ALL=$LANG
 source ./dev-tools/scripts/git/_core.sh
 source ./dev-tools/scripts/firebase/core.sh
 source ./dev-tools/scripts/node/_source.sh
-source ./dev-tools/scripts/node/pnpm.sh
+source ./dev-tools/scripts/node/pnpm/pnpm.sh
 source ./dev-tools/scripts/oos/core/transpiler.sh
 
 Path_RootRunningDir="$(pwd)"

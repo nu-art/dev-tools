@@ -5,9 +5,8 @@ BackendPackage() {
   extends class NodePackage
 
   _deploy() {
-    [[ ! "$(array_contains "${folderName}" "${ts_activeLibs[@]}")" ]] && return
-    [[ ! "$(array_contains "${folderName}" "${ts_deploy[@]}")" ]] && return
-    [[ ! "$(array_contains "${folderName}" "${deployableApps[@]}")" ]] && return
+    [[ ! "$(array_contains "${folderName}" "${ts_deploy[@]}")" ]] && logWarning "not in ts_deploy libs" && return
+    [[ ! "$(array_contains "${folderName}" "${deployableApps[@]}")" ]] && logWarning "not in deployableApps" && return
 
     logInfo "Deploying: ${folderName}"
     firebase.deploy.functions

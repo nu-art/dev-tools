@@ -126,6 +126,7 @@ Workspace() {
 		local command=${1}
 		[[ ! "${command}" ]] && throwError "No command specified" 2
 		local items=(${2})
+
 		local p=${startFromPackage}
 
 		for (( ; p < ${#items[@]}; p++)); do
@@ -133,7 +134,6 @@ Workspace() {
 			startFromPackage=${p}
 			saveState
 
-			#      logDebug "$("${item}.folderName")"
 			_pushd "$("${item}.path")/$("${item}.folderName")"
 			[[ "${item}.${command}" ]] && "${item}.${command}" "${@:3}"
 			(($? > 0)) && throwError "Error executing command: ${item}.${command}"
@@ -337,6 +337,7 @@ Workspace() {
 		logInfo
 		bannerInfo "Deploy"
 
+		logDebug "${ts_deploy[*]}"
 		[[ ! "${ts_envType}" ]] && throwError "MUST set env while deploying!!" 2
 
 		this.apps.forEach deploy

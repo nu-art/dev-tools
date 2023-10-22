@@ -372,10 +372,8 @@ extractParams() {
       ;;
 
     "--deploy" | "-d")
-      ts_deploy+=(${backendApps[@]})
       ts_deploy+=(${frontendApps[@]})
-      ts_activeLibs+=(${backendApps[@]})
-      ts_activeLibs+=(${frontendApps[@]})
+      ts_deploy+=(${backendApps[@]})
 
       ts_link=true
       ;;
@@ -384,7 +382,6 @@ extractParams() {
       #DOC: Will add the provided App to the deploy list
       local packageName="$(regexParam "--deploy|-d" "${paramValue}")"
       ts_deploy+=("${packageName}")
-      ts_activeLibs+=("${packageName}")
 
       ts_link=true
       ;;
@@ -393,8 +390,6 @@ extractParams() {
       #DOC: Will add the app-backend to the deploy list
 
       ts_deploy+=(${backendApps[@]})
-      ts_activeLibs+=(${backendApps[@]})
-
       ts_link=true
       ;;
 
@@ -402,7 +397,6 @@ extractParams() {
       #DOC: Will add the app-frontend to the deploy list
 
       ts_deploy+=(${frontendApps[@]})
-      ts_activeLibs+=(${frontendApps[@]})
       ts_link=true
       ;;
 
@@ -456,9 +450,12 @@ extractParams() {
       #DOC: Will deploy both frontend & backend, without any other lifecycle action
       #WARNING: Use only if you REALLY understand the lifecycle of the project and script!!
       if [[ "${#ts_deploy[@]}" == 0 ]]; then
-        ts_deploy+=(app-backend)
-        ts_deploy+=(app-frontend)
+        ts_deploy+=(${backendApps[@]})
+        ts_deploy+=(${frontendApps[@]})
       fi
+
+      ts_activeLibs+=(${frontendApps[@]})
+      ts_activeLibs+=(${backendApps[@]})
 
       ts_lint=
       ts_compile=

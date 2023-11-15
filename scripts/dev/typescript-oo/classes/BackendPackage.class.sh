@@ -9,7 +9,7 @@ BackendPackage() {
     [[ ! "$(array_contains "${folderName}" "${deployableApps[@]}")" ]] && logWarning "not in deployableApps" && return
 
     logInfo "Deploying: ${folderName}"
-    firebase.deploy.functions
+    firebase.deploy.functions --force
     logInfo "Deployed: ${folderName}"
   }
 

@@ -49,6 +49,6 @@ firebase.deploy.hosting() {
 }
 
 firebase.deploy.functions() {
-  ${CONST_Firebase} --debug deploy --only functions
+  ${CONST_Firebase} --debug deploy --only functions --force
   throwWarning "Error while deploying functions"
 }

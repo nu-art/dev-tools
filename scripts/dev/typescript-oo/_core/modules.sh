@@ -45,6 +45,7 @@ tsLibs=(
   bug-report
   github
   file-upload
+  ts-openai
 )
 
 projectLibs=(

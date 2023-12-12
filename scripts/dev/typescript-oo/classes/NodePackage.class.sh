@@ -204,4 +204,10 @@ NodePackage() {
 	_toLog() {
 		logDebug "${folderName}: ${packageName}"
 	}
+
+	_preBuild() {
+	  	[[ ! -e "prebuild.sh" ]] && return
+	    logInfo "Running pre-build for ${folderName}"
+	  	bash "prebuild.sh"
+	}
 }

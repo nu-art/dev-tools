@@ -11,6 +11,7 @@ buildSteps=(
   install
   link
   generate
+  preBuild
   compile
   checkCyclicImports
   generateDocs

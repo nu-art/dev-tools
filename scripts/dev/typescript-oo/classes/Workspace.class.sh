@@ -388,4 +388,12 @@ Workspace() {
 
 		this.active.forEach toLog
 	}
+
+	_preBuild() {
+    [[ ! "${ts_prebuild}" ]] && return
+    logInfo
+    bannerInfo "Pre Build"
+
+    this.active.forEach preBuild
+	}
 }

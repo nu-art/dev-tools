@@ -10,6 +10,7 @@ ts_clean=
 ts_generateDocs=
 ts_installGlobals=
 ts_installPackages=
+ts_prebuild=true
 ts_compile=true
 ts_watch=
 ts_link=

@@ -46,6 +46,7 @@ tsLibs=(
   github
   file-upload
   ts-openai
+  schema-to-types
 )
 
 projectLibs=(

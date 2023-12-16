@@ -36,6 +36,7 @@ tsLibs=(
   google-services
   firebase
   thunderstorm
+  ts-pdf
   slack
   live-docs
   user-account

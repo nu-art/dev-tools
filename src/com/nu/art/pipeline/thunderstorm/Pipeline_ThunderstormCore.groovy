@@ -66,8 +66,8 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 	}
 
 	T build() {
-		addStage("compile", { this._compile() })
 		addStage("lint", { this._lint() })
+		addStage("compile", { this._compile() })
 		return (T) this
 	}
 

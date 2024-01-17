@@ -112,9 +112,14 @@ class BuildModule
 	}
 
 	String pathToFile(String pathToFile, RunWrapper build = null) {
-		if (build == workflow.getCurrentBuild() || build == null)
-			return "${VarConsts.Var_Workspace.get()}/${pathToFile}"
+		logWarning("Ze 1x PAH")
+		if (build == workflow.getCurrentBuild() || build == null) {
 
+			logWarning("Ze 2x PAH")
+			return "${VarConsts.Var_Workspace.get()}/${pathToFile}"
+		}
+
+		logWarning("Ze 3x PAH")
 		return "${VarConsts.Var_JenkinsHome.get()}/jobs/${VarConsts.Var_JobName.get()}/builds/${build.getNumber()}/${pathToFile}"
 	}
 

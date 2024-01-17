@@ -121,7 +121,7 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 			path = "${repo.getOutputFolder()}/version-app.json"
 
 		logInfo("Ze Zevel")
-		String pathToFile = getModule(BuildModule.class).pathToFile(path)
+		String pathToFile = getModule(BuildModule.class).pathToFile(path, null)
 		logInfo("Ze 2x Zevel")
 
 		if (!workflow.fileExists(pathToFile))

@@ -111,7 +111,11 @@ class BuildModule
 		return "Test Status:\n  Passed: *${passed}*, Failed: *${failed} ${testResultAction.failureDiffString}*, Skipped: *${skipped}*".toString()
 	}
 
-	String pathToFile(String pathToFile, RunWrapper build = null) {
+	String pathToFile(String pathToFile) {
+		return this.pathToFileImpl(pathToFile, null)
+	}
+
+	String pathToFileImpl(String pathToFile, RunWrapper build = null) {
 		logWarning("Ze 1x PAH")
 		if (build == workflow.getCurrentBuild() || build == null) {
 

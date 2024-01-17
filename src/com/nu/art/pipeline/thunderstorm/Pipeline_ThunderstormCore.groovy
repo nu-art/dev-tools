@@ -91,9 +91,9 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 	}
 
 	protected void _compile() {
-	//	String fromCommit = getRepo().getCurrentCommit()
-	//	String toCommit = getModule(GitModule.class).gitStatus(getRepo())?.commitId
-	//  HERE CAN OPTIMIZE
+		//	String fromCommit = getRepo().getCurrentCommit()
+		//	String toCommit = getModule(GitModule.class).gitStatus(getRepo())?.commitId
+		//  HERE CAN OPTIMIZE
 
 		_sh("bash build-and-install.sh --debug")
 	}
@@ -117,9 +117,12 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 	}
 
 	protected String getVersion(String path) {
-		if (!path) path = "${repo.getOutputFolder()}/version-app.json"
+		if (!path)
+			path = "${repo.getOutputFolder()}/version-app.json"
 		String pathToFile = getModule(BuildModule.class).pathToFile(path)
-		if (!workflow.fileExists(pathToFile)) return null
+
+		if (!workflow.fileExists(pathToFile))
+			return null
 
 		String fileContent = workflow.readFile(pathToFile)
 		VersionApp versionApp = Utils.parseJson(fileContent) as VersionApp

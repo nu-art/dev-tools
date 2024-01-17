@@ -113,9 +113,9 @@ class BuildModule
 
 	String pathToFile(String pathToFile, RunWrapper build = null) {
 		if (build == workflow.getCurrentBuild() || build == null)
-			return "${VarConsts.Var_Workspace.get()}/${pathToFile}".toString()
+			return "${VarConsts.Var_Workspace.get()}/${pathToFile}"
 
-		return "${VarConsts.Var_JenkinsHome.get()}/jobs/${VarConsts.Var_JobName.get()}/builds/${build.getNumber()}/${pathToFile}".toString()
+		return "${VarConsts.Var_JenkinsHome.get()}/jobs/${VarConsts.Var_JobName.get()}/builds/${build.getNumber()}/${pathToFile}"
 	}
 
 	CopyArtifacts copyArtifacts(String name, int build) {

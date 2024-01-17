@@ -119,13 +119,19 @@ abstract class Pipeline_ThunderstormCore<T extends Pipeline_ThunderstormCore>
 	protected String getVersion(String path) {
 		if (!path)
 			path = "${repo.getOutputFolder()}/version-app.json"
+
+		logInfo("Ze Zevel")
 		String pathToFile = getModule(BuildModule.class).pathToFile(path)
+		logInfo("Ze 2x Zevel")
 
 		if (!workflow.fileExists(pathToFile))
 			return null
 
+		logInfo("Ze 3x Zevel")
 		String fileContent = workflow.readFile(pathToFile)
+		logInfo("Ze 4x Zevel")
 		VersionApp versionApp = Utils.parseJson(fileContent) as VersionApp
+		logInfo("Ze 5x Zevel")
 		return versionApp.version
 	}
 

@@ -111,11 +111,20 @@ class BuildModule
 		return "Test Status:\n  Passed: *${passed}*, Failed: *${failed} ${testResultAction.failureDiffString}*, Skipped: *${skipped}*".toString()
 	}
 
-	String pathToFile(String pathToFile, RunWrapper build = null) {
-		if (build == workflow.getCurrentBuild() || build == null)
-			return "${VarConsts.Var_Workspace.get()}/${pathToFile}".toString()
+	String pathToFile(String pathToFile) {
+		return this.pathToFileImpl(pathToFile, null)
+	}
 
-		return "${VarConsts.Var_JenkinsHome.get()}/jobs/${VarConsts.Var_JobName.get()}/builds/${build.getNumber()}/${pathToFile}".toString()
+	String pathToFileImpl(String pathToFile, RunWrapper build = null) {
+		logWarning("Ze 1x PAH")
+		if (build == workflow.getCurrentBuild() || build == null) {
+
+			logWarning("Ze 2x PAH")
+			return "${VarConsts.Var_Workspace.get()}/${pathToFile}"
+		}
+
+		logWarning("Ze 3x PAH")
+		return "${VarConsts.Var_JenkinsHome.get()}/jobs/${VarConsts.Var_JobName.get()}/builds/${build.getNumber()}/${pathToFile}"
 	}
 
 	CopyArtifacts copyArtifacts(String name, int build) {

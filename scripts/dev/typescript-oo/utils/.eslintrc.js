@@ -26,5 +26,7 @@ module.exports = {
 		"no-mixed-spaces-and-tabs": "off",
 		"no-unused-vars": "off",
 		"no-useless-escape": "off",
+		"no-inferrable-types": "off",
+		"no-unnecessary-type-constraint": "off",
 	}
 };

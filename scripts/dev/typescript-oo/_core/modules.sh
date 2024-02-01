@@ -40,6 +40,7 @@ tsLibs=(
   slack
   live-docs
   user-account
+  ts-focused-object
   ts-workspace
   permissions
   push-pub-sub

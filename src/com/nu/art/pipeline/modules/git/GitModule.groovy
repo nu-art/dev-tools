@@ -91,6 +91,7 @@ class GitModule
 			toRet
 		} catch (e) {
 			logError("Failed to resolve checkout status file from previous successful .build", e)
+			return null
 		}
 	}
 }

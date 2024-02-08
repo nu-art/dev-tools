@@ -3,7 +3,7 @@ package com.nu.art.pipeline.modules.gcpBucket
 
 import com.nu.art.pipeline.workflow.WorkflowModule
 
-class GCP_BucketModule
+class GCP_Bucket
 	extends WorkflowModule {
 
 
@@ -15,7 +15,7 @@ class GCP_BucketModule
 
 	}
 
-	copyArtifactToBucket(String localPath, String bucketPath) {
+	void copyArtifactToBucket(String localPath, String bucketPath) {
 		workflow.sh "gsutil cp ${localPath} gs://${env.GCS_BUCKET}/${bucketPath}"
 	}
 

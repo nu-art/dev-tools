@@ -10,3 +10,4 @@ class Config_WorkflowLogger extends BeConfig.LoggerConfig {
     setKey("default")
   }
 }
+//yo

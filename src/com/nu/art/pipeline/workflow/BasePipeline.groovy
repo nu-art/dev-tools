@@ -55,6 +55,10 @@ abstract class BasePipeline<T extends BasePipeline>
 		return getModule(BuildModule.class).triggerJob(name)
 	}
 
+	String _sh(String command, readOutput = false) {
+		return workflow.sh(command, readOutput)
+	}
+
 	String getName() {
 		return name
 	}

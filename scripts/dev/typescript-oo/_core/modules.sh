@@ -40,9 +40,10 @@ tsLibs=(
   slack
   live-docs
   user-account
-  ts-focused-object
-  ts-workspace
   permissions
+  ts-focused-object
+  ts-messaging
+  ts-workspace
   push-pub-sub
   jira
   bug-report

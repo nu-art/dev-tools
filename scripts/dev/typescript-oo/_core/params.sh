@@ -223,7 +223,7 @@ extractParams() {
       ;;
 
     "--generate-docs" | "-docs")
-      #DOC: Would link dependencies between project packages
+      #DOC: Would generate ts-docs documentation
 
       ts_generateDocs=true
       ;;

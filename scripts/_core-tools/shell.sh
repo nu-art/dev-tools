@@ -1,7 +1,9 @@
 #!/bin/bash
 
 shell.getFileRC() {
-  if [ -n "$($SHELL -c 'echo $ZSH_VERSION')" ]; then
+  if [ "$SHELL" == "" ]; then
+    echo "${HOME}/.profile"
+  elif [ -n "$($SHELL -c 'echo $ZSH_VERSION')" ]; then
     echo "${HOME}/.zshrc"
   elif [ -n "$($SHELL -c 'echo $BASH_VERSION')" ]; then
     echo "${HOME}/.bashrc"

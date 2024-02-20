@@ -4,12 +4,13 @@ python3.install() {
 	local version="${1:-"3.11"}"
 
 	if [[ $(python3.isInstalled) -eq 0 ]]; then
-		[[ "$(python3.version)" =~ ${version} ]] && return 0
+		if ! [[ "$(python3.version)" =~ ${version} ]]; then
+		  brew update
+	    bannerInfo "Python3 - Installing v${version}"
+	    brew install python@${version}
+		fi
 	fi
 
-	brew update
-	bannerInfo "Python3 - Installing v${version}"
-	brew install python@${version}
 	python3 -m ensurepip --upgrade
 	logInfo "Python3 - Installed ${version}"
 }

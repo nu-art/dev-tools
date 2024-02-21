@@ -9,6 +9,7 @@ python3.install() {
                 brew update
                 bannerInfo "Python3 - Installing v${version}"
                 brew install python@${version}
+				python3 -m ensurepip --upgrade
             else
                 # Assuming apt for non-macOS systems; adjust as necessary
                 bannerInfo "Python3 - Installing v${version}"
@@ -19,7 +20,7 @@ python3.install() {
         fi
     fi
 
-    python3 -m ensurepip --upgrade
+    
     logInfo "Python3 - Installed ${version}"
 }
 

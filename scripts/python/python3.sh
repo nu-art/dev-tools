@@ -1,18 +1,28 @@
 #!/bin/bash
 
+source ../../_core-tools/tools.sh
+
 python3.install() {
-	local version="${1:-"3.11"}"
+    local version="${1:-"3.11"}"
 
-	if [[ $(python3.isInstalled) -eq 0 ]]; then
-		if ! [[ "$(python3.version)" =~ ${version} ]]; then
-		  brew update
-	    bannerInfo "Python3 - Installing v${version}"
-	    brew install python@${version}
-		fi
-	fi
+    if [[ $(python3.isInstalled) -eq 0 ]]; then
+        if ! [[ "$(python3.version)" =~ ${version} ]]; then
+            if [[ $(isMacOS) == "true" ]]; then
+                brew update
+                bannerInfo "Python3 - Installing v${version}"
+                brew install python@${version}
+            else
+                # Assuming apt for non-macOS systems; adjust as necessary
+                bannerInfo "Python3 - Installing v${version}"
+                sudo apt update
+                sudo apt install -y python3 python3-pip
+                # Use update-alternatives to set python3 as the default python version if needed
+            fi
+        fi
+    fi
 
-	python3 -m ensurepip --upgrade
-	logInfo "Python3 - Installed ${version}"
+    python3 -m ensurepip --upgrade
+    logInfo "Python3 - Installed ${version}"
 }
 
 python3.isInstalled() {

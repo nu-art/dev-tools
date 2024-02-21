@@ -15,6 +15,8 @@ python3.install() {
                 bannerInfo "Python3 - Installing v${version}"
                 sudo apt update
                 sudo apt install -y python3 python3-pip
+				python3 --version
+				pip3 --version
                 # Use update-alternatives to set python3 as the default python version if needed
             fi
         fi

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source ../_core-tools/tools.sh
-
 python3.install() {
     local version="${1:-"3.11"}"
 

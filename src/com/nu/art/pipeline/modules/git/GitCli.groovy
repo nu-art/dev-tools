@@ -63,8 +63,8 @@ class GitCli
 		return this
 	}
 
-	GitCli merge(String commitTag) {
-		append("git merge ${commitTag}")
+	GitCli merge(String mergeFrom) {
+		append("git merge ${mergeFrom}")
 		return this
 	}
 

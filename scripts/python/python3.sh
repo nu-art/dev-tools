@@ -40,7 +40,7 @@ python3.installvenv() {
 	if [[ $(isMacOS) == "true" ]]; then
 	  	pip3 install venv
 	else
-	  sudo pt-get install python3-venv
+	  sudo apt-get install python3-venv
 	fi
 }
 

@@ -53,7 +53,10 @@ abstract class Pipeline_PromoteRepo<T extends Pipeline_PromoteRepo>
 
 			GitRepo repo = getModule(GitModule.class).create(Env_RepoUrl.get()).setBranch(toBranch).build()
 			String pathToVersionFile = "${repo.getOutputFolder()}/${this.relativePathToVersionFile}"
-
+			_sh("""
+				git config --global user.email "jenkins@quai.md"
+  				git config --global user.name "Jenkins-quai"
+				""")
 			GitCli
 				.create(repo)
 				.clone(repo.config)

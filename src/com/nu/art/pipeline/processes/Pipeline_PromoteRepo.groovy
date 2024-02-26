@@ -51,22 +51,18 @@ abstract class Pipeline_PromoteRepo<T extends Pipeline_PromoteRepo>
 			String fromBranch = Env_FromBranch.get()
 			String toBranch = Env_ToBranch.get()
 
-			GitRepo repo = getModule(GitModule.class).create(Env_RepoUrl.get()).setBranch(fromBranch).build()
+			GitRepo repo = getModule(GitModule.class).create(Env_RepoUrl.get()).setBranch(toBranch).build()
 			String pathToVersionFile = "${repo.getOutputFolder()}/${this.relativePathToVersionFile}"
 
-			repo.cloneRepo()
 			GitCli
 				.create(repo)
-				.checkout(fromBranch)
+				.clone(repo.config)
+				.checkout(toBranch)
 				.gsui()
-				.skipSubmodules(Env_AlignSubmodules.get() != "true")
-				.alignSubmodules()
-				.forEach({ GitCli.create().checkout(fromBranch).gsui() }, "dev-tools")
-				.forAll({ GitCli.create().checkout(toBranch).pull("--ff-only") }, "dev-tools")
-				.forAll({ GitCli.create().merge("origin/${fromBranch}") }, "dev-tools")
-				.forAll({ GitCli.create().commit("Merged origin/${fromBranch} => ${toBranch}").push() }, "dev-tools")
+				.merge("origin/${fromBranch}")
+				.gsui()
+				.push()
 				.execute()
-
 
 			String beforeVersion = readVersion(pathToVersionFile)
 

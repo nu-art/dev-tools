@@ -58,10 +58,13 @@ abstract class Pipeline_PromoteRepo<T extends Pipeline_PromoteRepo>
 				.create(repo)
 				.clone(repo.config)
 				.checkout(toBranch)
+				.pwd()
 				.gsui()
 				.merge("origin/${fromBranch}")
+				.pwd()
 				.gsui()
 				.push()
+				.pwd()
 				.execute()
 
 			String beforeVersion = readVersion(pathToVersionFile)

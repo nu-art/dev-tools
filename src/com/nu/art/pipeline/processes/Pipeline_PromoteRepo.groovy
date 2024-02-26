@@ -51,8 +51,14 @@ abstract class Pipeline_PromoteRepo<T extends Pipeline_PromoteRepo>
             String fromBranch = Env_FromBranch.get()
             String toBranch = Env_ToBranch.get()
 
-            GitRepo repo = getModule(GitModule.class).create(Env_RepoUrl.get()).setBranch(toBranch).build()
+            GitRepo repo = getModule(GitModule.class)
+                    .create(Env_RepoUrl.get())
+                    .setBranch(toBranch)
+                    .setOutputFolder("KUKU")
+                    .build()
+
             String pathToVersionFile = "${repo.getOutputFolder()}/${this.relativePathToVersionFile}"
+
             GitCli
                     .create(repo)
                     .runInRepoFolder(false)

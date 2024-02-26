@@ -1,5 +1,7 @@
 package com.nu.art.pipeline.modules.git
 
+import com.nu.art.pipeline.workflow.Workflow
+
 class Cli<T extends Cli> {
 	public static Cli _continue
 	public static Cli _break
@@ -83,12 +85,15 @@ class Cli<T extends Cli> {
 
 	T append(String command) {
 		script = "${script}${command}${command.endsWith("\n") ? "" : "\n"}"
-
 		return (T) this
 	}
 
 	T append(Cli cli) {
 		String script = cli.script.replaceAll("^", "  ").replaceAll("\n", "\n  ")
 		append(script.substring(0, script.length() - 2))
+	}
+
+	String execute(output = false) {
+		return Workflow.workflow.sh(this.script, output)
 	}
 }

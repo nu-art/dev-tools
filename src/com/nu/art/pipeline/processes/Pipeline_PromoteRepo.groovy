@@ -106,11 +106,27 @@ abstract class Pipeline_PromoteRepo<T extends Pipeline_PromoteRepo>
     }
 
     @SuppressWarnings('GrMethodMayBeStatic')
-    String promoteVersion(String version, int index) {
-        String[] versionParts = version.split("\\.")
-        versionParts[index] = "${versionParts[index].toInteger() + 1}".toString()
+    def promoteVersion(String version, int index) {
+        logDebug("papa ${version}, ${index}")
+
+        if (index != 1 && index != 2) {
+            throw new IllegalArgumentException("Index must be either 1 or 2..")
+        }
+
+        def versionParts = version.split("\\.")
+
+        versionParts[index] = (versionParts[index].toInteger() + 1).toString()
+
+        if (index == 1) {
+            versionParts[2] = "0"
+        }
+
         return versionParts.join(".")
     }
+
+
+
+
 
     @SuppressWarnings('GrMethodMayBeStatic')
     int deriveIndexToPromote(Var_Env var) {

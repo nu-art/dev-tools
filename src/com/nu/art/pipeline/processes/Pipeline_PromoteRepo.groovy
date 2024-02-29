@@ -56,14 +56,22 @@ abstract class Pipeline_PromoteRepo<T extends Pipeline_PromoteRepo>
                     .setBranch(toBranch)
                     .build()
 
+            // define path to version-app file in repo
             String pathToVersionFile = "${repo.getOutputFolder()}/${this.relativePathToVersionFile}"
 
+            // clone and checkout fromBranch
             GitCli
                     .create(repo)
                     .runInRepoFolder(false)
                     .clone(repo.config)
+                    .checkout(fromBranch)
                     .execute()
 
+            // read version of the fromBranch
+            String beforeVersion = readVersion(pathToVersionFile)
+
+            // merge fromBranch to the toBranch
+            // push toBranch and checkout fromBranch again
             GitCli
                     .create(repo)
                     .checkout(toBranch)
@@ -71,26 +79,28 @@ abstract class Pipeline_PromoteRepo<T extends Pipeline_PromoteRepo>
                     .merge("origin/${fromBranch}")
                     .gsui()
                     .push()
-                    .execute()
-
-            String beforeVersion = readVersion(pathToVersionFile)
-
-            GitCli
-                    .create(repo)
-                    .createTag("v${beforeVersion}-${toBranch}").pushTags()
                     .checkout(fromBranch)
                     .execute()
 
+            // tag commit of both branches
+            GitCli
+                    .create(repo)
+                    .createTag("${toBranch}-v${beforeVersion}").pushTags()
+                    .execute()
+
+            // used to decide if the branch you wish to push the code will promote the code version or not
             if (Env_Promote.get() == "none")
                 return
 
+            //iserts the output of promoteVersion
             String afterVersion = promoteVersion(beforeVersion, deriveIndexToPromote(Env_Promote))
             saveVersion(pathToVersionFile, afterVersion)
 
+            //pushes to dev branch the new version of code using promoteVersion function
             GitCli
                     .create(repo)
                     .commit("Promoted version to: ${beforeVersion} => ${afterVersion}").push()
-                    .createTag("v${afterVersion}-${fromBranch}").pushTags()
+                    .createTag("${fromBranch}-v${afterVersion}").pushTags()
                     .execute()
         })
     }

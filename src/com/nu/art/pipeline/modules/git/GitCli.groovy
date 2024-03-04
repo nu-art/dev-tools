@@ -76,7 +76,7 @@ class GitCli
     }
 
     GitCli pushTags() {
-        append("git push --tags")
+        append("git push --tags --force")
         return this
     }
 

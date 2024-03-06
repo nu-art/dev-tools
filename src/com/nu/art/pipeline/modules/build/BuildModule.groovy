@@ -9,7 +9,7 @@ import hudson.tasks.test.AbstractTestResultAction
 import org.jenkinsci.plugins.pipeline.utility.steps.fs.FileWrapper
 import org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper
 
-class BuildModule
+public class BuildModule
 	extends WorkflowModule {
 
 	TriggerCause[] triggers

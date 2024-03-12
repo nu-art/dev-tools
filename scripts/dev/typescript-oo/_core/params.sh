@@ -357,19 +357,19 @@ extractParams() {
     "--launch-frontend" | "-lf")
       #DOC: Will add the app-frontend to the launch list
       ts_launch+=(${frontendApps[@]})
-      ts_activeLibs+=(${frontendApps[@]})
+#      ts_activeLibs+=(${frontendApps[@]})
       ;;
 
     "--launch-backend" | "-lb")
       #DOC: Will add the app-backend to the launch list
-      ts_launch+=(app-backend)
-      ts_activeLibs+=(${backendApps[@]})
+      ts_launch+=(${backendApps[@]})
+#      ts_activeLibs+=(${backendApps[@]})
       ;;
 
     "--debug-backend" | "-lbd")
       #DOC: Will add the app-backend to the launch list
       ts_debugBackend="--debug"
-      ts_launch+=(app-backend)
+      ts_launch+=(${backendApps[@]})
       ;;
 
     "--deploy" | "-d")

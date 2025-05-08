@@ -1,78 +1,100 @@
-#
-#  This file is a part of nu-art projects development tools,
-#  it has a set of bash and gradle scripts, and the default
-#  settings for Android Studio and IntelliJ.
-#
-#     Copyright (C) 2017  Adam van der Kruk aka TacB0sS
-#
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#          You may obtain a copy of the License at
-#
-#  http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
-
 #!/bin/bash
-source ${BASH_SOURCE%/*}/../_core-tools/_source.sh
 
-for ((lastParam = 1; lastParam <= $#; lastParam += 1)); do
-  paramValue="${!lastParam}"
-  case ${paramValue} in
-  "--output="*)
-    outputFolder=$(regexParam "--output" "${paramValue}")
-    echo "outputFolder=${outputFolder}"
-    ;;
+# ==================================================
+# Generate a self-signed SSL certificate with SAN support
+# For local development (supports wildcard subdomains like *.localhost)
+#
+# Author: Based on original work by Adam van der Kruk aka TacB0sS
+# Updated: 2025
+# License: Apache 2.0
+# ==================================================
 
-  "--postfix="*)
-    postfix=$(regexParam "--postfix" "${paramValue}")
-    postfix="-${postfix}"
-    ;;
+# Default values
+DOMAIN="localhost"
+OUTPUT_DIR="."
+POSTFIX=""
+ORG_NAME="DEV"
+SUBDOMAINS=()
 
-  "--domain="*)
-    domain=$(regexParam "--domain" "${paramValue}")
-    ;;
-
-  "*")
-    echo "UNKNOWN PARAM: ${paramValue}"
-    exit 1
-    ;;
+# Parse arguments
+for arg in "$@"; do
+  case $arg in
+    --output=*)
+      OUTPUT_DIR="${arg#*=}"
+      ;;
+    --postfix=*)
+      POSTFIX="-${arg#*=}"
+      ;;
+    --domain=*)
+      DOMAIN="${arg#*=}"
+      ;;
+    --sub-domain=*)
+      SUBDOMAINS+=("${arg#*=}")
+      ;;
+    --org-name=*)
+      ORG_NAME="${arg#*=}"
+      ;;
+    *)
+      echo "❌ Unknown parameter: ${arg}"
+      exit 1
+      ;;
   esac
 done
 
-if [[ ! "${domain}" ]]; then
-  domain="localhost"
-fi
+# Ensure output directory exists
+mkdir -p "${OUTPUT_DIR}"
 
-if [[ ! "${outputFolder}" ]]; then
-  outputFolder="."
-fi
+# Filenames
+KEY_FILE="${OUTPUT_DIR}/server-key${POSTFIX}.pem"
+CERT_FILE="${OUTPUT_DIR}/server-cert${POSTFIX}.pem"
+CONFIG_FILE="${OUTPUT_DIR}/openssl-${DOMAIN}${POSTFIX}.cnf"
 
-if [[ ! -d "${outputFolder}" ]]; then
-  mkdir "${outputFolder}"
-fi
+# Generate temporary OpenSSL config with SAN support
+cat > "${CONFIG_FILE}" <<EOF
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+req_extensions = req_ext
+distinguished_name = dn
 
-tempFile="${outputFolder}/server-temp${postfix}.pem"
-certificateFile="${outputFolder}/server-cert${postfix}.pem"
-keyFile="${outputFolder}/server-key${postfix}.pem"
+[dn]
+C = US
+ST = ${ORG_NAME}
+L = ${ORG_NAME}
+O = ${ORG_NAME}
+OU = ${ORG_NAME}
+CN = ${ORG_NAME}
 
+[req_ext]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = *.${DOMAIN}
+DNS.2 = ${DOMAIN}
+EOF
+
+# Add subdomains to the SAN section
+DNS_INDEX=3
+for SUBDOMAIN in "${SUBDOMAINS[@]}"; do
+  echo "DNS.${DNS_INDEX} = ${SUBDOMAIN}.${DOMAIN}" >> "${CONFIG_FILE}"
+  ((DNS_INDEX++))
+done
+
+# Generate private key and certificate
 openssl req \
-  -newkey rsa:2048 \
   -x509 \
   -nodes \
-  -keyout "${tempFile}" \
-  -new \
-  -out "${certificateFile}" \
-  -subj /CN=${domain} \
-  -reqexts SAN \
-  -extensions SAN \
-  -config <(cat /System/Library/OpenSSL/openssl.cnf \
-    <(printf "[SAN]\nsubjectAltName=DNS:${domain}")) \
-  -sha256 \
-  -days 3650
+  -days 825 \
+  -newkey rsa:2048 \
+  -keyout "${KEY_FILE}" \
+  -out "${CERT_FILE}" \
+  -config "${CONFIG_FILE}" \
+  -extensions req_ext
 
-openssl rsa -in "${tempFile}" -out "${keyFile}"
+# Cleanup
+rm "${CONFIG_FILE}"
+
+echo "✅ Certificate created:"
+echo "   Key:  ${KEY_FILE}"
+echo "   Cert: ${CERT_FILE}"

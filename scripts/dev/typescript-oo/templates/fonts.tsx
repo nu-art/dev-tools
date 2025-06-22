@@ -1,4 +1,3 @@
-import * as React from 'react';
 
 
 function fontRenderer(text: string, fontFamily: string, color: string = '#000000', fontSize: number = 16) {

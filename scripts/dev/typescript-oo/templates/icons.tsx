@@ -1,4 +1,3 @@
-import * as React from 'react';
 import {ElementType, HTMLAttributes} from 'react';
 import {_className} from '@nu-art/thunderstorm/frontend';
 import {_keys} from '@nu-art/ts-common';

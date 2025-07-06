@@ -13,10 +13,12 @@ nvm.installAndUseNvmIfNeeded() {
 
 nvm.prepare() {
   export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 }
 
 nvm.isInstalled() {
-  [[ -d "${NVM_DIR}" ]] && echo "true"
+  [[ -z "$NVM_DIR" ]] || [[ ! -e "$NVM_DIR" ]] && return 1
 }
 
 nvm.uninstall() {
@@ -25,7 +27,7 @@ nvm.uninstall() {
 
 # shellcheck disable=SC2120
 nvm.install() {
-  local version="${1:-"0.35.3"}"
+  local version="${1:-"0.40.2"}"
 
   logInfo
   bannerInfo "NVM - Installing v${version}"
@@ -39,11 +41,6 @@ nvm.install() {
   echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm' >> "${shellRCFile}"
   echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion' >> "${shellRCFile}"
   logInfo "NVM - Installed"
-}
-
-nvm.source() {
-  # shellcheck source=./$HOME/.nvm
-  [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh" # This loads nvm
 }
 
 nvm.assert() {
@@ -80,4 +77,46 @@ nvm.use() {
   logWarning "  nvm use --delete-prefix \"v${requiredNodeVersion}\" --silent"
   nvm use --delete-prefix "v${requiredNodeVersion}" --silent
   nvm use
+}
+
+## @function: nvm.isolate(label, ...nodeVersion)
+##
+## @description: clone a node version folder and give it an alias
+##
+
+nvm.isolate() {
+  nvm.prepare
+
+  local label="$1"
+  local nodeVersion="$2"
+  local src="$NVM_DIR/versions/node/v$nodeVersion"
+  local dst="$NVM_DIR/versions/node/v$nodeVersion-$label"
+
+  # Check if nvm is installed, if not install it
+  if [ -z "$NVM_DIR" ] || [ ! -e "$NVM_DIR" ]; then
+    echo "Installing nvm..."
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.2/install.sh | bash
+  fi
+
+  if [[ ${freshStart} ]]; then
+    rm -rf "$dst"
+  fi
+
+  if [ ! -d "$dst" ]; then
+    echo "Cloning Node $nodeVersion for project '$label'..."
+    nvm install
+    mv "$src" "$dst"
+  fi
+
+  # Install the required Node.js version
+
+  echo "Creating alias '$label'..."
+  nvm alias "$label" "v$nodeVersion-$label"
+  nvm use "$label"
+
+  # Check if pnpm is installed, if not install it
+  if ! command -v pnpm &> /dev/null; then
+    echo "Installing pnpm..."
+    npm install -g pnpm
+  fi
 }

@@ -41,7 +41,8 @@ test_folder_clear_clears_content() {
   mkdir -p .tmp-fs/clear-me/inner
   touch .tmp-fs/clear-me/file.txt
   folder.clear .tmp-fs/clear-me
-  expect "$(ls .tmp-fs/clear-me | wc -l)" to.equal "0"
+  local contents=$(ls -A .tmp-fs/clear-me | wc -l | xargs)
+  expect "$contents" to.equal "0"
 }
 
 test_folder_list_outputs_subdirs() {

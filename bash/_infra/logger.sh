@@ -1,3 +1,4 @@
+// file: ./core/tools/logger.sh
 #!/bin/bash
 
 LOG_LEVEL__VERBOSE=0
@@ -6,52 +7,37 @@ LOG_LEVEL__INFO=2
 LOG_LEVEL__WARNING=3
 LOG_LEVEL__ERROR=4
 
-logLevel=${LOG_LEVEL__INFO}
-LOG_COLORS=("${NoColor}" "${BBlue}" "${BGreen}" "${BYellow}" "${BRed}")
-LOG_PREFIX=("-V-" "-D-" "-I-" "-W-" "-E-")
+logger_level=${LOG_LEVEL__VERBOSE}
+logger_colors=("${NoColor}" "${BBlue}" "${BGreen}" "${BYellow}" "${BRed}")
+logger_prefixes=("-V-" "-D-" "-I-" "-W-" "-E-")
 
-CONST_Debug=
-CONST_DebugFile=
+logger_debugEnabled=
+logger_debugFile=
 
-setDebugLogFile() {
-  CONST_DebugFile=${1}
-  CONST_Debug=true
-  deleteFile "${CONST_DebugFile}"
+logger.setDebugFile() {
+  logger_debugFile=${1}
+  logger_debugEnabled=true
+  rm -f "${logger_debugFile}"
 }
 
-setDebugLog() {
-  CONST_Debug=${1}
+logger.setDebug() {
+  logger_debugEnabled=${1}
 }
 
-setLogLevel() {
+logger.setLevel() {
   case ${1} in
-  0 | 1 | 2 | 3 | 4)
-    logLevel=${1}
-    ;;
-
-  *)
-    logError "Wrong log level"
-    exit
-    ;;
+    0 | 1 | 2 | 3 | 4)
+      logger_level=${1}
+      ;;
+    *)
+      log.error "Wrong log level"
+      exit
+      ;;
   esac
 }
 
-setSummaryFile() {
-  summaryFile="${1}"
-  echo "#!/bin/bash" > "${summaryFile}"
-  echo "echo " >> "${summaryFile}"
-  echo "echo " >> "${summaryFile}"
-  echo "echo -e \"${BCyan} ----------------   ___ _   _ __  __ __  __   _   _____   __  ---------------- ${NoColor}\"" >> "${summaryFile}"
-  echo "echo -e \"${BCyan} ----------------  / __| | | |  \/  |  \/  | /_\ | _ \ \ / /  ---------------- ${NoColor}\"" >> "${summaryFile}"
-  echo "echo -e \"${BCyan} ----------------  \__ \ |_| | |\/| | |\/| |/ _ \|   /\ V /   ---------------- ${NoColor}\"" >> "${summaryFile}"
-  echo "echo -e \"${BCyan} ----------------  |___/\___/|_|  |_|_|  |_/_/ \_\_|_\ |_|    ---------------- ${NoColor}\"" >> "${summaryFile}"
-  echo "echo -e \"${BCyan} ----------------                                             ---------------- ${NoColor}\"" >> "${summaryFile}"
-  echo "echo " >> "${summaryFile}"
-
-}
-
-setLogFile() {
-  setLogLevel "${1}"
+logger.setFile() {
+  logger.setLevel "${1}"
   local relativePathToLogFolder=${2}
   local logFilePrefix=${3}
 
@@ -60,105 +46,57 @@ setLogFile() {
 
   [[ ! -d "${logsFolder}" ]] && folder.create "${logsFolder}"
 
-  logFile="${logsFolder}/${logFilePrefix}-log-${dateTimeFormatted}.txt"
-  echo > "${logFile}"
+  local logger_logFile="${logsFolder}/${logFilePrefix}-log-${dateTimeFormatted}.txt"
+  touch "${logger_logFile}"
 }
 
-log() {
+_logger.log() {
   local level=$1
   local logMessage=$2
-  local override=$3
-  local _override
 
-  local color=${LOG_COLORS[${level}]}
+  local color=${logger_colors[${level}]}
 
-  [[ "${override}" ]] && _override="n"
+  ((level < logger_level)) && return
 
-  ((level < logLevel)) && return
-
-  #    For Debug
-  #    echo "echo -e${_override} \"${color}${logMessage}${NoColor}\"\\r"
   startTimer "log-tools"
   local duration=$(calcDuration "rootTimer")
-  logDate="(${duration}) "$(date +"%Y-%m-%d_%H:%M:%S")
-  logMessage=${logMessage//$'\n'/'\n'${NoColor}${logDate} $$  ${color}}
-  echo -e${_override} "${logDate} $$  ${color}${logMessage}${NoColor}"\\r
+  local logDate="(${duration}) $(date +"%Y-%m-%d_%H:%M:%S")"
+  logMessage=${logMessage//$'\n'/"\n"${NoColor}${logDate} $$  ${color}}
+  echo -e "${logDate} $$  ${color}${logMessage}${NoColor}"\r
 }
 
-logVerbose() {
-  log 0 "${1}" "${2}"
-}
+log.verbose() { _logger.log 0 "$1"; }
+log.debug()   { _logger.log 1 "$1"; }
+log.info()    { _logger.log 2 "$1"; }
+log.warning() { _logger.log 3 "$1"; }
+log.error()   { _logger.log 4 "$1"; }
 
-logDebug() {
-  log 1 "${1}" "${2}"
-}
+banner.verbose() { _logger.banner 0 "$1" "$2"; }
+banner.debug()   { _logger.banner 1 "$1" "$2"; }
+banner.info()    { _logger.banner 2 "$1" "$2"; }
+banner.warning() { _logger.banner 3 "$1" "$2"; }
+banner.error()   { _logger.banner 4 "$1" "$2"; }
 
-logInfo() {
-  log 2 "${1}" "${2}"
-}
-
-logWarning() {
-  log 3 "${1}" "${2}"
-}
-
-logError() {
-  log 4 "${1}" "${2}"
-}
-
-bannerVerbose() {
-  banner 0 "${1}" "${2}"
-}
-
-bannerDebug() {
-  banner 1 "${1}" "${2}"
-}
-
-bannerInfo() {
-  banner 2 "${1}" "${2}"
-}
-
-bannerWarning() {
-  banner 3 "${1}" "${2}"
-}
-
-bannerError() {
-  banner 4 "${1}" "${2}"
-}
-
-banner() {
+_logger.banner() {
   local level=$1
   local logMessage=$2
   local color=$3
-  local nocolor=${LOG_COLORS[${level}]}
+  local nocolor=${logger_colors[${level}]}
 
   local add="$(echo "$logMessage" | sed -E 's/./-/g')"
-  log ${level} "+---$add---+"
-  log ${level} "|   ${color}${logMessage}${nocolor}   |"
-  log ${level} "+---$add---+"
+  _logger.log ${level} "+---$add---+"
+  _logger.log ${level} "|   ${color}${logMessage}${nocolor}   |"
+  _logger.log ${level} "+---$add---+"
 }
 
-_logVerbose() {
-  _log logVerbose "${@}"
-}
+_log.Verbose() { _logger._log log.verbose "$@"; }
+_log.Debug()   { _logger._log log.debug "$@"; }
+_log.Info()    { _logger._log log.info "$@"; }
+_log.Warning() { _logger._log log.warning "$@"; }
+_log.Error()   { _logger._log log.error "$@"; }
 
-_logDebug() {
-  _log logDebug "${@}"
-}
-
-_logInfo() {
-  _log logInfo "${@}"
-}
-
-_logWarning() {
-  _log logWarning "${@}"
-}
-
-_logError() {
-  _log logError "${@}"
-}
-
-_log() {
-  [[ ! "${CONST_Debug}" ]] && return
-  [[ "${CONST_DebugFile}" ]] && ${1} >&2 "- DEBUG - ${@:2}" >> "${CONST_DebugFile}" && return
-  ${1} >&2 "- DEBUG - ${@:2}"
+_logger._log() {
+  [[ ! "$logger_debugEnabled" ]] && return
+  [[ "$logger_debugFile" ]] && ${1} "- DEBUG - ${*:2}" >> "$logger_debugFile" && return
+  ${1} "- DEBUG - ${*:2}"
 }

@@ -37,8 +37,8 @@ Workspace() {
 		if [[ ! "${thunderstormVersion}" ]]; then
 			thunderstormVersion=$(getVersionName "./${CONST_TS_VER_JSON}")
 			if [[ "${ts_linkThunderstorm}" == "true" ]]; then
-				THUNDERSTORM_SDK_VERSION="${thunderstormVersion}"
-				logInfo "Thunderstorm version: ${THUNDERSTORM_SDK_VERSION}"
+				THUNDERSTORM_DEP_VERSION="${thunderstormVersion}"
+				logInfo "Thunderstorm version: ${THUNDERSTORM_DEP_VERSION}"
 				return
 			fi
 		fi
@@ -54,8 +54,8 @@ Workspace() {
 		fi
 
 		local latestVersion=$(npm.queryVersion "@nu-art/ts-common" "${thunderstormVersion}")
-		THUNDERSTORM_SDK_VERSION="${latestVersion}"
-		logInfo "Thunderstorm version: ${THUNDERSTORM_SDK_VERSION}"
+		THUNDERSTORM_DEP_VERSION="${latestVersion}"
+		logInfo "Thunderstorm version: ${THUNDERSTORM_DEP_VERSION}"
 	}
 
 	_setAppVersion() {

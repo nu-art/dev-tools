@@ -22,14 +22,15 @@ def applyAndroidApplication(id, apkName) {
 	apply plugin: 'com.android.application'
 
 	project.android {
+		namespace id
+
 		defaultConfig {
 			applicationId id
 		}
 
 		def rootProjectPath = rootProject.projectDir.getAbsolutePath()
 
-		compileSdkVersion COMPILE_SDK.toInteger()
-		buildToolsVersion TOOLS_VERSION
+		compileSdk COMPILE_SDK.toInteger()
 
 		defaultConfig {
 			multiDexEnabled true
@@ -40,10 +41,10 @@ def applyAndroidApplication(id, apkName) {
 			versionCode getVersionCodeFromFile()
 			project.version = versionName
 
-			testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+			testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 		}
 
-		lintOptions {
+		lint {
 			checkReleaseBuilds false
 			abortOnError false
 		}
@@ -74,20 +75,21 @@ def applyAndroidXApplication(id, apkName) {
 	apply plugin: 'com.android.application'
 
 	project.android {
+		namespace id
+
 		defaultConfig {
 			applicationId id
 		}
 
 		def rootProjectPath = rootProject.projectDir.getAbsolutePath()
 
-		compileSdkVersion COMPILE_SDK.toInteger()
-		buildToolsVersion TOOLS_VERSION
+		compileSdk COMPILE_SDK.toInteger()
 
 		defaultConfig {
 			multiDexEnabled true
 
-			minSdkVersion MIN_SDK
-			targetSdkVersion TARGET_SDK
+			minSdk MIN_SDK
+			targetSdk TARGET_SDK
 			versionName getVersionNameFromFile()
 			versionCode getVersionCodeFromFile()
 			project.version = versionName
@@ -95,7 +97,7 @@ def applyAndroidXApplication(id, apkName) {
 			testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 		}
 
-		lintOptions {
+		lint {
 			checkReleaseBuilds false
 			abortOnError false
 		}
@@ -128,11 +130,13 @@ def applyAndroidLibrary() {
 		def rootProjectPath = rootProject.projectDir.getAbsolutePath()
 		apply from: rootProjectPath + '/dev-tools/gradle/utils.gradle'
 
-		compileSdkVersion COMPILE_SDK.toInteger()
-		if (!checkMinGradleVersion("4.4"))
-			buildToolsVersion TOOLS_VERSION
+		if (project.hasProperty('namespace')) {
+			namespace project.namespace
+		}
 
-		lintOptions {
+		compileSdk COMPILE_SDK.toInteger()
+
+		lint {
 			abortOnError false
 		}
 
@@ -146,12 +150,10 @@ def applyAndroidLibrary() {
 			targetSdkVersion TARGET_SDK
 			versionName getVersionNameFromFile()
 			project.version = versionName
-			testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+			testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
 			javaCompileOptions {
-				annotationProcessorOptions {
-					includeCompileClasspath false
-				}
+				// includeCompileClasspath removed in AGP 8
 			}
 		}
 

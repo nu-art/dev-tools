@@ -20,13 +20,14 @@
 
 def addJavadocTask() {
     android.libraryVariants.all { variant ->
+        def javaCompile = variant.hasProperty('javaCompileProvider') ? variant.javaCompileProvider.get() : variant.javaCompile
         task("generate${variant.name}Javadoc", type: Javadoc) {
             title = "Documentation for Android $android.defaultConfig.versionName b$android.defaultConfig.versionCode"
             description "Generates Javadoc for $variant.name."
 
             destinationDir = new File("${project.getProjectDir()}/build/doc/compiled/", variant.baseName)
-            source = variant.javaCompile.source
-            classpath = files(variant.javaCompile.classpath.files, project.android.getBootClasspath())
+            source = javaCompile.source
+            classpath = files(javaCompile.classpath.files, project.android.getBootClasspath())
 
             options {
                 links "http://docs.oracle.com/javase/7/docs/api/"
@@ -244,7 +245,8 @@ def addTasks_AndroidSourceAndDocs() {
     task javadoc(type: Javadoc) {
         failOnError false
         source = android.sourceSets.main.java.sourceFiles
-        classpath = files(project.files(android.getBootClasspath().join(File.pathSeparator)), project.android.getBootClasspath(), configurations.compile)
+        def compileConfig = configurations.findByName('compileClasspath') ?: configurations.compile
+        classpath = files(project.files(android.getBootClasspath().join(File.pathSeparator)), project.android.getBootClasspath(), compileConfig)
 
         options {
             links "http://docs.oracle.com/javase/7/docs/api/"

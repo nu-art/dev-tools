@@ -38,7 +38,8 @@ def addTasks_AndroidSourceAndDocs() {
     task javadoc(type: Javadoc) {
         failOnError false
         source = android.sourceSets.main.java.sourceFiles
-        classpath = files(project.files(android.getBootClasspath().join(File.pathSeparator)), project.android.getBootClasspath(), configurations.compile)
+        def compileConfig = configurations.findByName('compileClasspath') ?: configurations.compile
+        classpath = files(project.files(android.getBootClasspath().join(File.pathSeparator)), project.android.getBootClasspath(), compileConfig)
 
         options {
             links "http://docs.oracle.com/javase/7/docs/api/"
@@ -99,7 +100,7 @@ def addTask_DeployToCentral(groupId, githubRepoOwner, _packaging) {
 
         repositories {
             mavenDeployer {
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+                beforeDeployment { deployment -> signing.signPom(deployment) }
 
                 repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
                     authentication(userName: userName, password: password)
